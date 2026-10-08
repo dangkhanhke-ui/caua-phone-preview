@@ -1,0 +1,58 @@
+name: Install Facebook HD assets
+on:
+  push:
+    paths:
+      - 'fb-uploads/**'
+      - '.github/workflows/install-facebook-hd.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: facebook-hd-assets
+  cancel-in-progress: false
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install matched Facebook images safely
+        env:
+          FB_KEYS: 'avatar,cover,birthday,friends2015,tattooshop,party1,party2,beach,group,meeting,oldparty,fyp01_img,fyp02_img,fyp03_img,fyp04_img,fyp08_img,fyp10_img,fyp12_img,fyp15_img,fyp18_img,fyp23_img,fyp26_img,fyp28_img,fyp30_img,fyp32_img,fyp34_img,fyp41_img,fyp45_img,fyp49_img,ad_condom,ad_law,ad_agar,phone_screen'
+        run: |
+          python3 - <<'PY'
+          import os,re
+          from pathlib import Path
+          html_file=Path('index.html')
+          html=html_file.read_text(encoding='utf-8')
+          source=Path('fb-uploads')
+          destination=Path('assets/facebook')
+          destination.mkdir(parents=True,exist_ok=True)
+          changed=0
+          for key in os.environ['FB_KEYS'].split(','):
+              matches=[p for p in source.glob(key+'.*') if p.suffix.lower() in ('.jpg','.jpeg','.png','.webp')]
+              if len(matches)>1:raise SystemExit('Duplicate formats for '+key)
+              if not matches:continue
+              f=matches[0]
+              target=destination/(key+f.suffix.lower())
+              target.write_bytes(f.read_bytes())
+              new_url='./'+target.as_posix()
+              if key=='phone_screen':
+                  print('Stored phone_screen as asset; screen placement is not mapped yet')
+                  changed+=1
+                  continue
+              pattern=r'("'+re.escape(key)+r'"\s*:\s*")[^"]+'
+              html,count=re.subn(pattern,lambda m:m.group(1)+new_url,html,count=1)
+              if count!=1:raise SystemExit('Facebook key not found in HTML: '+key)
+              changed+=1
+          if changed:
+              html_file.write_text(html,encoding='utf-8')
+          print('Stored',changed,'Facebook assets')
+          PY
+      - name: Commit assets for Vercel
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/facebook
+          git diff --cached --quiet && exit 0
+          git commit -m "Install uploaded Facebook images"
+          git push
