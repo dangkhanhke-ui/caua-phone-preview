@@ -3313,6 +3313,13 @@ body,
 #messagesApp .msg-convo-scroll .msg-line{width:100%;}
 #messagesApp .msg-bubble{flex:0 1 auto;max-width:76%;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap;}
 </style>
+<style id="ios-universal-scroll-indicator">
+/* One unobtrusive iOS-like indicator, instead of desktop scrollbar tracks. */
+#screen,#screen *{scrollbar-width:none!important;-ms-overflow-style:none!important}
+#screen::-webkit-scrollbar,#screen *::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}
+#screen .ios-scroll-indicator{position:absolute;z-index:9999;right:2px;top:0;width:3px;height:22px;border-radius:99px;background:rgba(94,98,107,.48);box-shadow:0 0 0 .25px rgba(255,255,255,.22);pointer-events:none;opacity:0;transition:opacity .22s ease;will-change:transform,opacity}
+#screen .ios-scroll-indicator.visible{opacity:1}
+</style>
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -8268,5 +8275,35 @@ document.getElementById('homeButton')?.addEventListener('click',close,true);
 })();
 </script>
 <script src="./assets/shared-photo-zoom.js?v=20261009c"></script>
+<script id="ios-universal-scroll-indicator-js">
+(()=>{'use strict';
+const screen=document.getElementById('screen');if(!screen||screen.querySelector('.ios-scroll-indicator'))return;
+const thumb=document.createElement('div');thumb.className='ios-scroll-indicator';thumb.setAttribute('aria-hidden','true');screen.appendChild(thumb);
+let current=null,hideTimer=0,tick=0;
+function refresh(){
+ tick=0;
+ const el=current;
+ if(!el||!el.isConnected||!screen.contains(el)||el.clientHeight<24||el.scrollHeight<=el.clientHeight+3){thumb.classList.remove('visible');return;}
+ const sr=screen.getBoundingClientRect(),r=el.getBoundingClientRect();
+ const top=Math.max(sr.top,r.top),bottom=Math.min(sr.bottom,r.bottom);
+ if(bottom-top<20){thumb.classList.remove('visible');return;}
+ const screenScale=screen.clientHeight/sr.height;
+ const trackTop=(top-sr.top)*screenScale,trackH=(bottom-top)*screenScale;
+ const total=el.scrollHeight-el.clientHeight;
+ const h=Math.max(15,Math.min(trackH,trackH*(el.clientHeight/el.scrollHeight)));
+ const y=trackTop+(trackH-h)*(el.scrollTop/total);
+ thumb.style.height=h+'px';thumb.style.transform='translate3d(0,'+y+'px,0)';
+ thumb.classList.add('visible');
+ clearTimeout(hideTimer);hideTimer=setTimeout(()=>thumb.classList.remove('visible'),850);
+}
+screen.addEventListener('scroll',event=>{
+ const el=event.target;
+ if(!(el instanceof HTMLElement)||el===screen||el.scrollHeight<=el.clientHeight+3)return;
+ current=el;if(!tick)tick=requestAnimationFrame(refresh);
+},true);
+window.addEventListener('resize',()=>{if(current&&thumb.classList.contains('visible')&&!tick)tick=requestAnimationFrame(refresh);},{passive:true});
+document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.classList.remove('visible');current=null;},true);
+})();
+</script>
 </body>
 </html>
