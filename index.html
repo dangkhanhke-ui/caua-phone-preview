@@ -3787,14 +3787,13 @@ body,
     }catch(e){return current}
   })();
   function fitPhone() {
-    const margin = innerWidth < 520 ? 12 : 30;
-    const browserZoom = Math.max(.3,(window.devicePixelRatio||phoneBaseDPR)/phoneBaseDPR);
-    const natural = 1.12 / browserZoom;
-    const scale = Math.min(
-      (innerWidth-margin*2)/375,
-      (innerHeight-margin*2)/791,
-      natural
-    );
+    // Fit nearly edge-to-edge on mobile while keeping the full Home button visible.
+    // The handset is a single uniformly scaled canvas, never an independently zoomed UI.
+    const viewport=window.visualViewport;
+    const width=viewport?.width||innerWidth;
+    const height=viewport?.height||innerHeight;
+    const safe=width<600?4:12;
+    const scale=Math.min((width-safe*2)/375,(height-safe*2)/791);
     document.documentElement.style.setProperty('--phone-scale',Math.max(.2,scale).toFixed(4));
   }
 
@@ -3949,6 +3948,7 @@ body,
   });
 
   window.addEventListener('resize', fitPhone, { passive:true });
+  window.visualViewport?.addEventListener('resize',fitPhone,{passive:true});
   fitPhone();
   showLock();
 })();
@@ -8150,5 +8150,68 @@ html,body{overscroll-behavior:none}
     if((e.ctrlKey||e.metaKey)&&e.target.closest('.stage'))prevent(e);
   },{passive:false,capture:true});
 })();
-</script></body>
+</script><style id="fb15-image-viewer-style">
+#facebookApp .fb15-post .fb15-media.photo img,
+#facebookApp .fb15-post .fb15-link-thumb.photo img,
+#facebookApp .fb15-photo-grid img,
+#facebookApp .fb15-profile-cover img{cursor:zoom-in}
+#facebookApp .fb15-image-viewer{position:absolute;inset:0;z-index:9999;background:#050505;display:flex;flex-direction:column;color:white;touch-action:none;overscroll-behavior:contain}
+#facebookApp .fb15-viewer-bar{height:45px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 7px;background:#151515;font:14px Arial,sans-serif}
+#facebookApp .fb15-viewer-bar button{border:0;color:#fff;background:transparent;padding:7px 9px;font-size:14px}
+#facebookApp .fb15-viewer-tools{display:flex;gap:8px}
+#facebookApp .fb15-viewer-tools button{font-size:21px;min-width:33px}
+#facebookApp .fb15-viewer-stage{min-height:0;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;position:relative}
+#facebookApp .fb15-viewer-stage img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;transform-origin:center center;touch-action:none;pointer-events:none;will-change:transform}
+#facebookApp .fb15-viewer-caption{text-align:center;font-size:11px;padding:8px;background:#151515;color:#ddd;flex:none}
+</style>
+<script id="fb15-image-viewer-script">
+(()=>{'use strict';
+const app=document.getElementById('facebookApp');if(!app)return;
+let viewer=null,img=null,zoom=1,x=0,y=0,pointers=new Map(),gesture=null,usedTouch=false;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function draw(){
+ if(!img)return;
+ const st=viewer.querySelector('.fb15-viewer-stage');
+ const maxX=Math.max(0,st.clientWidth*(zoom-1)/2),maxY=Math.max(0,st.clientHeight*(zoom-1)/2);
+ x=clamp(x,-maxX,maxX);y=clamp(y,-maxY,maxY);
+ img.style.transform='translate('+x+'px,'+y+'px) scale('+zoom+')';
+ viewer.querySelector('[data-fb-zoom-value]').textContent=Math.round(zoom*100)+'%';
+}
+function update(z){zoom=clamp(z,1,5);if(zoom===1){x=0;y=0;}draw()}
+function close(){if(viewer){viewer.remove();viewer=null;img=null;pointers.clear();gesture=null}}
+function open(src){
+ close();viewer=document.createElement('div');viewer.className='fb15-image-viewer';
+ viewer.innerHTML='<div class="fb15-viewer-bar"><button type="button" data-fb-image-close>‹ Quay lại</button><div class="fb15-viewer-tools"><button type="button" data-fb-image-out aria-label="Thu nhỏ">−</button><span data-fb-zoom-value style="font-size:11px;align-self:center">100%</span><button type="button" data-fb-image-in aria-label="Phóng to">+</button></div></div><div class="fb15-viewer-stage"><img alt="Ảnh Facebook"></div><div class="fb15-viewer-caption">Chạm hai lần hoặc dùng hai ngón tay để phóng to</div>';
+ img=viewer.querySelector('img');img.src=src;app.appendChild(viewer);zoom=1;x=y=0;draw();
+}
+app.addEventListener('click',e=>{
+ const closeBtn=e.target.closest('[data-fb-image-close]');if(closeBtn){e.preventDefault();close();return}
+ if(!viewer){const photo=e.target.closest('.fb15-post .fb15-media.photo img,.fb15-post .fb15-link-thumb.photo img,.fb15-photo-grid img,.fb15-profile-cover img');if(photo){e.preventDefault();e.stopPropagation();open(photo.currentSrc||photo.src)}return}
+ if(e.target.closest('[data-fb-image-in]')){e.preventDefault();update(zoom+0.5)}
+ if(e.target.closest('[data-fb-image-out]')){e.preventDefault();update(zoom-0.5)}
+},true);
+app.addEventListener('dblclick',e=>{if(viewer&&e.target.closest('.fb15-viewer-stage')){e.preventDefault();update(zoom>1?1:2.5)}},true);
+app.addEventListener('wheel',e=>{if(viewer&&e.target.closest('.fb15-viewer-stage')){e.preventDefault();update(zoom*(e.deltaY<0?1.13:1/1.13))}},{capture:true,passive:false});
+app.addEventListener('pointerdown',e=>{
+ if(!viewer||!e.target.closest('.fb15-viewer-stage'))return;
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointers.size===2){const p=[...pointers.values()];gesture={kind:'pinch',distance:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)||1,startZoom:zoom};}
+ else gesture={kind:'pan',px:e.clientX,py:e.clientY,x,y};
+},{capture:true});
+app.addEventListener('pointermove',e=>{
+ if(!viewer||!pointers.has(e.pointerId))return;
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointers.size===2&&gesture?.kind==='pinch'){
+ const p=[...pointers.values()];update(gesture.startZoom*Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)/gesture.distance);e.preventDefault();
+ }else if(pointers.size===1&&gesture?.kind==='pan'&&zoom>1){
+ x=gesture.x+(e.clientX-gesture.px);y=gesture.y+(e.clientY-gesture.py);draw();e.preventDefault();
+ }
+},{capture:true,passive:false});
+const end=e=>{pointers.delete(e.pointerId);if(pointers.size<2)gesture=null;};
+['pointerup','pointercancel'].forEach(t=>app.addEventListener(t,end,true));
+document.addEventListener('keydown',e=>{if(viewer&&e.key==='Escape')close()},true);
+document.getElementById('homeButton')?.addEventListener('click',close,true);
+})();
+</script>
+</body>
 </html>
