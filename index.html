@@ -7477,7 +7477,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
 
     if (source) {
       const clone = source.cloneNode(true);
-      stripIds(clone);
+      clone.setAttribute('inert',''); clone.setAttribute('aria-hidden','true');
       clone.classList.add('open');
       clone.style.pointerEvents = 'none';
       clone.style.zIndex = '1';
