@@ -1,0 +1,10 @@
+/* CAUA Facebook: render original photo proportions without cropping (2026-10-09). */
+#facebookApp .fb15-media.photo{height:auto!important;min-height:0!important;overflow:visible!important;background:#f3f4f6}
+#facebookApp .fb15-media.photo img,
+#facebookApp .fb15-media.photo.landscape img,
+#facebookApp .fb15-media.photo.square img,
+#facebookApp .fb15-media.photo.portrait img{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:center center!important}
+#facebookApp .fb15-link-thumb.photo{height:auto!important;min-height:0!important;overflow:hidden!important}
+#facebookApp .fb15-link-thumb.photo img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important}
+#facebookApp .fb15-ad-thumb.photo img{display:block!important;object-fit:contain!important;object-position:center!important}
+#facebookApp .fb15-photo-grid img{object-fit:contain!important;object-position:center!important;background:#f1f1f1}
