@@ -37,7 +37,7 @@ jobs:
           pattern=r'(\.wa-chat-canvas\s*\{)([^}]*)(\})'
           def update(match):
               css=match.group(2)
-              if 'background:' not in css:
+              if not re.search(r'background(?:-image)?\\s*:',css):
                   raise SystemExit('Background CSS property not found')
               css,n=re.subn(r'background\s*:\s*[^;]+;',lambda _: 'background:#efe8dc url("'+url+'") center center / cover no-repeat;',css,count=1)
               if n!=1:raise SystemExit('Could not change chat canvas background')
