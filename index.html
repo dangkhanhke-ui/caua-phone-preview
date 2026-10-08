@@ -3235,7 +3235,27 @@ body,
 }
 .phone-call-btn::after{content:none!important;}
 </style>
-<style id="wa-hd-chat-wallpaper">#whatsappApp .wa-chat-canvas{background-image:url("./assets/whatsapp/whatsapp_chat_bg.png")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}</style></head>
+<style id="wa-hd-chat-wallpaper">#whatsappApp .wa-chat-canvas{background-image:url("./assets/whatsapp/whatsapp_chat_bg.png")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}</style><style id="caua-phone-facebook-20261009">
+/* Lift the end-call button nearer the lower call-control row. */
+.phone-hangup { bottom:100px!important; width:84px!important; height:84px!important; }
+.phone-hangup::before {
+  content:""!important; position:absolute!important; left:50%!important; top:50%!important;
+  width:47px!important; height:47px!important; border:0!important; border-radius:0!important;
+  background:#fff!important; background-image:none!important;
+  transform:translate(-50%,-50%)!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.57.94l-2.84 1.65c-.46.27-1.05.2-1.43-.18L.3 12.97c-.4-.4-.4-1.05.03-1.45C3.43 8.76 7.53 7 12 7s8.57 1.76 11.67 4.52c.42.4.43 1.05.02 1.45l-2.27 2.26c-.38.38-.96.45-1.43.18l-2.82-1.65c-.35-.2-.57-.57-.57-.98V9.72C15.15 9.25 13.6 9 12 9z'/%3E%3C/svg%3E") center/contain no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.57.94l-2.84 1.65c-.46.27-1.05.2-1.43-.18L.3 12.97c-.4-.4-.4-1.05.03-1.45C3.43 8.76 7.53 7 12 7s8.57 1.76 11.67 4.52c.42.4.43 1.05.02 1.45l-2.27 2.26c-.38.38-.96.45-1.43.18l-2.82-1.65c-.35-.2-.57-.57-.57-.98V9.72C15.15 9.25 13.6 9 12 9z'/%3E%3C/svg%3E") center/contain no-repeat!important;
+}
+#facebookApp.caua-fb-loading::before {
+  content:""; position:absolute; inset:0; z-index:999; background:#3b5998; pointer-events:auto;
+}
+#facebookApp.caua-fb-loading::after {
+  content:"f"; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  z-index:1000; color:#fff; font-family:Arial,Helvetica,sans-serif;
+  font-weight:700; font-size:114px; line-height:1; pointer-events:auto;
+}
+</style>
+</head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
     <div class="phone-wrap" id="phoneWrap">
@@ -8004,5 +8024,21 @@ if(s)s.innerHTML=svg('<circle cx="10.5" cy="10.5" r="7"/><path d="m15.8 15.8 5.1
 if(c)c.innerHTML=svg('<path d="M18.5 12.3V20H4V5.5h9"/><path d="M12 13 20.5 4.5"/><path d="M16.5 4.5h4v4"/>');
 if(m)m.innerHTML=svg('<circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/>');
 })();
-</script></body>
+</script><script id="caua-phone-facebook-20261009-js">
+(function(){
+  var launcher=document.querySelector('.facebook-launch');
+  var facebook=document.getElementById('facebookApp');
+  if(!launcher||!facebook)return;
+  var release=0;
+  launcher.addEventListener('click',function(){
+    clearTimeout(release);
+    facebook.classList.add('caua-fb-loading');
+    release=setTimeout(function(){facebook.classList.remove('caua-fb-loading')},1600);
+  },true);
+  document.getElementById('homeButton')?.addEventListener('click',function(){
+    clearTimeout(release);facebook.classList.remove('caua-fb-loading');
+  },true);
+})();
+</script>
+</body>
 </html>
