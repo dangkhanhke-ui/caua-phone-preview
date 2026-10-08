@@ -86,7 +86,7 @@ function attach(stage,img){
  img.addEventListener('load',()=>draw(),{once:true});
  draw();
 }
-const fb=document.getElementById('facebookApp'),wa=document.getElementById('waIos15');
+const fb=document.getElementById('facebookApp'),waHost=document.getElementById('whatsappApp');
 let overlay=null;
 function close(){if(overlay){overlay.remove();overlay=null}}
 function open(src){
@@ -106,12 +106,12 @@ if(fb)fb.addEventListener('click',e=>{
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')close()},true);
 document.getElementById('homeButton')?.addEventListener('click',close,true);
-if(wa){
+if(waHost){
  const watch=new MutationObserver(()=>{
-  const viewer=wa.querySelector('.wai-viewer');
-  if(viewer&&!viewer.dataset.cauaZoomBound){viewer.dataset.cauaZoomBound='1';const img=viewer.querySelector('img');if(img)attach(viewer,img);}
+  const viewer=waHost.querySelector('.wai-viewer');
+  if(viewer&&!viewer.dataset.cauaZoomBound){const img=viewer.querySelector('img');if(img)attach(viewer,img);}
  });
- watch.observe(wa,{childList:true,subtree:true});
- const initial=wa.querySelector('.wai-viewer');if(initial)attach(initial,initial.querySelector('img'));
+ watch.observe(waHost,{childList:true,subtree:true});
+ const initial=waHost.querySelector('.wai-viewer');if(initial)attach(initial,initial.querySelector('img'));
 }
 })();
