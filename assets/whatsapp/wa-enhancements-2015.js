@@ -83,6 +83,8 @@ function setTab(next){
   if(next==='chats')renderChats();
   else if(next==='contacts')renderContacts();
   else if(next==='recents')renderCalls();
+  else if(next==='settings')settings();
+  else if(next==='favorites')renderFavorites();
 }
 function chooseContact(t){closeSheet();setTab('chats');saved.unread[t.id]=false;persist();api.openThread(t.id)}
 function newChat(){
@@ -106,14 +108,28 @@ function createGroup(){
   saved.groups.push({...t,events:[]});api.THREADS.unshift(t);persist();chooseContact(t);
   toast('Đã tạo nhóm mô phỏng');
 }
+function ownerPhoto(){return saved.avatarData&&saved.avatarData.startsWith('data:image/')?saved.avatarData:'./assets/facebook/avatar.jpg'}
 function settings(){
-  const checks=[['notifications','Thông báo','Bật thông báo trong mô phỏng'],['lowData','Sử dụng dữ liệu thấp','Giảm dữ liệu khi gọi thoại'],['videoBackup','Bao gồm video khi sao lưu','Tùy chọn có trong bản tháng 8/2015']];
-  const body='<div class="wa-ext-section">Hồ sơ Cauã</div><div class="wa-ext-card"><button class="wa-ext-line" data-wa-ext-about>Trạng thái <small>'+safe(saved.about)+'</small></button></div>'+
-   '<div class="wa-ext-section">Chat và cuộc gọi</div><div class="wa-ext-card">'+checks.map(([k,n,d])=>'<label class="wa-ext-line"><span>'+n+'<small style="display:block;margin-top:4px">'+d+'</small></span><input type="checkbox" data-wa-ext-pref="'+k+'" '+(saved.settings[k]?'checked':'')+'></label>').join('')+'</div>'+
-   '<div class="wa-ext-section">Dữ liệu</div><div class="wa-ext-card"><button class="wa-ext-line" data-wa-ext-archive>Cuộc trò chuyện đã lưu trữ <small>'+Object.values(saved.archived).filter(Boolean).length+'</small></button><button class="wa-ext-line" data-wa-ext-web>WhatsApp Web <small>2015</small></button></div>'+
-   '<div class="wa-ext-muted">Các cài đặt và thao tác chỉ lưu trong trình duyệt này. Không kết nối tài khoản WhatsApp hoặc iCloud thật.</div>';
-  showSheet('Cài đặt',body);
+  const owner=saved.ownerName||'Cauã Valença';
+  const checks=[['notifications','Thông báo','Bật thông báo trong mô phỏng'],['lowData','Sử dụng dữ liệu thấp','Giảm dữ liệu khi gọi thoại'],['videoBackup','Bao gồm video khi sao lưu','Tùy chọn năm 2015']];
+  panel.innerHTML='<div class="wa-ext-section">Tài khoản</div>'+
+    '<button class="wa-owner-summary" data-wa-ext-profile type="button"><img src="'+ownerPhoto()+'" alt="Ảnh Cauã"><span><strong>'+safe(owner)+'</strong><small>'+safe(saved.about||'Có sẵn')+'</small></span><b>›</b></button>'+
+    '<div class="wa-ext-section">Tùy chọn</div><div class="wa-ext-card">'+
+    checks.map(([k,n,d])=>'<label class="wa-ext-line"><span>'+n+'<small style="display:block;margin-top:4px">'+d+'</small></span><input type="checkbox" data-wa-ext-pref="'+k+'" '+(saved.settings[k]?'checked':'')+'></label>').join('')+'</div>'+
+    '<div class="wa-ext-section">Dữ liệu và riêng tư</div><div class="wa-ext-card"><button class="wa-ext-line" data-wa-ext-archive>Chat đã lưu trữ <small>'+Object.values(saved.archived).filter(Boolean).length+'</small></button><button class="wa-ext-line" data-wa-ext-web>WhatsApp Web <small>2015</small></button></div>'+
+    '<div class="wa-ext-muted">Hồ sơ và cài đặt chỉ lưu cục bộ trong bản mô phỏng, không đồng bộ với WhatsApp thật.</div>';
 }
+function showOwnerProfile(){
+  const owner=saved.ownerName||'Cauã Valença';
+  const html='<div class="wa-owner-photo-wrap"><img class="wa-owner-photo" src="'+ownerPhoto()+'" alt="Ảnh đại diện của Cauã"><label class="wa-owner-photo-change">Đổi ảnh<input id="waExtOwnerPhoto" type="file" accept="image/jpeg,image/png,image/webp" hidden></label></div>'+
+   '<div class="wa-ext-section">Tên hiển thị</div><input class="wa-ext-field" id="waExtOwnerName" maxlength="45" value="'+safe(owner)+'">'+
+   '<div class="wa-ext-muted">Tên này hiển thị cho người khác trên WhatsApp.</div>'+
+   '<div class="wa-ext-section">Trạng thái</div><input class="wa-ext-field" id="waExtOwnerAbout" maxlength="139" value="'+safe(saved.about||'Có sẵn')+'">'+
+   '<div class="wa-ext-section">Số điện thoại</div><div class="wa-owner-number">Chưa có số điện thoại của Cauã trong dữ liệu case</div>'+
+   '<div class="wa-ext-bottom"><button class="wa-ext-action" id="waExtOwnerSave" type="button">Lưu hồ sơ</button></div>';
+  showSheet('Hồ sơ',html);
+}
+function renderFavorites(){panel.innerHTML='<div class="wa-ext-section">Liên hệ WhatsApp</div>'+contacts().map(t=>row(t)).join('')}
 function archived(){
   const threads=api.THREADS.filter(t=>saved.archived[t.id]);
   showSheet('Chat đã lưu trữ','<div class="wa-ext-section">'+threads.length+' cuộc trò chuyện</div>'+(threads.map(t=>'<button class="wa-ext-row" data-wa-ext-unarchive="'+safe(t.id)+'">'+face(t)+'<span class="wa-ext-row-copy"><b>'+safe(t.name)+'</b><small>Nhấn để bỏ lưu trữ</small></span></button>').join('')||empty('Chưa có cuộc trò chuyện lưu trữ.')));
@@ -178,7 +194,7 @@ listView.addEventListener('click',e=>{
   const button=e.target.closest('[data-wa-tab],#waComposeNew');
   if(!button)return;
   e.stopImmediatePropagation();e.preventDefault();
-  if(button.id==='waComposeNew')newChat();else if(['chats','contacts','recents'].includes(button.dataset.waTab))setTab(button.dataset.waTab);
+  if(button.id==='waComposeNew')newChat();else if(['chats','contacts','recents','settings','favorites'].includes(button.dataset.waTab))setTab(button.dataset.waTab);
 },true);
 app.addEventListener('click',e=>{
   const pop=e.target.closest('.wa-android-popup button');
@@ -187,7 +203,7 @@ app.addEventListener('click',e=>{
     app.querySelector('.wa-android-popup')?.classList.remove('show');
     const label=pop.textContent.trim().toLocaleLowerCase('vi');
     if(label.includes('nhóm'))groupPicker();
-    else if(label.includes('cài đặt'))settings();
+    else if(label.includes('cài đặt'))setTab('settings');
     else if(label.includes('whatsapp web'))showSheet('WhatsApp Web', '<div class="wa-ext-empty">Tính năng WhatsApp Web xuất hiện trên iPhone từ tháng 8/2015. Trên máy tính, mở web.whatsapp.com rồi dùng điện thoại quét mã QR. Bản mockup này không đăng nhập dịch vụ thật.</div>');
     else if(label.includes('trạng thái'))showAbout();
     else toast('Danh sách phát: sẽ hoàn thiện trong đợt tiếp theo');
@@ -195,11 +211,12 @@ app.addEventListener('click',e=>{
   }
   const contact=e.target.closest('[data-wa-ext-contact]');
   if(contact){e.stopPropagation();const t=find(contact.dataset.waExtContact);if(t)chooseContact(t);return}
-  const btn=e.target.closest('[data-wa-ext-close],[data-wa-ext-pick],[data-wa-ext-group-next],[data-wa-ext-group-create],[data-wa-ext-about],[data-wa-ext-archive],[data-wa-ext-web],[data-wa-ext-unarchive],[data-wa-ext-search-thread],[data-wa-ext-gallery],[data-wa-ext-toggle-unread],[data-wa-ext-mute],[data-wa-ext-mute-set],[data-wa-ext-archive-thread],[data-wa-ext-photo],[data-wa-ext-jump],[data-wa-ext-call],[data-wa-ext-end-call],[data-wa-ext-share-contact],[data-wa-ext-send-contact],[data-wa-ext-share-location],[data-wa-ext-photos]');
+  const btn=e.target.closest('[data-wa-ext-profile],[data-wa-ext-close],[data-wa-ext-pick],[data-wa-ext-group-next],[data-wa-ext-group-create],[data-wa-ext-about],[data-wa-ext-archive],[data-wa-ext-web],[data-wa-ext-unarchive],[data-wa-ext-search-thread],[data-wa-ext-gallery],[data-wa-ext-toggle-unread],[data-wa-ext-mute],[data-wa-ext-mute-set],[data-wa-ext-archive-thread],[data-wa-ext-photo],[data-wa-ext-jump],[data-wa-ext-call],[data-wa-ext-end-call],[data-wa-ext-share-contact],[data-wa-ext-send-contact],[data-wa-ext-share-location],[data-wa-ext-photos]');
   if(!btn)return;
   e.preventDefault();e.stopPropagation();
   const t=api.getCurrent();
-  if(btn.hasAttribute('data-wa-ext-close'))closeCallUI();
+  if(btn.hasAttribute('data-wa-ext-profile'))showOwnerProfile();
+  else if(btn.hasAttribute('data-wa-ext-close'))closeCallUI();
   else if(btn.hasAttribute('data-wa-ext-pick')){const id=btn.dataset.waExtPick;selected.has(id)?selected.delete(id):selected.add(id);btn.classList.toggle('selected',selected.has(id))}
   else if(btn.hasAttribute('data-wa-ext-group-next'))groupName();
   else if(btn.hasAttribute('data-wa-ext-group-create'))createGroup();
@@ -223,8 +240,26 @@ app.addEventListener('click',e=>{
   else if(btn.hasAttribute('data-wa-ext-photos'))gallery();
 },true);
 function showAbout(){showSheet('Trạng thái của Cauã','<input class="wa-ext-field" id="waExtAboutValue" maxlength="130" value="'+safe(saved.about)+'"><div class="wa-ext-bottom"><button class="wa-ext-action" id="waExtSaveAbout">Lưu trạng thái</button></div>')}
-sheet.addEventListener('click',e=>{if(e.target.id==='waExtSaveAbout'){saved.about=sheet.querySelector('#waExtAboutValue')?.value.trim()||'Có sẵn';persist();settings()}});
-sheet.addEventListener('change',e=>{if(e.target.matches('[data-wa-ext-pref]')){saved.settings[e.target.dataset.waExtPref]=e.target.checked;persist()}});
+sheet.addEventListener('click',e=>{if(e.target.id==='waExtOwnerSave'){
+  const owner=sheet.querySelector('#waExtOwnerName')?.value.trim();
+  if(!owner){toast('Cần nhập tên hiển thị');return}
+  saved.ownerName=owner;saved.about=sheet.querySelector('#waExtOwnerAbout')?.value.trim()||'Có sẵn';persist();
+  settings();showOwnerProfile();toast('Đã lưu hồ sơ Cauã trên thiết bị');
+} else if(e.target.id==='waExtSaveAbout'){saved.about=sheet.querySelector('#waExtAboutValue')?.value.trim()||'Có sẵn';persist();settings()}});
+sheet.addEventListener('change',e=>{
+ if(e.target.id==='waExtOwnerPhoto'){
+   const file=e.target.files?.[0]; if(!file)return;
+   if(!/^image\/(jpeg|png|webp)$/.test(file.type)){toast('Chọn ảnh JPG, PNG hoặc WebP');return}
+   const reader=new FileReader();reader.onload=()=>{
+     const img=new Image();img.onload=()=>{
+       const side=256,c=document.createElement('canvas');c.width=side;c.height=side;
+       const ctx=c.getContext('2d');const crop=Math.min(img.width,img.height);
+       ctx.drawImage(img,(img.width-crop)/2,(img.height-crop)/2,crop,crop,0,0,side,side);
+       saved.avatarData=c.toDataURL('image/jpeg',0.82);persist();settings();showOwnerProfile();toast('Đã đổi avatar hồ sơ');
+     };img.src=String(reader.result);
+   };reader.readAsDataURL(file);return;
+ }
+ if(e.target.matches('[data-wa-ext-pref]')){saved.settings[e.target.dataset.waExtPref]=e.target.checked;persist()}});
 sheet.addEventListener('input',e=>{if(e.target.id==='waExtQuery')searchResults()});
 input.disabled=false;input.removeAttribute('disabled');input.placeholder='Nhập tin nhắn';
 input.addEventListener('input',()=>{const has=!!input.value.trim();send.classList.toggle('wa-ext-send',has);send.textContent=has?'➤':'♩'});
