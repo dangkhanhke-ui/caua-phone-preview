@@ -1,0 +1,94 @@
+name: Deploy WhatsApp iPhone 2015 redesign
+on:
+  push:
+    paths:
+      - 'assets/whatsapp/wa-ios8-2015.js'
+      - 'assets/whatsapp/wa-ios8-2015.css'
+      - '.github/workflows/deploy-whatsapp-ios2015.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: deploy-whatsapp-ios2015
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript syntax
+        run: node --check assets/whatsapp/wa-ios8-2015.js
+      - name: Install new iPhone interface
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          file=Path('index.html')
+          html=file.read_text(encoding='utf-8')
+          if 'window.CAUA_WA_API' not in html:raise SystemExit('WhatsApp original dataset API not exposed')
+          if 'id="whatsappApp"' not in html:raise SystemExit('WhatsApp app not found')
+          html=re.sub(r'<link[^>]*wa-ios8-2015\.css[^>]*>', '', html)
+          html=re.sub(r'<script[^>]*wa-ios8-2015\.js[^>]*></script>', '', html)
+          style='<link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009b">'
+          script='<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009b"></script>'
+          if '</head>' not in html or '</body>' not in html:raise SystemExit('HTML skeleton missing')
+          html=html.replace('</head>',style+'\n</head>',1)
+          html=html.replace('</body>',script+'\n</body>',1)
+          file.write_text(html,encoding='utf-8')
+          print('Installed WhatsApp 2015 independent iOS frontend, preserved source data')
+          PY
+      - name: Chrome smoke test of WhatsApp navigation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          smoke="""<script>
+          setTimeout(function(){
+            try {
+              const wa=document.querySelector('#waIos15');
+              if(!wa)throw Error('No iOS overlay');
+              if(wa.querySelectorAll('.wai-tab').length!==5)throw Error('Missing five tabs');
+              wa.querySelector('[data-act="tab"][data-id="settings"]').click();
+              const profile=wa.querySelector('[data-act="profile"]');
+              if(!profile)throw Error('No owner profile entry');
+              profile.click();
+              if(!wa.textContent.includes('Cauã Valença')||!wa.textContent.includes('90000-0101'))throw Error('Owner profile missing');
+              wa.querySelector('[data-act="back"]').click();
+              wa.querySelector('[data-act="tab"][data-id="contacts"]').click();
+              if(wa.querySelectorAll('[data-act="open-contact"]').length<3)throw Error('Missing contacts');
+              wa.querySelector('[data-act="tab"][data-id="chats"]').click();
+              if(wa.querySelectorAll('.wai-chat-row').length<3)throw Error('Missing original chats');
+              wa.querySelector('.wai-chat-row[data-id="livia"]').click();
+              if(!wa.querySelectorAll('.wai-bubble').length)throw Error('Original messages not rendered');
+              document.documentElement.dataset.waSmoke='PASS';
+            } catch(e) {
+              document.documentElement.dataset.waSmoke='FAIL:'+e.message;
+            }
+          },700);
+          </script>"""
+          Path('wa-preview-smoke-check.html').write_text(html.replace('</body>',smoke+'</body>',1),encoding='utf-8')
+          PY
+          if command -v google-chrome >/dev/null; then
+            timeout 35s google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=5000 --dump-dom "file://$PWD/wa-preview-smoke-check.html" > /tmp/wa-chrome-output.html 2>/tmp/wa-chrome-errors || true
+            python3 - <<'PY'
+          from pathlib import Path
+          import re
+          result=Path('/tmp/wa-chrome-output.html').read_text(errors='replace')
+          matches=re.findall(r'data-wa-smoke="([^"]+)"',result)
+          if not matches:raise SystemExit('Chrome did not report WhatsApp smoke test; check browser log')
+          print('WhatsApp Chrome smoke test:',matches[-1])
+          if matches[-1]!='PASS':raise SystemExit('WhatsApp smoke test failed')
+          PY
+          else
+            echo 'Chrome unavailable; JavaScript syntax and HTML integration checks passed'
+          fi
+          rm -f wa-preview-smoke-check.html
+      - name: Commit and publish to Vercel
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Replace WhatsApp Android UI with full iPhone 2015 experience"
+          git pull --rebase origin main
+          git push
