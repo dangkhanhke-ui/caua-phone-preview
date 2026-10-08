@@ -1,122 +1,135 @@
-/* Shared Photos-style image gestures for Facebook and WhatsApp. */
+/* Photo viewer for Facebook / WhatsApp. Gesture rules ported from Photos. */
 (()=>{'use strict';
-const style=document.createElement('style');style.textContent=`
-#facebookApp .caua-zoom-overlay{position:absolute;inset:0;z-index:150;background:#09090c;color:white;display:flex;flex-direction:column;overflow:hidden}
-#facebookApp .caua-zoom-header{height:46px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#101116;font:13px Arial}
-#facebookApp .caua-zoom-header button{background:none;border:0;color:white;padding:10px;font:14px Arial}
-#facebookApp .caua-zoom-stage{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none}
-#facebookApp .caua-zoom-stage{cursor:zoom-in;user-select:none;-webkit-user-select:none}\n#facebookApp .caua-zoom-stage.is-zoomed{cursor:grab}\n#facebookApp .caua-zoom-stage.is-panning{cursor:grabbing}\n#facebookApp .caua-zoom-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none;transform-origin:center center;will-change:transform}
-#waIos15 .wai-viewer{touch-action:none;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:zoom-in}\n#waIos15 .wai-viewer.is-zoomed{cursor:grab}\n#waIos15 .wai-viewer.is-panning{cursor:grabbing}
+const css=document.createElement('style');css.textContent=`
+#facebookApp .caua-photo-overlay{position:absolute;inset:0;z-index:170;background:#08090c;color:white;display:flex;flex-direction:column;overflow:hidden}
+#facebookApp .caua-photo-toolbar{height:46px;flex:none;background:#0d0e12;display:flex;justify-content:space-between;align-items:center;padding:0 10px;font:13px Arial}
+#facebookApp .caua-photo-toolbar button{background:none;color:white;border:0;padding:10px;font:14px Arial}
+#facebookApp .caua-photo-stage{min-height:0;flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;cursor:zoom-in;user-select:none;-webkit-user-select:none}
+#facebookApp .caua-photo-stage.is-zoomed{cursor:grab}
+#facebookApp .caua-photo-stage.is-panning{cursor:grabbing}
+#facebookApp .caua-photo-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;transform-origin:center center;pointer-events:none;user-select:none;-webkit-user-drag:none;will-change:transform}
+#waIos15 .wai-viewer{touch-action:none;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:zoom-in}
+#waIos15 .wai-viewer.is-zoomed{cursor:grab}
+#waIos15 .wai-viewer.is-panning{cursor:grabbing}
 #waIos15 .wai-viewer img{pointer-events:none;user-select:none;-webkit-user-drag:none;transform-origin:center center;will-change:transform;touch-action:none}
 #waIos15 .wai-viewer>button{z-index:5}
-`;document.head.appendChild(style);
+`;document.head.appendChild(css);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function attach(stage,img){
- if(!img||stage.dataset.cauaZoomBound)return;
- stage.dataset.cauaZoomBound='1';
- const z={scale:1,x:0,y:0},points=new Map();
- let gesture=null,lastTap=0,lastTapPoint=null,hadMulti=false;
- const local=(cx,cy)=>{const r=stage.getBoundingClientRect();return {x:(cx-r.left)*(stage.clientWidth/r.width),y:(cy-r.top)*(stage.clientHeight/r.height)};};
- const center=()=>({x:stage.clientWidth/2,y:stage.clientHeight/2});
- function draw(animate=false){
-  // offsetWidth/Height are untransformed CSS dimensions, unlike getBoundingClientRect.
-  const w=img.offsetWidth||stage.clientWidth,h=img.offsetHeight||stage.clientHeight;
-  const maxX=Math.max(0,(w*z.scale-stage.clientWidth)/2);
-  const maxY=Math.max(0,(h*z.scale-stage.clientHeight)/2);
-  z.x=clamp(z.x,-maxX,maxX);z.y=clamp(z.y,-maxY,maxY);\n  stage.classList.toggle('is-zoomed',z.scale>1.015);
-  img.style.transition=animate?'transform 220ms cubic-bezier(.22,.72,.24,1)':'none';
-  img.style.transform='translate3d('+z.x+'px,'+z.y+'px,0) scale('+z.scale+')';
-  const badge=stage.parentElement.querySelector('[data-caua-zoom-value]');
-  if(badge)badge.textContent=(Math.round(z.scale*10)/10).toString()+'×';
+function bind(stage,img){
+ if(!stage||!img||stage.dataset.cauaPhotoReady)return;
+ stage.dataset.cauaPhotoReady='1';
+ const zoom={scale:1,x:0,y:0,min:1,max:4},pointers=new Map();
+ let gesture=null,pinch=null,lastTapAt=0,lastTapX=0,lastTapY=0,suppressClick=false;
+ const toLocal=(e)=>{const r=stage.getBoundingClientRect();return {x:(e.clientX-r.left)*stage.clientWidth/r.width,y:(e.clientY-r.top)*stage.clientHeight/r.height};};
+ const box=()=>({w:stage.clientWidth||320,h:stage.clientHeight||430});
+ function apply(animated=false){
+  const {w,h}=box();
+  // Same pan bounds as Photos: never use transformed image dimensions.
+  const mx=Math.max(0,w*(zoom.scale-1)/2),my=Math.max(0,h*(zoom.scale-1)/2);
+  zoom.x=clamp(zoom.x,-mx,mx);zoom.y=clamp(zoom.y,-my,my);
+  img.style.transition=animated?'transform 220ms cubic-bezier(.22,.72,.24,1)':'none';
+  img.style.transform='translate3d('+zoom.x+'px,'+zoom.y+'px,0) scale('+zoom.scale+')';
+  stage.classList.toggle('is-zoomed',zoom.scale>1.015);
+  const counter=stage.parentElement.querySelector('[data-caua-reset]');
+  if(counter)counter.textContent=(Math.round(zoom.scale*10)/10).toString()+'×';
  }
- function zoomAt(cx,cy,target,animate=false){
-  const p=local(cx,cy),c=center(),px=p.x-c.x,py=p.y-c.y;
-  const next=clamp(target,1,4),ratio=next/z.scale;
-  z.x=px-(px-z.x)*ratio;z.y=py-(py-z.y)*ratio;z.scale=next;
-  if(next<=1.015){z.scale=1;z.x=0;z.y=0;}
-  draw(animate);
+ function reset(animated=true){zoom.scale=1;zoom.x=zoom.y=0;stage.classList.remove('is-panning');apply(animated);}
+ function around(cx,cy,target,animated=true){
+  const r=stage.getBoundingClientRect(),sx=stage.clientWidth/r.width,sy=stage.clientHeight/r.height;
+  const px=(cx-r.left)*sx-stage.clientWidth/2,py=(cy-r.top)*sy-stage.clientHeight/2;
+  const old=zoom.scale,next=clamp(target,1,4),ratio=next/old;
+  zoom.x=px-(px-zoom.x)*ratio;zoom.y=py-(py-zoom.y)*ratio;zoom.scale=next;
+  if(next<=1.015){zoom.x=zoom.y=0;zoom.scale=1;}
+  apply(animated);
  }
- function reset(){z.scale=1;z.x=0;z.y=0;draw(true);}
- stage.addEventListener('caua-zoom-reset',reset);
+ stage.addEventListener('caua-photo-reset',()=>reset());
+ stage.addEventListener('dragstart',e=>e.preventDefault());
  stage.addEventListener('pointerdown',e=>{
   if(e.target.closest('button')||(e.pointerType==='mouse'&&e.button!==0))return;
-  e.preventDefault();\n  const p=local(e.clientX,e.clientY);points.set(e.pointerId,p);
+  const p=toLocal(e);pointers.set(e.pointerId,p);
   try{stage.setPointerCapture(e.pointerId)}catch(_){}
-  if(points.size===2){
-   const [a,b]=[...points.values()];
-   gesture={kind:'pinch',dist:Math.hypot(b.x-a.x,b.y-a.y)||1,scale:z.scale,x:z.x,y:z.y,cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};
-   hadMulti=true;lastTap=0;
-  }else if(points.size===1)gesture={kind:'single',id:e.pointerId,px:p.x,py:p.y,x:z.x,y:z.y,moved:false};
+  if(pointers.size===2){
+   const [a,b]=[...pointers.values()];
+   pinch={dist:Math.hypot(b.x-a.x,b.y-a.y)||1,scale:zoom.scale,cx:(a.x+b.x)/2,cy:(a.y+b.y)/2,x:zoom.x,y:zoom.y};
+   gesture=null;lastTapAt=0;suppressClick=true;
+  }else if(pointers.size===1){
+   gesture={id:e.pointerId,x:p.x,y:p.y,startX:zoom.x,startY:zoom.y,moved:false,pointerType:e.pointerType};
+   if(zoom.scale>1.015)stage.classList.add('is-panning');
+  }
+  e.preventDefault();
  });
  stage.addEventListener('pointermove',e=>{
-  if(!points.has(e.pointerId))return;
-  const p=local(e.clientX,e.clientY);points.set(e.pointerId,p);
-  if(points.size>=2&&gesture?.kind==='pinch'){
-   const [a,b]=[...points.values()],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
-   const c=center(),ratio=clamp(gesture.scale*Math.hypot(b.x-a.x,b.y-a.y)/gesture.dist,1,4)/gesture.scale;
-   z.scale=clamp(gesture.scale*Math.hypot(b.x-a.x,b.y-a.y)/gesture.dist,1,4);
-   z.x=(cx-c.x)-(gesture.cx-c.x-gesture.x)*ratio;
-   z.y=(cy-c.y)-(gesture.cy-c.y-gesture.y)*ratio;draw();
-  }else if(points.size===1&&gesture?.kind==='single'&&gesture.id===e.pointerId){
-   const dx=p.x-gesture.px,dy=p.y-gesture.py;
-   if(Math.hypot(dx,dy)>8)gesture.moved=true;\n   if(gesture.moved&&z.scale>1.015)stage.classList.add('is-panning');
-   if(z.scale>1.015){z.x=gesture.x+dx;z.y=gesture.y+dy;draw();}
+  if(!pointers.has(e.pointerId))return;
+  const p=toLocal(e);pointers.set(e.pointerId,p);
+  if(pointers.size>=2&&pinch){
+   const [a,b]=[...pointers.values()],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
+   const next=clamp(pinch.scale*Math.hypot(b.x-a.x,b.y-a.y)/pinch.dist,1,4);
+   const ratio=next/pinch.scale;
+   const midX=stage.clientWidth/2,midY=stage.clientHeight/2;
+   zoom.scale=next;
+   zoom.x=(cx-midX)-(pinch.cx-midX-pinch.x)*ratio;
+   zoom.y=(cy-midY)-(pinch.cy-midY-pinch.y)*ratio;apply(false);
+  }else if(pointers.size===1&&gesture&&gesture.id===e.pointerId){
+   const dx=p.x-gesture.x,dy=p.y-gesture.y;
+   if(Math.hypot(dx,dy)>7)gesture.moved=true;
+   if(zoom.scale>1.015){zoom.x=gesture.startX+dx;zoom.y=gesture.startY+dy;apply(false);}
   }
   e.preventDefault();
  },{passive:false});
- function finish(e){
-  if(!points.has(e.pointerId))return;
-  const p=local(e.clientX,e.clientY),prior=gesture;
-  points.delete(e.pointerId);
-  stage.classList.remove('is-panning');\n  if(prior?.kind==='pinch'){
-   if(points.size===1){const [id,q]=[...points.entries()][0];gesture={kind:'single',id,px:q.x,py:q.y,x:z.x,y:z.y,moved:true};}
-   else gesture=null;
-   if(z.scale<1.08)reset();else draw(true);
+ function end(e){
+  if(!pointers.has(e.pointerId))return;
+  const p=toLocal(e),g=gesture;pointers.delete(e.pointerId);
+  stage.classList.remove('is-panning');
+  if(pinch){
+   if(pointers.size<2){
+    pinch=null;if(zoom.scale<1.08)reset();else apply(true);
+    if(pointers.size===1){const [id,q]=[...pointers.entries()][0];gesture={id,x:q.x,y:q.y,startX:zoom.x,startY:zoom.y,moved:true,pointerType:'touch'};}
+   }
    return;
   }
-  if(e.pointerType!=='mouse'&&prior?.kind==='single'&&prior.id===e.pointerId&&!prior.moved&&!hadMulti&&Math.hypot(p.x-prior.px,p.y-prior.py)<9){
+  if(g&&g.id===e.pointerId&&g.pointerType==='touch'&&!g.moved&&!suppressClick&&Math.hypot(p.x-g.x,p.y-g.y)<9){
    const now=performance.now();
-   if(now-lastTap<330&&lastTapPoint&&Math.hypot(p.x-lastTapPoint.x,p.y-lastTapPoint.y)<38){
-    zoomAt(e.clientX,e.clientY,z.scale>1.05?1:2.5,true);lastTap=0;lastTapPoint=null;
-   }else{lastTap=now;lastTapPoint=p;}
+   if(now-lastTapAt<330&&Math.hypot(p.x-lastTapX,p.y-lastTapY)<38){
+    lastTapAt=0;around(e.clientX,e.clientY,zoom.scale>1.05?1:2.5,true);
+   }else{lastTapAt=now;lastTapX=p.x;lastTapY=p.y;}
   }
-  if(!points.size){gesture=null;hadMulti=false;}
+  if(!pointers.size){gesture=null;suppressClick=false;}
  }
- stage.addEventListener('pointerup',finish);
- stage.addEventListener('pointercancel',e=>{points.delete(e.pointerId);gesture=null;hadMulti=false;stage.classList.remove('is-panning');draw(true);});\n stage.addEventListener('dblclick',e=>{if(e.pointerType==='touch')return;e.preventDefault();e.stopPropagation();zoomAt(e.clientX,e.clientY,z.scale>1.05?1:2.5,true);});\n stage.addEventListener('dragstart',e=>e.preventDefault());\n stage.addEventListener('contextmenu',e=>e.preventDefault());
+ stage.addEventListener('pointerup',end);
+ stage.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);pinch=null;gesture=null;stage.classList.remove('is-panning');apply(true);});
+ // Desktop is deliberately separate: exactly one dblclick event per zoom.
+ stage.addEventListener('dblclick',e=>{e.preventDefault();e.stopPropagation();around(e.clientX,e.clientY,zoom.scale>1.05?1:2.5,true);});
  stage.addEventListener('wheel',e=>{
-  // Wheel zoom works on desktops without requiring Ctrl.
-  e.preventDefault();zoomAt(e.clientX,e.clientY,z.scale*(e.deltaY<0?1.15:1/1.15));
+  if(!(e.ctrlKey||e.metaKey))return;
+  e.preventDefault();around(e.clientX,e.clientY,zoom.scale*Math.exp(-e.deltaY*.004),false);
  },{passive:false});
- img.addEventListener('load',()=>draw());
- draw();
+ img.addEventListener('load',()=>apply(false));apply(false);
 }
-const fb=document.getElementById('facebookApp'),waHost=document.getElementById('whatsappApp');
+const fb=document.getElementById('facebookApp'),wa=document.getElementById('whatsappApp');
 let overlay=null;
-function close(){if(overlay){overlay.remove();overlay=null}}
+function close(){if(overlay){overlay.remove();overlay=null;}}
 function open(src){
- close();if(!fb)return;
- overlay=document.createElement('div');overlay.className='caua-zoom-overlay';
- overlay.innerHTML='<div class="caua-zoom-header"><button type="button" data-caua-close>‹ Quay lại</button><span>Ảnh</span><button type="button" data-caua-zoom-value>1×</button></div><div class="caua-zoom-stage"><img alt="Ảnh Facebook" draggable="false"></div>';
- fb.appendChild(overlay);const img=overlay.querySelector('img');img.src=src;
+ close();overlay=document.createElement('div');overlay.className='caua-photo-overlay';
+ overlay.innerHTML='<div class="caua-photo-toolbar"><button type="button" data-caua-close>‹ Quay lại</button><span>Ảnh</span><button type="button" data-caua-reset>1×</button></div><div class="caua-photo-stage"><img alt="Ảnh Facebook" draggable="false"></div>';
+ fb.appendChild(overlay);
  overlay.querySelector('[data-caua-close]').onclick=close;
- overlay.querySelector('[data-caua-zoom-value]').onclick=()=>overlay.querySelector('.caua-zoom-stage').dispatchEvent(new Event('caua-zoom-reset'));
- attach(overlay.querySelector('.caua-zoom-stage'),img);
+ overlay.querySelector('[data-caua-reset]').onclick=()=>overlay.querySelector('.caua-photo-stage').dispatchEvent(new Event('caua-photo-reset'));
+ const im=overlay.querySelector('img');im.src=src;bind(overlay.querySelector('.caua-photo-stage'),im);
 }
 if(fb)fb.addEventListener('click',e=>{
  if(overlay)return;
- const img=e.target.closest('.fb15-media.photo img,.fb15-photo-grid img,.fb15-link-thumb.photo img,.fb15-ad-thumb.photo img,.fb15-profile-cover img');
- if(!img||!fb.contains(img))return;
- e.preventDefault();e.stopImmediatePropagation();open(img.currentSrc||img.src);
+ const im=e.target.closest('.fb15-media.photo img,.fb15-photo-grid img,.fb15-link-thumb.photo img,.fb15-ad-thumb.photo img,.fb15-profile-cover img');
+ if(!im||!fb.contains(im))return;
+ e.preventDefault();e.stopImmediatePropagation();open(im.currentSrc||im.src);
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')close()},true);
 document.getElementById('homeButton')?.addEventListener('click',close,true);
-if(waHost){
- const watch=new MutationObserver(()=>{
-  const viewer=waHost.querySelector('.wai-viewer');
-  if(viewer&&!viewer.dataset.cauaZoomBound){const img=viewer.querySelector('img');if(img)attach(viewer,img);}
+if(wa){
+ const observe=new MutationObserver(()=>{
+  const v=wa.querySelector('.wai-viewer');
+  if(v&&!v.dataset.cauaPhotoReady)bind(v,v.querySelector('img'));
  });
- watch.observe(waHost,{childList:true,subtree:true});
- const initial=waHost.querySelector('.wai-viewer');if(initial)attach(initial,initial.querySelector('img'));
+ observe.observe(wa,{childList:true,subtree:true});
+ const current=wa.querySelector('.wai-viewer');if(current)bind(current,current.querySelector('img'));
 }
 })();
