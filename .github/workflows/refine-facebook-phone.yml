@@ -1,0 +1,59 @@
+name: Refine Facebook splash and phone call controls
+on:
+  push:
+    paths:
+      - '.github/workflows/refine-facebook-phone.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refine existing UI patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          a=s.find('<style id="caua-phone-facebook-20261009">')
+          b=s.find('</style>',a)
+          if a<0 or b<0:raise SystemExit('Existing splash CSS not found')
+          style=s[a:b+8]
+          style=style.replace('width:84px!important; height:84px!important;', 'width:82px!important; height:82px!important;')
+          style=style.replace('content:"f"; position:absolute;', 'content:""; width:64px; height:64px; background-image:var(--caua-fb-icon); background-size:contain; background-position:center; background-repeat:no-repeat; position:absolute;')
+          s=s[:a]+style+s[b+8:]
+          a=s.find('<script id="caua-phone-facebook-20261009-js">')
+          b=s.find('</script>',a)
+          if a<0 or b<0:raise SystemExit('Existing splash JS not found')
+          js=s[a:b+9]
+          js=js.replace('},1600);','},500);')
+          needle="var release=0;"
+          if needle not in js:raise SystemExit('Launcher position not found')
+          js=js.replace(needle,'''var icon=launcher.querySelector('img');
+            if(icon && icon.src)facebook.style.setProperty('--caua-fb-icon','url("'+icon.src+'")');
+            else {
+              var css=getComputedStyle(launcher);
+              var img=css.backgroundImage;
+              if(!img||img==='none'){
+                var child=launcher.querySelector('.icon');
+                if(child)img=getComputedStyle(child).backgroundImage;
+              }
+              if(img&&img!=='none')facebook.style.setProperty('--caua-fb-icon',img);
+            }
+            var release=0;''')
+          s=s[:a]+js+s[b+9:]
+          p.write_text(s,encoding='utf-8')
+          print('Facebook uses launcher app icon with 500 ms loading; red phone button 82px')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Use real Facebook app icon in half-second splash"
+          git pull --rebase origin main
+          git push
