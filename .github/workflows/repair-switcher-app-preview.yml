@@ -18,10 +18,7 @@ jobs:
           s=p.read_text(encoding='utf-8')
           source="      stripIds(clone);"
           if s.count(source)!=1:raise SystemExit('Expected switcher preview clone path not found')
-          replacement="""      // Keep preview-specific ID selectors working. The clone is inert and
-      // its controls never receive pointer events.
-      clone.setAttribute('inert', '');
-      clone.setAttribute('aria-hidden', 'true');"""
+          replacement="      clone.setAttribute('inert',''); clone.setAttribute('aria-hidden','true');"
           s=s.replace(source,replacement,1)
           p.write_text(s,encoding='utf-8')
           print('Repaired cloned WhatsApp/Phone preview CSS selectors')
