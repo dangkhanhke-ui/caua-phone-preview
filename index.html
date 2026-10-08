@@ -3255,6 +3255,12 @@ body,
   font-weight:700; font-size:114px; line-height:1; pointer-events:auto;
 }
 </style>
+<style id="caua-wa-hd-media">
+#whatsappApp .wa-avatar.caua-hd {background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+#whatsappApp .wa-avatar.caua-hd::before,#whatsappApp .wa-avatar.caua-hd::after{display:none!important}
+#whatsappApp .wa-media-bubble img.caua-wa-photo{display:block;width:100%;height:auto;object-fit:cover;border-radius:5px}
+#whatsappApp #waMediaViewer .frame img{display:block;max-width:100%;max-height:100%;object-fit:contain;margin:auto}
+</style>
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -8049,6 +8055,38 @@ if(m)m.innerHTML=svg('<circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r=
   document.getElementById('homeButton')?.addEventListener('click',function(){
     clearTimeout(release);facebook.classList.remove('caua-fb-loading');
   },true);
+})();
+</script>
+<script id="caua-wa-hd-media-js">
+(function(){
+  const P={"wa_avatar_mother": "./assets/whatsapp/photos/wa_avatar_mother.png", "wa_avatar_camila": "./assets/whatsapp/photos/wa_avatar_camila.png", "wa_avatar_livia": "./assets/whatsapp/photos/wa_avatar_livia.png", "wa_camila_01": "./assets/whatsapp/photos/wa_camila_01.png", "wa_livia_01": "./assets/whatsapp/photos/wa_livia_01.png", "wa_livia_02": "./assets/whatsapp/photos/wa_livia_02.png", "wa_livia_03": "./assets/whatsapp/photos/wa_livia_03.png", "wa_livia_04": "./assets/whatsapp/photos/wa_livia_04.png", "wa_livia_05": "./assets/whatsapp/photos/wa_livia_05.png"};
+  const avatars={mother:P.wa_avatar_mother,camila:P.wa_avatar_camila,livia:P.wa_avatar_livia};
+  const media={'camila-img-1':P.wa_camila_01,'livia-img-1':P.wa_livia_01,'livia-img-2':P.wa_livia_02,'livia-img-3':P.wa_livia_03,'livia-img-4':P.wa_livia_04,'livia-img-5':P.wa_livia_05};
+  const root=document.getElementById('whatsappApp');
+  if(!root)return;
+  function avatar(el,url){if(!el||!url)return;el.classList.add('caua-hd');el.style.setProperty('background-image','url("'+url+'")','important')}
+  function refresh(){
+    root.querySelectorAll('[data-wa-thread]').forEach(r=>avatar(r.querySelector('.wa-avatar'),avatars[r.getAttribute('data-wa-thread')]));
+    const name=document.getElementById('waThreadName')?.textContent.trim();
+    const id=name==='Mẹ'?'mother':name==='Camila'?'camila':name==='Lívia'?'livia':null;
+    if(id){
+      avatar(root.querySelector('#waThreadHead .wa-avatar'),avatars[id]);
+      avatar(root.querySelector('#waContactInfo .wa-avatar'),avatars[id]);
+    }
+    root.querySelectorAll('[data-wa-media]').forEach(el=>{
+      const url=media[el.getAttribute('data-wa-media')];
+      const holder=el.querySelector('.wa-media-placeholder');
+      if(url&&holder){const img=document.createElement('img');img.src=url;img.alt='Ảnh trong cuộc trò chuyện';img.className='caua-wa-photo';holder.replaceWith(img);}
+    });
+  }
+  let queued=false;
+  const observer=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;refresh()})});
+  observer.observe(root,{childList:true,subtree:true,characterData:true});
+  root.addEventListener('click',ev=>{
+    const tile=ev.target.closest('[data-wa-media]');
+    if(tile){const url=media[tile.getAttribute('data-wa-media')];const frame=document.querySelector('#waMediaViewer .frame');if(url&&frame){frame.textContent='';const img=document.createElement('img');img.src=url;img.alt='Ảnh';frame.append(img);}}
+  });
+  refresh();
 })();
 </script>
 </body>
