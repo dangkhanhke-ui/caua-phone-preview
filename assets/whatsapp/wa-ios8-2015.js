@@ -15,11 +15,14 @@ function boot(){
  for(const k of ['favorite','archived','unread','hide','deleted','groups','calls'])if(!Array.isArray(data[k]))data[k]=[];
  for(const k of ['messages','muted','prefs','privacy','drafts','cleared'])if(!data[k]||typeof data[k]!=='object')data[k]=JSON.parse(JSON.stringify(base[k]));
  const portugueseStatus={'Disponível':'Có mặt','Ocupado':'Đang bận','No trabalho':'Đang làm việc','Na escola':'Đang học','Bateria quase acabando':'Pin sắp hết','Não posso falar, só WhatsApp':'Không thể nói chuyện, chỉ nhắn WhatsApp'};
- const vnStatus=x=>portugueseStatus[x]||x||'Có mặt';
+ const vnStatus=x=>{const v=String(portugueseStatus[x]||x||'Có mặt').trim();return v.charAt(0).toLocaleUpperCase('vi')+v.slice(1)};
  data.status=vnStatus(data.status);
  const portuguesePrivacy={'Todos':'Mọi người','Meus contatos':'Danh bạ','Ninguém':'Không ai'};
  for(const key of ['seen','photo','status'])if(portuguesePrivacy[data.privacy[key]])data.privacy[key]=portuguesePrivacy[data.privacy[key]];
  const threads=api.THREADS;
+ const camilaContact=threads.find(t=>t.id==='camila');
+ if(camilaContact)camilaContact.name='Camila (nhân viên)';
+ threads.forEach(t=>{if(typeof t.status==='string')t.status=vnStatus(t.status)});
  for(const g of data.groups)if(!threads.find(t=>t.id===g.id))threads.push({...g,events:[]});
  const owner={id:'caua',name:data.name,phone:phones.caua};
  const tabs=[['favorites','star','Yêu thích'],['recents','clock','Gần đây'],['contacts','users','Danh bạ'],['chats','chat','Trò chuyện'],['settings','settings','Cài đặt']];
@@ -30,7 +33,7 @@ function boot(){
  chat:'<path d="M3 4h18v14H9l-6 4z"/>',
  settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2l2 2 3-1 2 3-1 3 3 3-3 3 1 3-2 3-3-1-2 2-2-2-3 1-2-3 1-3-3-3 3-3-1-3 2-3 3 1z"/>',
  pencil:'<path d="M4 20l5-1L20 8l-4-4L5 15zM14 6l4 4"/>',
- phone:'<path d="M6 3l5 4-2 3a14 14 0 0 0 5 5l3-2 4 5-3 3C9 21 3 15 3 6z"/>',
+ phone:'<path fill="currentColor" stroke="none" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/>',
  photo:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2"/><path d="M3 18l6-7 4 4 3-3 5 6"/>',
  plus:'<path d="M12 3v18M3 12h18"/>',
  mic:'<rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/>',
@@ -149,7 +152,7 @@ function boot(){
  }
  function prettyMsg(e){
   const out=e.sender==='caua',meta='<small class="wai-meta '+(e.status==='read'?'read':'')+'">'+esc(e.time||'')+(out?' ✓✓':'')+'</small>';
-  if(e.type==='call')return '<div class="wai-service-msg wai-call-event"><span class="wai-call-icon">'+icon('phone')+'</span><span>'+(e.result==='missed'?'Cuộc gọi thoại nhỡ':'Cuộc gọi thoại')+' · '+esc(e.time||'')+'</span></div>';
+  if(e.type==='call')return '<div class="wai-service-msg wai-call-event '+(e.result==='missed'?'missed':'')+'"><span class="wai-call-icon">'+icon('phone')+'</span><span>'+(e.result==='missed'?'Cuộc gọi thoại nhỡ':'Cuộc gọi thoại')+' · '+esc(e.time||'')+'</span></div>';
   if(e.type==='message')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">'+esc(e.text||'').replace(/\n/g,'<br>')+meta+'</div></div>';
   if(e.type==='image')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">'+(images[e.id]||e.src?'<img class="wai-media" data-open-img="'+esc(e.src||images[e.id])+'" src="'+esc(e.src||images[e.id])+'" alt="Ảnh WhatsApp">':'Ảnh trong cuộc trò chuyện')+meta+'</div></div>';
   if(e.type==='audio')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'"><span class="wai-audio">🎙 <audio src="'+esc(e.src)+'" controls preload="none"></audio></span>'+meta+'</div></div>';
