@@ -2,6 +2,10 @@ name: Install HD photos from individual uploads
 on:
   push:
     paths:
+      - 'photo*.jpg'
+      - 'photo*.jpeg'
+      - 'photo*.png'
+      - 'photo*.webp'
       - 'hd-uploads/**'
       - '.github/workflows/install-hd-photos.yml'
   workflow_dispatch:
@@ -15,33 +19,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Copy individual JPG and PNG uploads to photos assets
+      - name: Install uploaded HD photographs
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-          src=Path('hd-uploads')
-          images=sorted(p for p in src.glob('*') if p.is_file() and re.fullmatch(r'photo(?:0[1-9]|[12][0-9]|30)\.(?:jpg|jpeg|png|webp)',p.name,re.I))
-          if not images: raise SystemExit('No matching individual HD images; waiting for uploads')
+          matches=[]
+          for parent in [Path('.'),Path('hd-uploads')]:
+              if not parent.exists():continue
+              matches.extend(p for p in parent.glob('photo*') if p.is_file() and re.fullmatch(r'photo(?:0[1-9]|[12][0-9]|30)\.(?:jpg|jpeg|png|webp)',p.name,re.I))
+          by_id={}
+          for p in matches:
+              key=p.stem.lower()
+              if key in by_id:raise SystemExit('Duplicate photo ID: '+key)
+              by_id[key]=p
+          if len(by_id)!=30:raise SystemExit('Expected 30 HD photos; found '+str(len(by_id))+' ('+', '.join(sorted(by_id))+')')
           page=Path('index.html')
           html=page.read_text(encoding='utf-8')
           target=Path('assets/photos')
           target.mkdir(parents=True,exist_ok=True)
-          for img in images:
-              pid=img.stem.lower()
-              filename=pid+img.suffix.lower()
-              (target/filename).write_bytes(img.read_bytes())
-              pat=r"(\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
-              html,count=re.subn(pat,lambda m:m.group(1)+"'./assets/photos/"+filename+"'",html,count=1)
-              if count!=1:raise SystemExit('Photo ID not found: '+pid)
+          for pid,p in sorted(by_id.items()):
+              filename=pid+p.suffix.lower()
+              (target/filename).write_bytes(p.read_bytes())
+              pattern=r"(\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
+              html,n=re.subn(pattern,lambda m:m.group(1)+"'./assets/photos/"+filename+"'",html,count=1)
+              if n!=1:raise SystemExit('Unable to match '+pid+' in index.html')
           page.write_text(html,encoding='utf-8')
-          print('Updated',len(images),'HD photos')
+          print('Installed all 30 original-quality photos')
           PY
-      - name: Commit updated HTML and assets
+      - name: Commit installed HD assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html assets/photos
           git diff --cached --quiet && exit 0
-          git commit -m "Refresh HD photos from direct uploads"
+          git commit -m "Restore all 30 uploaded HD photos"
           git push
