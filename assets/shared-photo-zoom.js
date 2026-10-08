@@ -35,6 +35,7 @@ function attach(stage,img){
   draw(animate);
  }
  stage.addEventListener('pointerdown',e=>{
+  if(e.target.closest('button'))return;
   if(e.pointerType==='mouse'&&e.button!==0)return;
   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   try{stage.setPointerCapture(e.pointerId)}catch(_){}
