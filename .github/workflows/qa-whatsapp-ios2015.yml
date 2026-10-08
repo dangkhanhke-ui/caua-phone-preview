@@ -38,7 +38,7 @@ jobs:
               if(!name)throw Error('Group name input missing');name.value='Thử nghiệm QA';
               act('create-group');
               if(!w.textContent.includes('Thử nghiệm QA'))throw Error('Group creation failed');
-              tab('chats');var livia=w.querySelector('[data-act="open-chat"][data-id="livia"]');
+              act('back');tab('chats');var livia=w.querySelector('[data-act="open-chat"][data-id="livia"]');
               if(!livia)throw Error('Original Lívia chat lost');livia.click();
               var input=w.querySelector('#waiText');if(!input)throw Error('Compose input missing');
               input.value='QA test 2015';act('send');
