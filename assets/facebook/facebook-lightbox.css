@@ -1,0 +1,12 @@
+/* Facebook picture lightbox lives inside the iPhone glass, not over its hardware. */
+#facebookApp .fb15-media.photo img,#facebookApp .fb15-photo-grid img,
+#facebookApp .fb15-link-thumb.photo img,#facebookApp .fb15-ad-thumb.photo img,
+#facebookApp .fb15-profile-cover img{cursor:zoom-in}
+#facebookApp .fb15-lightbox{position:absolute;inset:0;z-index:110;background:#08090d;color:#fff;display:flex;flex-direction:column;overflow:hidden;touch-action:none}
+#facebookApp .fb15-lightbox-toolbar{flex:0 0 48px;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:4px 9px;background:rgba(10,10,13,.94);border-bottom:1px solid #2b2c31}
+#facebookApp .fb15-lightbox-toolbar button{background:transparent;border:0;color:#fff;padding:7px;font:400 14px/18px Arial,sans-serif}
+#facebookApp .fb15-lightbox-toolbar strong{font:500 13px Arial,sans-serif}
+#facebookApp .fb15-lightbox-stage{position:relative;flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:zoom-in}
+#facebookApp .fb15-lightbox-stage.zoomed{cursor:grab}
+#facebookApp .fb15-lightbox-photo{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none;transform-origin:center center;will-change:transform}
+#facebookApp .fb15-lightbox-hint{position:absolute;left:0;right:0;bottom:12px;color:#c7c7cd;font:11px Arial;text-align:center;pointer-events:none}

@@ -3276,6 +3276,7 @@ body,
 <link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009h">
 <link rel="stylesheet" href="./assets/facebook/facebook-original-image-ratios.css?v=20261009a" />
 
+<link rel="stylesheet" href="./assets/facebook/facebook-lightbox.css?v=20261009b">
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -3792,7 +3793,7 @@ body,
     const viewport=window.visualViewport;
     const width=viewport?.width||innerWidth;
     const height=viewport?.height||innerHeight;
-    const safe=width<600?4:12;
+    const safe=width<600?0:4;
     const scale=Math.min((width-safe*2)/375,(height-safe*2)/791);
     document.documentElement.style.setProperty('--phone-scale',Math.max(.2,scale).toFixed(4));
   }
@@ -8213,5 +8214,6 @@ document.addEventListener('keydown',e=>{if(viewer&&e.key==='Escape')close()},tru
 document.getElementById('homeButton')?.addEventListener('click',close,true);
 })();
 </script>
+<script src="./assets/facebook/facebook-lightbox.js?v=20261009b"></script>
 </body>
 </html>
