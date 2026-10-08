@@ -3237,7 +3237,7 @@ body,
 </style>
 <style id="wa-hd-chat-wallpaper">#whatsappApp .wa-chat-canvas{background-image:url("./assets/whatsapp/whatsapp_chat_bg.png")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}</style><style id="caua-phone-facebook-20261009">
 /* Lift the end-call button nearer the lower call-control row. */
-.phone-hangup { bottom:100px!important; width:84px!important; height:84px!important; }
+.phone-hangup { bottom:100px!important; width:82px!important; height:82px!important; }
 .phone-hangup::before {
   content:""!important; position:absolute!important; left:50%!important; top:50%!important;
   width:47px!important; height:47px!important; border:0!important; border-radius:0!important;
@@ -3250,7 +3250,7 @@ body,
   content:""; position:absolute; inset:0; z-index:999; background:#3b5998; pointer-events:auto;
 }
 #facebookApp.caua-fb-loading::after {
-  content:"f"; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  content:""; width:64px; height:64px; background-image:var(--caua-fb-icon); background-size:contain; background-position:center; background-repeat:no-repeat; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   z-index:1000; color:#fff; font-family:Arial,Helvetica,sans-serif;
   font-weight:700; font-size:114px; line-height:1; pointer-events:auto;
 }
@@ -8029,11 +8029,22 @@ if(m)m.innerHTML=svg('<circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r=
   var launcher=document.querySelector('.facebook-launch');
   var facebook=document.getElementById('facebookApp');
   if(!launcher||!facebook)return;
+  var icon=launcher.querySelector('img');
+  if(icon && icon.src)facebook.style.setProperty('--caua-fb-icon','url("'+icon.src+'")');
+  else {
+    var css=getComputedStyle(launcher);
+    var img=css.backgroundImage;
+    if(!img||img==='none'){
+      var child=launcher.querySelector('.icon');
+      if(child)img=getComputedStyle(child).backgroundImage;
+    }
+    if(img&&img!=='none')facebook.style.setProperty('--caua-fb-icon',img);
+  }
   var release=0;
   launcher.addEventListener('click',function(){
     clearTimeout(release);
     facebook.classList.add('caua-fb-loading');
-    release=setTimeout(function(){facebook.classList.remove('caua-fb-loading')},1600);
+    release=setTimeout(function(){facebook.classList.remove('caua-fb-loading')},500);
   },true);
   document.getElementById('homeButton')?.addEventListener('click',function(){
     clearTimeout(release);facebook.classList.remove('caua-fb-loading');
