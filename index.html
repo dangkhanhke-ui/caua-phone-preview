@@ -8165,7 +8165,7 @@ html,body{overscroll-behavior:none}
 #facebookApp .fb15-viewer-stage img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;transform-origin:center center;touch-action:none;pointer-events:none;will-change:transform}
 #facebookApp .fb15-viewer-caption{text-align:center;font-size:11px;padding:8px;background:#151515;color:#ddd;flex:none}
 </style>
-<script id="fb15-image-viewer-script">
+<script type="text/plain" id="fb15-image-viewer-script">
 (()=>{'use strict';
 const app=document.getElementById('facebookApp');if(!app)return;
 let viewer=null,img=null,zoom=1,x=0,y=0,pointers=new Map(),gesture=null,usedTouch=false;
@@ -8214,6 +8214,6 @@ document.addEventListener('keydown',e=>{if(viewer&&e.key==='Escape')close()},tru
 document.getElementById('homeButton')?.addEventListener('click',close,true);
 })();
 </script>
-<script src="./assets/facebook/facebook-lightbox.js?v=20261009b"></script>
+<script src="./assets/shared-photo-zoom.js?v=20261009a"></script>
 </body>
 </html>
