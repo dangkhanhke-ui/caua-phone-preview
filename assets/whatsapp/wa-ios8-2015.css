@@ -1,0 +1,106 @@
+/* CAUÃ WhatsApp iPhone / iOS 8 / August 2015. Independent UI over original immutable dataset. */
+#whatsappApp>.wa-shell{display:none!important}
+#whatsappApp #waIos15,#whatsappApp #waIos15 *{box-sizing:border-box}
+#whatsappApp #waIos15{position:absolute;inset:20px 0 0;z-index:95;overflow:hidden;background:#fff;color:#202127;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-weight:400;letter-spacing:normal;--wai-blue:#007aff;--wai-line:#c8c7cc;--wai-group:#efeff4}
+#waIos15 button,#waIos15 input,#waIos15 textarea,#waIos15 select{font-family:inherit}
+#waIos15 button{cursor:pointer}
+#waIos15 .wai-header{position:absolute;top:0;left:0;right:0;height:44px;background:#f8f8f8;border-bottom:1px solid #bcbcc1;display:flex;align-items:center;justify-content:center;z-index:12}
+#waIos15 .wai-title{font-size:17px;font-weight:600;text-align:center;max-width:57%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#waIos15 .wai-nav-btn{position:absolute;top:0;height:43px;border:0;background:none;color:#007aff;font-size:15px;padding:0 12px;display:flex;align-items:center;gap:3px}
+#waIos15 .wai-nav-btn.left{left:0}#waIos15 .wai-nav-btn.right{right:0}
+#waIos15 .wai-nav-btn .wai-arrow{font-size:28px;font-weight:200;line-height:20px}
+#waIos15 .wai-icon{width:23px;height:23px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block}
+#waIos15 .wai-nav-btn .wai-icon{width:21px;height:21px}
+#waIos15 .wai-tabs{position:absolute;bottom:0;left:0;right:0;height:50px;background:rgba(248,248,248,.97);border-top:1px solid #bcbcc1;display:flex;z-index:13}
+#waIos15 .wai-tab{border:0;background:none;padding:3px 0 1px;width:20%;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;color:#9999a0}
+#waIos15 .wai-tab.active{color:#007aff}
+#waIos15 .wai-tab .wai-icon{width:24px;height:24px;stroke-width:1.7}
+#waIos15 .wai-tab-label{font-size:9.5px;white-space:nowrap}
+#waIos15 .wai-screen{position:absolute;left:0;right:0;top:44px;bottom:50px;overflow-y:auto;overflow-x:hidden;background:#fff;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+#waIos15 .wai-screen.grouped{background:#efeff4}
+#waIos15 .wai-screen.thread{bottom:0;display:flex;flex-direction:column;overflow:hidden;background:#e7ded5}
+#waIos15 .wai-screen.thread .wai-messages{flex:1;overflow:auto;min-height:0;padding:8px 9px 11px;background:#e8dfd6 url('./whatsapp_chat_bg.png') center / cover no-repeat;-webkit-overflow-scrolling:touch}
+#waIos15 .wai-underbar{position:sticky;top:0;z-index:3;background:#f6f6f6;border-bottom:1px solid #e7e7e7;padding:8px 9px}
+#waIos15 .wai-search{display:block;width:100%;height:30px;border:0;border-radius:5px;background:#e2e2e7;outline:none;text-align:left;padding:0 12px;font-size:13px;color:#212121}
+#waIos15 .wai-search::placeholder{color:#8e8e93;text-align:center}
+#waIos15 .wai-quick{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;gap:10px}
+#waIos15 .wai-link{background:none;border:0;color:#007aff;font-size:14px;padding:3px 0;text-align:left}
+#waIos15 .wai-row{position:relative;display:flex;align-items:center;min-height:67px;gap:10px;width:100%;padding:7px 11px;border:0;background:white;text-align:left;color:#171717}
+#waIos15 .wai-row::after{content:"";position:absolute;bottom:0;right:0;left:70px;height:.5px;background:#d8d8da}
+#waIos15 .wai-row:active,.wai-ios-btn:active{background:#eeeeef}
+#waIos15 .wai-face{flex:0 0 49px;width:49px;height:49px;display:grid;place-items:center;border-radius:50%;background:#d6d6d9;color:#fff;font-size:19px;font-weight:400;overflow:hidden}
+#waIos15 .wai-face img{width:100%;height:100%;object-fit:cover;display:block}
+#waIos15 .wai-row-info{flex:1;min-width:0;display:block}
+#waIos15 .wai-row-top{display:flex;gap:4px;align-items:baseline}
+#waIos15 .wai-row-info b{display:block;flex:1;font-size:15px;font-weight:600;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+#waIos15 .wai-row-info small{display:block;margin-top:4px;color:#8e8e93;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#waIos15 .wai-row-time{color:#8e8e93;font-size:11px}
+#waIos15 .wai-subtle{font-size:12px;color:#8e8e93}
+#waIos15 .wai-blue{color:#007aff!important}
+#waIos15 .wai-unread-badge{display:inline-grid;place-items:center;border-radius:14px;min-width:17px;height:17px;padding:0 4px;background:#007aff;color:white;font-size:11px}
+#waIos15 .wai-empty{text-align:center;color:#909095;font-size:13px;line-height:1.5;padding:50px 22px}
+#waIos15 .wai-section{margin:24px 14px 7px;font-size:12px;color:#6d6d72;text-transform:uppercase}
+#waIos15 .wai-card{background:#fff;border-top:1px solid #d6d6da;border-bottom:1px solid #d6d6da}
+#waIos15 .wai-cell{position:relative;width:100%;min-height:45px;display:flex;align-items:center;text-align:left;gap:10px;padding:11px 14px;background:#fff;border:0;border-bottom:1px solid #e7e7eb;color:#252529;font-size:14px}
+#waIos15 .wai-cell:last-child{border-bottom:0}
+#waIos15 .wai-cell .wai-cell-val{margin-left:auto;color:#8e8e93;max-width:50%;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#waIos15 .wai-chevron{color:#c7c7cc;margin-left:4px;font-size:23px;line-height:14px;font-weight:200}
+#waIos15 .wai-cell-icon{display:grid;place-items:center;border-radius:5px;width:27px;height:27px;flex:0 0 27px;color:#fff;font-size:15px;background:#48bb72}
+#waIos15 .wai-cell-icon .wai-icon{width:17px;height:17px}
+#waIos15 .wai-cell-title{display:block;flex:1;min-width:0}
+#waIos15 .wai-cell-sub{display:block;margin-top:3px;font-size:11px;color:#8d8d92}
+#waIos15 .wai-owner{width:100%;display:flex;align-items:center;text-align:left;gap:13px;border:0;background:#fff;padding:11px 14px;min-height:88px;color:#26262b}
+#waIos15 .wai-owner .wai-face{width:64px;height:64px;flex-basis:64px}
+#waIos15 .wai-owner b{display:block;font-size:17px;margin-bottom:5px}
+#waIos15 .wai-owner small{display:block;font-size:12px;color:#8e8e93}
+#waIos15 .wai-profile-big{text-align:center;background:#fff;padding:15px 15px 22px}
+#waIos15 .wai-profile-big .wai-face{margin:0 auto 10px;width:116px;height:116px;cursor:pointer}
+#waIos15 .wai-profile-big b{font-size:19px;font-weight:500}
+#waIos15 .wai-photo-change{display:block;margin:9px auto 0;color:#007aff;background:none;border:0;font-size:13px}
+#waIos15 .wai-profile-number{padding:12px 14px;font-size:15px}
+#waIos15 .wai-descr{margin:7px 14px 17px;color:#86868b;line-height:1.45;font-size:11px}
+#waIos15 .wai-picker{border:0;background:#fff;color:#007aff;min-width:21px;font-size:15px}
+#waIos15 .wai-switch{position:relative;display:inline-block;width:48px;height:28px;border-radius:19px;background:#dddde0;flex:0 0 48px;transition:background .12s}
+#waIos15 .wai-switch.on{background:#4cd964}
+#waIos15 .wai-switch:after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;background:#fff;border-radius:50%;box-shadow:0 1px 2px #0003;transition:transform .12s}
+#waIos15 .wai-switch.on:after{transform:translateX(20px)}
+#waIos15 .wai-compose{flex:0 0 auto;display:flex;align-items:end;gap:6px;padding:7px 8px;background:#f8f8f8;border-top:1px solid #c8c8cc}
+#waIos15 .wai-compose button{border:0;background:none;color:#007aff;min-width:29px;height:32px;font-size:22px}
+#waIos15 .wai-compose textarea{display:block;flex:1;min-width:0;max-height:85px;min-height:30px;border:1px solid #c9c9ce;border-radius:5px;background:#fff;outline:none;resize:none;padding:6px 8px;font-size:14px;line-height:17px;color:#202020}
+#waIos15 .wai-compose .wai-send{color:#007aff;font-size:14px;font-weight:600;white-space:nowrap;min-width:34px}
+#waIos15 .wai-date{display:table;margin:10px auto;background:#dad4ccba;color:#5b5855;font-size:10px;padding:5px 9px;border-radius:5px}
+#waIos15 .wai-msg{display:flex;margin:3px 0;max-width:100%}
+#waIos15 .wai-msg.out{justify-content:flex-end}#waIos15 .wai-msg.in{justify-content:flex-start}
+#waIos15 .wai-bubble{position:relative;max-width:84%;padding:7px 8px 15px;border-radius:7px;background:#fff;font-size:13.5px;line-height:1.4;overflow-wrap:anywhere;box-shadow:0 1px 1px #0001}
+#waIos15 .wai-msg.out .wai-bubble{background:#dcf8c6}
+#waIos15 .wai-bubble .wai-meta{position:absolute;bottom:2px;right:6px;font-size:9px;color:#8e8e90}
+#waIos15 .wai-bubble .wai-meta.read{color:#31a6d6}
+#waIos15 .wai-bubble img.wai-media{width:100%;max-width:240px;max-height:255px;object-fit:cover;border-radius:3px;display:block;margin-bottom:8px}
+#waIos15 .wai-bubble .wai-audio{display:flex;align-items:center;gap:7px;min-width:165px}
+#waIos15 .wai-bubble .wai-audio audio{max-width:195px;width:100%;height:33px}
+#waIos15 .wai-service-msg{display:table;margin:8px auto;background:#d6cdc5b8;font-size:11px;border-radius:7px;padding:8px;color:#5a5855;max-width:85%;text-align:center}
+#waIos15 .wai-list-action{background:#f0f0f4;border:0;border-bottom:1px solid #d9d9de;width:100%;color:#007aff;text-align:center;font-size:14px;padding:12px}
+#waIos15 .wai-form-input{width:calc(100% - 26px);background:#fff;color:#222;border:1px solid #dddde0;border-radius:5px;padding:10px 11px;font-size:14px;display:block;margin:10px 13px}
+#waIos15 .wai-attachment-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:18px 14px}
+#waIos15 .wai-attach-card{display:flex;align-items:center;gap:10px;flex-direction:column;border:0;background:none;color:#007aff;font-size:12px}
+#waIos15 .wai-attach-icon{border-radius:50%;width:53px;height:53px;color:white;background:#4c98f4;display:grid;place-items:center}
+#waIos15 .wai-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:1px}
+#waIos15 .wai-gallery img{width:100%;aspect-ratio:1;object-fit:cover}
+#waIos15 .wai-overlay{position:absolute;inset:0;background:#000a;z-index:50;display:flex;align-items:end}
+#waIos15 .wai-action-sheet{width:100%;padding:7px;background:#e8e8e8ee}
+#waIos15 .wai-action-sheet button{display:block;width:100%;border:0;border-bottom:1px solid #dddde0;background:#fff;color:#007aff;font-size:15px;padding:13px 8px}
+#waIos15 .wai-action-sheet button:first-child{border-radius:9px 9px 0 0}
+#waIos15 .wai-action-sheet button:last-child{border-radius:0 0 9px 9px;border:0}
+#waIos15 .wai-action-sheet button.cancel{margin-top:7px;border-radius:9px;font-weight:600}
+#waIos15 .wai-viewer{position:absolute;inset:0;z-index:56;background:#090909;display:flex;align-items:center;justify-content:center}
+#waIos15 .wai-viewer img{max-width:100%;max-height:83%;object-fit:contain}
+#waIos15 .wai-viewer>button{position:absolute;top:18px;left:10px;background:#2228;border:0;color:#fff;font-size:17px;padding:9px 14px;border-radius:10px}
+#waIos15 .wai-toast{position:absolute;bottom:67px;left:10%;width:80%;padding:10px;border-radius:6px;background:#333e;color:#fff;text-align:center;font-size:12px;z-index:65}
+#waIos15 .wai-call{position:absolute;inset:0;z-index:60;background:linear-gradient(#46505a,#101317);color:#fff;display:flex;flex-direction:column;align-items:center;padding-top:58px}
+#waIos15 .wai-call h2{font-weight:400;font-size:28px;margin:7px 0 8px}
+#waIos15 .wai-call small{color:#d5d7dc;font-size:13px}
+#waIos15 .wai-call .wai-face{width:93px;height:93px;flex-basis:93px;margin:30px auto}
+#waIos15 .wai-call-end{margin-top:auto;margin-bottom:62px;width:70px;height:70px;border-radius:50%;border:0;background:#f6372d;color:white;display:grid;place-items:center}
+#waIos15 .wai-call-end .wai-icon{width:33px;height:33px;transform:rotate(135deg);stroke-width:2.5}
+#waIos15 .wai-keyboard{display:none}
+@media(max-height:540px){#waIos15 .wai-row{min-height:58px}#waIos15 .wai-call .wai-face{margin:10px auto}#waIos15 .wai-call{padding-top:23px}}
