@@ -3275,6 +3275,10 @@ body,
 
 <link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009h">
 <link rel="stylesheet" href="./assets/facebook/facebook-original-image-ratios.css?v=20261009a" />
+<style>/* Stable hardware: only the glass can magnify; its bezel never transforms. */
+.phone-screen-clip{position:absolute;left:27px;top:105px;width:320px;height:568px;overflow:hidden;isolation:isolate;background:#0f171f}
+.phone-screen-clip>.screen{left:0!important;top:0!important;transform-origin:center center;transform:translate3d(var(--glass-pan-x,0px),var(--glass-pan-y,0px),0) scale(var(--glass-zoom,1));will-change:transform}
+</style>
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -3774,14 +3778,27 @@ body,
   document.querySelector('.battery-percent').textContent = `${CONFIG.battery}%`;
   document.querySelector('.battery-fill').style.width = `${CONFIG.battery}%`;
 
+  // Keep the iPhone hardware a stable physical size when browser zoom changes.
+  // Browser zoom changes devicePixelRatio; counter-scale the hardware, not the UI.
+  const phoneBaseDPR = (() => {
+    const current = window.devicePixelRatio || 1;
+    try {
+      const key='caua-phone-base-dpr-v1';
+      let value=Number(sessionStorage.getItem(key));
+      if(!Number.isFinite(value)||value<=0){value=current;sessionStorage.setItem(key,String(value))}
+      return value;
+    }catch(e){return current}
+  })();
   function fitPhone() {
     const margin = innerWidth < 520 ? 12 : 30;
+    const browserZoom = Math.max(.3,(window.devicePixelRatio||phoneBaseDPR)/phoneBaseDPR);
+    const natural = 1.12 / browserZoom;
     const scale = Math.min(
-      (innerWidth - margin * 2) / 375,
-      (innerHeight - margin * 2) / 791,
-      1.12
+      (innerWidth-margin*2)/375,
+      (innerHeight-margin*2)/791,
+      natural
     );
-    document.documentElement.style.setProperty('--phone-scale', Math.max(.42, scale).toFixed(4));
+    document.documentElement.style.setProperty('--phone-scale',Math.max(.2,scale).toFixed(4));
   }
 
   function setActive(view) {
@@ -8117,5 +8134,67 @@ if(m)m.innerHTML=svg('<circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r=
 
 
 <script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009h"></script>
+<script>/* Phone glass zoom: pinch or Ctrl+wheel inside the display without zooming the handset. */
+(()=>{'use strict';
+ function init(){
+  const screen=document.getElementById('screen'),phone=document.querySelector('.iphone');
+  if(!screen||!phone||screen.parentElement.classList.contains('phone-screen-clip'))return;
+  const clip=document.createElement('div');clip.className='phone-screen-clip';
+  screen.parentElement.insertBefore(clip,screen);clip.appendChild(screen);
+  let zoom=1,panX=0,panY=0,pinch=null;
+  const touches=new Map();
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  function draw(){
+   const boundX=160*(zoom-1),boundY=284*(zoom-1);
+   panX=clamp(panX,-boundX,boundX);panY=clamp(panY,-boundY,boundY);
+   clip.style.setProperty('--glass-zoom',zoom.toFixed(3));
+   clip.style.setProperty('--glass-pan-x',panX.toFixed(2)+'px');
+   clip.style.setProperty('--glass-pan-y',panY.toFixed(2)+'px');
+  }
+  function setZoom(value,cx=160,cy=284){
+   const z=clamp(value,1,3);
+   const factor=z/zoom;
+   panX=(panX+160-cx)*factor-(160-cx);
+   panY=(panY+284-cy)*factor-(284-cy);
+   zoom=z;if(zoom===1){panX=0;panY=0}draw();
+  }
+  clip.addEventListener('wheel',e=>{
+   if(!(e.ctrlKey||e.metaKey))return;
+   // Photo viewer has its own independent zoom controls.
+   if(e.target.closest('.photos-stage'))return;
+   e.preventDefault();
+   const rect=clip.getBoundingClientRect(),scale=rect.width/320;
+   setZoom(zoom*(e.deltaY<0?1.12:1/1.12),
+    (e.clientX-rect.left)/scale,(e.clientY-rect.top)/scale);
+  },{passive:false});
+  clip.addEventListener('pointerdown',e=>{
+   if(e.pointerType!=='touch'||e.target.closest('.photos-stage'))return;
+   touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+   if(touches.size===2){const p=[...touches.values()];pinch={distance:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)||1,zoom};}
+  },{capture:true});
+  clip.addEventListener('pointermove',e=>{
+   if(!touches.has(e.pointerId))return;
+   touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+   if(touches.size!==2||!pinch)return;
+   const p=[...touches.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);
+   const rect=clip.getBoundingClientRect(),scale=rect.width/320;
+   setZoom(pinch.zoom*d/pinch.distance,
+      ((p[0].x+p[1].x)/2-rect.left)/scale,
+      ((p[0].y+p[1].y)/2-rect.top)/scale);
+   e.preventDefault();
+  },{capture:true,passive:false});
+  const end=e=>{touches.delete(e.pointerId);if(touches.size<2)pinch=null};
+  ['pointerup','pointercancel','pointerleave'].forEach(type=>clip.addEventListener(type,end,true));
+  document.addEventListener('keydown',e=>{
+   if((e.ctrlKey||e.metaKey)&&(e.key==='0'||e.code==='Digit0')&&
+      (clip.contains(document.activeElement)||document.activeElement===document.body)){
+    e.preventDefault();setZoom(1);
+   }
+  },true);
+  window.CAUA_PHONE_GLASS_ZOOM={get value(){return zoom},set:setZoom,reset:()=>setZoom(1)};
+  draw();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();</script>
 </body>
 </html>
