@@ -3261,6 +3261,7 @@ body,
 #whatsappApp .wa-media-bubble img.caua-wa-photo{display:block;width:100%;height:auto;object-fit:cover;border-radius:5px}
 #whatsappApp #waMediaViewer .frame img{display:block;max-width:100%;max-height:100%;object-fit:contain;margin:auto}
 </style>
+<link rel="stylesheet" href="./assets/whatsapp/wa-enhancements-2015.css?v=1">
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -7877,6 +7878,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
   canvas.addEventListener('click',e=>{if(e.target.closest('[data-wa-media]'))viewer.classList.add('show')});
   document.getElementById('waMediaBack').addEventListener('click',()=>viewer.classList.remove('show'));
   document.querySelectorAll('.wa-tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.wa-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(b.dataset.waTab!=='chats'){setTimeout(()=>{document.querySelectorAll('.wa-tab').forEach(x=>x.classList.toggle('active',x.dataset.waTab==='chats'));},260);}}));
+  window.CAUA_WA_API={THREADS,openThread,showList,renderList,renderThread,getCurrent:()=>current};
   renderList();
 })();
 </script>
@@ -8089,5 +8091,6 @@ if(m)m.innerHTML=svg('<circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r=
   refresh();
 })();
 </script>
+<script src="./assets/whatsapp/wa-enhancements-2015.js?v=1"></script>
 </body>
 </html>
