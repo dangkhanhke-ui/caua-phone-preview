@@ -1,0 +1,99 @@
+name: QA WhatsApp interaction regressions
+on:
+  push:
+    paths:
+      - '.github/workflows/qa-wa-interaction-fixes.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate WhatsApp JavaScript
+        run: node --check assets/whatsapp/wa-ios8-2015.js
+      - name: Test call alignment, archive, deletion, scroll and Vietnamese statuses in Chrome
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          clear="""<script>localStorage.removeItem('caua-whatsapp-ios2015-v2')</script>"""
+          html=html.replace('</head>',clear+'</head>',1)
+          check="""<script>
+          setTimeout(function(){
+            const el=document.documentElement,wa=document.querySelector('#waIos15');
+            try{
+              if(!wa)throw Error('WhatsApp app missing');
+              const click=(selector)=>{
+                const btn=wa.querySelector(selector);
+                if(!btn)throw Error('Missing click: '+selector);
+                btn.click();return btn;
+              };
+              const tab=(id)=>click('[data-act="tab"][data-id="'+id+'"]');
+              const open=(id)=>click('[data-act="open-chat"][data-id="'+id+'"]');
+              open('mother');
+              let icon=wa.querySelector('.wai-call-event .wai-call-icon .wai-icon');
+              if(!icon)throw Error('Call icon missing');
+              if(getComputedStyle(icon.parentElement.parentElement).display!=='flex')throw Error('Call line not flex-aligned');
+              click('[data-act="back"]');
+
+              open('livia');
+              let m=wa.querySelector('#waiMessages');
+              if(!m||m.scrollHeight<900)throw Error('Livia chat too short');
+              m.scrollTop=600;const desired=m.scrollTop;
+              const image=wa.querySelector('.wai-media[data-open-img]');
+              if(!image)throw Error('Image message missing');
+              image.click();
+              if(!wa.querySelector('.wai-viewer'))throw Error('Image viewer did not open');
+              click('[data-act="close-viewer"]');
+              m=wa.querySelector('#waiMessages');
+              if(Math.abs(m.scrollTop-desired)>10)throw Error('Opening image reset scroll to '+m.scrollTop+' from '+desired);
+              click('[data-act="back"]');
+
+              open('camila');
+              click('[data-act="info"]');
+              click('[data-act="archive-chat"]');
+              if(wa.querySelector('[data-act="open-chat"][data-id="camila"]'))throw Error('Archived Camila remains in main chat list');
+              click('[data-act="archived"]');
+              click('[data-act="unarchive"][data-id="camila"]');
+              click('[data-act="back"]');
+              if(!wa.querySelector('[data-act="open-chat"][data-id="camila"]'))throw Error('Cannot unarchive Camila');
+
+              open('mother');
+              click('[data-act="info"]');
+              click('[data-act="confirm-clear-chat"]');
+              click('[data-act="clear-chat"]');
+              click('[data-act="back"]');
+              if(wa.querySelectorAll('.wai-bubble').length)throw Error('Clear chat did not empty messages');
+              click('[data-act="info"]');
+              click('[data-act="confirm-delete-chat"]');
+              click('[data-act="delete-chat"]');
+              if(wa.querySelector('[data-act="open-chat"][data-id="mother"]'))throw Error('Deleted chat remains in list');
+              tab('contacts');click('[data-act="open-contact"][data-id="mother"]');
+              click('[data-act="open-chat"][data-id="mother"]');
+              if(wa.querySelectorAll('.wai-bubble').length)throw Error('Deleting then starting a new chat restored old contents');
+              click('[data-act="back"]');click('[data-act="back"]');
+
+              tab('settings');click('[data-act="profile"]');
+              if(!wa.textContent.includes('Có mặt'))throw Error('Default owner status is not Vietnamese');
+              click('[data-act="edit-status"]');click('[data-act="status-presets"]');
+              const body=wa.textContent;
+              for(const pt of ['Disponível','Ocupado','No trabalho','Na escola'])if(body.includes(pt))throw Error('Portuguese status remained: '+pt);
+              click('[data-act="status-choose"][data-value="Đang bận"]');
+              if(!wa.textContent.includes('Đang bận'))throw Error('Vietnamese status not saved');
+
+              el.dataset.waFixQa='PASS';
+            }catch(e){el.dataset.waFixQa='FAIL:'+e.message;}
+          },700);
+          </script>"""
+          Path('wa-full-fix-qa.html').write_text(html.replace('</body>',check+'</body>',1),encoding='utf-8')
+          PY
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=6500 --dump-dom "file://$PWD/wa-full-fix-qa.html" > /tmp/wa-full-fix-qa.html 2>/tmp/wa-full-fix-log.txt
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/wa-full-fix-qa.html').read_text(errors='replace')
+          matches=re.findall(r'data-wa-fix-qa="([^"]+)"',s)
+          result=matches[-1] if matches else 'NO RESULT'
+          print('WhatsApp four-issue browser regression:',result)
+          if result!='PASS':raise SystemExit('WhatsApp QA did not pass')
+          PY
