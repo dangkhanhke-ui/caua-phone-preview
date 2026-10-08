@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install matched Facebook images safely
         env:
-          FB_KEYS: 'avatar,cover,fyp01_img,fyp02_img,fyp03_img,fyp04_img,fyp08_img,fyp10_img,fyp12_img,fyp15_img,fyp18_img,fyp23_img,fyp26_img,fyp28_img,fyp30_img,fyp32_img,fyp34_img,fyp41_img,fyp45_img,fyp49_img,ad_condom,ad_law,ad_agar,phone_screen'
+          FB_KEYS: 'avatar,cover,fyp01_img,fyp02_img,fyp03_img,fyp04_img,fyp08_img,fyp10_img,fyp12_img,fyp15_img,fyp18_img,fyp23_img,fyp26_img,fyp28_img,fyp30_img,fyp32_img,fyp34_img,fyp41_img,fyp45_img,fyp49_img,ad_condom,ad_law,ad_agar,phone_screen,birthday,friends2015,tattooshop,party1,party2,beach,group,meeting,oldparty,fb20150807,fb20150321,fb20100916,fb20091203,fb20150718,fb20130510'
         run: |
           python3 - <<'PY'
           import os,re
