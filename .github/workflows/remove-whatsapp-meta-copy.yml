@@ -31,15 +31,11 @@ jobs:
                   if word.casefold() in s.casefold():raise SystemExit('Remaining immersion-breaking copy in '+name+': '+word)
               p.write_text(s,encoding='utf-8')
               print('Cleaned player copy:',name)
-          p=Path('.github/workflows/deploy-whatsapp-ios2015.yml')
-          s=p.read_text(encoding='utf-8')
-          if '20261009c' not in s:raise SystemExit('WhatsApp workflow version not expected')
-          p.write_text(s.replace('20261009c','20261009d'),encoding='utf-8')
           html=Path('index.html');s=html.read_text(encoding='utf-8')
-          count=s.count('wa-ios8-2015.js?v=20261009c')
-          if count!=1:raise SystemExit('Deployed WhatsApp script version missing')
-          s=s.replace('wa-ios8-2015.js?v=20261009c','wa-ios8-2015.js?v=20261009d',1)
-          s=s.replace('wa-ios8-2015.css?v=20261009c','wa-ios8-2015.css?v=20261009d',1)
+          for kind in ('js','css'):
+              import re
+              s,n=re.subn(r'wa-ios8-2015\\.'+kind+r'\\?v=20261009[cd]', 'wa-ios8-2015.'+kind+'?v=20261009d', s)
+              if n!=1:raise SystemExit('Missing WhatsApp '+kind+' cache tag')
           html.write_text(s,encoding='utf-8')
           print('WhatsApp browser cache version updated')
           PY
@@ -60,7 +56,7 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add index.html assets/whatsapp/wa-ios8-2015.js assets/whatsapp/wa-enhancements-2015.js .github/workflows/deploy-whatsapp-ios2015.yml
+          git add index.html assets/whatsapp/wa-ios8-2015.js assets/whatsapp/wa-enhancements-2015.js
           git diff --cached --quiet && exit 0
           git commit -m "Remove out-of-world text from WhatsApp screens and calls"
           git pull --rebase origin main
