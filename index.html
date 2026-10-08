@@ -3335,7 +3335,15 @@ body.caua-immersive #caua-immersive-toggle{top:6px;right:6px;opacity:.72}
 #caua-home-gesture:after{content:"";width:70px;height:4px;background:rgba(190,193,201,.87);border-radius:20px;box-shadow:0 0 2px rgba(0,0,0,.25)}
 body.caua-immersive #caua-home-gesture{display:flex}
 </style>
-</head>
+<style id="caua-immersive-gesture-switcher-polish">
+/* Rounded, subtly elevated multitasking cards, without modifying their content. */
+#ios8AppSwitcher .ios8-switcher-preview{border-radius:15px!important;overflow:hidden!important;box-shadow:0 10px 24px rgba(0,0,0,.4)!important}
+#ios8AppSwitcher .ios8-switcher-preview-inner{border-radius:inherit}
+#ios8AppSwitcher .ios8-switcher-card{border-radius:15px}
+body.caua-immersive #caua-home-gesture{width:132px;height:28px;padding-bottom:6px}
+body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
+#caua-home-gesture{transition:transform .13s ease-out,opacity .13s ease-out;user-select:none;-webkit-user-select:none}
+</style></head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
     <div class="phone-wrap" id="phoneWrap">
@@ -8322,15 +8330,15 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
 </script>
 <script id="caua-immersive-mode-script">
 (()=>{'use strict';
-const screen=document.getElementById('screen'),stage=document.querySelector('.stage'),home=document.getElementById('homeButton');
-if(!screen||!stage||!home)return;
+const screen=document.getElementById('screen'),home=document.getElementById('homeButton');
+if(!screen||!home)return;
 const button=document.createElement('button');button.id='caua-immersive-toggle';button.type='button';
 button.setAttribute('aria-label','Bật hoặc tắt chế độ toàn màn hình');
 document.body.appendChild(button);
 const handle=document.createElement('div');handle.id='caua-home-gesture';
-handle.setAttribute('role','button');handle.setAttribute('aria-label','Vuốt lên để về Home, hoặc chạm để về Home');
+handle.setAttribute('role','button');handle.setAttribute('aria-label','Vuốt lên để về Home; vuốt xa và giữ để mở đa nhiệm');
 handle.tabIndex=0;screen.appendChild(handle);
-let active=false,start=null;
+let active=false,gesture=null,lastTap=0,holdTimer=0;
 function fit(){
  const vw=window.visualViewport?.width||window.innerWidth,vh=window.visualViewport?.height||window.innerHeight;
  document.documentElement.style.setProperty('--immersive-scale',Math.min(vw/320,vh/568).toFixed(5));
@@ -8340,22 +8348,63 @@ function setMode(on){
  button.textContent=active?'⤢ thu nhỏ':'⛶ phóng lớn';
  button.setAttribute('aria-pressed',String(active));fit();
 }
-button.addEventListener('click',()=>setMode(!active));
 function goHome(){if(active)home.click();}
+function openSwitcher(){
+ if(!active)return;
+ const switcher=document.getElementById('ios8AppSwitcher');
+ if(switcher?.classList.contains('open'))return;
+ if(document.getElementById('lockScreen')?.classList.contains('active')||
+    document.getElementById('passcodeScreen')?.classList.contains('active'))return;
+ // Existing iOS8 home-button handler opens the app switcher on two quick presses.
+ home.click();home.click();
+}
+function clearGesture(){
+ if(holdTimer)clearTimeout(holdTimer);holdTimer=0;
+ handle.style.transform='translateX(-50%)';handle.style.opacity='';
+ gesture=null;
+}
+button.addEventListener('click',()=>setMode(!active));
 handle.addEventListener('pointerdown',e=>{
- if(!active)return;start={id:e.pointerId,x:e.clientX,y:e.clientY};
+ if(!active||gesture||e.button>0)return;
+ gesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastY:e.clientY,started:performance.now(),switched:false,travel:0};
  try{handle.setPointerCapture(e.pointerId)}catch(_){}
  e.preventDefault();e.stopPropagation();
 });
+handle.addEventListener('pointermove',e=>{
+ const g=gesture;if(!g||g.id!==e.pointerId)return;
+ const dy=e.clientY-g.startY,dx=e.clientX-g.startX;
+ g.lastY=e.clientY;g.travel=Math.max(0,-dy);
+ if(Math.abs(dx)>85){clearGesture();return}
+ const offset=-Math.min(11,g.travel/11);
+ handle.style.transform='translate(-50%,'+offset+'px)';
+ if(g.travel>=90&&!holdTimer&&!g.switched){
+   holdTimer=setTimeout(()=>{
+     holdTimer=0;
+     if(gesture===g&&g.travel>=90){g.switched=true;openSwitcher()}
+   },240);
+ }
+ if(g.travel<75&&holdTimer){clearTimeout(holdTimer);holdTimer=0}
+ e.preventDefault();
+});
 handle.addEventListener('pointerup',e=>{
- if(!start||e.pointerId!==start.id)return;
- const dy=e.clientY-start.y,dx=Math.abs(e.clientX-start.x);start=null;
- if(dy< -24&&dx<100)goHome();
+ const g=gesture;if(!g||g.id!==e.pointerId)return;
+ const travelled=g.travel,switched=g.switched,elapsed=performance.now()-g.started;
+ clearGesture();
+ if(switched)return;
+ if(travelled>=115&&elapsed>=230){openSwitcher();return}
+ if(travelled>=23){goHome();return}
+ if(travelled<12){
+   const now=performance.now();
+   if(now-lastTap<330){lastTap=0;openSwitcher()}else{lastTap=now;goHome()}
+ }
  e.preventDefault();e.stopPropagation();
 });
-handle.addEventListener('pointercancel',()=>start=null);
-handle.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();goHome();});
-handle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();goHome();}});
+handle.addEventListener('pointercancel',clearGesture);
+handle.addEventListener('click',e=>{e.preventDefault();e.stopPropagation()});
+handle.addEventListener('keydown',e=>{
+ if(e.key==='Enter'||e.key===' '){e.preventDefault();goHome()}
+ if(e.key==='ArrowUp'){e.preventDefault();openSwitcher()}
+});
 window.addEventListener('resize',fit,{passive:true});
 window.visualViewport?.addEventListener('resize',fit,{passive:true});
 fit();setMode(false);
