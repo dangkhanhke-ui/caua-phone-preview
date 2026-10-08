@@ -1,0 +1,52 @@
+name: QA Facebook Photo Viewer
+on:
+  push:
+    paths:
+      - '.github/workflows/qa-facebook-photo-viewer.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate photo viewer JavaScript
+        run: node --check assets/facebook/facebook-lightbox.js
+      - name: Test Facebook open zoom and close in Chrome
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text()
+          check="""<script>
+          setTimeout(()=>{
+           try{
+            const fb=document.querySelector('#facebookApp');
+            if(!fb)throw Error('Facebook missing');
+            fb.classList.add('open');
+            fb.style.cssText='position:fixed!important;display:block!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;inset:0!important;width:375px!important;height:700px!important;z-index:999999!important;';
+            const img=fb.querySelector('.fb15-media.photo img,.fb15-profile-cover>img');
+            if(!img)throw Error('No Facebook photo visible');
+            const before=document.querySelector('.iphone').getBoundingClientRect().width;
+            img.click();
+            const viewer=fb.querySelector('.fb15-lightbox');
+            if(!viewer)throw Error('Image lightbox did not open');
+            if(!viewer.querySelector('img')?.src)throw Error('Viewer photo missing');
+            viewer.querySelector('[data-fb-photo-reset]').click();
+            viewer.querySelector('[data-fb-photo-close]').click();
+            if(fb.querySelector('.fb15-lightbox'))throw Error('Viewer did not close');
+            if(Math.abs(document.querySelector('.iphone').getBoundingClientRect().width-before)>1)throw Error('Phone frame changed');
+            document.documentElement.dataset.fbViewerQa='PASS';
+           }catch(err){document.documentElement.dataset.fbViewerQa='FAIL:'+err.message}
+          },950);
+          </script>"""
+          Path('fb-viewer-qa.html').write_text(html.replace('</body>',check+'</body>',1))
+          PY
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=6500 --dump-dom "file://$PWD/fb-viewer-qa.html" > /tmp/fb-viewer-qa.log 2>/tmp/fb-viewer-qa.err
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/fb-viewer-qa.log').read_text(errors='replace')
+          found=re.findall(r'data-fb-viewer-qa="([^"]+)"',s)
+          result=found[-1] if found else 'NO RESULT'
+          print('Facebook photo lightbox QA:',result)
+          assert result=='PASS',result
+          PY
