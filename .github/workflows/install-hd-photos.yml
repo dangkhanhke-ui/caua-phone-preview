@@ -23,13 +23,13 @@ jobs:
           target=Path('assets/photos')
           target.mkdir(parents=True,exist_ok=True)
           with zipfile.ZipFile(archive) as z:
-              names={n for n in z.namelist() if re.fullmatch(r'photo[0-9]{2}\\.webp',n)}
+              names={n for n in z.namelist() if re.fullmatch(r'photo[0-9]{2}\.webp',n)}
               if len(names)!=30:raise SystemExit(f'Expected 30 HD photos, got {len(names)}')
               updated=[0]
               for n in sorted(names):
                   pid=n[:-5]
                   target.joinpath(n).write_bytes(z.read(n))
-                  pattern=r"(?P<prefix>\\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
+                  pattern=r"(?P<prefix>\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
                   text,count=re.subn(pattern,lambda m:m.group('prefix')+"'./assets/photos/"+n+"'",text,count=1)
                   if count!=1:raise SystemExit('Missing image ID: '+pid)
                   updated[0]+=count
