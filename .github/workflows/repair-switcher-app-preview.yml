@@ -1,0 +1,36 @@
+name: Repair multitasking preview rendering
+on:
+  push:
+    paths:
+      - '.github/workflows/repair-switcher-app-preview.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preserve scoped styling for cloned previews
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          source="      stripIds(clone);"
+          if s.count(source)!=1:raise SystemExit('Expected switcher preview clone path not found')
+          replacement="""      // Keep preview-specific ID selectors working. The clone is inert and
+      // its controls never receive pointer events.
+      clone.setAttribute('inert', '');
+      clone.setAttribute('aria-hidden', 'true');"""
+          s=s.replace(source,replacement,1)
+          p.write_text(s,encoding='utf-8')
+          print('Repaired cloned WhatsApp/Phone preview CSS selectors')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html
+          git commit -m "Keep app preview styling in multitasking cards"
+          git pull --rebase origin main
+          git push
