@@ -1,0 +1,32 @@
+name: Nudge end call upward
+on:
+  push:
+    paths:
+      - '.github/workflows/nudge-hangup-up.yml'
+permissions:
+  contents: write
+jobs:
+  adjust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Raise end-call button slightly
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old='bottom:44px!important; width:72px!important;'
+          if old not in s:raise SystemExit('Expected current end-call position missing')
+          s=s.replace(old,'bottom:64px!important; width:72px!important;',1)
+          p.write_text(s)
+          print('Raised end call by 20px; kept 72px diameter')
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html
+          git commit -m "Nudge end-call button up twenty pixels"
+          git pull --rebase origin main
+          git push
