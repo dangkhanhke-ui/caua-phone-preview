@@ -1,0 +1,47 @@
+name: QA fixed iPhone frame and glass zoom
+on:
+  push:
+    paths:
+      - '.github/workflows/qa-fixed-phone-glass.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test zoom clipping and phone frame in Chrome
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          assert 'caua-phone-base-dpr-v1' in html
+          assert 'phone-screen-clip' in html
+          test="""<script>
+          setTimeout(()=>{
+            try {
+              const phone=document.querySelector('.iphone'),screen=document.getElementById('screen'),clip=document.querySelector('.phone-screen-clip');
+              if(!phone||!clip||!screen||screen.parentElement!==clip)throw Error('Frame not separated');
+              const before=phone.getBoundingClientRect().width;
+              window.CAUA_PHONE_GLASS_ZOOM.set(2);
+              if(Math.abs(window.CAUA_PHONE_GLASS_ZOOM.value-2)>0.01)throw Error('Zoom state incorrect');
+              if(Math.abs(phone.getBoundingClientRect().width-before)>0.01)throw Error('Phone bezel resized');
+              if(getComputedStyle(clip).overflow!=='hidden')throw Error('Screen zoom spills outside glass');
+              if(!getComputedStyle(screen).transform.includes('matrix'))throw Error('Screen not transformed');
+              window.CAUA_PHONE_GLASS_ZOOM.reset();
+              if(Math.abs(window.CAUA_PHONE_GLASS_ZOOM.value-1)>0.01)throw Error('Reset zoom broken');
+              document.documentElement.dataset.glassQa='PASS';
+            }catch(e){document.documentElement.dataset.glassQa='FAIL:'+e.message}
+          },900);
+          </script>"""
+          Path('phone-zoom-qa.html').write_text(html.replace('</body>',test+'</body>',1),encoding='utf-8')
+          PY
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=6000 --dump-dom "file://$PWD/phone-zoom-qa.html" > /tmp/phone-zoom-qa.txt 2>/tmp/phone-zoom-log.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/phone-zoom-qa.txt').read_text(errors='replace')
+          found=re.findall(r'data-glass-qa="([^"]+)"',s)
+          result=found[-1] if found else 'NO RESULT'
+          print('iPhone hardware / internal zoom regression:',result)
+          assert result=='PASS',result
+          PY
