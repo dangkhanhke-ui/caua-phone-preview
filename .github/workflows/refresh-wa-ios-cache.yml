@@ -1,0 +1,34 @@
+name: Refresh WhatsApp iPhone asset cache
+on:
+  push:
+    paths:
+      - '.github/workflows/refresh-wa-ios-cache.yml'
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update only WhatsApp resource versions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          import re
+          for kind in ('js','css'):
+              pattern=r'(wa-ios8-2015\\.'+kind+r'\\?v=)\\w+'
+              s,n=re.subn(pattern,r'\\g<1>20261009c',s)
+              if n!=1:raise SystemExit('Expected exactly one '+kind+' resource, found '+str(n))
+          p.write_text(s,encoding='utf-8')
+          print('WhatsApp iOS 2015 CSS/JS cache safely refreshed')
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html
+          git commit -m "Refresh deployed WhatsApp 2015 assets"
+          git pull --rebase origin main
+          git push
