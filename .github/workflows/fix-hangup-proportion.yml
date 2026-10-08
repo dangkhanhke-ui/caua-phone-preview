@@ -1,0 +1,35 @@
+name: Fix end-call proportions
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-hangup-proportion.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resize and space end-call button
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old='width:82px!important; height:82px!important;'
+          if old not in s:raise SystemExit('Existing end-call sizing not found')
+          s=s.replace(old,'width:72px!important; height:72px!important;',1)
+          old='bottom:100px!important; width:72px!important;'
+          if old not in s:raise SystemExit('Existing end-call position not found')
+          s=s.replace(old,'bottom:44px!important; width:72px!important;',1)
+          s=s.replace('width:47px!important; height:47px!important;','width:35px!important; height:35px!important;',1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html
+          git commit -m "Restore natural end-call spacing and size"
+          git pull --rebase origin main
+          git push
