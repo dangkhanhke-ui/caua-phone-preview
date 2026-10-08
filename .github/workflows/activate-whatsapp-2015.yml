@@ -1,0 +1,67 @@
+name: Activate 2015 WhatsApp features
+on:
+  push:
+    paths:
+      - '.github/workflows/activate-whatsapp-2015.yml'
+      - 'assets/whatsapp/wa-enhancements-2015.js'
+      - 'assets/whatsapp/wa-enhancements-2015.css'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: activate-whatsapp-2015
+  cancel-in-progress: false
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check assets/whatsapp/wa-enhancements-2015.js
+      - name: Mount WhatsApp functionality while preserving all original chats
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='CAUA_WA_API'
+          if 'window.'+tag not in s:
+              start=s.find('const THREADS=')
+              if start<0:raise SystemExit('WhatsApp original THREADS data not found')
+              end=s.find('</script>',start)
+              if end<0:raise SystemExit('WhatsApp original script end not found')
+              part=s[start:end]
+              marker='  renderList();\n})();'
+              if part.count(marker)!=1:raise SystemExit('WhatsApp render end not unique: '+str(part.count(marker)))
+              part=part.replace(marker,"  window.CAUA_WA_API={THREADS,openThread,showList,renderList,renderThread,getCurrent:()=>current};\n"+marker)
+              s=s[:start]+part+s[end:]
+          s=re.sub(r'<link[^>]*wa-enhancements-2015.css[^>]*>', '', s)
+          s=re.sub(r'<script[^>]*wa-enhancements-2015.js[^>]*></script>', '', s)
+          css='<link rel="stylesheet" href="./assets/whatsapp/wa-enhancements-2015.css?v=1">'
+          script='<script src="./assets/whatsapp/wa-enhancements-2015.js?v=1"></script>'
+          if '</head>' not in s or '</body>' not in s:raise SystemExit('HTML shell missing')
+          s=s.replace('</head>',css+'\n</head>',1)
+          s=s.replace('</body>',script+'\n</body>',1)
+          p.write_text(s,encoding='utf-8')
+          print('Activated 2015 WhatsApp interactive enhancement')
+          PY
+      - name: Verify original chat data untouched
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text()
+          for tag in ['waListView','waThreadView','waChatCanvas','waSearch','CAUA_WA_API','wa-enhancements-2015.js','wa-enhancements-2015.css']:
+              if tag not in s:raise SystemExit('Missing '+tag)
+          print('WhatsApp anchors and enhanced assets verified')
+          PY
+      - name: Commit and deploy
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Activate functional WhatsApp 2015 upgrade"
+          git pull --rebase origin main
+          git push
