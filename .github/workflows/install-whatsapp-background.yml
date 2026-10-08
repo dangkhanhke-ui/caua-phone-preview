@@ -34,16 +34,10 @@ jobs:
           html_file=Path('index.html')
           html=html_file.read_text(encoding='utf-8')
           url='./'+dest.as_posix()
-          pattern=r'(\.wa-chat-canvas\s*\{)([^}]*)(\})'
-          def update(match):
-              css=match.group(2)
-              if not re.search(r'background(?:-image)?\\s*:',css):
-                  raise SystemExit('Background CSS property not found')
-              css,n=re.subn(r'background\s*:\s*[^;]+;',lambda _: 'background:#efe8dc url("'+url+'") center center / cover no-repeat;',css,count=1)
-              if n!=1:raise SystemExit('Could not change chat canvas background')
-              return match.group(1)+css+match.group(3)
-          html,n=re.subn(pattern,update,html,count=1)
-          if n!=1:raise SystemExit('WhatsApp chat canvas selector not found')
+          style='<style id="wa-hd-chat-wallpaper">#whatsappApp .wa-chat-canvas{background-image:url("'+url+'")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}</style>'
+          html=re.sub(r'<style id="wa-hd-chat-wallpaper">.*?</style>', '', html, flags=re.S)
+          if '</head>' not in html:raise SystemExit('HTML head not found')
+          html=html.replace('</head>',style+'</head>',1)
           html_file.write_text(html,encoding='utf-8')
           print('Installed WhatsApp background:',url)
           PY
