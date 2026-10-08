@@ -237,6 +237,8 @@ function boot(){
   else if(sub==='choose-status'){title='Trạng thái';body=group('Chọn trạng thái')+wrap(['Disponível','Ocupado','No trabalho','Na escola','Bateria quase acabando','Não posso falar, só WhatsApp'].map(x=>cell(esc(x),'status-choose',data.status===x?'✓':'','data-value="'+esc(x)+'"')).join('')+cell('Tùy chỉnh…','status-edit'))}
   else if(sub==='choose-fav'){title='Thêm vào yêu thích';body=threads.filter(t=>!t.members&&!data.favorite.includes(t.id)).map(t=>contactRow(t,'favorite-add')).join('')||info('Tất cả liên hệ đang nằm trong Yêu thích.')}
   else if(sub==='call-picker'){title='Cuộc gọi mới';body=threads.filter(t=>!t.members).map(t=>contactRow(t,'call')).join('')}
+  else if(sub==='contact-picker'){title='Chia sẻ liên hệ';body=threads.filter(t=>!t.members).map(t=>contactRow(t,'contact-share')).join('')}
+  else if(sub==='forward-pick'){title='Chuyển tiếp';body=threads.filter(t=>!t.members).map(t=>contactRow(t,'forward-to')).join('')}
   else if(sub==='block-list'){title='Chặn liên hệ';body=threads.filter(t=>!t.members&&!data.privacy.blocked.includes(t.id)).map(t=>contactRow(t,'block')).join('')}
   else if(sub==='tone'){title='Âm thanh';body=wrap(['Mặc định','Note','Chord','Glass'].map(x=>cell(x,'tone-choose',data.notifyTone===x?'✓':'','data-value="'+x+'"')).join(''))}
   else{title='WhatsApp';body=info('Chưa có dữ liệu cho màn hình này.')}
@@ -256,7 +258,7 @@ function boot(){
   else root.innerHTML=genericPage();
   if(ui.page==='chat'){
    const m=root.querySelector('#waiMessages');
-   if(m){m.style.backgroundImage=data.wallpaper==='cream'?'none':data.wallpaper==='blue'?'none':data.wallpaper==='white'?'none':'';if(data.wallpaper)m.style.backgroundColor=({cream:'#e8ded2',blue:'#d8e2e5',white:'#fff'})[data.wallpaper]||'#e8ded2';if(ui.scrollThread)m.scrollTop=m.scrollHeight;ui.scrollThread=true}
+   if(m){m.style.backgroundImage=data.wallpaper==='cream'?'none':data.wallpaper==='blue'?'none':data.wallpaper==='white'?'none':'';if(data.wallpaper)m.style.backgroundColor=({cream:'#e8ded2',blue:'#d8e2e5',white:'#fff'})[data.wallpaper]||'#e8ded2';if(ui.targetMsg){const el=[...m.querySelectorAll('[data-msg]')].find(x=>x.dataset.msg===ui.targetMsg);if(el){el.scrollIntoView({block:'center'});el.style.outline='2px solid #007aff'}ui.targetMsg=''}else if(ui.scrollThread)m.scrollTop=m.scrollHeight;ui.scrollThread=true}
   }
   if(ui.overlay)root.insertAdjacentHTML('beforeend',sheet());
   if(ui.viewer)root.insertAdjacentHTML('beforeend','<div class="wai-viewer">'+action('close-viewer','‹ Đóng')+'<img src="'+esc(ui.viewer)+'" alt="Ảnh trong WhatsApp"></div>');
@@ -426,7 +428,7 @@ function boot(){
   if(a==='message-info'){const e=getSelectedMsg();closeSheet();openSheet('Thông tin tin nhắn',[{text:'Gửi '+dateLabel(e?.date)+' lúc '+(e?.time||''),act:'noop'},{text:e?.sender==='caua'?'Đã gửi ✓✓':'Đã nhận',act:'noop'}]);return}
   if(a==='hide-msg'){if(ui.selectedMessage&&!data.hide.includes(ui.selectedMessage))data.hide.push(ui.selectedMessage);save();closeSheet();return}
   if(a==='forward-msg'){ui.overlay=null;navigate('sub',{sub:'forward-pick'});return}
-  if(a==='forward-to'){const message=getSelectedMsg(),t=contact(id);if(message&&t){makeMessage(t,'message',{text:'↪ '+(message.text||'Đã chuyển tiếp tệp đính kèm')});ui.page='chat';ui.id=id;ui.stack=[];render();toast('Đã chuyển tiếp trong bản mô phỏng')}return}
+  if(a==='forward-to'){const source=ui.stack.findLast?.(x=>x.page==='chat');const origin=source?contact(source.id):contact(ui.id);const message=origin?allEvents(origin).find(e=>e.id===ui.selectedMessage):null,t=contact(id);if(message&&t){makeMessage(t,'message',{text:'↪ '+(message.text||'Đã chuyển tiếp tệp đính kèm')});ui.page='chat';ui.id=id;ui.stack=[];render();toast('Đã chuyển tiếp trong bản mô phỏng')}return}
   if(a==='jump'){ui.targetMsg=id;backToChat();return}
   if(a==='pref'){const k=id;data.prefs[k]=!data.prefs[k];save();render();return}
   if(a==='privacy-set'){data.privacy[el.dataset.key]=val;save();back();return}
