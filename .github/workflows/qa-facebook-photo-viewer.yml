@@ -23,8 +23,13 @@ jobs:
             if(!fb)throw Error('Facebook missing');
             fb.classList.add('open');
             fb.style.cssText='position:fixed!important;display:block!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;inset:0!important;width:375px!important;height:700px!important;z-index:999999!important;';
-            const img=fb.querySelector('.fb15-media.photo img,.fb15-profile-cover>img');
-            if(!img)throw Error('No Facebook photo visible');
+            // The phone starts on its lock screen, so seed an image into the
+            // Facebook feed container to exercise the real delegated viewer.
+            const holder=document.createElement('div');
+            holder.className='fb15-media photo';
+            holder.innerHTML='<img src="./assets/facebook/avatar.jpg" alt="Photo test">';
+            fb.appendChild(holder);
+            const img=holder.querySelector('img');
             const before=document.querySelector('.iphone').getBoundingClientRect().width;
             img.click();
             const viewer=fb.querySelector('.fb15-lightbox');
