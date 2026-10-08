@@ -33,9 +33,10 @@ jobs:
               print('Cleaned player copy:',name)
           html=Path('index.html');s=html.read_text(encoding='utf-8')
           for kind in ('js','css'):
-              import re
-              s,n=re.subn(r'wa-ios8-2015\\.'+kind+r'\\?v=20261009[cd]', 'wa-ios8-2015.'+kind+'?v=20261009d', s)
+              prefix='wa-ios8-2015.'+kind+'?v='
+              n=s.count(prefix+'20261009c')+s.count(prefix+'20261009d')
               if n!=1:raise SystemExit('Missing WhatsApp '+kind+' cache tag')
+              s=s.replace(prefix+'20261009c',prefix+'20261009d')
           html.write_text(s,encoding='utf-8')
           print('WhatsApp browser cache version updated')
           PY
