@@ -1,0 +1,90 @@
+name: QA WhatsApp 2015 screens and interactions
+on:
+  push:
+    paths:
+      - '.github/workflows/qa-whatsapp-ios2015.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify and capture iPhone WhatsApp views in Chrome
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text()
+          code="""<script>
+          setTimeout(function(){
+            try{
+              var w=document.querySelector('#waIos15');
+              if(!w)throw Error('WhatsApp root unavailable');
+              var tab=function(id){var b=w.querySelector('[data-act="tab"][data-id="'+id+'"]');if(!b)throw Error('Missing tab '+id);b.click()};
+              var act=function(name){var b=w.querySelector('[data-act="'+name+'"]');if(!b)throw Error('Missing action '+name);b.click()};
+              tab('favorites');
+              if(w.querySelectorAll('[data-act="open-contact"]').length<3)throw Error('Favorites empty');
+              tab('recents');
+              if(!w.querySelector('[data-act="call-filter"]'))throw Error('Recents not functional');
+              tab('settings');act('account');act('sub');
+              if(!w.textContent.includes('Lần cuối truy cập'))throw Error('Privacy navigation failed');
+              act('back');act('back');
+              tab('chats');act('new-group');
+              var picks=w.querySelectorAll('[data-act="toggle-select"]');
+              if(picks.length<2)throw Error('Group picker empty');
+              picks[0].click();picks=w.querySelectorAll('[data-act="toggle-select"]');picks[1].click();
+              act('group-next');var name=w.querySelector('#waiGroupTitle');
+              if(!name)throw Error('Group name input missing');name.value='Thử nghiệm QA';
+              act('create-group');
+              if(!w.textContent.includes('Thử nghiệm QA'))throw Error('Group creation failed');
+              tab('chats');var livia=w.querySelector('[data-act="open-chat"][data-id="livia"]');
+              if(!livia)throw Error('Original Lívia chat lost');livia.click();
+              var input=w.querySelector('#waiText');if(!input)throw Error('Compose input missing');
+              input.value='QA test 2015';act('send');
+              if(!w.textContent.includes('QA test 2015'))throw Error('Sending simulation failed');
+              act('attach');
+              if(!w.textContent.includes('Ảnh từ thư viện'))throw Error('Attachment sheet absent');
+              act('close-sheet');act('back');
+              tab('settings');act('profile');
+              if(!w.textContent.includes('90000-0101'))throw Error('Cauã fictional number missing');
+              document.documentElement.dataset.qa='PASS';
+            }catch(e){document.documentElement.dataset.qa='FAIL:'+e.message;}
+          },500);
+          </script>"""
+          Path('wa-qa-check.html').write_text(html.replace('</body>',code+'</body>',1))
+          for name,steps in [('chats',''),('settings',"wa.querySelector('[data-act=tab][data-id=settings]').click();"),('profile',"wa.querySelector('[data-act=tab][data-id=settings]').click();wa.querySelector('[data-act=profile]').click();")]:
+              shot="""<script>setTimeout(function(){
+                 var wa=document.querySelector('#waIos15'), app=document.querySelector('#whatsappApp');
+                 if(!wa||!app)return;
+                 document.body.style.cssText='margin:0!important;background:white!important;';
+                 app.style.cssText='position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;left:0!important;top:0!important;width:390px!important;height:730px!important;transform:none!important;z-index:999999!important;';
+                 wa.style.cssText='position:absolute!important;inset:20px 0 0!important;transform:none!important;display:block!important;z-index:999999!important;';
+                 STEPS
+              },400);</script>""".replace('STEPS',steps)
+              Path('wa-qa-'+name+'.html').write_text(html.replace('</body>',shot+'</body>',1))
+          PY
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=4500 --dump-dom "file://$PWD/wa-qa-check.html" >/tmp/wa-qa-output.txt 2>/tmp/wa-qa-err.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/wa-qa-output.txt').read_text(errors='replace')
+          m=re.findall(r'data-qa="([^"]+)"',t)
+          print('WhatsApp end-to-end QA:',m[-1] if m else 'NO RESULT')
+          if not m or m[-1]!='PASS':raise SystemExit('WhatsApp deep interaction test failed')
+          PY
+          mkdir -p qa/whatsapp-ios2015
+          for view in chats settings profile; do
+            google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,730 --hide-scrollbars --virtual-time-budget=2200 --screenshot="$PWD/qa/whatsapp-ios2015/$view.png" "file://$PWD/wa-qa-$view.html" >/dev/null 2>/dev/null
+            test -s "qa/whatsapp-ios2015/$view.png"
+          done
+          rm -f wa-qa-check.html wa-qa-chats.html wa-qa-settings.html wa-qa-profile.html
+      - name: Store screenshots for design review
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add qa/whatsapp-ios2015
+          git diff --cached --quiet && exit 0
+          git commit -m "Capture QA screenshots for WhatsApp 2015 UI"
+          git pull --rebase origin main
+          git push
