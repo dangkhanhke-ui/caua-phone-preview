@@ -100,7 +100,7 @@ function boot(){
   const rows=threads.filter(t=>!t.members).filter(t=>!q||t.name.toLocaleLowerCase('vi').includes(q));
   return '<div class="wai-underbar"><input class="wai-search" id="waiSearch" placeholder="Tìm danh bạ" value="'+esc(ui.query)+'"></div>'+
    section('Liên hệ WhatsApp · '+rows.length)+rows.map(t=>contactRow(t)).join('')+
-   '<div class="wai-descr">Danh bạ này chỉ gồm các nhân vật đã có trong hồ sơ Cauã, không liên kết danh bạ thật.</div>';
+   '';
  }
  function eventsCalls(){
   let calls=threads.flatMap(t=>(t.events||[]).filter(e=>e.type==='call').map(e=>({...e,contactId:t.id}))).concat(data.calls||[]);
@@ -123,7 +123,7 @@ function boot(){
     cell('WhatsApp Web','web')+
     cell('Trợ giúp','help'))+
    section('Khác')+wrap(cell('Mời bạn bè','invite')+cell('Giới thiệu','about-app'))+
-   '<div class="wai-descr">WhatsApp phiên bản iPhone · mô phỏng giao diện tháng 8/2015. Không sử dụng dịch vụ WhatsApp thật.</div>';
+   '';
  }
  function main(){
   let title={chats:'Trò chuyện',contacts:'Danh bạ',favorites:'Yêu thích',recents:'Gần đây',settings:'Cài đặt'}[ui.tab];
@@ -138,7 +138,7 @@ function boot(){
   if(e.type==='image')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">'+(images[e.id]||e.src?'<img class="wai-media" data-open-img="'+esc(e.src||images[e.id])+'" src="'+esc(e.src||images[e.id])+'" alt="Ảnh WhatsApp">':'Ảnh trong cuộc trò chuyện')+meta+'</div></div>';
   if(e.type==='audio')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'"><span class="wai-audio">🎙 <audio src="'+esc(e.src)+'" controls preload="none"></audio></span>'+meta+'</div></div>';
   if(e.type==='contact')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">👤 <b>'+esc(e.contactName||'Liên hệ')+'</b><br>'+esc(e.phone||'')+meta+'</div></div>';
-  if(e.type==='location')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">📍 <b>'+esc(e.title||'Rio de Janeiro, RJ')+'</b><br><small>Vị trí mô phỏng</small>'+meta+'</div></div>';
+  if(e.type==='location')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">📍 <b>'+esc(e.title||'Rio de Janeiro, RJ')+'</b>'+meta+'</div></div>';
   return '<div class="wai-service-msg">'+esc(e.text||'Thông tin')+'</div>';
  }
  function chat(){
@@ -159,7 +159,7 @@ function boot(){
    '<div class="wai-descr">Tên hiển thị với những người chưa lưu số điện thoại của bạn.</div>'+
    section('Trạng thái')+wrap(cell(esc(data.status),'edit-status'))+
    section('Số điện thoại')+wrap('<div class="wai-profile-number">'+esc(phones.caua)+'</div>')+
-   '<div class="wai-descr">Số điện thoại hư cấu cho nhân vật Cauã; không dùng để gọi hoặc đăng ký tài khoản thật.</div>'+
+   ''+
    '</main>';
  }
  function contactInfo(){
@@ -177,7 +177,7 @@ function boot(){
    cell(data.favorite.includes(t.id)?'Bỏ khỏi Yêu thích':'Thêm vào Yêu thích','fav-toggle')+
    cell('Lưu trữ cuộc trò chuyện','archive-chat'))+
    (t.members?section('Thành viên')+wrap(t.members.map(id=>cell(esc(contact(id)?.name||id),'open-contact','', 'data-id="'+esc(id)+'"')).join('')):'')+
-   '<div class="wai-descr">Thông tin và số điện thoại liên hệ đều là dữ liệu hư cấu trong case.</div></main>';
+   '</main>';
  }
  function listPick(kind){
   const chosen=ui.select||[];
@@ -188,7 +188,7 @@ function boot(){
  function newGroupForm(){
   return nav('Tên nhóm','Quay lại')+'<main class="wai-screen grouped">'+section('Thành viên: '+ui.select.map(id=>contact(id)?.name).join(', '))+
     '<input class="wai-form-input" id="waiGroupTitle" maxlength="42" placeholder="Tên nhóm">'+
-    '<div class="wai-descr">Đây là nhóm mô phỏng, không tạo nhóm WhatsApp thật.</div>'+
+    ''+
     '<div style="padding:0 13px">'+action('create-group','Tạo nhóm','class="wai-list-action"')+'</div></main>';
  }
  function gallery(){
@@ -209,7 +209,7 @@ function boot(){
  function callScreen(){
   const t=contact(ui.id);return '<div class="wai-call">'+
   '<h2>'+esc(t?.name||'Liên hệ')+'</h2><small id="waiCallTime">Đang gọi…</small>'+face(ui.id)+
-  '<div class="wai-subtle" style="color:#c4d2d9;padding:0 23px;text-align:center">Cuộc gọi thoại mô phỏng, không kết nối tới số thật</div>'+
+  ''+
   '<button class="wai-call-end" data-act="end-call" aria-label="Kết thúc cuộc gọi">'+icon('phone')+'</button></div>';
  }
  function genericPage(){
@@ -217,22 +217,22 @@ function boot(){
   const group=t=>section(t);
   const desc=t=>'<div class="wai-descr">'+t+'</div>';
   let title='Cài đặt',body='';
-  if(sub==='account'){title='Tài khoản';body=group('Quyền riêng tư')+wrap(cell('Riêng tư','sub','', 'data-sub="privacy"')+cell('Bảo mật','sub','', 'data-sub="security"')+cell('Đổi số','sub','', 'data-sub="change-number"'))+desc('Chỉ mô phỏng; không có tài khoản WhatsApp thật.') }
-  else if(sub==='privacy'){title='Riêng tư';body=group('Ai có thể xem thông tin của tôi')+wrap(cell('Lần cuối truy cập','sub',data.privacy.seen,'data-sub="seen"')+cell('Ảnh đại diện','sub',data.privacy.photo,'data-sub="photo"')+cell('Trạng thái','sub',data.privacy.status,'data-sub="status"')+cell('Danh sách chặn','sub',data.privacy.blocked.length+' người','data-sub="blocked"'))+desc('Chỉ thiết lập hiển thị trong điện thoại mô phỏng.')}
+  if(sub==='account'){title='Tài khoản';body=group('Quyền riêng tư')+wrap(cell('Riêng tư','sub','', 'data-sub="privacy"')+cell('Bảo mật','sub','', 'data-sub="security"')+cell('Đổi số','sub','', 'data-sub="change-number"'))+'' }
+  else if(sub==='privacy'){title='Riêng tư';body=group('Ai có thể xem thông tin của tôi')+wrap(cell('Lần cuối truy cập','sub',data.privacy.seen,'data-sub="seen"')+cell('Ảnh đại diện','sub',data.privacy.photo,'data-sub="photo"')+cell('Trạng thái','sub',data.privacy.status,'data-sub="status"')+cell('Danh sách chặn','sub',data.privacy.blocked.length+' người','data-sub="blocked"'))+''}
   else if(['seen','photo','status'].includes(sub)){title={seen:'Lần cuối truy cập',photo:'Ảnh đại diện',status:'Trạng thái'}[sub];body=group('Hiển thị với')+wrap(['Todos','Meus contatos','Ninguém'].map(x=>cell(({'Todos':'Mọi người','Meus contatos':'Danh bạ','Ninguém':'Không ai'})[x],'privacy-set',data.privacy[sub]===x?'✓':'','data-key="'+sub+'" data-value="'+x+'"')).join(''))}
   else if(sub==='blocked'){title='Danh sách chặn';body=group('Các liên hệ đã chặn')+wrap(data.privacy.blocked.map(id=>cell(esc(contact(id)?.name||id),'unblock','','data-id="'+id+'"')).join('')||'<div class="wai-cell">Không có liên hệ bị chặn</div>')+cell('Thêm liên hệ','block-list')}
-  else if(sub==='security'){title='Bảo mật';body=group('Cảnh báo')+wrap(toggle('Hiển thị cảnh báo bảo mật','securityAlert'))+desc('Mô phỏng tùy chọn bảo mật của thời kỳ này; không mã hóa/gửi tin thật.')}
-  else if(sub==='change-number'){title='Đổi số';body=desc('Số điện thoại Cauã trong game là dữ liệu hư cấu. Để giữ lịch sử case nhất quán, thay đổi số cần được cập nhật trong dữ liệu nhân vật.')}
+  else if(sub==='security'){title='Bảo mật';body=group('Cảnh báo')+wrap(toggle('Hiển thị cảnh báo bảo mật','securityAlert'))+''}
+  else if(sub==='change-number'){title='Đổi số';body=desc('Chuyển thông tin tài khoản và nhóm sang số điện thoại mới.')}
   else if(sub==='chats-calls'){title='Trò chuyện và cuộc gọi';body=group('Trò chuyện')+wrap(cell('Hình nền trò chuyện','sub','','data-sub="wallpaper"')+toggle('Lưu ảnh nhận được','saveMedia')+cell('Tự động tải media','sub','','data-sub="auto-download"')+cell('Sao lưu trò chuyện','sub','','data-sub="backup"')+cell('Chat đã lưu trữ','archived',data.archived.length+'',''))+group('Cuộc gọi')+wrap(toggle('Sử dụng ít dữ liệu','lowData','Tiết kiệm dữ liệu khi gọi thoại')) }
-  else if(sub==='notifications'){title='Thông báo';body=group('Tin nhắn')+wrap(toggle('Hiển thị thông báo','alerts')+toggle('Âm thanh','sounds')+toggle('Hiển thị nội dung xem trước','preview')+toggle('Rung','vibrate'))+desc('Âm thanh và thông báo chỉ áp dụng trong mô phỏng.')}
-  else if(sub==='network'){title='Mạng và dữ liệu';const m=Object.values(data.messages).reduce((n,a)=>n+a.length,0);body=group('Thống kê cục bộ')+wrap('<div class="wai-cell">Tin nhắn mô phỏng đã gửi <span class="wai-cell-val">'+m+'</span></div><div class="wai-cell">Cuộc gọi thử nghiệm <span class="wai-cell-val">'+data.calls.length+'</span></div>')+desc('Không chứa dữ liệu sử dụng mạng từ WhatsApp thật.')}
-  else if(sub==='backup'){title='Sao lưu trò chuyện';body=group('Sao lưu trên thiết bị')+wrap(toggle('Bao gồm video','backupVideos')+cell('Xuất dữ liệu mô phỏng','export'))+desc('Xuất file JSON chứa tin nhắn và cài đặt đã thêm trên thiết bị; không sao lưu iCloud thật.')}
+  else if(sub==='notifications'){title='Thông báo';body=group('Tin nhắn')+wrap(toggle('Hiển thị thông báo','alerts')+toggle('Âm thanh','sounds')+toggle('Hiển thị nội dung xem trước','preview')+toggle('Rung','vibrate'))+''}
+  else if(sub==='network'){title='Mạng và dữ liệu';const m=Object.values(data.messages).reduce((n,a)=>n+a.length,0);body=group('Thống kê sử dụng')+wrap('<div class="wai-cell">Tin nhắn đã gửi <span class="wai-cell-val">'+m+'</span></div><div class="wai-cell">Cuộc gọi thoại <span class="wai-cell-val">'+data.calls.length+'</span></div>')+''}
+  else if(sub==='backup'){title='Sao lưu trò chuyện';body=group('Sao lưu trò chuyện')+wrap(toggle('Bao gồm video','backupVideos')+cell('Xuất lịch sử trò chuyện','export'))+''}
   else if(sub==='auto-download'){title='Tự tải ảnh';body=group('Tự động tải media')+wrap(toggle('Tải ảnh tự động','autoImage'))}
   else if(sub==='wallpaper'){title='Hình nền';body=group('Chọn hình nền')+wrap(cell('Hình nền HD hiện tại','wallpaper-pick','', 'data-value=""')+cell('Màu kem','wallpaper-pick','','data-value="cream"')+cell('Màu xám xanh','wallpaper-pick','','data-value="blue"')+cell('Màu trắng','wallpaper-pick','','data-value="white"'))}
-  else if(sub==='web'){title='WhatsApp Web';body=group('Trình duyệt trên máy tính')+desc('WhatsApp Web bắt đầu hỗ trợ iPhone tháng 8/2015. Bản mô phỏng không quét QR và không liên kết tài khoản thật.')}
-  else if(sub==='help'){title='Trợ giúp';body=wrap(cell('Thông tin ứng dụng','sub','','data-sub="about-app"')+cell('Gửi phản hồi','feedback'))+desc('Game điện thoại Cauã · WhatsApp mô phỏng năm 2015.')}
-  else if(sub==='about-app'){title='Giới thiệu';body=group('WhatsApp iPhone')+wrap('<div class="wai-cell">Giao diện dựa trên WhatsApp iOS 2.12.5 · 08/2015</div>')+desc('Không phải sản phẩm chính thức của WhatsApp.')}
-  else if(sub==='invite'){title='Mời bạn bè';body=desc('Chia sẻ lời mời WhatsApp là thao tác ngoài phạm vi case; để tránh liên hệ người thật, bản mô phỏng không gửi lời mời.')}
+  else if(sub==='web'){title='WhatsApp Web';body=group('Trình duyệt trên máy tính')+desc('Trên máy tính, mở web.whatsapp.com để sử dụng WhatsApp Web.')}
+  else if(sub==='help'){title='Trợ giúp';body=wrap(cell('Thông tin ứng dụng','sub','','data-sub="about-app"')+cell('Gửi phản hồi','feedback'))+''}
+  else if(sub==='about-app'){title='Giới thiệu';body=group('WhatsApp iPhone')+wrap('<div class="wai-cell">WhatsApp Messenger · v2.12.5</div>')+desc('Không phải sản phẩm chính thức của WhatsApp.')}
+  else if(sub==='invite'){title='Mời bạn bè';body=desc('Mời bạn bè sử dụng WhatsApp.')}
   else if(sub==='custom-notify'){title='Thông báo tùy chỉnh';body=group('Thông báo của '+esc(contact(ui.id)?.name||''))+wrap(toggle('Bật tùy chỉnh','customAlert')+cell('Âm thông báo','notify-tone',data.notifyTone||'Mặc định'))}
   else if(sub==='choose-status'){title='Trạng thái';body=group('Chọn trạng thái')+wrap(['Disponível','Ocupado','No trabalho','Na escola','Bateria quase acabando','Não posso falar, só WhatsApp'].map(x=>cell(esc(x),'status-choose',data.status===x?'✓':'','data-value="'+esc(x)+'"')).join('')+cell('Tùy chỉnh…','status-edit'))}
   else if(sub==='choose-fav'){title='Thêm vào yêu thích';body=threads.filter(t=>!t.members&&!data.favorite.includes(t.id)).map(t=>contactRow(t,'favorite-add')).join('')||info('Tất cả liên hệ đang nằm trong Yêu thích.')}
@@ -298,7 +298,7 @@ function boot(){
   data.calls.push(now);save();navigate('call',{id});
   let secs=0;clearInterval(callTimer);callTimer=setInterval(()=>{secs++;const n=root.querySelector('#waiCallTime');if(n)n.textContent='00:'+String(secs%60).padStart(2,'0')},1000)
  }
- function hangup(){clearInterval(callTimer);back();toast('Đã kết thúc cuộc gọi mô phỏng')}
+ function hangup(){clearInterval(callTimer);back();toast('Đã kết thúc cuộc gọi')}
  function addFavorite(id){if(!data.favorite.includes(id))data.favorite.push(id);save();back();toast('Đã thêm vào Yêu thích')}
  function editing(field){
   const fieldValue=field==='name'?data.name:data.status;
@@ -327,7 +327,7 @@ function boot(){
    {text:'Sao chép',act:'copy-msg'},
    {text:'Chuyển tiếp',act:'forward-msg'},
    {text:'Thông tin tin nhắn',act:'message-info'},
-   {text:'Xóa khỏi bản mô phỏng',act:'hide-msg'}
+   {text:'Xóa tin nhắn',act:'hide-msg'}
   ]);
  }
  function getSelectedMsg(){
@@ -344,7 +344,7 @@ function boot(){
     c.getContext('2d').drawImage(img,0,0,c.width,c.height);
     const src=c.toDataURL('image/jpeg',.75);
     const t=contact(ui.id);makeMessage(t,'image',{src});
-    render();toast('Ảnh đã thêm vào cuộc trò chuyện mô phỏng');
+    render();toast('Đã gửi ảnh');
    };img.onerror=()=>toast('Không đọc được ảnh');img.src=String(reader.result);
   };reader.readAsDataURL(file);
  }
@@ -363,9 +363,9 @@ function boot(){
  }
  function backToChat(){ui.page='chat';ui.stack=ui.stack.filter(x=>x.page!=='chat');render()}
  function exportLocal(){
-  const json=JSON.stringify({date:'2015-08-24',app:'Cauã WhatsApp iOS 2015 simulation',data},null,2);
+  const json=JSON.stringify({date:'2015-08-24',app:'WhatsApp Messenger',data},null,2);
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download='caua-whatsapp-sao-luu.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  toast('Đã xuất bản sao dữ liệu mô phỏng');
+  toast('Đã xuất lịch sử trò chuyện');
  }
  function setEdit(flag){ui.edit=flag;render()}
  function handle(a,el){
@@ -404,7 +404,7 @@ function boot(){
   if(a==='attach-contact'){ui.overlay=null;ui.select=[];navigate('sub',{sub:'contact-picker'});return}
   if(a==='toggle-select'){ui.select=ui.select.includes(id)?ui.select.filter(x=>x!==id):[...ui.select,id];render();return}
   if(a==='group-next'||a==='broadcast-next'){if(ui.select.length<2){toast('Chọn ít nhất 2 liên hệ');return}
-   if(a==='group-next')navigate('group-name');else{ui.overlay=null;const content=window.prompt('Nhập tin nhắn danh sách phát (mô phỏng):','');if(content?.trim()){for(const cid of ui.select)makeMessage(contact(cid),'message',{text:content.trim()});tab('chats');toast('Đã thêm tin cho '+ui.select.length+' liên hệ')}}return}
+   if(a==='group-next')navigate('group-name');else{ui.overlay=null;const content=window.prompt('Nhập tin nhắn danh sách phát:','');if(content?.trim()){for(const cid of ui.select)makeMessage(contact(cid),'message',{text:content.trim()});tab('chats');toast('Đã thêm tin cho '+ui.select.length+' liên hệ')}}return}
   if(a==='create-group'){groupCreate();return}
   if(a==='choose-favorite'){navigate('sub',{sub:'choose-fav'});return}
   if(a==='favorite-add'){addFavorite(id);return}
@@ -428,7 +428,7 @@ function boot(){
   if(a==='message-info'){const e=getSelectedMsg();closeSheet();openSheet('Thông tin tin nhắn',[{text:'Gửi '+dateLabel(e?.date)+' lúc '+(e?.time||''),act:'noop'},{text:e?.sender==='caua'?'Đã gửi ✓✓':'Đã nhận',act:'noop'}]);return}
   if(a==='hide-msg'){if(ui.selectedMessage&&!data.hide.includes(ui.selectedMessage))data.hide.push(ui.selectedMessage);save();closeSheet();return}
   if(a==='forward-msg'){ui.overlay=null;navigate('sub',{sub:'forward-pick'});return}
-  if(a==='forward-to'){const source=ui.stack.findLast?.(x=>x.page==='chat');const origin=source?contact(source.id):contact(ui.id);const message=origin?allEvents(origin).find(e=>e.id===ui.selectedMessage):null,t=contact(id);if(message&&t){makeMessage(t,'message',{text:'↪ '+(message.text||'Đã chuyển tiếp tệp đính kèm')});ui.page='chat';ui.id=id;ui.stack=[];render();toast('Đã chuyển tiếp trong bản mô phỏng')}return}
+  if(a==='forward-to'){const source=ui.stack.findLast?.(x=>x.page==='chat');const origin=source?contact(source.id):contact(ui.id);const message=origin?allEvents(origin).find(e=>e.id===ui.selectedMessage):null,t=contact(id);if(message&&t){makeMessage(t,'message',{text:'↪ '+(message.text||'Đã chuyển tiếp tệp đính kèm')});ui.page='chat';ui.id=id;ui.stack=[];render();toast('Đã chuyển tiếp')}return}
   if(a==='jump'){ui.targetMsg=id;backToChat();return}
   if(a==='pref'){const k=id;data.prefs[k]=!data.prefs[k];save();render();return}
   if(a==='privacy-set'){data.privacy[el.dataset.key]=val;save();back();return}
@@ -440,12 +440,12 @@ function boot(){
   if(a==='custom-notify'){navigate('sub',{sub:'custom-notify'});return}
   if(a==='notify-tone'){navigate('sub',{sub:'tone'});return}
   if(a==='tone-choose'){data.notifyTone=val;save();back();return}
-  if(a==='feedback'){toast('Phản hồi mô phỏng — không gửi ra ngoài');return}
+  if(a==='feedback'){toast('Không thể gửi phản hồi lúc này');return}
   if(a==='contact-share'){const person=contact(id);if(person){makeMessage(contact(ui.id),'contact',{contactName:person.name,phone:phones[id]||''});backToChat()}return}
  }
  root.addEventListener('click',e=>{
   const image=e.target.closest('[data-open-img]');if(image){e.preventDefault();e.stopPropagation();ui.viewer=image.dataset.openImg;render();return}
-  const bubble=e.target.closest('.wai-bubble[data-msg]');if(bubble&&!e.target.closest('audio,button')){if(bubble.dataset.msg){ui.selectedMessage=bubble.dataset.msg;openSheet('Tin nhắn',[{text:'Sao chép',act:'copy-msg'},{text:'Chuyển tiếp',act:'forward-msg'},{text:'Thông tin',act:'message-info'},{text:'Xóa khỏi bản mô phỏng',act:'hide-msg'}])}return}
+  const bubble=e.target.closest('.wai-bubble[data-msg]');if(bubble&&!e.target.closest('audio,button')){if(bubble.dataset.msg){ui.selectedMessage=bubble.dataset.msg;openSheet('Tin nhắn',[{text:'Sao chép',act:'copy-msg'},{text:'Chuyển tiếp',act:'forward-msg'},{text:'Thông tin',act:'message-info'},{text:'Xóa tin nhắn',act:'hide-msg'}])}return}
   const el=e.target.closest('[data-act]');if(!el)return;e.preventDefault();e.stopPropagation();
   handle(el.dataset.act,el);
  },true);

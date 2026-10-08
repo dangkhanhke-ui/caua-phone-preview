@@ -60,7 +60,7 @@ function renderCalls(){
     const missed=c.result==='missed';
     return '<button class="wa-ext-row" data-wa-ext-call="'+safe(c.thread)+'"><span class="wa-ext-symbol '+(missed?'missed':'')+'">'+(c.direction==='incoming'?'↙':'↗')+'</span><span class="wa-ext-row-copy"><b style="'+(missed?'color:#d45151':'')+'">'+safe(c.who)+'</b><small>'+(missed?'Cuộc gọi nhỡ':c.direction==='incoming'?'Cuộc gọi đến':'Cuộc gọi đi')+'</small></span><span class="wa-ext-time">'+safe(c.date.split('-').reverse().slice(0,2).join('/'))+' · '+safe(c.time)+'</span></button>';
   }).join('');
-  panel.innerHTML='<div class="wa-ext-section">Nhật ký gọi thoại</div>'+(content||empty('Không có cuộc gọi nào.'))+'<div class="wa-ext-muted">Cuộc gọi WhatsApp chỉ được mô phỏng trong điện thoại này.</div>';
+  panel.innerHTML='<div class="wa-ext-section">Nhật ký gọi thoại</div>'+(content||empty('Không có cuộc gọi nào.'))+'';
 }
 function renderChats(){
   api.renderList();decorateChats();
@@ -106,18 +106,18 @@ function createGroup(){
   const id='caua-local-group-'+Date.now();
   const t={id,name,status:[...selected].length+' thành viên',lastDate:'24/08',preview:'Nhóm mới',activity:'2015-08-24T10:00:00',events:[],members:[...selected]};
   saved.groups.push({...t,events:[]});api.THREADS.unshift(t);persist();chooseContact(t);
-  toast('Đã tạo nhóm mô phỏng');
+  toast('Đã tạo nhóm');
 }
 function ownerPhoto(){return saved.avatarData&&saved.avatarData.startsWith('data:image/')?saved.avatarData:'./assets/facebook/avatar.jpg'}
 function settings(){
   const owner=saved.ownerName||'Cauã Valença';
-  const checks=[['notifications','Thông báo','Bật thông báo trong mô phỏng'],['lowData','Sử dụng dữ liệu thấp','Giảm dữ liệu khi gọi thoại'],['videoBackup','Bao gồm video khi sao lưu','Tùy chọn năm 2015']];
+  const checks=[['notifications','Thông báo','Bật thông báo'],['lowData','Sử dụng dữ liệu thấp','Giảm dữ liệu khi gọi thoại'],['videoBackup','Bao gồm video khi sao lưu','Tùy chọn năm 2015']];
   panel.innerHTML='<div class="wa-ext-section">Tài khoản</div>'+
     '<button class="wa-owner-summary" data-wa-ext-profile type="button"><img src="'+ownerPhoto()+'" alt="Ảnh Cauã"><span><strong>'+safe(owner)+'</strong><small>'+safe(saved.about||'Có sẵn')+'</small></span><b>›</b></button>'+
     '<div class="wa-ext-section">Tùy chọn</div><div class="wa-ext-card">'+
     checks.map(([k,n,d])=>'<label class="wa-ext-line"><span>'+n+'<small style="display:block;margin-top:4px">'+d+'</small></span><input type="checkbox" data-wa-ext-pref="'+k+'" '+(saved.settings[k]?'checked':'')+'></label>').join('')+'</div>'+
     '<div class="wa-ext-section">Dữ liệu và riêng tư</div><div class="wa-ext-card"><button class="wa-ext-line" data-wa-ext-archive>Chat đã lưu trữ <small>'+Object.values(saved.archived).filter(Boolean).length+'</small></button><button class="wa-ext-line" data-wa-ext-web>WhatsApp Web <small>2015</small></button></div>'+
-    '<div class="wa-ext-muted">Hồ sơ và cài đặt chỉ lưu cục bộ trong bản mô phỏng, không đồng bộ với WhatsApp thật.</div>';
+    '';
 }
 function showOwnerProfile(){
   const owner=saved.ownerName||'Cauã Valença';
@@ -164,12 +164,12 @@ function searchResults(){
 }
 function callContact(t){
   clearInterval(callTimer);callTick=0;
-  showSheet('Cuộc gọi WhatsApp','<div class="wa-ext-call-face">'+safe(initials(t.name))+'</div><h2>'+safe(t.name)+'</h2><p id="waExtCallClock">Đang gọi…</p><div class="wa-ext-muted" style="color:#c0dbd6">Cuộc gọi mô phỏng · không kết nối mạng</div>');
+  showSheet('Cuộc gọi WhatsApp','<div class="wa-ext-call-face">'+safe(initials(t.name))+'</div><h2>'+safe(t.name)+'</h2><p id="waExtCallClock">Đang gọi…</p>');
   sheet.classList.add('wa-ext-call-screen');
   const end=document.createElement('button');end.className='wa-ext-hangup';end.textContent='☎';end.setAttribute('aria-label','Kết thúc cuộc gọi');end.dataset.waExtEndCall='1';sheet.appendChild(end);
   callTimer=setInterval(()=>{callTick++;const el=sheet.querySelector('#waExtCallClock');if(el)el.textContent='00:'+String(callTick).padStart(2,'0')},1000);
 }
-function endCall(){clearInterval(callTimer);sheet.classList.remove('wa-ext-call-screen');closeSheet();toast('Đã kết thúc cuộc gọi mô phỏng')}
+function endCall(){clearInterval(callTimer);sheet.classList.remove('wa-ext-call-screen');closeSheet();toast('Đã kết thúc cuộc gọi')}
 function appendMessage(text){
   const t=api.getCurrent();if(!t||!text.trim())return;
   const previous=Object.values(saved.messages).reduce((n,a)=>n+(a?.length||0),0);
@@ -177,7 +177,7 @@ function appendMessage(text){
   const msg={type:'message',id:'local-wa-'+Date.now(),date:'2015-08-24',time,sender:'caua',text:text.trim(),status:'sent'};
   (saved.messages[t.id]??=[]).push(msg);t.events.push(msg);t.preview=msg.text;t.lastDate=time;t.activity='2015-08-24T'+time+':00';
   persist();api.renderThread(t);input.value='';send.classList.remove('wa-ext-send');send.textContent='♩';
-  toast('Tin nhắn mô phỏng đã lưu trên thiết bị');
+  toast('Đã gửi tin nhắn');
 }
 function attachmentMenu(){
   showSheet('Đính kèm','<div class="wa-ext-card"><button class="wa-ext-line" data-wa-ext-share-contact>Chia sẻ liên hệ</button><button class="wa-ext-line" data-wa-ext-share-location>Gửi vị trí</button><button class="wa-ext-line" data-wa-ext-photos>Ảnh đã trao đổi</button></div>');
@@ -204,7 +204,7 @@ app.addEventListener('click',e=>{
     const label=pop.textContent.trim().toLocaleLowerCase('vi');
     if(label.includes('nhóm'))groupPicker();
     else if(label.includes('cài đặt'))setTab('settings');
-    else if(label.includes('whatsapp web'))showSheet('WhatsApp Web', '<div class="wa-ext-empty">Tính năng WhatsApp Web xuất hiện trên iPhone từ tháng 8/2015. Trên máy tính, mở web.whatsapp.com rồi dùng điện thoại quét mã QR. Bản mockup này không đăng nhập dịch vụ thật.</div>');
+    else if(label.includes('whatsapp web'))showSheet('WhatsApp Web', '<div class="wa-ext-empty">Trên máy tính, mở web.whatsapp.com rồi quét mã QR.</div>');
     else if(label.includes('trạng thái'))showAbout();
     else toast('Danh sách phát: sẽ hoàn thiện trong đợt tiếp theo');
     return;
@@ -222,7 +222,7 @@ app.addEventListener('click',e=>{
   else if(btn.hasAttribute('data-wa-ext-group-create'))createGroup();
   else if(btn.hasAttribute('data-wa-ext-about'))showAbout();
   else if(btn.hasAttribute('data-wa-ext-archive'))archived();
-  else if(btn.hasAttribute('data-wa-ext-web'))showSheet('WhatsApp Web',empty('WhatsApp Web ra mắt trên iPhone tháng 8/2015. Bản này chỉ mô phỏng giao diện; không thể quét mã hoặc kết nối tài khoản.'));
+  else if(btn.hasAttribute('data-wa-ext-web'))showSheet('WhatsApp Web',empty('Trên máy tính, mở web.whatsapp.com.'));
   else if(btn.hasAttribute('data-wa-ext-unarchive')){delete saved.archived[btn.dataset.waExtUnarchive];persist();archived()}
   else if(btn.hasAttribute('data-wa-ext-search-thread'))searchThread();
   else if(btn.hasAttribute('data-wa-ext-gallery'))gallery();
@@ -236,7 +236,7 @@ app.addEventListener('click',e=>{
   else if(btn.hasAttribute('data-wa-ext-end-call'))endCall();
   else if(btn.hasAttribute('data-wa-ext-share-contact'))shareContactMenu();
   else if(btn.hasAttribute('data-wa-ext-send-contact')&&t){const person=find(btn.dataset.waExtSendContact);if(person){closeSheet();appendMessage('👤 Liên hệ: '+person.name)}}
-  else if(btn.hasAttribute('data-wa-ext-share-location')&&t){closeSheet();appendMessage('📍 Rio de Janeiro, RJ (vị trí mô phỏng)')}
+  else if(btn.hasAttribute('data-wa-ext-share-location')&&t){closeSheet();appendMessage('📍 Rio de Janeiro, RJ')}
   else if(btn.hasAttribute('data-wa-ext-photos'))gallery();
 },true);
 function showAbout(){showSheet('Trạng thái của Cauã','<input class="wa-ext-field" id="waExtAboutValue" maxlength="130" value="'+safe(saved.about)+'"><div class="wa-ext-bottom"><button class="wa-ext-action" id="waExtSaveAbout">Lưu trạng thái</button></div>')}
