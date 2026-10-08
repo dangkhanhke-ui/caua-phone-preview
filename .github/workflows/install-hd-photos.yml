@@ -1,47 +1,57 @@
-name: Install HD photos from zip
+name: Install HD photos from JPG batches
 on:
   push:
     paths:
-      - hd-photos.zip
+      - 'hd-photos-part*.zip'
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: install-hd-photos
+  cancel-in-progress: false
 jobs:
   install:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace Photos image sources with HD assets
+      - name: Import available JPG and PNG batches
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re,zipfile
-          archive=Path('hd-photos.zip')
-          if not archive.exists(): raise SystemExit('Waiting for hd-photos.zip')
-          html=Path('index.html')
-          text=html.read_text(encoding='utf-8')
+          packs=sorted(Path('.').glob('hd-photos-part*.zip'))
+          if not packs: raise SystemExit('No HD batches uploaded yet')
+          path=Path('index.html')
+          html=path.read_text(encoding='utf-8')
           target=Path('assets/photos')
           target.mkdir(parents=True,exist_ok=True)
-          with zipfile.ZipFile(archive) as z:
-              names={n for n in z.namelist() if re.fullmatch(r'photo[0-9]{2}\.webp',n)}
-              if len(names)!=30:raise SystemExit(f'Expected 30 HD photos, got {len(names)}')
-              updated=[0]
-              for n in sorted(names):
-                  pid=n[:-5]
-                  target.joinpath(n).write_bytes(z.read(n))
-                  pattern=r"(?P<prefix>\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
-                  text,count=re.subn(pattern,lambda m:m.group('prefix')+"'./assets/photos/"+n+"'",text,count=1)
-                  if count!=1:raise SystemExit('Missing image ID: '+pid)
-                  updated[0]+=count
-          if updated[0]!=30:raise SystemExit('Replacement count mismatch')
-          html.write_text(text,encoding='utf-8')
-          archive.unlink()
-          print('Updated',updated[0],'photos to HD external assets')
+          files={}
+          for pack in packs:
+              with zipfile.ZipFile(pack) as archive:
+                  for name in archive.namelist():
+                      if name.endswith('/'):continue
+                      basename=Path(name).name
+                      m=re.fullmatch(r'(photo(?:0[1-9]|[12][0-9]|30))\.(jpg|jpeg|png|webp)',basename,re.I)
+                      if not m:continue
+                      pid=m.group(1).lower()
+                      if pid in files:raise SystemExit('Duplicate image ID: '+pid)
+                      files[pid]=(basename.lower(),archive.read(name))
+          if not files: raise SystemExit('No matching photo01-photo30 images')
+          for pid,(filename,data) in files.items():
+              asset=target/filename
+              asset.write_bytes(data)
+              pat=r"(\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
+              html,count=re.subn(pat,lambda m:m.group(1)+"'./assets/photos/"+filename+"'",html,count=1)
+              if count!=1:raise SystemExit('Could not locate '+pid+' in index.html')
+          path.write_text(html,encoding='utf-8')
+          for pack in packs:pack.unlink()
+          print('Installed',len(files),'unique HD photos:',', '.join(sorted(files)))
           PY
-      - name: Commit final HD site
+      - name: Commit and deploy via Vercel
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A index.html assets/photos hd-photos.zip
-          git commit -m "Restore 30 HD Photos from original images"
+          git add -A index.html assets/photos 'hd-photos-part*.zip'
+          git diff --cached --quiet && exit 0
+          git commit -m "Install uploaded HD JPG photos"
           git push
