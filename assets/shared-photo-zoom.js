@@ -12,79 +12,83 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.appendChild(style);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function attach(stage,img){
- if(stage.dataset.cauaZoomBound)return;
+ if(!img||stage.dataset.cauaZoomBound)return;
  stage.dataset.cauaZoomBound='1';
- const z={scale:1,x:0,y:0},pointers=new Map();
- let pinch=null,pan=null,lastTap=0,lastPoint=null,movedPinch=false;
+ const z={scale:1,x:0,y:0},points=new Map();
+ let gesture=null,lastTap=0,lastTapPoint=null,hadMulti=false;
+ const local=(cx,cy)=>{const r=stage.getBoundingClientRect();return {x:(cx-r.left)*(stage.clientWidth/r.width),y:(cy-r.top)*(stage.clientHeight/r.height)};};
+ const center=()=>({x:stage.clientWidth/2,y:stage.clientHeight/2});
  function draw(animate=false){
-  const box=img.getBoundingClientRect();
-  const vw=stage.clientWidth||320,vh=stage.clientHeight||500;
-  const baseW=box.width/Math.max(z.scale,.001),baseH=box.height/Math.max(z.scale,.001);
-  const mx=Math.max(0,(baseW*z.scale-vw)/2),my=Math.max(0,(baseH*z.scale-vh)/2);
-  z.x=clamp(z.x,-mx,mx);z.y=clamp(z.y,-my,my);
+  // offsetWidth/Height are untransformed CSS dimensions, unlike getBoundingClientRect.
+  const w=img.offsetWidth||stage.clientWidth,h=img.offsetHeight||stage.clientHeight;
+  const maxX=Math.max(0,(w*z.scale-stage.clientWidth)/2);
+  const maxY=Math.max(0,(h*z.scale-stage.clientHeight)/2);
+  z.x=clamp(z.x,-maxX,maxX);z.y=clamp(z.y,-maxY,maxY);
   img.style.transition=animate?'transform 220ms cubic-bezier(.22,.72,.24,1)':'none';
   img.style.transform='translate3d('+z.x+'px,'+z.y+'px,0) scale('+z.scale+')';
-  const label=stage.parentElement.querySelector('[data-caua-zoom-value]');
-  if(label)label.textContent=(Math.round(z.scale*10)/10).toString()+'×';
+  const badge=stage.parentElement.querySelector('[data-caua-zoom-value]');
+  if(badge)badge.textContent=(Math.round(z.scale*10)/10).toString()+'×';
  }
- function around(cx,cy,target,animate=false){
-  const r=stage.getBoundingClientRect(),px=cx-r.left-r.width/2,py=cy-r.top-r.height/2;
-  const old=z.scale,next=clamp(target,1,4),ratio=next/old;
+ function zoomAt(cx,cy,target,animate=false){
+  const p=local(cx,cy),c=center(),px=p.x-c.x,py=p.y-c.y;
+  const next=clamp(target,1,4),ratio=next/z.scale;
   z.x=px-(px-z.x)*ratio;z.y=py-(py-z.y)*ratio;z.scale=next;
   if(next<=1.015){z.scale=1;z.x=0;z.y=0;}
   draw(animate);
  }
+ function reset(){z.scale=1;z.x=0;z.y=0;draw(true);}
+ stage.addEventListener('caua-zoom-reset',reset);
  stage.addEventListener('pointerdown',e=>{
-  if(e.target.closest('button'))return;
-  if(e.pointerType==='mouse'&&e.button!==0)return;
-  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(e.target.closest('button')||(e.pointerType==='mouse'&&e.button!==0))return;
+  const p=local(e.clientX,e.clientY);points.set(e.pointerId,p);
   try{stage.setPointerCapture(e.pointerId)}catch(_){}
-  if(pointers.size>=2){
-   const [a,b]=[...pointers.values()];
-   pinch={dist:Math.hypot(a.x-b.x,a.y-b.y)||1,scale:z.scale,x:z.x,y:z.y,cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};
-   movedPinch=true;pan=null;
-  }else pan={id:e.pointerId,x:e.clientX,y:e.clientY,ox:z.x,oy:z.y};
+  if(points.size===2){
+   const [a,b]=[...points.values()];
+   gesture={kind:'pinch',dist:Math.hypot(b.x-a.x,b.y-a.y)||1,scale:z.scale,x:z.x,y:z.y,cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};
+   hadMulti=true;lastTap=0;
+  }else if(points.size===1)gesture={kind:'single',id:e.pointerId,px:p.x,py:p.y,x:z.x,y:z.y,moved:false};
  });
  stage.addEventListener('pointermove',e=>{
-  if(!pointers.has(e.pointerId))return;
-  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pointers.size>=2&&pinch){
-   const [a,b]=[...pointers.values()],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
-   const r=stage.getBoundingClientRect(),baseX=pinch.cx-r.left-r.width/2,baseY=pinch.cy-r.top-r.height/2;
-   const nowX=cx-r.left-r.width/2,nowY=cy-r.top-r.height/2;
-   const next=clamp(pinch.scale*Math.hypot(a.x-b.x,a.y-b.y)/pinch.dist,1,4),ratio=next/pinch.scale;
-   z.scale=next;z.x=nowX-(baseX-pinch.x)*ratio;z.y=nowY-(baseY-pinch.y)*ratio;draw();
-  }else if(pointers.size===1&&pan&&z.scale>1.015){
-   z.x=pan.ox+e.clientX-pan.x;z.y=pan.oy+e.clientY-pan.y;draw();
+  if(!points.has(e.pointerId))return;
+  const p=local(e.clientX,e.clientY);points.set(e.pointerId,p);
+  if(points.size>=2&&gesture?.kind==='pinch'){
+   const [a,b]=[...points.values()],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
+   const c=center(),ratio=clamp(gesture.scale*Math.hypot(b.x-a.x,b.y-a.y)/gesture.dist,1,4)/gesture.scale;
+   z.scale=clamp(gesture.scale*Math.hypot(b.x-a.x,b.y-a.y)/gesture.dist,1,4);
+   z.x=(cx-c.x)-(gesture.cx-c.x-gesture.x)*ratio;
+   z.y=(cy-c.y)-(gesture.cy-c.y-gesture.y)*ratio;draw();
+  }else if(points.size===1&&gesture?.kind==='single'&&gesture.id===e.pointerId){
+   const dx=p.x-gesture.px,dy=p.y-gesture.py;
+   if(Math.hypot(dx,dy)>8)gesture.moved=true;
+   if(z.scale>1.015){z.x=gesture.x+dx;z.y=gesture.y+dy;draw();}
   }
   e.preventDefault();
  },{passive:false});
- function end(e){
-  if(!pointers.has(e.pointerId))return;
-  pointers.delete(e.pointerId);
-  if(pinch){
-   if(pointers.size<2){pinch=null;if(z.scale<1.08){z.scale=1;z.x=z.y=0;}draw(true);}
-   if(pointers.size===1){const [id,q]=[...pointers.entries()][0];pan={id,x:q.x,y:q.y,ox:z.x,oy:z.y};}
+ function finish(e){
+  if(!points.has(e.pointerId))return;
+  const p=local(e.clientX,e.clientY),prior=gesture;
+  points.delete(e.pointerId);
+  if(prior?.kind==='pinch'){
+   if(points.size===1){const [id,q]=[...points.entries()][0];gesture={kind:'single',id,px:q.x,py:q.y,x:z.x,y:z.y,moved:true};}
+   else gesture=null;
+   if(z.scale<1.08)reset();else draw(true);
    return;
   }
-  if(pan&&pan.id===e.pointerId){
-   const distance=Math.hypot(e.clientX-pan.x,e.clientY-pan.y);
-   if(distance<12&&!movedPinch){
-    const now=performance.now();
-    if(now-lastTap<330&&lastPoint&&Math.hypot(e.clientX-lastPoint.x,e.clientY-lastPoint.y)<38){
-     around(e.clientX,e.clientY,z.scale>1.05?1:2.5,true);lastTap=0;
-    }else{lastTap=now;lastPoint={x:e.clientX,y:e.clientY};}
-   }
+  if(prior?.kind==='single'&&prior.id===e.pointerId&&!prior.moved&&!hadMulti&&Math.hypot(p.x-prior.px,p.y-prior.py)<9){
+   const now=performance.now();
+   if(now-lastTap<330&&lastTapPoint&&Math.hypot(p.x-lastTapPoint.x,p.y-lastTapPoint.y)<38){
+    zoomAt(e.clientX,e.clientY,z.scale>1.05?1:2.5,true);lastTap=0;lastTapPoint=null;
+   }else{lastTap=now;lastTapPoint=p;}
   }
-  pan=null;if(!pointers.size)movedPinch=false;
+  if(!points.size){gesture=null;hadMulti=false;}
  }
- stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
+ stage.addEventListener('pointerup',finish);
+ stage.addEventListener('pointercancel',e=>{points.delete(e.pointerId);gesture=null;hadMulti=false;draw(true);});
  stage.addEventListener('wheel',e=>{
   if(!(e.ctrlKey||e.metaKey))return;
-  e.preventDefault();around(e.clientX,e.clientY,z.scale*(e.deltaY<0?1.15:1/1.15),false);
+  e.preventDefault();zoomAt(e.clientX,e.clientY,z.scale*(e.deltaY<0?1.15:1/1.15));
  },{passive:false});
- stage.addEventListener('dblclick',e=>{if(e.pointerType!=='touch'){e.preventDefault();around(e.clientX,e.clientY,z.scale>1.05?1:2.5,true)}});
- img.addEventListener('load',()=>draw(),{once:true});
+ img.addEventListener('load',()=>draw());
  draw();
 }
 const fb=document.getElementById('facebookApp'),waHost=document.getElementById('whatsappApp');
@@ -96,7 +100,7 @@ function open(src){
  overlay.innerHTML='<div class="caua-zoom-header"><button type="button" data-caua-close>‹ Quay lại</button><span>Ảnh</span><button type="button" data-caua-zoom-value>1×</button></div><div class="caua-zoom-stage"><img alt="Ảnh Facebook" draggable="false"></div>';
  fb.appendChild(overlay);const img=overlay.querySelector('img');img.src=src;
  overlay.querySelector('[data-caua-close]').onclick=close;
- overlay.querySelector('[data-caua-zoom-value]').onclick=()=>{const st=overlay.querySelector('.caua-zoom-stage');const im=st.querySelector('img');im.style.transform='';st.replaceWith(st.cloneNode(true));attach(overlay.querySelector('.caua-zoom-stage'),overlay.querySelector('.caua-zoom-stage img'));};
+ overlay.querySelector('[data-caua-zoom-value]').onclick=()=>overlay.querySelector('.caua-zoom-stage').dispatchEvent(new Event('caua-zoom-reset'));
  attach(overlay.querySelector('.caua-zoom-stage'),img);
 }
 if(fb)fb.addEventListener('click',e=>{
