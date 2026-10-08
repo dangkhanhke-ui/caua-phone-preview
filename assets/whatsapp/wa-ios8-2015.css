@@ -106,3 +106,13 @@
 @media(max-height:540px){#waIos15 .wai-row{min-height:58px}#waIos15 .wai-call .wai-face{margin:10px auto}#waIos15 .wai-call{padding-top:23px}}
 
 #waIos15 .wai-quick>button{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;color:#007aff!important;font-size:14px!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important}
+
+/* 2015 iOS call entries: use a fixed SVG rather than mismatched emoji glyph metrics. */
+#waIos15 .wai-call-event{display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;max-width:92%;white-space:nowrap;margin:8px auto;padding:7px 10px;line-height:16px;}
+#waIos15 .wai-call-event .wai-call-icon{display:inline-flex;align-items:center;justify-content:center;width:15px;height:16px;flex:0 0 15px;vertical-align:middle;}
+#waIos15 .wai-call-event .wai-call-icon .wai-icon{width:14px;height:14px;stroke-width:2;display:block;}
+#waIos15 .wai-archive-item{background:#fff;border-bottom:1px solid #dadade;}
+#waIos15 .wai-archive-item .wai-row:after{display:none;}
+#waIos15 .wai-archive-actions{display:flex;gap:20px;align-items:center;justify-content:flex-end;padding:0 14px 9px;}
+#waIos15 .wai-archive-actions button{appearance:none;-webkit-appearance:none;background:transparent;border:none;color:#007aff;font-size:13px;padding:7px 0;cursor:pointer;}
+#waIos15 .wai-archive-actions button:last-child{color:#c94343;}
