@@ -38,8 +38,8 @@ jobs:
               s=s[:start]+part+s[end:]
           s=re.sub(r'<link[^>]*wa-enhancements-2015.css[^>]*>', '', s)
           s=re.sub(r'<script[^>]*wa-enhancements-2015.js[^>]*></script>', '', s)
-          css='<link rel="stylesheet" href="./assets/whatsapp/wa-enhancements-2015.css?v=1">'
-          script='<script src="./assets/whatsapp/wa-enhancements-2015.js?v=1"></script>'
+          css='<link rel="stylesheet" href="./assets/whatsapp/wa-enhancements-2015.css?v=2">'
+          script='<script src="./assets/whatsapp/wa-enhancements-2015.js?v=2"></script>'
           if '</head>' not in s or '</body>' not in s:raise SystemExit('HTML shell missing')
           s=s.replace('</head>',css+'\n</head>',1)
           s=s.replace('</body>',script+'\n</body>',1)
