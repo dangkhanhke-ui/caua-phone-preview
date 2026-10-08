@@ -1,0 +1,92 @@
+name: Install WhatsApp avatars and chat photos
+on:
+  push:
+    paths:
+      - 'wa_avatar_*'
+      - 'wa_camila_*'
+      - 'wa_livia_*'
+      - '.github/workflows/install-whatsapp-photos.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: install-whatsapp-photos
+  cancel-in-progress: false
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install originals and wire chat
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          names=['wa_avatar_mother','wa_avatar_camila','wa_avatar_livia','wa_camila_01','wa_livia_01','wa_livia_02','wa_livia_03','wa_livia_04','wa_livia_05']
+          paths={}
+          dest=Path('assets/whatsapp/photos')
+          dest.mkdir(parents=True,exist_ok=True)
+          for name in names:
+              matches=[f for f in Path('.').glob(name+'.*') if f.is_file() and f.suffix.lower() in ['.jpg','.jpeg','.png','.webp']]
+              if len(matches)!=1:raise SystemExit('Need one uploaded file for '+name+', found '+str(len(matches)))
+              source=matches[0]
+              final=dest/(name+source.suffix.lower())
+              final.write_bytes(source.read_bytes())
+              paths[name]='./'+final.as_posix()
+          page=Path('index.html')
+          html=page.read_text(encoding='utf-8')
+          html=re.sub(r'<style id="caua-wa-hd-media">.*?</style>','',html,flags=re.S)
+          html=re.sub(r'<script id="caua-wa-hd-media-js">.*?</script>','',html,flags=re.S)
+          css='''<style id="caua-wa-hd-media">
+          #whatsappApp .wa-avatar.caua-hd {background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+          #whatsappApp .wa-avatar.caua-hd::before,#whatsappApp .wa-avatar.caua-hd::after{display:none!important}
+          #whatsappApp .wa-media-bubble img.caua-wa-photo{display:block;width:100%;height:auto;object-fit:cover;border-radius:5px}
+          #whatsappApp #waMediaViewer .frame img{display:block;max-width:100%;max-height:100%;object-fit:contain;margin:auto}
+          </style>'''
+          script='''<script id="caua-wa-hd-media-js">
+          (function(){
+            const P=__PATHS__;
+            const avatars={mother:P.wa_avatar_mother,camila:P.wa_avatar_camila,livia:P.wa_avatar_livia};
+            const media={'camila-img-1':P.wa_camila_01,'livia-img-1':P.wa_livia_01,'livia-img-2':P.wa_livia_02,'livia-img-3':P.wa_livia_03,'livia-img-4':P.wa_livia_04,'livia-img-5':P.wa_livia_05};
+            const root=document.getElementById('whatsappApp');
+            if(!root)return;
+            function avatar(el,url){if(!el||!url)return;el.classList.add('caua-hd');el.style.setProperty('background-image','url("'+url+'")','important')}
+            function refresh(){
+              root.querySelectorAll('[data-wa-thread]').forEach(r=>avatar(r.querySelector('.wa-avatar'),avatars[r.getAttribute('data-wa-thread')]));
+              const name=document.getElementById('waThreadName')?.textContent.trim();
+              const id=name==='Mẹ'?'mother':name==='Camila'?'camila':name==='Lívia'?'livia':null;
+              if(id){
+                avatar(root.querySelector('#waThreadHead .wa-avatar'),avatars[id]);
+                avatar(root.querySelector('#waContactInfo .wa-avatar'),avatars[id]);
+              }
+              root.querySelectorAll('[data-wa-media]').forEach(el=>{
+                const url=media[el.getAttribute('data-wa-media')];
+                const holder=el.querySelector('.wa-media-placeholder');
+                if(url&&holder){const img=document.createElement('img');img.src=url;img.alt='Ảnh trong cuộc trò chuyện';img.className='caua-wa-photo';holder.replaceWith(img);}
+              });
+            }
+            let queued=false;
+            const observer=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;refresh()})});
+            observer.observe(root,{childList:true,subtree:true,characterData:true});
+            root.addEventListener('click',ev=>{
+              const tile=ev.target.closest('[data-wa-media]');
+              if(tile){const url=media[tile.getAttribute('data-wa-media')];const frame=document.querySelector('#waMediaViewer .frame');if(url&&frame){frame.textContent='';const img=document.createElement('img');img.src=url;img.alt='Ảnh';frame.append(img);}}
+            });
+            refresh();
+          })();
+          </script>'''.replace('__PATHS__',json.dumps(paths))
+          if '</head>' not in html or '</body>' not in html:raise SystemExit('Missing HTML tags')
+          html=html.replace('</head>',css+'\n</head>',1)
+          html=html.replace('</body>',script+'\n</body>',1)
+          page.write_text(html,encoding='utf-8')
+          print('Installed',len(paths),'WhatsApp original photos and avatars')
+          PY
+      - name: Commit updated site
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html assets/whatsapp/photos
+          git diff --cached --quiet && exit 0
+          git commit -m "Restore nine WhatsApp avatars and chat photos"
+          git pull --rebase origin main
+          git push
