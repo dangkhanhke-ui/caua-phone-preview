@@ -1,8 +1,9 @@
-name: Install HD photos from JPG batches
+name: Install HD photos from individual uploads
 on:
   push:
     paths:
-      - 'hd-photos-part*.zip'
+      - 'hd-uploads/**'
+      - '.github/workflows/install-hd-photos.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,44 +15,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Import available JPG and PNG batches
+      - name: Copy individual JPG and PNG uploads to photos assets
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re,zipfile
-          packs=sorted(Path('.').glob('hd-photos-part*.zip'))
-          if not packs: raise SystemExit('No HD batches uploaded yet')
-          path=Path('index.html')
-          html=path.read_text(encoding='utf-8')
+          import re
+          src=Path('hd-uploads')
+          images=sorted(p for p in src.glob('*') if p.is_file() and re.fullmatch(r'photo(?:0[1-9]|[12][0-9]|30)\.(?:jpg|jpeg|png|webp)',p.name,re.I))
+          if not images: raise SystemExit('No matching individual HD images; waiting for uploads')
+          page=Path('index.html')
+          html=page.read_text(encoding='utf-8')
           target=Path('assets/photos')
           target.mkdir(parents=True,exist_ok=True)
-          files={}
-          for pack in packs:
-              with zipfile.ZipFile(pack) as archive:
-                  for name in archive.namelist():
-                      if name.endswith('/'):continue
-                      basename=Path(name).name
-                      m=re.fullmatch(r'(photo(?:0[1-9]|[12][0-9]|30))\.(jpg|jpeg|png|webp)',basename,re.I)
-                      if not m:continue
-                      pid=m.group(1).lower()
-                      if pid in files:raise SystemExit('Duplicate image ID: '+pid)
-                      files[pid]=(basename.lower(),archive.read(name))
-          if not files: raise SystemExit('No matching photo01-photo30 images')
-          for pid,(filename,data) in files.items():
-              asset=target/filename
-              asset.write_bytes(data)
+          for img in images:
+              pid=img.stem.lower()
+              filename=pid+img.suffix.lower()
+              (target/filename).write_bytes(img.read_bytes())
               pat=r"(\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
               html,count=re.subn(pat,lambda m:m.group(1)+"'./assets/photos/"+filename+"'",html,count=1)
-              if count!=1:raise SystemExit('Could not locate '+pid+' in index.html')
-          path.write_text(html,encoding='utf-8')
-          for pack in packs:pack.unlink()
-          print('Installed',len(files),'unique HD photos:',', '.join(sorted(files)))
+              if count!=1:raise SystemExit('Photo ID not found: '+pid)
+          page.write_text(html,encoding='utf-8')
+          print('Updated',len(images),'HD photos')
           PY
-      - name: Commit and deploy via Vercel
+      - name: Commit updated HTML and assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A index.html assets/photos 'hd-photos-part*.zip'
+          git add index.html assets/photos
           git diff --cached --quiet && exit 0
-          git commit -m "Install uploaded HD JPG photos"
+          git commit -m "Refresh HD photos from direct uploads"
           git push
