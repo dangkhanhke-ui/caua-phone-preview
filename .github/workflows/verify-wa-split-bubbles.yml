@@ -1,0 +1,48 @@
+name: Verify split WhatsApp message bubbles
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-wa-split-bubbles.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript
+        run: node --check assets/whatsapp/wa-ios8-2015.js
+      - name: Browser-test multiline messages
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          test="""<script>
+          setTimeout(function(){
+            try{
+              var wa=document.querySelector('#waIos15');
+              if(!wa)throw Error('WhatsApp UI missing');
+              var chat=wa.querySelector('[data-act="open-chat"][data-id="mother"]');
+              if(!chat)throw Error('Mother conversation missing');
+              chat.click();
+              var bubbles=Array.from(wa.querySelectorAll('.wai-bubble')).map(x=>x.textContent);
+              var a=bubbles.findIndex(x=>x.includes('Con nhớ chỗ rồi ạ'));
+              var b=bubbles.findIndex(x=>x.includes('Mai con ghé'));
+              if(a<0||b<0)throw Error('Reference message not found');
+              if(b!==a+1)throw Error('Multiline messages are not separate adjacent bubbles');
+              if(bubbles[a].includes('Mai con ghé')||bubbles[b].includes('Con nhớ chỗ rồi ạ'))throw Error('Both lines still share a bubble');
+              document.documentElement.dataset.waBubbleTest='PASS';
+            }catch(e){document.documentElement.dataset.waBubbleTest='FAIL:'+e.message}
+          },550);
+          </script>"""
+          Path('wa-bubble-test.html').write_text(html.replace('</body>',test+'</body>',1),encoding='utf-8')
+          PY
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=4500 --dump-dom "file://$PWD/wa-bubble-test.html" > /tmp/wa-bubble-test.txt 2>/tmp/wa-bubble-browser.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          content=Path('/tmp/wa-bubble-test.txt').read_text(errors='replace')
+          results=re.findall(r'data-wa-bubble-test="([^"]+)"',content)
+          result=results[-1] if results else 'NO RESULT'
+          print('Split WhatsApp bubble rendering:',result)
+          if result!='PASS':raise SystemExit('Multiline bubble browser test failed')
+          PY
