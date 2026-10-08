@@ -1,0 +1,44 @@
+name: Extract inline images into assets
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/extract-assets.yml
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract embedded images and rewrite references
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, pathlib, re
+          p=pathlib.Path('index.html')
+          text=p.read_text(encoding='utf-8')
+          root=pathlib.Path('assets/media')
+          root.mkdir(parents=True,exist_ok=True)
+          count=[0]
+          def replace(m):
+              ext=m.group(1).lower().replace('jpeg','jpg').replace('svg+xml','svg')
+              raw=base64.b64decode(m.group(2),validate=True)
+              sha=hashlib.sha256(raw).hexdigest()[:24]
+              out=root/(sha+'.'+ext)
+              if not out.exists(): out.write_bytes(raw)
+              count[0]+=1
+              return './assets/media/'+out.name
+          updated=re.sub(r'data:image/(png|jpeg|webp|gif|svg\\+xml);base64,([A-Za-z0-9+/=]+)',replace,text)
+          if not count[0] and not list(root.iterdir()):
+              raise SystemExit('No inline images found and assets absent; aborting')
+          p.write_text(updated,encoding='utf-8')
+          print('Extracted',count[0],'references; remaining',updated.count('data:image/'))
+          PY
+      - name: Push HTML and extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Move embedded images to cached asset files"
+          git push
