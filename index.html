@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="theme-color" content="#000000" />
-  <title>iPhone 6 · iOS 8.4.1 · v1.8.47</title>
+  <title>iPhone 6 · iOS 8.4.1 · v1.8.48</title>
   <style>
 :root {
   --phone-w: 375px;
@@ -7096,7 +7096,21 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     state.currentIndex=Math.max(0,index);state.lastView=returnView;state.source=source;setViewerBackLabel(source);
     viewer.classList.add('active');views[returnView]?.classList.remove('active');renderViewer();
   }
-  function updateViewerMeta(){const p=PHOTOS[state.currentIndex];if(!p)return;viewerTitle.textContent=p.locationShort||p.dateDisplay;viewerDate.textContent=p.dateDisplay;favBtn.classList.toggle('on',state.favorites.has(p.id));renderInfo(p);}
+  const swipePreload=new Map();
+  function preloadAround(index){
+    const keep=new Set();
+    for(const i of [index-2,index-1,index,index+1,index+2]){
+      const p=PHOTOS[i];if(!p)continue;
+      keep.add(p.src);
+      if(!swipePreload.has(p.src)){
+        const im=new Image();im.decoding='async';im.src=p.src;
+        const promise=im.decode?im.decode().catch(()=>{}):Promise.resolve();
+        swipePreload.set(p.src,{im,promise});
+      }
+    }
+    for(const k of swipePreload.keys())if(!keep.has(k))swipePreload.delete(k);
+  }
+  function updateViewerMeta(){const p=PHOTOS[state.currentIndex];if(!p)return;viewerTitle.textContent=p.locationShort||p.dateDisplay;viewerDate.textContent=p.dateDisplay;favBtn.classList.toggle('on',state.favorites.has(p.id));renderInfo(p);preloadAround(state.currentIndex);}
   function renderViewer(){const p=PHOTOS[state.currentIndex];if(!p)return;resetZoom(false);viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)';viewerImg.src=p.src;stage.querySelectorAll('.photos-swipe-neighbor').forEach(n=>n.remove());updateViewerMeta();}
   function renderInfo(p){infoBody.innerHTML=`<div class="photos-info-row"><div class="label">Ngày & giờ</div><div class="value">${esc(p.dateTimeDisplay||p.dateDisplay)}</div></div><div class="photos-info-row"><div class="label">Tệp</div><div class="value">${esc(p.filename)} · JPEG · ${p.width} × ${p.height}</div></div><div class="photos-info-row"><div class="label">Vị trí</div><div class="value">${p.location?esc(p.location):'Không có dữ liệu vị trí'}</div></div>${p.location?'<div class="photos-info-map"><span class="photos-info-pin"></span></div>':''}`;}
   document.getElementById('photosViewerBack').addEventListener('click',()=>{
@@ -7174,7 +7188,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     clearSwipeNeighbor();
     if(index<0||index>=PHOTOS.length)return null;
     const n=document.createElement('img');
-    n.className='photos-swipe-neighbor';n.alt='';n.src=PHOTOS[index].src;
+    n.className='photos-swipe-neighbor';n.alt='';n.decoding='async';n.src=PHOTOS[index].src;
     n.style.transition='none';n.style.transform=`translate3d(${side*100}%,0,0)`;
     stage.appendChild(n);return n;
   }
@@ -7192,15 +7206,18 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     resetZoom(false);
     viewerImg.style.transition=`transform ${duration}ms cubic-bezier(.22,.72,.24,1)`;
     neighbor.style.transition=`transform ${duration}ms cubic-bezier(.22,.72,.24,1)`;
-    requestAnimationFrame(()=>{
+    // Force the starting state to be painted before requesting the transition.
+    void neighbor.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
       viewerImg.style.transform=`translate3d(${-dir*100}%,0,0) scale(1)`;
       neighbor.style.transform='translate3d(0,0,0)';
-    });
+    }));
     setTimeout(()=>{
       state.currentIndex=nextIndex;
+      // Preserve the already visible decoded neighbor until the main image has painted.
       viewerImg.src=PHOTOS[nextIndex].src;
       viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)';
-      clearSwipeNeighbor();updateViewerMeta();
+      requestAnimationFrame(()=>{clearSwipeNeighbor();updateViewerMeta();});
     },duration+12);
   }
   function beginPinch(){
