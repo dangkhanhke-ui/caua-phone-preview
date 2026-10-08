@@ -252,7 +252,7 @@ function boot(){
   else if(sub==='wallpaper'){title='Hình nền';body=group('Chọn hình nền')+wrap(cell('Hình nền HD hiện tại','wallpaper-pick','', 'data-value=""')+cell('Màu kem','wallpaper-pick','','data-value="cream"')+cell('Màu xám xanh','wallpaper-pick','','data-value="blue"')+cell('Màu trắng','wallpaper-pick','','data-value="white"'))}
   else if(sub==='web'){title='WhatsApp Web';body=group('Trình duyệt trên máy tính')+desc('Trên máy tính, mở web.whatsapp.com để sử dụng WhatsApp Web.')}
   else if(sub==='help'){title='Trợ giúp';body=wrap(cell('Thông tin ứng dụng','sub','','data-sub="about-app"')+cell('Gửi phản hồi','feedback'))+''}
-  else if(sub==='about-app'){title='Giới thiệu';body=group('WhatsApp iPhone')+wrap('<div class="wai-cell">WhatsApp Messenger · v2.12.5</div>')+desc('Không phải sản phẩm chính thức của WhatsApp.')}
+  else if(sub==='about-app'){title='Giới thiệu';body=group('WhatsApp')+wrap('<div class="wai-cell">WhatsApp Messenger · v2.12.5</div>')}
   else if(sub==='invite'){title='Mời bạn bè';body=desc('Mời bạn bè sử dụng WhatsApp.')}
   else if(sub==='custom-notify'){title='Thông báo tùy chỉnh';body=group('Thông báo của '+esc(contact(ui.id)?.name||''))+wrap(toggle('Bật tùy chỉnh','customAlert')+cell('Âm thông báo','notify-tone',data.notifyTone||'Mặc định'))}
   else if(sub==='choose-status'){title='Trạng thái';body=group('Chọn trạng thái')+wrap(['Có mặt','Đang bận','Đang làm việc','Đang học','Pin sắp hết','Không thể nói chuyện, chỉ nhắn WhatsApp'].map(x=>cell(esc(x),'status-choose',data.status===x?'✓':'','data-value="'+esc(x)+'"')).join('')+cell('Tùy chỉnh…','status-edit'))}
@@ -309,6 +309,17 @@ function boot(){
   const t=contact(ui.id),el=root.querySelector('#waiText');if(!t||!el)return;
   const text=el.value.trim();if(!text)return;
   delete data.drafts[t.id];makeMessage(t,'message',{text});ui.scrollThread=true;render();
+ }
+ function clearConversation(id,removeFromList){
+  const t=contact(id);if(!t)return;
+  data.cleared[id]=(data.messages[id]||[]).length;
+  data.unread=data.unread.filter(x=>x!==id);
+  data.archived=data.archived.filter(x=>x!==id);
+  if(removeFromList&&!data.deleted.includes(id))data.deleted.push(id);
+  if(!removeFromList)data.deleted=data.deleted.filter(x=>x!==id);
+  delete data.drafts[id];
+  ui.chatScroll[id]=0;
+  save();
  }
  function groupCreate(){
   const el=root.querySelector('#waiGroupTitle');const name=el?.value.trim();if(!name){toast('Nhập tên nhóm');return}
@@ -435,11 +446,21 @@ function boot(){
   if(a==='mute'){ui.overlay=null;openSheet('Tắt thông báo '+contact(ui.id)?.name,[{text:'8 giờ',act:'mute-set',value:'8 giờ'},{text:'1 tuần',act:'mute-set',value:'1 tuần'},{text:'1 năm',act:'mute-set',value:'1 năm'},{text:'Bật lại thông báo',act:'mute-set',value:'off'}]);return}
   if(a==='mute-set'){if(val==='off')delete data.muted[ui.id];else data.muted[ui.id]=val;save();closeSheet();return}
   if(a==='archive-chat'){if(!data.archived.includes(ui.id))data.archived.push(ui.id);save();tab('chats');return}
-  if(a==='unarchive'){data.archived=data.archived.filter(x=>x!==id);save();render();return}
+  if(a==='unarchive'){data.archived=data.archived.filter(x=>x!==id);save();render();toast('Đã bỏ lưu trữ');return}
+  if(a==='confirm-clear-chat'){openSheet('Xóa tin nhắn của '+(contact(id)?.name||'cuộc trò chuyện')+'?', [{text:'Xóa toàn bộ tin nhắn',act:'clear-chat',id}]);return}
+  if(a==='confirm-delete-chat'){openSheet('Xóa cuộc trò chuyện với '+(contact(id)?.name||'liên hệ')+'?', [{text:'Xóa cuộc trò chuyện',act:'delete-chat',id}]);return}
+  if(a==='clear-chat'){clearConversation(id,false);ui.overlay=null;render();toast('Đã xóa nội dung trò chuyện');return}
+  if(a==='delete-chat'){clearConversation(id,true);ui.overlay=null;tab('chats');toast('Đã xóa cuộc trò chuyện');return}
   if(a==='mark-unread'){if(!data.unread.includes(id))data.unread.push(id);save();closeSheet();return}
   if(a==='mark-read'){data.unread=data.unread.filter(x=>x!==id);save();closeSheet();return}
   if(a==='archive-from-list'){if(!data.archived.includes(id))data.archived.push(id);save();closeSheet();return}
-  if(a==='swipe-menu'){ui.overlay=null;ui.swipeId=id;openSheet(contact(id)?.name||'Chat',[{text:data.unread.includes(id)?'Đánh dấu đã đọc':'Đánh dấu chưa đọc',act:data.unread.includes(id)?'mark-read':'mark-unread',id},{text:'Lưu trữ',act:'archive-from-list',id},{text:'Tắt thông báo',act:'mute-list',id},{text:'Thông tin liên hệ',act:'info-list',id}]);return}
+  if(a==='swipe-menu'){ui.overlay=null;ui.swipeId=id;openSheet(contact(id)?.name||'Chat',[
+   {text:data.unread.includes(id)?'Đánh dấu đã đọc':'Đánh dấu chưa đọc',act:data.unread.includes(id)?'mark-read':'mark-unread',id},
+   {text:data.archived.includes(id)?'Bỏ lưu trữ':'Lưu trữ',act:data.archived.includes(id)?'unarchive':'archive-from-list',id},
+   {text:'Xóa nội dung trò chuyện',act:'confirm-clear-chat',id},
+   {text:'Xóa cuộc trò chuyện',act:'confirm-delete-chat',id},
+   {text:'Tắt thông báo',act:'mute-list',id},
+   {text:'Thông tin liên hệ',act:'info-list',id}]);return}
   if(a==='mute-list'){ui.overlay=null;data.muted[id]='8 giờ';save();render();return}
   if(a==='info-list'){ui.overlay=null;navigate('contact-info',{id});return}
   if(a==='open-media'){ui.viewer=val||el.dataset.src||'';render();return}
