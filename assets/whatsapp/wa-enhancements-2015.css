@@ -1,0 +1,46 @@
+/* WhatsApp Aug 2015: functional sections without changing existing conversations */
+#whatsappApp .wa-ext-panel{position:absolute;top:82px;bottom:0;left:0;right:0;z-index:21;background:#fafafa;overflow:auto;-webkit-overflow-scrolling:touch}
+#whatsappApp #waListView.wa-list-view-searching .wa-ext-panel{top:126px}
+#whatsappApp .wa-ext-section{padding:13px 15px 7px;color:#737373;font-size:11px;font-weight:bold;letter-spacing:.5px;text-transform:uppercase}
+#whatsappApp .wa-ext-row{display:flex;align-items:center;gap:12px;min-height:63px;width:100%;border:0;border-bottom:1px solid #e9e9e9;background:#fff;color:#272727;text-align:left;padding:8px 12px;font:14px Arial,Helvetica,sans-serif}
+#whatsappApp .wa-ext-row:active{background:#eaeaea}
+#whatsappApp .wa-ext-row .wa-avatar{position:relative!important;top:auto!important;left:auto!important;flex:0 0 44px;width:44px!important;height:44px!important}
+#whatsappApp .wa-ext-row-copy{display:block;flex:1;min-width:0}
+#whatsappApp .wa-ext-row-copy b{display:block;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#whatsappApp .wa-ext-row-copy small{font-size:11px;color:#858585;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#whatsappApp .wa-ext-symbol{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:#e2f1ee;color:#075e54;font-size:20px}
+#whatsappApp .wa-ext-symbol.missed{color:#d34a4a;background:#fae8e8}
+#whatsappApp .wa-ext-time{font-size:11px;color:#999;white-space:nowrap}
+#whatsappApp .wa-ext-empty{margin:28px 20px;padding:28px 16px;text-align:center;border:1px solid #ededed;border-radius:8px;color:#7a7a7a;font:13px/20px Arial,Helvetica,sans-serif;background:#fff}
+#whatsappApp .wa-ext-sheet{position:absolute;inset:0;z-index:98;background:#f6f6f6;display:flex;flex-direction:column;color:#222;font:14px Arial,Helvetica,sans-serif}
+#whatsappApp .wa-ext-toolbar{flex:0 0 48px;display:flex;align-items:center;background:#075e54;color:white;gap:12px;padding:0 12px}
+#whatsappApp .wa-ext-toolbar button{border:0;background:none;color:#fff;font:26px Arial;min-width:24px;padding:0}
+#whatsappApp .wa-ext-toolbar strong{font-size:16px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#whatsappApp .wa-ext-content{flex:1;min-height:0;overflow:auto}
+#whatsappApp .wa-ext-card{margin:10px 9px;background:#fff;border-radius:3px;overflow:hidden;box-shadow:0 1px 2px #0001}
+#whatsappApp .wa-ext-line{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:47px;border:0;border-bottom:1px solid #ededed;background:#fff;color:#242424;text-align:left;padding:11px 14px;font:14px Arial,sans-serif}
+#whatsappApp .wa-ext-line:last-child{border-bottom:0}
+#whatsappApp .wa-ext-line small{font-size:11px;color:#929292}
+#whatsappApp .wa-ext-line input[type="checkbox"]{width:17px;height:17px;accent-color:#0b8b73}
+#whatsappApp .wa-ext-action{padding:11px 13px;border:0;background:#0a806e;color:#fff;border-radius:4px;font-size:13px}
+#whatsappApp .wa-ext-field{width:calc(100% - 24px);margin:12px;padding:11px;border:1px solid #d8d8d8;border-radius:4px;background:#fff;color:#111;font:14px Arial;box-sizing:border-box}
+#whatsappApp .wa-ext-muted{font-size:11px;line-height:16px;color:#8b8b8b;padding:10px 14px}
+#whatsappApp .wa-ext-check{width:18px;height:18px;border:1px solid #bbb;border-radius:3px;display:grid;place-items:center;color:white;background:white}
+#whatsappApp .wa-ext-row.selected .wa-ext-check{background:#0b8b73;border-color:#0b8b73}
+#whatsappApp .wa-ext-bottom{padding:9px 12px;background:#fff;border-top:1px solid #ddd;display:flex;gap:8px}
+#whatsappApp .wa-ext-bottom button{flex:1}
+#whatsappApp .wa-ext-toast{position:absolute;left:30px;right:30px;bottom:57px;z-index:110;padding:11px;background:#323232;color:white;border-radius:5px;text-align:center;box-shadow:0 4px 14px #0003;font-size:12px}
+#whatsappApp .wa-ext-chip{display:inline-flex;align-items:center;border:1px solid #bbb;border-radius:3px;background:#fff;color:#666;padding:4px 7px;font-size:11px;margin:6px}
+#whatsappApp .wa-ext-unread{position:absolute;right:12px;bottom:12px;background:#25b963;color:#fff;border-radius:50%;width:9px;height:9px}
+#whatsappApp .wa-chat-row.wa-ext-unread-row .wa-row-name{font-weight:800;color:#075e54}
+#whatsappApp .wa-ext-call-face{margin:55px auto 14px;border-radius:50%;width:82px;height:82px;background:#c8ddd9;color:#075e54;display:grid;place-items:center;font-size:38px}
+#whatsappApp .wa-ext-call-screen{background:#17453f;color:#fff;text-align:center}
+#whatsappApp .wa-ext-call-screen .wa-ext-content{padding:15px}
+#whatsappApp .wa-ext-call-screen h2{font-size:23px;font-weight:500;margin:15px 0 9px}
+#whatsappApp .wa-ext-call-screen p{color:#d2e7e1;font-size:13px}
+#whatsappApp .wa-ext-hangup{margin:auto auto 54px;width:68px;height:68px;border-radius:50%;background:#e54343;color:white;border:0;font-size:29px;transform:none}
+#whatsappApp .wa-compose .wa-input:disabled{opacity:1}
+#whatsappApp .wa-compose .wa-input:not(:disabled){cursor:text}
+#whatsappApp .wa-compose .wa-mic.wa-ext-send{font-size:19px!important;color:#fff!important}
+#whatsappApp .wa-compose .wa-mic.wa-ext-send::before,#whatsappApp .wa-compose .wa-mic.wa-ext-send::after{display:none!important}
+#whatsappApp .wa-ext-group-msg{padding:20px 13px;text-align:center;color:#888;font-size:12px}
