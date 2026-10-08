@@ -1,0 +1,106 @@
+name: Patch Cauã Facebook profile timeline
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-facebook-caua-profile.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: patch-facebook-caua-profile
+  cancel-in-progress: false
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply precise timeline changes and register profile photo codes
+        run: |
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          path=Path('index.html')
+          html=path.read_text(encoding='utf-8')
+          dec=json.JSONDecoder()
+          def read(name):
+              global html
+              a=re.search(r'\bconst '+re.escape(name)+r'\s*=\s*',html)
+              if not a:raise SystemExit('Missing '+name)
+              start=a.end()
+              obj,n=dec.raw_decode(html[start:])
+              return obj,start,start+n
+          def replace(name,edit):
+              global html
+              obj,start,end=read(name)
+              result=edit(obj)
+              html=html[:start]+json.dumps(result,ensure_ascii=False,separators=(',',':'))+html[end:]
+          likes={
+              'cp201507182317':276,
+              'cp201404190131':182,
+              'cp201305102318':486,
+              'cp201209152338':152,
+              'cp201208102229':189,
+              'cp201103142316':213,
+              'cp200903142052':156,
+              'cp200902212304':137,
+          }
+          new_images={
+              'cp201503101641':'fb20150310',
+              'cp201404190131':'fb20140419',
+              'cp201401121816':'fb20140112',
+              'cp201301270241':'fb20130127',
+              'cp201209152338':'fb20120915',
+              'cp201208102229':'fb20120810',
+              'cp201103142316':'fb20110314',
+              'cp201006192302':'fb20100619',
+              'cp200903142052':'fb20090314',
+              'cp200902212304':'fb20090221',
+          }
+          removed_id='cp201208240141'
+          def update_posts(posts):
+              if len(posts)!=32:raise SystemExit('Unexpected timeline size '+str(len(posts)))
+              matches=[p for p in posts if p['id']==removed_id and p['author']=='Helena Prado']
+              if len(matches)!=1:raise SystemExit('Helena post not uniquely identified')
+              by_id={p['id']:p for p in posts}
+              if len([k for k in likes if k in by_id])!=8:raise SystemExit('Likes post IDs missing')
+              for key,n in likes.items():by_id[key]['likes']=str(n)
+              by_id['cp200903142052']['commentCount']='37'
+              for post_id in new_images:
+                  if by_id[post_id].get('media')!='placeholder':
+                      raise SystemExit('Unexpected media state for '+post_id)
+              return [p for p in posts if p['id']!=removed_id]
+          replace('PROFILE_POSTS',update_posts)
+          def update_assets(assets):
+              for key in new_images.values():
+                  assets.setdefault(key,'PENDING_FB_UPLOAD_'+key)
+              return assets
+          replace('ASSET',update_assets)
+          def update_media(media):
+              for id,key in new_images.items():media[id]=key
+              return media
+          replace('PROFILE_MEDIA',update_media)
+          old="if(profile&&PROFILE_MEDIA[p.id])return"
+          new="if(profile&&PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'))return"
+          if html.count(old)!=1:raise SystemExit('Facebook media renderer anchor changed')
+          html=html.replace(old,new,1)
+          path.write_text(html,encoding='utf-8')
+          final,_,_=read('PROFILE_POSTS')
+          if len(final)!=31 or any(p['id']==removed_id for p in final):
+              raise SystemExit('Post deletion validation failed')
+          for key,n in likes.items():
+              if next(p for p in final if p['id']==key)['likes']!=str(n):
+                  raise SystemExit('Likes validation failed: '+key)
+          if next(p for p in final if p['id']=='cp200903142052')['commentCount']!='37':
+              raise SystemExit('2009 comments validation failed')
+          assert len(new_images)==10
+          print('PASS: deleted Helena timeline entry, updated 8 likes, 2009 comments, registered 10 new image codes')
+          PY
+      - name: Commit Facebook edits
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Update Cauã Facebook timeline and register photo slots"
+          git pull --rebase origin main
+          git push
