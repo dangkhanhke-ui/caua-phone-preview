@@ -30,7 +30,7 @@ jobs:
           html=re.sub(r'<link[^>]*wa-ios8-2015\.css[^>]*>', '', html)
           html=re.sub(r'<script[^>]*wa-ios8-2015\.js[^>]*></script>', '', html)
           style='<link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009d">'
-          script='<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009e"></script>'
+          script='<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009f"></script>'
           if '</head>' not in html or '</body>' not in html:raise SystemExit('HTML skeleton missing')
           html=html.replace('</head>',style+'\n</head>',1)
           html=html.replace('</body>',script+'\n</body>',1)
