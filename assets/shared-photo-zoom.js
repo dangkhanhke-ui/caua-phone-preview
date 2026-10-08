@@ -5,8 +5,8 @@ const style=document.createElement('style');style.textContent=`
 #facebookApp .caua-zoom-header{height:46px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#101116;font:13px Arial}
 #facebookApp .caua-zoom-header button{background:none;border:0;color:white;padding:10px;font:14px Arial}
 #facebookApp .caua-zoom-stage{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none}
-#facebookApp .caua-zoom-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none;transform-origin:center center;will-change:transform}
-#waIos15 .wai-viewer{touch-action:none;overflow:hidden}
+#facebookApp .caua-zoom-stage{cursor:zoom-in;user-select:none;-webkit-user-select:none}\n#facebookApp .caua-zoom-stage.is-zoomed{cursor:grab}\n#facebookApp .caua-zoom-stage.is-panning{cursor:grabbing}\n#facebookApp .caua-zoom-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none;transform-origin:center center;will-change:transform}
+#waIos15 .wai-viewer{touch-action:none;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:zoom-in}\n#waIos15 .wai-viewer.is-zoomed{cursor:grab}\n#waIos15 .wai-viewer.is-panning{cursor:grabbing}
 #waIos15 .wai-viewer img{pointer-events:none;user-select:none;-webkit-user-drag:none;transform-origin:center center;will-change:transform;touch-action:none}
 #waIos15 .wai-viewer>button{z-index:5}
 `;document.head.appendChild(style);
@@ -23,7 +23,7 @@ function attach(stage,img){
   const w=img.offsetWidth||stage.clientWidth,h=img.offsetHeight||stage.clientHeight;
   const maxX=Math.max(0,(w*z.scale-stage.clientWidth)/2);
   const maxY=Math.max(0,(h*z.scale-stage.clientHeight)/2);
-  z.x=clamp(z.x,-maxX,maxX);z.y=clamp(z.y,-maxY,maxY);
+  z.x=clamp(z.x,-maxX,maxX);z.y=clamp(z.y,-maxY,maxY);\n  stage.classList.toggle('is-zoomed',z.scale>1.015);
   img.style.transition=animate?'transform 220ms cubic-bezier(.22,.72,.24,1)':'none';
   img.style.transform='translate3d('+z.x+'px,'+z.y+'px,0) scale('+z.scale+')';
   const badge=stage.parentElement.querySelector('[data-caua-zoom-value]');
@@ -40,7 +40,7 @@ function attach(stage,img){
  stage.addEventListener('caua-zoom-reset',reset);
  stage.addEventListener('pointerdown',e=>{
   if(e.target.closest('button')||(e.pointerType==='mouse'&&e.button!==0))return;
-  const p=local(e.clientX,e.clientY);points.set(e.pointerId,p);
+  e.preventDefault();\n  const p=local(e.clientX,e.clientY);points.set(e.pointerId,p);
   try{stage.setPointerCapture(e.pointerId)}catch(_){}
   if(points.size===2){
    const [a,b]=[...points.values()];
@@ -59,7 +59,7 @@ function attach(stage,img){
    z.y=(cy-c.y)-(gesture.cy-c.y-gesture.y)*ratio;draw();
   }else if(points.size===1&&gesture?.kind==='single'&&gesture.id===e.pointerId){
    const dx=p.x-gesture.px,dy=p.y-gesture.py;
-   if(Math.hypot(dx,dy)>8)gesture.moved=true;
+   if(Math.hypot(dx,dy)>8)gesture.moved=true;\n   if(gesture.moved&&z.scale>1.015)stage.classList.add('is-panning');
    if(z.scale>1.015){z.x=gesture.x+dx;z.y=gesture.y+dy;draw();}
   }
   e.preventDefault();
@@ -68,13 +68,13 @@ function attach(stage,img){
   if(!points.has(e.pointerId))return;
   const p=local(e.clientX,e.clientY),prior=gesture;
   points.delete(e.pointerId);
-  if(prior?.kind==='pinch'){
+  stage.classList.remove('is-panning');\n  if(prior?.kind==='pinch'){
    if(points.size===1){const [id,q]=[...points.entries()][0];gesture={kind:'single',id,px:q.x,py:q.y,x:z.x,y:z.y,moved:true};}
    else gesture=null;
    if(z.scale<1.08)reset();else draw(true);
    return;
   }
-  if(prior?.kind==='single'&&prior.id===e.pointerId&&!prior.moved&&!hadMulti&&Math.hypot(p.x-prior.px,p.y-prior.py)<9){
+  if(e.pointerType!=='mouse'&&prior?.kind==='single'&&prior.id===e.pointerId&&!prior.moved&&!hadMulti&&Math.hypot(p.x-prior.px,p.y-prior.py)<9){
    const now=performance.now();
    if(now-lastTap<330&&lastTapPoint&&Math.hypot(p.x-lastTapPoint.x,p.y-lastTapPoint.y)<38){
     zoomAt(e.clientX,e.clientY,z.scale>1.05?1:2.5,true);lastTap=0;lastTapPoint=null;
@@ -83,9 +83,9 @@ function attach(stage,img){
   if(!points.size){gesture=null;hadMulti=false;}
  }
  stage.addEventListener('pointerup',finish);
- stage.addEventListener('pointercancel',e=>{points.delete(e.pointerId);gesture=null;hadMulti=false;draw(true);});
+ stage.addEventListener('pointercancel',e=>{points.delete(e.pointerId);gesture=null;hadMulti=false;stage.classList.remove('is-panning');draw(true);});\n stage.addEventListener('dblclick',e=>{if(e.pointerType==='touch')return;e.preventDefault();e.stopPropagation();zoomAt(e.clientX,e.clientY,z.scale>1.05?1:2.5,true);});\n stage.addEventListener('dragstart',e=>e.preventDefault());\n stage.addEventListener('contextmenu',e=>e.preventDefault());
  stage.addEventListener('wheel',e=>{
-  if(!(e.ctrlKey||e.metaKey))return;
+  // Wheel zoom works on desktops without requiring Ctrl.
   e.preventDefault();zoomAt(e.clientX,e.clientY,z.scale*(e.deltaY<0?1.15:1/1.15));
  },{passive:false});
  img.addEventListener('load',()=>draw());
