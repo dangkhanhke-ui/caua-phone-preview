@@ -1,0 +1,47 @@
+name: Install HD photos from zip
+on:
+  push:
+    paths:
+      - hd-photos.zip
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace Photos image sources with HD assets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,zipfile
+          archive=Path('hd-photos.zip')
+          if not archive.exists(): raise SystemExit('Waiting for hd-photos.zip')
+          html=Path('index.html')
+          text=html.read_text(encoding='utf-8')
+          target=Path('assets/photos')
+          target.mkdir(parents=True,exist_ok=True)
+          with zipfile.ZipFile(archive) as z:
+              names={n for n in z.namelist() if re.fullmatch(r'photo[0-9]{2}\\.webp',n)}
+              if len(names)!=30:raise SystemExit(f'Expected 30 HD photos, got {len(names)}')
+              updated=[0]
+              for n in sorted(names):
+                  pid=n[:-5]
+                  target.joinpath(n).write_bytes(z.read(n))
+                  pattern=r"(?P<prefix>\\{id:'"+re.escape(pid)+r"',src:)'[^']+'"
+                  text,count=re.subn(pattern,lambda m:m.group('prefix')+"'./assets/photos/"+n+"'",text,count=1)
+                  if count!=1:raise SystemExit('Missing image ID: '+pid)
+                  updated[0]+=count
+          if updated[0]!=30:raise SystemExit('Replacement count mismatch')
+          html.write_text(text,encoding='utf-8')
+          archive.unlink()
+          print('Updated',updated[0],'photos to HD external assets')
+          PY
+      - name: Commit final HD site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A index.html assets/photos hd-photos.zip
+          git commit -m "Restore 30 HD Photos from original images"
+          git push
