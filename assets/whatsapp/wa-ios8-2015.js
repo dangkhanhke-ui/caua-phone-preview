@@ -43,8 +43,19 @@ function boot(){
  const contact=id=>threads.find(x=>x.id===id);
  const face=(id,size='')=>'<span class="wai-face '+size+'">'+(id==='caua'?(data.photo||'./assets/facebook/avatar.jpg')?'<img src="'+esc(data.photo||'./assets/facebook/avatar.jpg')+'" onerror="this.style.display=\'none\'">':'C':faces[id]?'<img src="'+esc(faces[id])+'" onerror="this.style.display=\'none\'">':esc((contact(id)?.name||'?').slice(0,1)))+'</span>';
  const latest=(t)=>{const ext=data.messages[t.id]||[];return ext.length?ext[ext.length-1]:t.events[t.events.length-1]};
- const allEvents=t=>(t.events||[]).concat(data.messages[t.id]||[]).filter(x=>!data.hide.includes(x.id)).sort((a,b)=>(a.date+'T'+(a.time||'00:00')).localeCompare(b.date+'T'+(b.time||'00:00')));
- const lastText=t=>{const e=latest(t);return e?.text||((e?.type==='image')?'📷 Ảnh':e?.type==='call'?'📞 Cuộc gọi':e?.type==='audio'?'🎙 Tin nhắn thoại':t.preview||'')};
+ // Each newline-separated WhatsApp text is a distinct message bubble.
+ // Preserve the original event object, date, sender and order; only derive render copies.
+ const splitChatBubbles=e=>{
+  if(e.type!=='message'||typeof e.text!=='string'||!/\r?\n/.test(e.text))return [e];
+  const parts=e.text.split(/\r?\n+/).map(x=>x.trim()).filter(Boolean);
+  if(parts.length<2)return [e];
+  return parts.map((part,i)=>({...e,id:(e.id||'message')+'-bubble-'+(i+1),text:part,originalId:e.id}));
+ };
+ const allEvents=t=>(t.events||[]).concat(data.messages[t.id]||[])
+  .sort((a,b)=>(a.date+'T'+(a.time||'00:00')).localeCompare(b.date+'T'+(b.time||'00:00')))
+  .flatMap(splitChatBubbles)
+  .filter(x=>!data.hide.includes(x.id)&&!data.hide.includes(x.originalId));
+ const lastText=t=>{const e=latest(t);return e?.type==='message'?String(e.text||'').split(/\r?\n+/).filter(Boolean).slice(-1)[0]||'':((e?.type==='image')?'📷 Ảnh':e?.type==='call'?'📞 Cuộc gọi':e?.type==='audio'?'🎙 Tin nhắn thoại':t.preview||'')};
  const lastTime=t=>{const e=latest(t);return e?.time||t.lastDate||''};
  const dateLabel=s=>{if(!s)return '';let a=s.split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:s};
  const daySort=t=>{const e=latest(t);return e?e.date+'T'+(e.time||'00:00'):t.activity||''};
