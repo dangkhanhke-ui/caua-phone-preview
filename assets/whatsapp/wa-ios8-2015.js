@@ -10,10 +10,15 @@ function boot(){
  const images={'camila-img-1':P+'wa_camila_01.png','livia-img-1':P+'wa_livia_01.png','livia-img-2':P+'wa_livia_02.png','livia-img-3':P+'wa_livia_03.png','livia-img-4':P+'wa_livia_04.png','livia-img-5':P+'wa_livia_05.png'};
  const faces={mother:P+'wa_avatar_mother.png',camila:P+'wa_avatar_camila.png',livia:P+'wa_avatar_livia.png'};
  const phones={caua:'+55 (21) 90000-0101',mother:'+55 (21) 90000-0102',camila:'+55 (21) 90000-0103',livia:'+55 (21) 90000-0104'};
- const base={name:'Cauã Valença',status:'Disponível',photo:'',favorite:['mother','camila','livia'],archived:[],muted:{},unread:[],hide:[],messages:{},groups:[],prefs:{alerts:true,preview:true,sounds:true,vibrate:true,saveMedia:true,lowData:false,backupVideos:false,autoImage:true},privacy:{seen:'Todos',photo:'Meus contatos',status:'Meus contatos',blocked:[]},wallpaper:'',calls:[],drafts:{},seq:0};
+ const base={name:'Cauã Valença',status:'Có mặt',photo:'',favorite:['mother','camila','livia'],archived:[],muted:{},unread:[],hide:[],cleared:{},deleted:[],messages:{},groups:[],prefs:{alerts:true,preview:true,sounds:true,vibrate:true,saveMedia:true,lowData:false,backupVideos:false,autoImage:true},privacy:{seen:'Mọi người',photo:'Danh bạ',status:'Danh bạ',blocked:[]},wallpaper:'',calls:[],drafts:{},seq:0};
  let data;try{const v=JSON.parse(localStorage.getItem('caua-whatsapp-ios2015-v2'));data=v&&typeof v==='object'?Object.assign(structuredClone(base),v):structuredClone(base)}catch(e){data=JSON.parse(JSON.stringify(base))}
- for(const k of ['favorite','archived','unread','hide','groups','calls'])if(!Array.isArray(data[k]))data[k]=[];
- for(const k of ['messages','muted','prefs','privacy','drafts'])if(!data[k]||typeof data[k]!=='object')data[k]=JSON.parse(JSON.stringify(base[k]));
+ for(const k of ['favorite','archived','unread','hide','deleted','groups','calls'])if(!Array.isArray(data[k]))data[k]=[];
+ for(const k of ['messages','muted','prefs','privacy','drafts','cleared'])if(!data[k]||typeof data[k]!=='object')data[k]=JSON.parse(JSON.stringify(base[k]));
+ const portugueseStatus={'Disponível':'Có mặt','Ocupado':'Đang bận','No trabalho':'Đang làm việc','Na escola':'Đang học','Bateria quase acabando':'Pin sắp hết','Não posso falar, só WhatsApp':'Không thể nói chuyện, chỉ nhắn WhatsApp'};
+ const vnStatus=x=>portugueseStatus[x]||x||'Có mặt';
+ data.status=vnStatus(data.status);
+ const portuguesePrivacy={'Todos':'Mọi người','Meus contatos':'Danh bạ','Ninguém':'Không ai'};
+ for(const key of ['seen','photo','status'])if(portuguesePrivacy[data.privacy[key]])data.privacy[key]=portuguesePrivacy[data.privacy[key]];
  const threads=api.THREADS;
  for(const g of data.groups)if(!threads.find(t=>t.id===g.id))threads.push({...g,events:[]});
  const owner={id:'caua',name:data.name,phone:phones.caua};
@@ -42,7 +47,7 @@ function boot(){
  const save=()=>{try{localStorage.setItem('caua-whatsapp-ios2015-v2',JSON.stringify(data))}catch(e){toast('Bộ nhớ trình duyệt đầy, ảnh có thể chưa được lưu')}};
  const contact=id=>threads.find(x=>x.id===id);
  const face=(id,size='')=>'<span class="wai-face '+size+'">'+(id==='caua'?(data.photo||'./assets/facebook/avatar.jpg')?'<img src="'+esc(data.photo||'./assets/facebook/avatar.jpg')+'" onerror="this.style.display=\'none\'">':'C':faces[id]?'<img src="'+esc(faces[id])+'" onerror="this.style.display=\'none\'">':esc((contact(id)?.name||'?').slice(0,1)))+'</span>';
- const latest=(t)=>{const ext=data.messages[t.id]||[];return ext.length?ext[ext.length-1]:t.events[t.events.length-1]};
+ const latest=(t)=>{const ext=data.messages[t.id]||[];if(Object.prototype.hasOwnProperty.call(data.cleared,t.id))return ext.slice(data.cleared[t.id]).at(-1)||null;return ext.length?ext.at(-1):(t.events||[]).at(-1)};
  // Each newline-separated WhatsApp text is a distinct message bubble.
  // Preserve the original event object, date, sender and order; only derive render copies.
  const splitChatBubbles=e=>{
@@ -51,15 +56,15 @@ function boot(){
   if(parts.length<2)return [e];
   return parts.map((part,i)=>({...e,id:(e.id||'message')+'-bubble-'+(i+1),text:part,originalId:e.id}));
  };
- const allEvents=t=>(t.events||[]).concat(data.messages[t.id]||[])
+ const allEvents=t=>(Object.prototype.hasOwnProperty.call(data.cleared,t.id)?[]:(t.events||[])).concat((data.messages[t.id]||[]).slice(data.cleared[t.id]||0))
   .sort((a,b)=>(a.date+'T'+(a.time||'00:00')).localeCompare(b.date+'T'+(b.time||'00:00')))
   .flatMap(splitChatBubbles)
   .filter(x=>!data.hide.includes(x.id)&&!data.hide.includes(x.originalId));
- const lastText=t=>{const e=latest(t);return e?.type==='message'?String(e.text||'').split(/\r?\n+/).filter(Boolean).slice(-1)[0]||'':((e?.type==='image')?'📷 Ảnh':e?.type==='call'?'📞 Cuộc gọi':e?.type==='audio'?'🎙 Tin nhắn thoại':t.preview||'')};
+ const lastText=t=>{const e=latest(t);if(!e&&Object.prototype.hasOwnProperty.call(data.cleared,t.id))return '';return e?.type==='message'?String(e.text||'').split(/\r?\n+/).filter(Boolean).slice(-1)[0]||'':((e?.type==='image')?'📷 Ảnh':e?.type==='call'?'📞 Cuộc gọi':e?.type==='audio'?'🎙 Tin nhắn thoại':t.preview||'')};
  const lastTime=t=>{const e=latest(t);return e?.time||t.lastDate||''};
  const dateLabel=s=>{if(!s)return '';let a=s.split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:s};
  const daySort=t=>{const e=latest(t);return e?e.date+'T'+(e.time||'00:00'):t.activity||''};
- let ui={tab:'chats',page:'main',id:'',sub:'',query:'',search:'',callFilter:'all',stack:[],overlay:null,viewer:'',select:[],edit:false,scrollThread:true,recording:false};
+ let ui={tab:'chats',page:'main',id:'',sub:'',query:'',search:'',callFilter:'all',stack:[],overlay:null,viewer:'',select:[],edit:false,scrollThread:true,chatScroll:{},recording:false};
  let toastTimeout,callTimer,recorder,recParts=[];
  const action=(a,label,extra='')=>'<button type="button" data-act="'+a+'" '+extra+'>'+label+'</button>';
  function nav(title,left='',right=''){
@@ -86,7 +91,7 @@ function boot(){
   ui.overlay=null;render();
  }
  function tab(id){ui.tab=id;ui.page='main';ui.stack=[];ui.query='';ui.search='';ui.overlay=null;ui.edit=false;render()}
- function selectContact(id){data.unread=data.unread.filter(x=>x!==id);save();ui.id=id;navigate('chat',{id})}
+ function selectContact(id){data.unread=data.unread.filter(x=>x!==id);data.deleted=data.deleted.filter(x=>x!==id);save();ui.scrollThread=true;ui.id=id;navigate('chat',{id})}
  const contactRow=(t,actionName='open-contact')=>'<button class="wai-row" data-act="'+actionName+'" data-id="'+esc(t.id)+'">'+face(t.id)+'<span class="wai-row-info"><span class="wai-row-top"><b>'+esc(t.name)+'</b></span><small>'+esc(t.status||phones[t.id]||'WhatsApp')+'</small></span><span class="wai-chevron">›</span></button>';
  const chatRow=t=>{
   const unread=data.unread.includes(t.id),muted=!!data.muted[t.id];
@@ -94,7 +99,7 @@ function boot(){
  };
  function chats(){
   const q=ui.query.trim().toLocaleLowerCase('vi');
-  const rows=threads.filter(t=>!data.archived.includes(t.id)).filter(t=>!q||t.name.toLocaleLowerCase('vi').includes(q)||lastText(t).toLocaleLowerCase('vi').includes(q)||allEvents(t).some(e=>(e.text||'').toLocaleLowerCase('vi').includes(q))).sort((a,b)=>daySort(b).localeCompare(daySort(a)));
+  const rows=threads.filter(t=>!data.archived.includes(t.id)&&!data.deleted.includes(t.id)).filter(t=>!q||t.name.toLocaleLowerCase('vi').includes(q)||lastText(t).toLocaleLowerCase('vi').includes(q)||allEvents(t).some(e=>(e.text||'').toLocaleLowerCase('vi').includes(q))).sort((a,b)=>daySort(b).localeCompare(daySort(a)));
   return '<div class="wai-underbar"><input class="wai-search" id="waiSearch" type="search" placeholder="Tìm kiếm" value="'+esc(ui.query)+'"></div>'+
    '<div class="wai-quick">'+action('broadcasts','Danh sách phát')+action('new-group','Nhóm mới')+'</div>'+
    (rows.map(chatRow).join('')||info('Không có cuộc trò chuyện phù hợp.'))+
@@ -144,7 +149,7 @@ function boot(){
  }
  function prettyMsg(e){
   const out=e.sender==='caua',meta='<small class="wai-meta '+(e.status==='read'?'read':'')+'">'+esc(e.time||'')+(out?' ✓✓':'')+'</small>';
-  if(e.type==='call')return '<div class="wai-service-msg">'+(e.result==='missed'?'📞 Cuộc gọi thoại nhỡ':'☎ Cuộc gọi thoại')+' · '+esc(e.time||'')+'</div>';
+  if(e.type==='call')return '<div class="wai-service-msg wai-call-event"><span class="wai-call-icon">'+icon('phone')+'</span><span>'+(e.result==='missed'?'Cuộc gọi thoại nhỡ':'Cuộc gọi thoại')+' · '+esc(e.time||'')+'</span></div>';
   if(e.type==='message')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">'+esc(e.text||'').replace(/\n/g,'<br>')+meta+'</div></div>';
   if(e.type==='image')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'">'+(images[e.id]||e.src?'<img class="wai-media" data-open-img="'+esc(e.src||images[e.id])+'" src="'+esc(e.src||images[e.id])+'" alt="Ảnh WhatsApp">':'Ảnh trong cuộc trò chuyện')+meta+'</div></div>';
   if(e.type==='audio')return '<div class="wai-msg '+(out?'out':'in')+'"><div class="wai-bubble" data-msg="'+esc(e.id||'')+'"><span class="wai-audio">🎙 <audio src="'+esc(e.src)+'" controls preload="none"></audio></span>'+meta+'</div></div>';
@@ -160,7 +165,7 @@ function boot(){
    '<textarea id="waiText" rows="1" placeholder="Nhập tin nhắn">'+esc(data.drafts[t.id]||'')+'</textarea>'+
    action('send','Gửi','class="wai-send"')+action('mic',icon('mic'))+'</div>';
   return nav(t.name,'Trò chuyện',headButton('call',icon('phone')))+
-   '<main class="wai-screen thread"><div class="wai-messages" id="waiMessages">'+messages+'</div>'+composer+'</main>'+
+   '<main class="wai-screen thread"><div class="wai-messages" id="waiMessages" data-thread="'+esc(t.id)+'">'+messages+'</div>'+composer+'</main>'+
    '<button type="button" data-act="info" aria-label="Thông tin người liên hệ" style="position:absolute;top:0;left:44px;right:43px;height:43px;z-index:13;background:none;border:0"></button>';
  }
  function profile(){
@@ -180,13 +185,15 @@ function boot(){
   return nav('Thông tin','Quay lại')+'<main class="wai-screen grouped">'+
    '<div class="wai-profile-big">'+face(t.id)+'<b style="display:block">'+esc(t.name)+'</b><div class="wai-subtle" style="margin-top:5px">'+esc(subtitle)+'</div></div>'+
    wrap(cell('Nhắn tin','open-chat','', 'data-id="'+esc(t.id)+'"')+cell('Gọi thoại','call'))+
-   section('Trạng thái')+wrap('<div class="wai-cell">'+esc(t.status||'Disponível')+'</div>')+
+   section('Trạng thái')+wrap('<div class="wai-cell">'+esc(vnStatus(t.status))+'</div>')+
    section('Ảnh và video · '+pictures.length)+wrap(cell('Ảnh đã trao đổi','media',''+pictures.length))+
    section('Tùy chọn')+wrap(cell('Tìm trong chat','thread-search')+
    cell('Tắt tiếng','mute',data.muted[t.id]?'Đang tắt':'')+
    cell('Thông báo tùy chỉnh','custom-notify')+
    cell(data.favorite.includes(t.id)?'Bỏ khỏi Yêu thích':'Thêm vào Yêu thích','fav-toggle')+
-   cell('Lưu trữ cuộc trò chuyện','archive-chat'))+
+   cell(data.archived.includes(t.id)?'Bỏ lưu trữ cuộc trò chuyện':'Lưu trữ cuộc trò chuyện',data.archived.includes(t.id)?'unarchive':'archive-chat')+
+   cell('Xóa nội dung trò chuyện','confirm-clear-chat')+
+   cell('Xóa cuộc trò chuyện','confirm-delete-chat'))+
    (t.members?section('Thành viên')+wrap(t.members.map(id=>cell(esc(contact(id)?.name||id),'open-contact','', 'data-id="'+esc(id)+'"')).join('')):'')+
    '</main>';
  }
@@ -209,7 +216,10 @@ function boot(){
  }
  function archived(){
   const rows=threads.filter(t=>data.archived.includes(t.id));
-  return nav('Đã lưu trữ','Trò chuyện')+'<main class="wai-screen">'+(rows.map(t=>chatRow(t)).join('')||info('Không có chat lưu trữ.'))+'</main>';
+  return nav('Đã lưu trữ','Trò chuyện')+'<main class="wai-screen">'+
+  (rows.map(t=>'<div class="wai-archive-item">'+chatRow(t)+'<div class="wai-archive-actions">'+
+   '<button type="button" data-act="unarchive" data-id="'+esc(t.id)+'">Bỏ lưu trữ</button>'+
+   '<button type="button" data-act="confirm-delete-chat" data-id="'+esc(t.id)+'">Xóa chat</button></div></div>').join('')||info('Không có chat lưu trữ.'))+'</main>';
  }
  function threadSearch(){
   const t=contact(ui.id),q=ui.search.toLocaleLowerCase('vi');
@@ -230,7 +240,7 @@ function boot(){
   let title='Cài đặt',body='';
   if(sub==='account'){title='Tài khoản';body=group('Quyền riêng tư')+wrap(cell('Riêng tư','sub','', 'data-sub="privacy"')+cell('Bảo mật','sub','', 'data-sub="security"')+cell('Đổi số','sub','', 'data-sub="change-number"'))+'' }
   else if(sub==='privacy'){title='Riêng tư';body=group('Ai có thể xem thông tin của tôi')+wrap(cell('Lần cuối truy cập','sub',data.privacy.seen,'data-sub="seen"')+cell('Ảnh đại diện','sub',data.privacy.photo,'data-sub="photo"')+cell('Trạng thái','sub',data.privacy.status,'data-sub="status"')+cell('Danh sách chặn','sub',data.privacy.blocked.length+' người','data-sub="blocked"'))+''}
-  else if(['seen','photo','status'].includes(sub)){title={seen:'Lần cuối truy cập',photo:'Ảnh đại diện',status:'Trạng thái'}[sub];body=group('Hiển thị với')+wrap(['Todos','Meus contatos','Ninguém'].map(x=>cell(({'Todos':'Mọi người','Meus contatos':'Danh bạ','Ninguém':'Không ai'})[x],'privacy-set',data.privacy[sub]===x?'✓':'','data-key="'+sub+'" data-value="'+x+'"')).join(''))}
+  else if(['seen','photo','status'].includes(sub)){title={seen:'Lần cuối truy cập',photo:'Ảnh đại diện',status:'Trạng thái'}[sub];body=group('Hiển thị với')+wrap(['Mọi người','Danh bạ','Không ai'].map(x=>cell(x,'privacy-set',data.privacy[sub]===x?'✓':'','data-key="'+sub+'" data-value="'+x+'"')).join(''))}
   else if(sub==='blocked'){title='Danh sách chặn';body=group('Các liên hệ đã chặn')+wrap(data.privacy.blocked.map(id=>cell(esc(contact(id)?.name||id),'unblock','','data-id="'+id+'"')).join('')||'<div class="wai-cell">Không có liên hệ bị chặn</div>')+cell('Thêm liên hệ','block-list')}
   else if(sub==='security'){title='Bảo mật';body=group('Cảnh báo')+wrap(toggle('Hiển thị cảnh báo bảo mật','securityAlert'))+''}
   else if(sub==='change-number'){title='Đổi số';body=desc('Chuyển thông tin tài khoản và nhóm sang số điện thoại mới.')}
@@ -245,7 +255,7 @@ function boot(){
   else if(sub==='about-app'){title='Giới thiệu';body=group('WhatsApp iPhone')+wrap('<div class="wai-cell">WhatsApp Messenger · v2.12.5</div>')+desc('Không phải sản phẩm chính thức của WhatsApp.')}
   else if(sub==='invite'){title='Mời bạn bè';body=desc('Mời bạn bè sử dụng WhatsApp.')}
   else if(sub==='custom-notify'){title='Thông báo tùy chỉnh';body=group('Thông báo của '+esc(contact(ui.id)?.name||''))+wrap(toggle('Bật tùy chỉnh','customAlert')+cell('Âm thông báo','notify-tone',data.notifyTone||'Mặc định'))}
-  else if(sub==='choose-status'){title='Trạng thái';body=group('Chọn trạng thái')+wrap(['Disponível','Ocupado','No trabalho','Na escola','Bateria quase acabando','Não posso falar, só WhatsApp'].map(x=>cell(esc(x),'status-choose',data.status===x?'✓':'','data-value="'+esc(x)+'"')).join('')+cell('Tùy chỉnh…','status-edit'))}
+  else if(sub==='choose-status'){title='Trạng thái';body=group('Chọn trạng thái')+wrap(['Có mặt','Đang bận','Đang làm việc','Đang học','Pin sắp hết','Không thể nói chuyện, chỉ nhắn WhatsApp'].map(x=>cell(esc(x),'status-choose',data.status===x?'✓':'','data-value="'+esc(x)+'"')).join('')+cell('Tùy chỉnh…','status-edit'))}
   else if(sub==='choose-fav'){title='Thêm vào yêu thích';body=threads.filter(t=>!t.members&&!data.favorite.includes(t.id)).map(t=>contactRow(t,'favorite-add')).join('')||info('Tất cả liên hệ đang nằm trong Yêu thích.')}
   else if(sub==='call-picker'){title='Cuộc gọi mới';body=threads.filter(t=>!t.members).map(t=>contactRow(t,'call')).join('')}
   else if(sub==='contact-picker'){title='Chia sẻ liên hệ';body=threads.filter(t=>!t.members).map(t=>contactRow(t,'contact-share')).join('')}
@@ -256,6 +266,8 @@ function boot(){
   return nav(title,'Quay lại')+'<main class="wai-screen grouped">'+body+'</main>';
  }
  function render(){
+  const oldMessages=root.querySelector('#waiMessages[data-thread]');
+  if(oldMessages)ui.chatScroll[oldMessages.dataset.thread]=oldMessages.scrollTop;
   if(ui.page==='main')root.innerHTML=main();
   else if(ui.page==='chat')root.innerHTML=chat();
   else if(ui.page==='profile')root.innerHTML=profile();
@@ -269,7 +281,7 @@ function boot(){
   else root.innerHTML=genericPage();
   if(ui.page==='chat'){
    const m=root.querySelector('#waiMessages');
-   if(m){m.style.backgroundImage=data.wallpaper==='cream'?'none':data.wallpaper==='blue'?'none':data.wallpaper==='white'?'none':'';if(data.wallpaper)m.style.backgroundColor=({cream:'#e8ded2',blue:'#d8e2e5',white:'#fff'})[data.wallpaper]||'#e8ded2';if(ui.targetMsg){const el=[...m.querySelectorAll('[data-msg]')].find(x=>x.dataset.msg===ui.targetMsg);if(el){el.scrollIntoView({block:'center'});el.style.outline='2px solid #007aff'}ui.targetMsg=''}else if(ui.scrollThread)m.scrollTop=m.scrollHeight;ui.scrollThread=true}
+   if(m){m.style.backgroundImage=data.wallpaper==='cream'?'none':data.wallpaper==='blue'?'none':data.wallpaper==='white'?'none':'';if(data.wallpaper)m.style.backgroundColor=({cream:'#e8ded2',blue:'#d8e2e5',white:'#fff'})[data.wallpaper]||'#e8ded2';if(ui.targetMsg){const el=[...m.querySelectorAll('[data-msg]')].find(x=>x.dataset.msg===ui.targetMsg);if(el){el.scrollIntoView({block:'center'});el.style.outline='2px solid #007aff'}ui.targetMsg=''}else if(ui.scrollThread)m.scrollTop=m.scrollHeight;else m.scrollTop=ui.chatScroll[ui.id]||0;ui.scrollThread=false}
   }
   if(ui.overlay)root.insertAdjacentHTML('beforeend',sheet());
   if(ui.viewer)root.insertAdjacentHTML('beforeend','<div class="wai-viewer">'+action('close-viewer','‹ Đóng')+'<img src="'+esc(ui.viewer)+'" alt="Ảnh trong WhatsApp"></div>');
@@ -301,7 +313,7 @@ function boot(){
  function groupCreate(){
   const el=root.querySelector('#waiGroupTitle');const name=el?.value.trim();if(!name){toast('Nhập tên nhóm');return}
   const id='wai-group-'+Date.now(),t={id,name,members:[...ui.select],status:ui.select.length+' thành viên',events:[],preview:'Nhóm mới',lastDate:'24/08',activity:'2015-08-24T10:00:00'};
-  data.groups.push(t);threads.push(t);save();ui.stack=[];ui.id=id;ui.page='chat';ui.select=[];render();toast('Đã tạo nhóm trên máy');
+  data.groups.push(t);threads.push(t);save();ui.stack=[];ui.id=id;ui.page='chat';ui.select=[];ui.scrollThread=true;render();toast('Đã tạo nhóm');
  }
  function callStart(id){
   const t=contact(id);if(!t)return;
