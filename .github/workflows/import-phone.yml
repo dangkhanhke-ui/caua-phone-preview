@@ -1,0 +1,52 @@
+name: Import phone from existing Vercel site
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/import-phone.yml
+permissions:
+  contents: write
+jobs:
+  import-phone:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import deployed phone and patch WhatsApp toolbar
+        run: |
+          python3 - <<'PY'
+          from urllib.request import Request, urlopen
+          from pathlib import Path
+          req=Request("https://caua-phone-preview.vercel.app/",headers={"User-Agent":"Mozilla/5.0"})
+          page=urlopen(req,timeout=100).read().decode("utf-8")
+          if len(page)<2000000 or 'id="whatsappApp"' not in page or "</body>" not in page:
+              raise SystemExit("Refusing to overwrite: downloaded content is not the complete phone")
+          patch="""<style id="wa-toolbar-icons-v1855">
+          #whatsappApp .wa-nav::before,#whatsappApp .wa-nav::after{content:none!important;display:none!important}
+          #whatsappApp .wa-android-search-hit,#whatsappApp .wa-nav-btn.right,#whatsappApp .wa-android-menu-glyph{position:absolute!important;top:0!important;height:44px!important;display:flex!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+          #whatsappApp .wa-android-search-hit{right:82px!important;width:40px!important}
+          #whatsappApp .wa-nav-btn.right{right:41px!important;width:40px!important}
+          #whatsappApp .wa-android-menu-glyph{right:2px!important;width:37px!important}
+          #whatsappApp .wa-android-search-hit::before,#whatsappApp .wa-android-search-hit::after,#whatsappApp .wa-nav-btn.right::before,#whatsappApp .wa-nav-btn.right::after,#whatsappApp .wa-android-menu-glyph::before,#whatsappApp .wa-android-menu-glyph::after,#whatsappApp .wa-android-menu-glyph i,#whatsappApp .wa-compose-icon{display:none!important;content:none!important}
+          #whatsappApp .wa-nav .wa-header-svg{display:block!important;width:23px!important;height:23px!important;flex:0 0 23px!important;fill:none!important;stroke:#fff!important;stroke-width:2!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+          #whatsappApp .wa-android-menu-glyph .wa-header-svg{width:22px!important;height:22px!important;stroke:none!important;fill:#fff!important}
+          </style>
+          <script id="wa-toolbar-icons-v1855-script">
+          (()=>{const root=document.getElementById('whatsappApp');if(!root)return;
+          const svg=(body)=>'<svg class="wa-header-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+body+'</svg>';
+          const s=root.querySelector('.wa-android-search-hit'),c=root.querySelector('.wa-nav-btn.right'),m=root.querySelector('.wa-android-menu-glyph');
+          if(s)s.innerHTML=svg('<circle cx="10.5" cy="10.5" r="7"/><path d="m15.8 15.8 5.1 5.1"/>');
+          if(c)c.innerHTML=svg('<path d="M18.5 12.3V20H4V5.5h9"/><path d="M12 13 20.5 4.5"/><path d="M16.5 4.5h4v4"/>');
+          if(m)m.innerHTML=svg('<circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/>');
+          })();
+          </script>"""
+          page=page.replace("</body>",patch+"</body>",1)
+          Path("index.html").write_text(page,encoding="utf-8")
+          print("Ready:",len(page),"characters")
+          PY
+      - name: Commit and push phone source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Import phone source with WhatsApp toolbar fixes" || exit 0
+          git push
