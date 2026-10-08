@@ -122,3 +122,12 @@
 #waIos15 .wai-call-event.missed .wai-call-icon{color:#d93941!important;}
 #waIos15 .wai-call-event .wai-call-icon .wai-icon{fill:currentColor;stroke:none;}
 #waIos15 .wai-call-event .wai-call-icon .wai-icon path{fill:currentColor;stroke:none;}
+
+/* Visible per-chat menu, accessible without swiping or opening the chat. */
+#waIos15 .wai-chat-item{display:flex;align-items:stretch;min-width:0;position:relative;background:#fff}
+#waIos15 .wai-chat-item>.wai-chat-row{min-width:0;width:auto;flex:1;padding-right:3px}
+#waIos15 .wai-chat-item>.wai-chat-row:after{right:0}
+#waIos15 .wai-chat-more{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;min-height:67px;margin:0;border:0;border-bottom:1px solid #e7e7eb;background:#fff;color:#81818b;font-size:24px;line-height:1;letter-spacing:0;appearance:none;-webkit-appearance:none}
+#waIos15 .wai-chat-more:active,#waIos15 .wai-chat-more:focus-visible{background:#ededf2;color:#007aff}
+#waIos15 .wai-action-sheet button.wai-danger{color:#d83d43}
+@media(max-height:540px){#waIos15 .wai-chat-more{min-height:58px}}

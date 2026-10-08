@@ -100,12 +100,15 @@ function boot(){
   const unread=data.unread.includes(t.id),muted=!!data.muted[t.id];
   return '<button class="wai-row wai-chat-row" data-act="open-chat" data-thread="'+esc(t.id)+'" data-id="'+esc(t.id)+'">'+face(t.id)+'<span class="wai-row-info"><span class="wai-row-top"><b>'+esc(t.name)+'</b><small class="wai-row-time">'+esc(lastTime(t))+'</small></span><small>'+esc(lastText(t)).slice(0,95)+(muted?' · 🔕':'')+'</small></span>'+(unread?'<span class="wai-unread-badge">1</span>':'')+'</button>';
  };
+ // Two sibling buttons: unlike a button nested in a button, both the chat
+ // and its visible menu are independently keyboard- and touch-accessible.
+ const chatItem=t=>'<div class="wai-chat-item">'+chatRow(t)+'<button type="button" class="wai-chat-more" data-act="swipe-menu" data-id="'+esc(t.id)+'" aria-label="Tùy chọn trò chuyện với '+esc(t.name)+'" title="Tùy chọn trò chuyện">⋯</button></div>';
  function chats(){
   const q=ui.query.trim().toLocaleLowerCase('vi');
   const rows=threads.filter(t=>!data.archived.includes(t.id)&&!data.deleted.includes(t.id)).filter(t=>!q||t.name.toLocaleLowerCase('vi').includes(q)||lastText(t).toLocaleLowerCase('vi').includes(q)||allEvents(t).some(e=>(e.text||'').toLocaleLowerCase('vi').includes(q))).sort((a,b)=>daySort(b).localeCompare(daySort(a)));
   return '<div class="wai-underbar"><input class="wai-search" id="waiSearch" type="search" placeholder="Tìm kiếm" value="'+esc(ui.query)+'"></div>'+
    '<div class="wai-quick">'+action('broadcasts','Danh sách phát')+action('new-group','Nhóm mới')+'</div>'+
-   (rows.map(chatRow).join('')||info('Không có cuộc trò chuyện phù hợp.'))+
+   (rows.map(chatItem).join('')||info('Không có cuộc trò chuyện phù hợp.'))+
    (data.archived.length?'<button class="wai-list-action" data-act="archived">Chat lưu trữ ('+data.archived.length+')</button>':'');
  }
  function favorites(){
@@ -220,7 +223,7 @@ function boot(){
  function archived(){
   const rows=threads.filter(t=>data.archived.includes(t.id));
   return nav('Đã lưu trữ','Trò chuyện')+'<main class="wai-screen">'+
-  (rows.map(t=>'<div class="wai-archive-item">'+chatRow(t)+'<div class="wai-archive-actions">'+
+  (rows.map(t=>'<div class="wai-archive-item">'+chatItem(t)+'<div class="wai-archive-actions">'+
    '<button type="button" data-act="unarchive" data-id="'+esc(t.id)+'">Bỏ lưu trữ</button>'+
    '<button type="button" data-act="confirm-delete-chat" data-id="'+esc(t.id)+'">Xóa chat</button></div></div>').join('')||info('Không có chat lưu trữ.'))+'</main>';
  }
@@ -293,7 +296,7 @@ function boot(){
   if(!ui.overlay)return '';
   return '<div class="wai-overlay" data-overlay="1"><div class="wai-action-sheet">'+
    '<div style="font-size:12px;color:#888;text-align:center;padding:6px">'+esc(ui.overlay.title||'WhatsApp')+'</div>'+
-   ui.overlay.buttons.map(b=>'<button data-act="'+esc(b.act)+'" '+(b.value?'data-value="'+esc(b.value)+'" ':'')+(b.id?'data-id="'+esc(b.id)+'" ':'')+'>'+esc(b.text)+'</button>').join('')+
+   ui.overlay.buttons.map(b=>'<button data-act="'+esc(b.act)+'" '+(b.danger?'class="wai-danger" ':'')+(b.value?'data-value="'+esc(b.value)+'" ':'')+(b.id?'data-id="'+esc(b.id)+'" ':'')+'>'+esc(b.text)+'</button>').join('')+
    '<button class="cancel" data-act="close-sheet">Hủy</button></div></div>';
  }
  function openSheet(title,buttons){ui.overlay={title,buttons};render()}
@@ -450,8 +453,8 @@ function boot(){
   if(a==='mute-set'){if(val==='off')delete data.muted[ui.id];else data.muted[ui.id]=val;save();closeSheet();return}
   if(a==='archive-chat'){if(!data.archived.includes(ui.id))data.archived.push(ui.id);save();tab('chats');return}
   if(a==='unarchive'){data.archived=data.archived.filter(x=>x!==id);save();render();toast('Đã bỏ lưu trữ');return}
-  if(a==='confirm-clear-chat'){openSheet('Xóa tin nhắn của '+(contact(id)?.name||'cuộc trò chuyện')+'?', [{text:'Xóa toàn bộ tin nhắn',act:'clear-chat',id}]);return}
-  if(a==='confirm-delete-chat'){openSheet('Xóa cuộc trò chuyện với '+(contact(id)?.name||'liên hệ')+'?', [{text:'Xóa cuộc trò chuyện',act:'delete-chat',id}]);return}
+  if(a==='confirm-clear-chat'){openSheet('Xóa tin nhắn của '+(contact(id)?.name||'cuộc trò chuyện')+'?', [{text:'Xóa toàn bộ tin nhắn',act:'clear-chat',id,danger:true}]);return}
+  if(a==='confirm-delete-chat'){openSheet('Xóa cuộc trò chuyện với '+(contact(id)?.name||'liên hệ')+'?', [{text:'Xóa cuộc trò chuyện',act:'delete-chat',id,danger:true}]);return}
   if(a==='clear-chat'){clearConversation(id,false);ui.overlay=null;render();toast('Đã xóa nội dung trò chuyện');return}
   if(a==='delete-chat'){clearConversation(id,true);ui.overlay=null;tab('chats');toast('Đã xóa cuộc trò chuyện');return}
   if(a==='mark-unread'){if(!data.unread.includes(id))data.unread.push(id);save();closeSheet();return}

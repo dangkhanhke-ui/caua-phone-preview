@@ -29,8 +29,8 @@ jobs:
           if 'id="whatsappApp"' not in html:raise SystemExit('WhatsApp app not found')
           html=re.sub(r'<link[^>]*wa-ios8-2015\.css[^>]*>', '', html)
           html=re.sub(r'<script[^>]*wa-ios8-2015\.js[^>]*></script>', '', html)
-          style='<link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009e">'
-          script='<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009g"></script>'
+          style='<link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009h">'
+          script='<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009h"></script>'
           if '</head>' not in html or '</body>' not in html:raise SystemExit('HTML skeleton missing')
           html=html.replace('</head>',style+'\n</head>',1)
           html=html.replace('</body>',script+'\n</body>',1)
@@ -72,6 +72,19 @@ jobs:
               if(!path||path.getAttribute('fill')!=='currentColor'||path.getAttribute('stroke')!=='none')throw Error('Phone glyph not solid');
               const bubble=wa.querySelector('.wai-bubble'),meta=bubble?.querySelector('.wai-meta');
               if(!meta||getComputedStyle(meta).position!=='static')throw Error('Short chat metadata can overlap text');
+              wa.querySelector('[data-act="back"]').click();
+              const more=wa.querySelector('.wai-chat-more[data-id="camila"]');
+              if(!more)throw Error('Visible chat options missing for Camila');
+              const row=more.closest('.wai-chat-item');
+              if(!row||!row.querySelector('.wai-chat-row[data-id="camila"]'))throw Error('Chat row menu not accessible');
+              more.click();
+              if(!wa.querySelector('.wai-action-sheet [data-act="archive-from-list"]'))throw Error('Archive action missing');
+              const deleteAction=wa.querySelector('.wai-action-sheet [data-act="confirm-delete-chat"]');
+              if(!deleteAction)throw Error('Delete chat action missing');
+              deleteAction.click();
+              if(!wa.querySelector('.wai-action-sheet [data-act="delete-chat"].wai-danger'))throw Error('Delete confirmation missing');
+              wa.querySelector('[data-act="close-sheet"]').click();
+              if(!wa.querySelector('.wai-chat-row[data-id="camila"]'))throw Error('Cancelled delete removed the chat');
               document.documentElement.dataset.waSmoke='PASS';
             } catch(e) {
               document.documentElement.dataset.waSmoke='FAIL:'+e.message;
