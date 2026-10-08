@@ -1,0 +1,76 @@
+name: Phone call button and Facebook launch animation
+on:
+  push:
+    paths:
+      - '.github/workflows/phone-facebook-ui.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply targeted interface improvements
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text(encoding='utf-8')
+          tag='caua-phone-facebook-20261009'
+          import re
+          html=re.sub(r'<style id="'+tag+r'">.*?</style>','',html,flags=re.S)
+          html=re.sub(r'<script id="'+tag+r'-js">.*?</script>','',html,flags=re.S)
+          css='''<style id="caua-phone-facebook-20261009">
+          /* Lift the end-call button nearer the lower call-control row. */
+          .phone-hangup { bottom:100px!important; width:84px!important; height:84px!important; }
+          .phone-hangup::before {
+            content:""!important; position:absolute!important; left:50%!important; top:50%!important;
+            width:47px!important; height:47px!important; border:0!important; border-radius:0!important;
+            background:#fff!important; background-image:none!important;
+            transform:translate(-50%,-50%)!important;
+            -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.57.94l-2.84 1.65c-.46.27-1.05.2-1.43-.18L.3 12.97c-.4-.4-.4-1.05.03-1.45C3.43 8.76 7.53 7 12 7s8.57 1.76 11.67 4.52c.42.4.43 1.05.02 1.45l-2.27 2.26c-.38.38-.96.45-1.43.18l-2.82-1.65c-.35-.2-.57-.57-.57-.98V9.72C15.15 9.25 13.6 9 12 9z'/%3E%3C/svg%3E") center/contain no-repeat!important;
+            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.57.94l-2.84 1.65c-.46.27-1.05.2-1.43-.18L.3 12.97c-.4-.4-.4-1.05.03-1.45C3.43 8.76 7.53 7 12 7s8.57 1.76 11.67 4.52c.42.4.43 1.05.02 1.45l-2.27 2.26c-.38.38-.96.45-1.43.18l-2.82-1.65c-.35-.2-.57-.57-.57-.98V9.72C15.15 9.25 13.6 9 12 9z'/%3E%3C/svg%3E") center/contain no-repeat!important;
+          }
+          #facebookApp.caua-fb-loading::before {
+            content:""; position:absolute; inset:0; z-index:999; background:#3b5998; pointer-events:auto;
+          }
+          #facebookApp.caua-fb-loading::after {
+            content:"f"; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+            z-index:1000; color:#fff; font-family:Arial,Helvetica,sans-serif;
+            font-weight:700; font-size:114px; line-height:1; pointer-events:auto;
+          }
+          </style>'''
+          js='''<script id="caua-phone-facebook-20261009-js">
+          (function(){
+            var launcher=document.querySelector('.facebook-launch');
+            var facebook=document.getElementById('facebookApp');
+            if(!launcher||!facebook)return;
+            var release=0;
+            launcher.addEventListener('click',function(){
+              clearTimeout(release);
+              facebook.classList.add('caua-fb-loading');
+              release=setTimeout(function(){facebook.classList.remove('caua-fb-loading')},1600);
+            },true);
+            document.getElementById('homeButton')?.addEventListener('click',function(){
+              clearTimeout(release);facebook.classList.remove('caua-fb-loading');
+            },true);
+          })();
+          </script>'''
+          if '</head>' not in html or '</body>' not in html:raise SystemExit('Required page tags missing')
+          html=html.replace('</head>',css+'\n</head>',1)
+          html=html.replace('</body>',js+'\n</body>',1)
+          for name in ['phone-hangup','facebook-launch','facebookApp']:
+            if name not in html:raise SystemExit('Missing '+name)
+          p.write_text(html,encoding='utf-8')
+          print('Applied phone hangup reposition and Facebook splash (1600ms)')
+          PY
+      - name: Commit UI changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Lift filled end call icon and add Facebook splash"
+          git pull --rebase origin main
+          git push
