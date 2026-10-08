@@ -18,8 +18,8 @@ jobs:
           s=p.read_text(encoding='utf-8')
           import re
           for kind in ('js','css'):
-              pattern=r'(wa-ios8-2015\\.'+kind+r'\\?v=)\\w+'
-              s,n=re.subn(pattern,r'\\g<1>20261009c',s)
+              pattern=r'(wa-ios8-2015\.'+kind+r'\?v=)\w+'
+              s,n=re.subn(pattern,r'\g<1>20261009c',s)
               if n!=1:raise SystemExit('Expected exactly one '+kind+' resource, found '+str(n))
           p.write_text(s,encoding='utf-8')
           print('WhatsApp iOS 2015 CSS/JS cache safely refreshed')
