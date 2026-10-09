@@ -1,89 +1,127 @@
-name: Diagnose Facebook Photo Stacking in Browser
+name: Test Facebook Photo Viewer in Chromium and WebKit
 on:
   push:
-    paths: ['.github/workflows/diagnose-facebook-photo-browser.yml', 'assets/shared-photo-zoom.js', 'assets/facebook/facebook-lightbox.js', 'assets/facebook/facebook-lightbox.css']
+    paths:
+      - '.github/workflows/diagnose-facebook-photo-browser.yml'
+      - 'index.html'
+      - 'js/facebook-photo-viewer.js'
+      - 'css/facebook-photo-viewer.css'
+      - 'assets/shared-photo-zoom.js'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
-  inspect:
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Start site and install browser
+      - name: Validate single photo controller
+        run: |
+          node --check js/facebook-photo-viewer.js
+          node --check assets/shared-photo-zoom.js
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          assert html.count('js/facebook-photo-viewer.js')==1
+          assert html.count('css/facebook-photo-viewer.css')==1
+          assert 'facebook-lightbox.js' not in html
+          assert 'facebook-lightbox.css' not in html
+          assert 'fb15-image-viewer-style' not in html
+          assert 'fb15-image-viewer-script' not in html
+          assert not Path('assets/facebook/facebook-lightbox.js').exists()
+          assert not Path('assets/facebook/facebook-lightbox.css').exists()
+          print('PASS: single Facebook viewer, no legacy registration')
+          PY
+      - name: Install Chromium and WebKit
         run: |
           python3 -m http.server 8000 >/tmp/fb-http.log 2>&1 &
           npm install --no-save playwright@1.56.1
-          npx playwright install --with-deps chromium
-      - name: Inspect actual visibility and stacking
+          npx playwright install --with-deps chromium webkit
+      - name: Verify real profile-to-photo interaction on both engines
         run: |
-          cat > /tmp/test-fb.cjs <<'JS'
-          const {chromium}=require(process.cwd()+'/node_modules/playwright');
-          (async()=>{
-            const browser=await chromium.launch({headless:true});
-            const page=await browser.newPage({viewport:{width:500,height:850},deviceScaleFactor:1,hasTouch:true});
-            page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
-            page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE_ERROR',m.text())});
-            await page.goto('http://127.0.0.1:8000/index.html',{waitUntil:'domcontentloaded'});
-            await page.waitForTimeout(1800);
-            const startup=await page.evaluate(()=>{
-              const app=document.querySelector('#facebookApp');
-              const el=document.querySelector('.facebook-launch')||document.querySelector('[data-app="facebook"]');
-              return {launch:el?.outerHTML?.slice(0,260),app:!!app,lightboxSrc:[...document.scripts].filter(s=>s.src.includes('facebook-lightbox')).map(s=>s.src),css:[...document.styleSheets].map(x=>x.href).filter(x=>x?.includes('facebook-lightbox'))};
-            });
-            console.log('STARTUP',JSON.stringify(startup));
-            await page.evaluate(()=>{(document.querySelector('.facebook-launch')||document.querySelector('[data-app="facebook"]'))?.click()});
-            await page.waitForTimeout(800);
-            console.log('APP',JSON.stringify(await page.evaluate(()=>({opened:document.querySelector('#facebookApp')?.classList.contains('open'),photos:document.querySelectorAll('#facebookApp .fb15-media.photo img').length,photoGrid:document.querySelectorAll('#facebookApp .fb15-photo-grid img').length}))));
-            const opened=await page.evaluate(()=>{
-              const img=document.querySelector('#facebookApp .fb15-media.photo img')||document.querySelector('#facebookApp .fb15-profile-cover img');
-              if(!img)return 'NO PHOTO FOUND';
-              img.click();return img.outerHTML.slice(0,250);
-            });
-            console.log('OPEN',opened);
-            await page.waitForTimeout(700);
-            const info=await page.evaluate(()=>{
-              const screen=document.querySelector('#screen'),bar=document.querySelector('#statusBar'),app=document.querySelector('#facebookApp');
-              const photo=document.querySelector('.fb15-lightbox'),other=document.querySelector('.fb15-image-viewer'),nav=document.querySelector('.fb15-profile-tabs-overlay');
-              const prop=(e)=>{if(!e)return null;const c=getComputedStyle(e),r=e.getBoundingClientRect();return {parent:e.parentElement?.id||e.parentElement?.className,tag:e.tagName,cls:e.className,display:c.display,visibility:c.visibility,opacity:c.opacity,zIndex:c.zIndex,position:c.position,bounds:{top:r.top,left:r.left,bottom:r.bottom,right:r.right},html:e.outerHTML.slice(0,180)}};
-              const rr=screen.getBoundingClientRect();
-              return {screen:prop(screen),screenHasPhotoClass:screen.classList.contains('fb15-photo-fullscreen'),bar:prop(bar),app:prop(app),photo:prop(photo),oldViewer:prop(other),nav:prop(nav),elementsAtTop:[5,25,55,95,120,150].map(y=>{const e=document.elementFromPoint(rr.left+100,rr.top+y);return {y,name:e?.id||e?.className||e?.tagName}}),displayStyles:[...document.styleSheets].filter(x=>x.href?.includes('facebook-lightbox')).map(x=>x.href)};
-            });
-            console.log('LAYERS',JSON.stringify(info,null,2));
-            const verify=await page.evaluate(()=>{
-              const screen=document.querySelector('#screen'),bar=document.querySelector('#statusBar'),lightbox=screen?.querySelector(':scope > .fb15-lightbox');
-              const r=screen.getBoundingClientRect();
-              const hits=[5,26,100,130].map(y=>document.elementFromPoint(r.left+Math.min(120,r.width/2),r.top+y)?.closest('.fb15-lightbox')===lightbox);
-              return {viewerAttachedToScreen:!!lightbox,onlyOneViewer:document.querySelectorAll('.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length===1,statusHidden:getComputedStyle(bar).visibility==='hidden',fullscreenClass:screen.classList.contains('fb15-photo-fullscreen'),viewerCoversEveryPoint:!!lightbox&&hits.every(Boolean),hits};
-            });
-            console.log('ASSERT_OPEN',JSON.stringify(verify));
-            if(Object.values(verify).some(v=>v===false))throw Error('Facebook fullscreen failed checks: '+JSON.stringify(verify));
-            await page.screenshot({path:'/tmp/facebook-after-open.png'});
-            await page.evaluate(()=>document.querySelector('#screen .fb15-lightbox [data-fb-photo-close]')?.click());
-            const afterClose=await page.evaluate(()=>({viewerCount:document.querySelectorAll('.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length,statusVisible:getComputedStyle(document.querySelector('#statusBar')).visibility==='visible',fullscreenClass:document.querySelector('#screen').classList.contains('fb15-photo-fullscreen')}));
-            console.log('ASSERT_CLOSE',JSON.stringify(afterClose));
-            if(afterClose.viewerCount!==0||!afterClose.statusVisible||afterClose.fullscreenClass)throw Error('Facebook photo cleanup failed');
-            await page.screenshot({path:'/tmp/facebook-after-open.png'});
-            await browser.close();
-          })().catch(e=>{console.error('TEST_ERROR',e.stack||e);process.exit(1)});
+          cat >/tmp/test-fb.cjs <<'JS'
+          const {chromium,webkit}=require(process.cwd()+'/node_modules/playwright');
+          const fs=require('fs');
+          const photoSelectors='.fb-photo-clean,.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer';
+          async function one(name,engine){
+            const browser=await engine.launch({headless:true});
+            try {
+              const page=await browser.newPage({viewport:{width:500,height:850},deviceScaleFactor:1,hasTouch:true});
+              page.on('pageerror',e=>console.log(name,'PAGE_ERROR:',e.message));
+              await page.goto('http://127.0.0.1:8000/index.html',{waitUntil:'domcontentloaded'});
+              await page.waitForTimeout(400);
+              const navigated=await page.evaluate(()=>{
+                document.querySelector('[data-app="facebook"]')?.click();
+                document.querySelector('[data-fbtab="more"]')?.click();
+                const link=document.querySelector('#facebookApp [data-pagekind="profile"]');
+                if(!link)return {error:'profile link missing'};
+                link.click();
+                const cover=document.querySelector('#facebookApp .fb15-profile-cover > img:first-child');
+                return {app:document.querySelector('#facebookApp').classList.contains('open'),profile:!!cover,cover:cover?.getAttribute('src')};
+              });
+              console.log(name,'PROFILE',JSON.stringify(navigated));
+              if(!navigated.profile || !navigated.app)throw Error(name+' cannot navigate to Cauã profile');
+              await page.waitForTimeout(400);
+              await page.evaluate(()=>{
+                const scroller=document.querySelector('#facebookApp .fb15-content');
+                scroller.scrollTop=70;
+                const img=document.querySelector('#facebookApp .fb15-profile-cover > img:first-child');
+                img.click();
+              });
+              await page.waitForTimeout(450);
+              const result=await page.evaluate(()=>{
+                const screen=document.querySelector('#screen'),bar=document.querySelector('#statusBar');
+                const facebook=document.querySelector('#facebookApp');
+                const panel=screen.querySelector(':scope > .fb-photo-clean');
+                const rect=screen.getBoundingClientRect(),v=panel?.getBoundingClientRect();
+                const points=[5,22,51,100,150,rect.height-10].map(y=>{
+                  const at=document.elementFromPoint(rect.left+rect.width/2,rect.top+y);
+                  return {y,cls:at?.className||at?.id,inside:!!panel&&at?.closest('.fb-photo-clean')===panel};
+                });
+                const image=panel?.querySelector('img');
+                return {
+                  panel:!!panel,viewerCount:document.querySelectorAll('.fb-photo-clean,.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length,
+                  opened:screen.classList.contains('fb-photo-clean-open'),
+                  facebookHidden:getComputedStyle(facebook).visibility==='hidden',
+                  statusHidden:getComputedStyle(bar).visibility==='hidden',
+                  widthMatches:!!v&&Math.abs(v.width-rect.width)<2,heightMatches:!!v&&Math.abs(v.height-rect.height)<2,
+                  allInside:points.every(p=>p.inside),points,
+                  imageSrc:image?.getAttribute('src')||'',imageComplete:!!image?.complete,imageWidth:image?.naturalWidth||0
+                };
+              });
+              console.log(name,'PHOTO_OPEN',JSON.stringify(result));
+              fs.copyFileSync('/tmp/fb-http.log','/tmp/fb-http-copy.log');
+              await page.screenshot({path:'/tmp/fb-'+name+'-open.png'});
+              for(const key of ['panel','opened','facebookHidden','statusHidden','widthMatches','heightMatches','allInside']){
+                if(!result[key])throw Error(name+' photo open: '+key+' false');
+              }
+              if(result.viewerCount!==1)throw Error(name+' duplicate viewers');
+              if(!result.imageSrc)throw Error(name+' lost photo source');
+              await page.locator('#screen .fb-photo-clean-back').click();
+              const closed=await page.evaluate(()=>{
+                const screen=document.querySelector('#screen');
+                return {viewers:document.querySelectorAll('.fb-photo-clean,.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length,
+                  appVisible:getComputedStyle(document.querySelector('#facebookApp')).visibility==='visible',
+                  statusVisible:getComputedStyle(document.querySelector('#statusBar')).visibility==='visible',
+                  stateReset:!screen.classList.contains('fb-photo-clean-open'),
+                  profilePresent:!!document.querySelector('#facebookApp .fb15-profile-cover')};
+              });
+              console.log(name,'PHOTO_CLOSED',JSON.stringify(closed));
+              if(closed.viewers || !closed.appVisible || !closed.statusVisible || !closed.stateReset || !closed.profilePresent)throw Error(name+' photo close failed');
+              await page.evaluate(()=>document.querySelector('#facebookApp .fb15-profile-cover > img:first-child')?.click());
+              await page.waitForTimeout(100);
+              await page.keyboard.press('Escape');
+              const afterEscape=await page.evaluate(()=>document.querySelectorAll('.fb-photo-clean').length);
+              if(afterEscape)throw Error(name+' Escape close failed');
+              console.log(name,'PASS full-profile photo open/close/Escape');
+            } finally {await browser.close();}
+          }
+          (async()=>{await one('chromium',chromium);await one('webkit',webkit)})().catch(e=>{console.error('FAIL:',e.stack||e);process.exit(1)});
           JS
           node /tmp/test-fb.cjs | tee /tmp/facebook-browser-report.txt
-      - name: Save browser evidence
-        if: always()
-        run: |
-          mkdir -p qa
-          if [ -f /tmp/facebook-browser-report.txt ]; then
-            cp /tmp/facebook-browser-report.txt qa/facebook-browser-report.txt
-          else
-            echo 'Browser test did not reach output stage' > qa/facebook-browser-report.txt
-          fi
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
-          git add qa/facebook-browser-report.txt
-          git diff --cached --quiet || (git commit -m 'Record actual Facebook fullscreen layer test results' && git pull --rebase origin main && git push)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: facebook-photo-debug
-          path: /tmp/facebook-after-open.png
+          name: facebook-photo-browser-screenshots
+          path: /tmp/fb-*-open.png
