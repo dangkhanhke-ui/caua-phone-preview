@@ -25,8 +25,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Unpack optional HD Facebook avatar archive
         run: |
-          if [ -f caua_avatar_50_original_quality.zip ]; then
-            unzip -oq caua_avatar_50_original_quality.zip -d .
+          archive=''
+          for candidate in caua_avatar_50_original_quality*.zip; do
+            if [ -f "$candidate" ]; then archive="$candidate"; break; fi
+          done
+          if [ -n "$archive" ]; then
+            echo "Extracting HD avatars from: $archive"
+            unzip -oq "$archive" -d .
+            test -f assets/facebook/avatars/hd/extra_001.png
             test -f assets/facebook/avatars/hd/extra_050.png
           fi
       - name: Verify static site
