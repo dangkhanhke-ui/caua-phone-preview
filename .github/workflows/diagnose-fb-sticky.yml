@@ -1,0 +1,28 @@
+name: Diagnose Facebook sticky DOM
+on:
+  push:
+    paths: ['.github/workflows/diagnose-fb-sticky.yml']
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          lines=s.splitlines()
+          result=[]
+          for i,line in enumerate(lines):
+              if 'fb15-profile-tabs' in line and ('class=' in line or 'innerHTML' in line):
+                  result.append('LINE '+str(i+1)+'\n'+'\n'.join(lines[max(0,i-9):min(len(lines),i+10)])[:4500])
+          Path('qa/facebook-sticky-dom.txt').write_text('\n---\n'.join(result)[:19000])
+          PY
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add qa/facebook-sticky-dom.txt
+          git commit -m "Capture Facebook profile sticky DOM for root cause analysis"
+          git pull --rebase origin main
+          git push
