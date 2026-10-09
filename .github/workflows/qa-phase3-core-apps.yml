@@ -1,0 +1,32 @@
+name: Phase 3 — Core Apps Browser QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'js/**'
+      - 'assets/goodreader4/goodreader4.js'
+      - 'assets/whatsapp/wa-ios8-2015.js'
+      - 'qa/phase3-core-apps-browser.cjs'
+      - '.github/workflows/qa-phase3-core-apps.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  core-apps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JS and install browser engines
+        run: |
+          node --check qa/phase3-core-apps-browser.cjs
+          node --check assets/whatsapp/wa-ios8-2015.js
+          node --check assets/goodreader4/goodreader4.js
+          node --check js/caua-phase2-cross-app.js
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Serve case and audit major app flows
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-phase3-server.log 2>&1 &
+          node qa/phase3-core-apps-browser.cjs
