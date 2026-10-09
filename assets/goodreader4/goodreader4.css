@@ -81,3 +81,5 @@
 .gr4-highlight-hint{font-size:10px;line-height:1.4;padding:7px 9px;background:#fff5c7;color:#775917;border-bottom:1px solid #e0c982}
 .gr4-block.gr4-highlight{background:#ffe383;box-shadow:0 0 0 2px #ffe383;cursor:pointer}
 .gr4-block.gr4-highlight p,.gr4-block.gr4-highlight h1,.gr4-block.gr4-highlight h2,.gr4-block.gr4-highlight h3{background:transparent}
+
+.gr4-nav-spacer{display:block;flex:0 0 54px;min-width:54px;height:28px}
