@@ -1,0 +1,63 @@
+name: Diagnose Facebook Photo Stacking in Browser
+on:
+  push:
+    paths: ['.github/workflows/diagnose-facebook-photo-browser.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start site and install browser
+        run: |
+          python3 -m http.server 8000 >/tmp/fb-http.log 2>&1 &
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Inspect actual visibility and stacking
+        run: |
+          cat > /tmp/test-fb.cjs <<'JS'
+          const {chromium}=require(process.cwd()+'/node_modules/playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:500,height:850},deviceScaleFactor:1,hasTouch:true});
+            page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
+            page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE_ERROR',m.text())});
+            await page.goto('http://127.0.0.1:8000/index.html',{waitUntil:'domcontentloaded'});
+            await page.waitForTimeout(1800);
+            const startup=await page.evaluate(()=>{
+              const app=document.querySelector('#facebookApp');
+              const el=document.querySelector('.facebook-launch')||document.querySelector('[data-app="facebook"]');
+              return {launch:el?.outerHTML?.slice(0,260),app:!!app,lightboxSrc:[...document.scripts].filter(s=>s.src.includes('facebook-lightbox')).map(s=>s.src),css:[...document.styleSheets].map(x=>x.href).filter(x=>x?.includes('facebook-lightbox'))};
+            });
+            console.log('STARTUP',JSON.stringify(startup));
+            await page.evaluate(()=>{(document.querySelector('.facebook-launch')||document.querySelector('[data-app="facebook"]'))?.click()});
+            await page.waitForTimeout(800);
+            console.log('APP',JSON.stringify(await page.evaluate(()=>({opened:document.querySelector('#facebookApp')?.classList.contains('open'),photos:document.querySelectorAll('#facebookApp .fb15-media.photo img').length,photoGrid:document.querySelectorAll('#facebookApp .fb15-photo-grid img').length}))));
+            const opened=await page.evaluate(()=>{
+              const img=document.querySelector('#facebookApp .fb15-media.photo img')||document.querySelector('#facebookApp .fb15-profile-cover img');
+              if(!img)return 'NO PHOTO FOUND';
+              img.click();return img.outerHTML.slice(0,250);
+            });
+            console.log('OPEN',opened);
+            await page.waitForTimeout(700);
+            const info=await page.evaluate(()=>{
+              const screen=document.querySelector('#screen'),bar=document.querySelector('#statusBar'),app=document.querySelector('#facebookApp');
+              const photo=document.querySelector('.fb15-lightbox'),other=document.querySelector('.fb15-image-viewer'),nav=document.querySelector('.fb15-profile-tabs-overlay');
+              const prop=(e)=>{if(!e)return null;const c=getComputedStyle(e),r=e.getBoundingClientRect();return {parent:e.parentElement?.id||e.parentElement?.className,tag:e.tagName,cls:e.className,display:c.display,visibility:c.visibility,opacity:c.opacity,zIndex:c.zIndex,position:c.position,bounds:{top:r.top,left:r.left,bottom:r.bottom,right:r.right},html:e.outerHTML.slice(0,180)}};
+              const rr=screen.getBoundingClientRect();
+              return {screen:prop(screen),screenHasPhotoClass:screen.classList.contains('fb15-photo-fullscreen'),bar:prop(bar),app:prop(app),photo:prop(photo),oldViewer:prop(other),nav:prop(nav),elementsAtTop:[5,25,55,95,120,150].map(y=>{const e=document.elementFromPoint(rr.left+100,rr.top+y);return {y,name:e?.id||e?.className||e?.tagName}}),displayStyles:[...document.styleSheets].filter(x=>x.href?.includes('facebook-lightbox')).map(x=>x.href)};
+            });
+            console.log('LAYERS',JSON.stringify(info,null,2));
+            await page.screenshot({path:'/tmp/facebook-after-open.png'});
+            await browser.close();
+          })().catch(e=>{console.error('TEST_ERROR',e.stack||e);process.exit(1)});
+          JS
+          node /tmp/test-fb.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: facebook-photo-debug
+          path: /tmp/facebook-after-open.png
