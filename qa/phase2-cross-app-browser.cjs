@@ -94,6 +94,20 @@ async function run(engine,name){
    assert(json.documents.length===2,'Original GoodReader evidence documents mutated');
    console.log(name,'MAIL_GOODREADER_PASS');await p.close();
 
+
+   // WhatsApp -> iPhone Photos: the attach command must browse this phone's
+   // stored photographs, not call the player's OS file picker.
+   p=await fresh();await p.locator('[data-app="whatsapp"]').evaluate(x=>x.click());
+   await p.waitForTimeout(250);
+   await p.locator('#waIos15 [data-act="open-chat"]').first().click();
+   await p.locator('#waIos15 [data-act="attach"]').click();
+   await p.locator('#waIos15 [data-act="attach-image"]').click();
+   assert(await p.locator('#waIos15 .caua-wa-photo-thumb img').count()>=30);
+   await p.locator('#waIos15 [data-act="photo-pick"]').first().click();
+   assert(await p.locator('#waIos15 .wai-bubble img.wai-media[src*="assets/photos"]').count()===1);
+   assert(!await p.locator('#waIos15 .caua-wa-photo-grid').count());
+   console.log(name,'WHATSAPP_PHOTOS_GALLERY_PASS');await p.close();
+
    assert.deepEqual(errors,[],'JavaScript page errors in '+name);
    console.log(name,'PHASE2_ALL_PASS');
  }finally{await browser.close()}

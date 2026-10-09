@@ -272,6 +272,18 @@ function boot(){
   else{title='WhatsApp';body=info('Chưa có dữ liệu cho màn hình này.')}
   return nav(title,'Quay lại')+'<main class="wai-screen grouped">'+body+'</main>';
  }
+
+ function photosPicker(){
+   const sources=[...document.querySelectorAll('#photosMomentsScroll .photos-thumb img')]
+     .map(img=>img.getAttribute('src')||'')
+     .filter(src=>/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(src));
+   const unique=[...new Set(sources)];
+   return nav('Ảnh','Hủy')+
+     '<main class="wai-screen"><div class="caua-wa-photo-grid">'+
+       unique.map(src=>'<button type="button" class="caua-wa-photo-thumb" data-act="photo-pick" data-src="'+esc(src)+'" aria-label="Chọn ảnh"><img src="'+esc(src)+'" loading="lazy" alt=""></button>').join('')+
+     '</div></main>';
+ }
+
  function render(){
   const oldMessages=root.querySelector('#waiMessages[data-thread]');
   if(oldMessages)ui.chatScroll[oldMessages.dataset.thread]=oldMessages.scrollTop;
@@ -282,6 +294,7 @@ function boot(){
   else if(ui.page==='new-chat'||ui.page==='new-group'||ui.page==='broadcast')root.innerHTML=listPick(ui.page==='new-group'?'group':ui.page==='broadcast'?'broadcast':'chat');
   else if(ui.page==='group-name')root.innerHTML=newGroupForm();
   else if(ui.page==='media')root.innerHTML=gallery();
+  else if(ui.page==='photo-picker')root.innerHTML=photosPicker();
   else if(ui.page==='archived')root.innerHTML=archived();
   else if(ui.page==='thread-search')root.innerHTML=threadSearch();
   else if(ui.page==='call')root.innerHTML=callScreen();
@@ -448,7 +461,15 @@ function boot(){
   if(a==='status-presets'){ui.overlay=null;navigate('sub',{sub:'choose-status'});return}
   if(a==='status-edit'){modalInput('status');return}
   if(a==='status-choose'){data.status=val;save();back();return}
-  if(a==='change-photo'||a==='attach-image'){ui.overlay=null;const input=root.querySelector('#waiFile');if(input){input.dataset.kind=a==='change-photo'?'avatar':'image';input.click()}return}
+  if(a==='attach-image'){ui.overlay=null;navigate('photo-picker');return}
+  if(a==='photo-pick'){
+    const src=el.dataset.src||'';
+    if(!/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(src))return;
+    if(!contact(ui.id)){toast('Không tìm thấy liên hệ');return}
+    makeMessage(contact(ui.id),'image',{src});
+    ui.scrollThread=true;back();toast('Đã gửi ảnh');return;
+  }
+  if(a==='change-photo'){ui.overlay=null;const input=root.querySelector('#waiFile');if(input){input.dataset.kind='avatar';input.click()}return}
   if(a==='send'){sendText();return}
   if(a==='attach'){attachment();return}
   if(a==='mic'){ui.overlay=null;showRecording();return}
