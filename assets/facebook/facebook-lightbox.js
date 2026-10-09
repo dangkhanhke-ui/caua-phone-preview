@@ -1,6 +1,7 @@
 (()=>{'use strict';
  const app=document.getElementById('facebookApp');
- if(!app)return;
+ const screen=document.getElementById('screen');
+ if(!app||!screen)return;
  let overlay=null,stage=null,photo=null,scale=1,dx=0,dy=0,tracking=new Map(),pinch=null,drag=null,lastTap=0;
  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
  let savedStatusInline=null;
@@ -28,14 +29,14 @@
   stage.classList.toggle('zoomed',scale>1.01);
  }
  function zoomTo(next){scale=clamp(next,1,4);if(scale===1){dx=0;dy=0}apply()}
- function close(){if(overlay){overlay.remove();overlay=null;stage=null;photo=null;tracking.clear();pinch=null;drag=null}document.getElementById('screen')?.classList.remove('fb15-photo-fullscreen');setPhotoStatusHidden(false)}
+ function close(){if(overlay){overlay.remove();overlay=null;stage=null;photo=null;tracking.clear();pinch=null;drag=null}screen.classList.remove('fb15-photo-fullscreen');setPhotoStatusHidden(false)}
  function open(src){
   close();scale=1;dx=0;dy=0;
-  document.getElementById('screen')?.classList.add('fb15-photo-fullscreen');
+  screen.classList.add('fb15-photo-fullscreen');
   setPhotoStatusHidden(true);
   overlay=document.createElement('div');overlay.className='fb15-lightbox';
   overlay.innerHTML='<div class="fb15-lightbox-toolbar"><button type="button" data-fb-photo-close="1" aria-label="Đóng ảnh">‹ Quay lại</button><strong>Ảnh</strong><button type="button" data-fb-photo-reset="1" aria-label="Thu nhỏ">1×</button></div><div class="fb15-lightbox-stage"><img class="fb15-lightbox-photo" alt="Ảnh" draggable="false"><div class="fb15-lightbox-hint">Chạm hai lần hoặc dùng hai ngón để phóng to</div></div>';
-  app.appendChild(overlay);
+  screen.appendChild(overlay);
   stage=overlay.querySelector('.fb15-lightbox-stage');photo=overlay.querySelector('img');photo.src=src;
   overlay.querySelector('[data-fb-photo-close]').addEventListener('click',close);
   overlay.querySelector('[data-fb-photo-reset]').addEventListener('click',()=>zoomTo(1));
@@ -76,8 +77,11 @@
  }
  app.addEventListener('click',e=>{
   const img=e.target.closest('.fb15-media.photo img,.fb15-photo-grid img,.fb15-link-thumb.photo img,.fb15-ad-thumb.photo img,.fb15-profile-cover>img');
-  if(!img||!app.contains(img)||app.querySelector('.fb15-lightbox'))return;
+  if(!img||!app.contains(img)||overlay)return;
   e.preventDefault();e.stopImmediatePropagation();open(img.currentSrc||img.src);
  },true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay){e.stopPropagation();close()}},true);
+ document.getElementById('homeButton')?.addEventListener('click',()=>{if(overlay)close()},true);
+ new MutationObserver(()=>{if(overlay&&!app.classList.contains('open'))close()})
+   .observe(app,{attributes:true,attributeFilter:['class']});
 })();
