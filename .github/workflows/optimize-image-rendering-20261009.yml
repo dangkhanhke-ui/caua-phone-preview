@@ -1,0 +1,107 @@
+name: Optimize Image Rendering
+on:
+  push:
+    paths: ['.github/workflows/optimize-image-rendering-20261009.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: optimize-image-rendering
+  cancel-in-progress: false
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install conservative image performance helper
+        run: |
+          mkdir -p js
+          cat > js/image-performance.js <<'JS'
+          /* Image performance, non-destructive: no src rewrite, no resizing,
+             no transforms, no content or layout changes. */
+          (() => {
+            'use strict';
+            const selector = '#facebookApp img, #whatsappApp img, #photosApp img';
+            const processed = new WeakSet();
+            let scheduled = false;
+            const queue = new Set();
+            const optimize = (img) => {
+              if (processed.has(img)) return;
+              processed.add(img);
+              // Asynchronous decoding helps preserve touch/scroll responsiveness
+              // without changing image source, resolution, or visual dimensions.
+              if (!img.hasAttribute('decoding')) img.decoding = 'async';
+              // Offscreen photos can be fetched when approaching the viewport.
+              // Exclude avatars, icons, and small UI elements from lazy loading.
+              const attrWidth = Number(img.getAttribute('width')) || 0;
+              const attrHeight = Number(img.getAttribute('height')) || 0;
+              const src = img.getAttribute('src') || '';
+              const isSmall = /avatar|icon|logo|emoji|button|thumb/i.test(img.className + ' ' + src);
+              if (isSmall || (attrWidth && attrWidth < 96) || (attrHeight && attrHeight < 96)) return;
+              const gallery = img.closest('[class*="photo"],[class*="media"],[class*="image"],[class*="feed"]');
+              if (!gallery) return;
+              // Only lazy-load photos that are clearly below the visible phone.
+              // Hidden app screens are deliberately excluded from lazy loading:
+              // they must be ready when the user opens the app.
+              if (!img.getClientRects().length) return;
+              const bounds = img.getBoundingClientRect();
+              if (bounds.top > window.innerHeight + 500 && bounds.height > 0 &&
+                  !img.hasAttribute('loading')) img.loading = 'lazy';
+            };
+            const enqueue = (root) => {
+              if (root.nodeType !== 1) return;
+              if (root.matches && root.matches(selector)) queue.add(root);
+              root.querySelectorAll?.(selector).forEach(el => queue.add(el));
+              if (scheduled || !queue.size) return;
+              scheduled = true;
+              requestAnimationFrame(() => {
+                scheduled = false;
+                for (const img of queue) optimize(img);
+                queue.clear();
+              });
+            };
+            const start = () => {
+              enqueue(document.documentElement);
+              const observer = new MutationObserver(records => {
+                for (const record of records)
+                  for (const node of record.addedNodes) enqueue(node);
+              });
+              observer.observe(document.documentElement, {childList:true,subtree:true});
+            };
+            if (document.readyState === 'loading')
+              document.addEventListener('DOMContentLoaded',start,{once:true});
+            else start();
+          })();
+          JS
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="js/image-performance.js" defer></script>'
+          if tag not in s:
+              if '</body>' not in s:raise SystemExit('No closing body tag')
+              s=s.replace('</body>',tag+'\n</body>',1)
+              p.write_text(s,encoding='utf-8')
+          print('Performance script installed')
+          PY
+      - name: Validate syntax, references, and existing assets
+        run: |
+          node --check js/image-performance.js
+          python3 - <<'PY'
+          from pathlib import Path
+          h=Path('index.html').read_text(encoding='utf-8')
+          assert h.count('<script src="js/image-performance.js" defer></script>')==1
+          assert Path('js/image-performance.js').is_file()
+          print('Image enhancement installed once')
+          PY
+      - name: Commit performance enhancement
+        run: |
+          if [ -z "$(git status --porcelain -- index.html js/image-performance.js)" ]; then
+            echo "No changes"; exit 0
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html js/image-performance.js
+          git commit -m "Improve social photo decoding and conservative offscreen lazy loading"
+          git pull --rebase origin main
+          git push
