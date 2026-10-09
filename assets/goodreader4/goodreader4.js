@@ -145,7 +145,7 @@ function renderReader(restorePage=true){
  const e=find(current);if(!e){view='files';return renderFiles();}
  setNav(true,e.filename,true);
  const content=reflow?
-  '<div class="gr4-reading"><div class="gr4-page" style="width:'+Math.round(92*zoom)+'%;--gr4-zoom:'+zoom+'">'+e.pages.map((part,i)=>part.map((b,j)=>markedBlock(e,b,i+1,j)).join('')).join('')+'</div></div>':
+  '<div class="gr4-reading"><div class="gr4-page" style="width:'+Math.round(92*zoom)+'%;--gr4-zoom:'+zoom+'">'+e.pages.map((part,i)=>'<section class="gr4-reflow-section" data-page="'+(i+1)+'">'+part.map((b,j)=>markedBlock(e,b,i+1,j)).join('')+'</section>').join('')+'</div></div>':
   '<div class="gr4-reading">'+e.pages.map((p,i)=>readerPage(e,i+1)).join('')+'</div>';
  const controls='<div class="gr4-page-controls"><button type="button" data-gr="prev-page" '+(page<=1?'disabled':'')+' aria-label="Trang trước">‹</button><input id="gr4PageRange" type="range" min="1" max="'+e.pages.length+'" value="'+page+'" aria-label="Chọn trang"/><span class="gr4-current-page">'+page+'/'+e.pages.length+'</span><button type="button" data-gr="next-page" '+(page>=e.pages.length?'disabled':'')+' aria-label="Trang sau">›</button></div>';
  el.body.innerHTML=(readerSearch!==''?'<div class="gr4-search"><input id="gr4ReaderSearch" value="'+esc(readerSearch)+'" placeholder="Tìm trong PDF" type="search"/><button data-gr="reader-search-close">Xong</button></div>':'')+(highlightMode?'<div class="gr4-highlight-hint">Tô sáng: chạm đoạn văn để đánh dấu hoặc bỏ đánh dấu.</div>':'')+controls+content;
@@ -155,16 +155,17 @@ function renderReader(restorePage=true){
   const input=el.body.querySelector('#gr4ReaderSearch');input.addEventListener('change',evt=>{readerSearch=evt.target.value;renderReader(true)});input.addEventListener('keydown',evt=>{if(evt.key==='Enter'){readerSearch=input.value;renderReader(true)}});
  }
  tools([{id:'zoom-out',icon:'−',label:'Thu nhỏ'},{id:'zoom-in',icon:'+',label:Math.round(zoom*100)+'%'},{id:'reader-find',icon:'⌕',label:'Tìm chữ'},{id:'bookmark',icon:bookmarked(e.id,page)?'★':'☆',label:'Đánh dấu'},{id:'pages',icon:'▦',label:page+'/'+e.pages.length},{id:'reader-actions',icon:'•••',label:'Công cụ'}]);
- if(restorePage&&!reflow)requestAnimationFrame(()=>goPage(page));
+ if(restorePage)requestAnimationFrame(()=>goPage(page));
 }
 function goPage(n){
  const e=find(current);if(!e)return;
  page=Math.max(1,Math.min(e.pages.length,n));
- const target=el.body.querySelector('.gr4-page[data-page="'+page+'"]');
+ const target=el.body.querySelector('.gr4-page[data-page="'+page+'"],.gr4-reflow-section[data-page="'+page+'"]');
  if(target)el.body.scrollTop+=(target.getBoundingClientRect().top-el.body.getBoundingClientRect().top)-10;
  const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+e.pages.length;
  const range=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(range)range.value=page;if(label)label.textContent=page+'/'+e.pages.length;
  const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=e.pages.length;
+ const star=el.bar.querySelector('[data-gr="bookmark"] span:first-child');if(star)star.textContent=bookmarked(current,page)?'★':'☆';
 }
 function unlockView(){
  const e=find(current);setNav(true,e.filename,false);
@@ -397,10 +398,10 @@ app.addEventListener('click',evt=>{
  evt.preventDefault();handler(button.dataset.gr,button);
 });
 el.body.addEventListener('scroll',()=>{
- if(view!=='reader'||reflow)return;
- const ps=[...el.body.querySelectorAll('.gr4-page[data-page]')];let best=1,d=Infinity;
+ if(view!=='reader')return;
+ const ps=[...el.body.querySelectorAll('.gr4-page[data-page],.gr4-reflow-section[data-page]')];let best=1,d=Infinity;
  for(const item of ps){const dist=Math.abs(item.getBoundingClientRect().top-el.body.getBoundingClientRect().top);if(dist<d){d=dist;best=Number(item.dataset.page)}}
- if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=ps.length;}
+ if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=ps.length;const star=el.bar.querySelector('[data-gr="bookmark"] span:first-child');if(star)star.textContent=bookmarked(current,page)?'★':'☆';}
 },{passive:true});
 launch.addEventListener('click',()=>{
  app.classList.add('open');screen.classList.add('goodreader-open');
