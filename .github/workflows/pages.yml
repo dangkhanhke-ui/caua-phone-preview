@@ -53,6 +53,9 @@ jobs:
         run: |
           test -f index.html
           node --check assets/goodreader4/goodreader4.js
+          test -s assets/goodreader4/GR04_Icon.png
+          test -s assets/safari/UFRJ_logo.png
+          python -c "from pathlib import Path; d=Path('assets/facebook/avatars/hd'); missing=[i for i in range(1,101) if not (d/('extra_%03d.png'%i)).is_file()]; assert not missing, 'Missing original HD NPC avatars: '+str(missing)"
           python -c "import json; d=json.load(open('assets/goodreader4/documents.json',encoding='utf-8')); assert len(d['documents']) == 2; assert sorted(x['filename'] for x in d['documents']) == ['Dat_rieng_26-08.pdf', 'N09_declaracao_2012.pdf']; assert next(x for x in d['documents'] if x['id']=='n09-2012')['password']=='1111'"
       - name: Configure Pages
         uses: actions/configure-pages@v5

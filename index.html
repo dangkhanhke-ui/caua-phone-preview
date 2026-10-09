@@ -3330,7 +3330,7 @@ body,
 #facebookApp .fb15-menu-row .mi{display:flex;align-items:center;justify-content:flex-start;flex:0 0 30px;width:30px;font-size:0!important}
 #facebookApp .fb15-menu-row .fb15-menu-svg{width:19px;height:19px;display:block;fill:none;stroke:#3b5998;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 #facebookApp .fb15-menu-row .chev{font-size:18px;color:#b7bbc4}
-#facebookApp [data-npc-avatar="image"]{position:relative!important;overflow:hidden!important;background:#cbd4e2!important;background-image:none!important;color:#536782!important;font-size:12px!important}
+#facebookApp [data-npc-avatar="image"]{position:relative!important;overflow:hidden!important;background:#cbd4e2!important;background-image:var(--fb15-avatar-fallback,none)!important;background-size:500% 500%!important;background-position:var(--fb15-avatar-pos-x,center) var(--fb15-avatar-pos-y,center)!important;background-repeat:no-repeat!important;color:#536782!important;font-size:12px!important}
 #facebookApp .fb15-npc-photo{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center!important;image-rendering:auto!important;filter:none!important;z-index:2}
 #facebookApp .fb15-npc-fallback{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;color:#536782;font:600 12px/1 Arial,sans-serif;text-align:center}
 #facebookApp .fb15-friend-pic{position:relative!important;width:100%;height:auto;min-height:0;overflow:hidden!important}
@@ -7966,12 +7966,20 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
       n=pool[(h>>>0)%pool.length];
     }
     const replacement={48:'R48.png.png',54:'R54.png.png',75:'R75.png.png',97:'R97.png.png'}[n];
-    return replacement?'./'+replacement:'./assets/facebook/avatars/hd/extra_'+String(n).padStart(3,'0')+'.png';
+    return replacement?'./'+replacement:'https://dangkhanhke-ui.github.io/caua-phone-preview/assets/facebook/avatars/hd/extra_'+String(n).padStart(3,'0')+'.png';
   }
-  function npcAvatarAttrs(name){return ' data-npc-avatar="image"';}
+  function npcAvatarAttrs(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name]||!name||PAGES.includes(name)||NPC_PAGE.test(name))return ' data-npc-avatar="image"';
+    let n=NPC_ASSIGN[name];
+    if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase(),pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
+    const i=(n-1)%25,x=(i%5)*25,y=Math.floor(i/5)*25;
+    const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
+    return ' data-npc-avatar="image" style="--fb15-avatar-fallback:url(&quot;./assets/facebook/avatars/'+file+'&quot;);--fb15-avatar-pos-x:'+x+'%;--fb15-avatar-pos-y:'+y+'%"';
+  }
   function npcAvatarPhoto(name){
     const src=npcAvatarUrl(name);
-    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">':'';
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
   }
 
   const authorType=n=>PAGES.includes(n)?'page':'friend';
