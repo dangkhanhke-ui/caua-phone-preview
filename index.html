@@ -7893,7 +7893,22 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
   const NPC_PAGE=/globo|folha|\bg1\b|mídia|midia|agência|agencia|observatório|business review|datafolha|flamengo|fundição|quản lý|jurídica|tư vấn|giao thông|game agar|rio không|góc xả|thành phố|dược phẩm|sinh lý|subsolo/i;
   function npcAvatarAttrs(name){
     name=String(name||'').trim();
-    if(!name||name==='Cauã Valença'||PAGES.includes(name)||NPC_PAGE.test(name))return '';
+    const characterPhotos={
+      'Breno Martins':'MC01_Breno_Martins.png.png',
+      'Luísa Montenegro':'MC02_Luisa_Montenegro.png.png',
+      'Rafaela Lima':'MC03_Rafaela_Lima.png.png',
+      'Eduardo Santos':'MC04_Eduardo_Santos.png.png',
+      'Lucas Andrade':'MC05_Lucas_Andrade.png.png',
+      'Brenda Santos':'MC06_Brenda_Santos.png.png',
+      'João Cardoso':'MC07_Joao_Cardoso.png.png',
+      'Jéssica Ferreira':'MC08_Jessica_Ferreira.png.png',
+      'Henrique Lima':'MC09_Henrique_Lima.png.png'
+    };
+    const specialPhoto=name==='Cauã Valença'?'assets/facebook/avatar.jpg':characterPhotos[name];
+    if(specialPhoto){
+      return ' data-npc-avatar="character" style="background:#ddd url(&quot;./'+specialPhoto+'&quot;) center center/cover no-repeat!important;color:transparent!important;font-size:0!important;overflow:hidden!important"';
+    }
+    if(!name||PAGES.includes(name)||NPC_PAGE.test(name))return '';
     let n=NPC_ASSIGN[name];
     if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase();const pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
     const i=(n-1)%25; const x=(i%5)*25,y=Math.floor(i/5)*25;
