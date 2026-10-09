@@ -3364,6 +3364,98 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
 #caua-home-gesture{user-select:none;-webkit-user-select:none}
 </style><link rel="stylesheet" href="./assets/goodreader4/goodreader4.css" />
 <link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009h">
+
+<style id="phone-ui-three-small-fixes-20261009">
+/* The source UFRJ logo is transparent: grow only the artwork ~2 px, without shifting the 2015 site header. */
+.ufrj-logo-slot .ufrj-logo-image{
+  transform:scale(1.035);
+  transform-origin:center center;
+}
+
+/* Original GoodReader artwork is transparent: do not wrap it in a generated cyan tile. */
+.goodreader-launch .icon.gr4-home-icon{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.goodreader-launch .gr4-home-icon img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.goodreader-launch .gr4-home-icon::before,
+.goodreader-launch .gr4-home-icon::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* Safari iOS 8 tab glyph: never mask the whole button — it masks its live number too. */
+#safariTabsBtn{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:transparent!important;
+  background-image:none!important;
+  -webkit-mask:none!important;
+  mask:none!important;
+  font-size:0!important;
+  color:#007aff!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+#safariTabsBtn::before,
+#safariTabsBtn::after{
+  content:none!important;
+  display:none!important;
+}
+#safariTabsBtn .safari-tabs-line-icon{
+  display:block!important;
+  width:26px!important;
+  height:26px!important;
+  flex:0 0 26px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.75!important;
+  overflow:visible!important;
+  pointer-events:none;
+}
+#safariTabsBtn .safari-tabcount{
+  position:absolute!important;
+  left:calc(50% + 2px)!important;
+  top:calc(50% - 1px)!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:3!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:11px!important;
+  width:auto!important;
+  height:12px!important;
+  line-height:12px!important;
+  padding:0 1px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#f7f7f7!important;
+  box-shadow:none!important;
+  color:#007aff!important;
+  font:600 10px/12px "Helvetica Neue",Arial,sans-serif!important;
+  text-indent:0!important;
+  text-align:center!important;
+  opacity:1!important;
+  visibility:visible!important;
+  white-space:nowrap!important;
+  pointer-events:none!important;
+}
+</style>
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -3762,7 +3854,7 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
               <button class="safari-toolbtn" id="safariForward" type="button">›</button>
               <button class="safari-toolbtn" id="safariShare" type="button">⇪</button>
               <button class="safari-toolbtn" id="safariBookmarks" type="button" aria-label="Dấu trang"></button>
-              <button class="safari-toolbtn" id="safariTabsBtn" type="button"><span class="safari-tabcount" id="safariTabCount">4</span></button>
+              <button class="safari-toolbtn" id="safariTabsBtn" type="button" aria-label="Xem tất cả tab Safari"><svg class="safari-tabs-line-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7H5a2 2 0 0 0-2 2v17a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2v-2"/><rect x="8" y="4" width="21" height="21" rx="2"/></svg><span class="safari-tabcount" id="safariTabCount">4</span></button>
             </nav>
             <div class="safari-tabs" id="safariTabs"></div>
             <div class="safari-private-panel" id="safariPrivate"><h3>Duyệt web riêng tư</h3><p>Safari sẽ không lưu các trang bạn truy cập vào Lịch sử.</p><button id="safariPrivateDone" type="button">Xong</button></div>
@@ -8510,7 +8602,7 @@ if(!img)return;
 // GR04_ICON_2015: send an image and place it at assets/goodreader4/GR04_Icon.png
 const options=['./assets/goodreader4/GR04_Icon.png','./GR04_Icon.png','./GR04_Icon.png.png','./GR04_Icon.jpg','./GR04_Icon.webp'];
 let n=0;
-img.onload=()=>{img.style.display='block'};
+img.onload=()=>{img.style.display='block';const placeholder=img.parentElement?.querySelector('.gr4-logo-fallback');if(placeholder)placeholder.style.display='none';};
 img.onerror=()=>{n++;if(n<options.length)img.src=options[n];else img.style.display='none'};
 // Assign after listeners so cached images also trigger onload reliably.
 img.src=options[0];
