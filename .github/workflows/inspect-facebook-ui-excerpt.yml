@@ -1,0 +1,39 @@
+name: Inspect Facebook UI excerpt
+on:
+  push:
+    paths: ['.github/workflows/inspect-facebook-ui-excerpt.yml']
+permissions:
+  contents: write
+jobs:
+  excerpt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract read-only targeted excerpts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          needles=['Bạn bè với Cauã','fb15-dialog-avatar','function showFriend','function renderFriends','function renderRequests','fb15-photo-view','function openPhoto','fb15-profile-tabs','avatarFor','avatarHTML','avatarImage','Camila Ribeiro','Júlia Mendes','Carolina Nunes','fb15-friend','fb15-person','showDialog','sprite','fb15-gallery']
+          output=[]
+          used=[]
+          for needle in needles:
+              offsets=[m.start() for m in re.finditer(re.escape(needle),s,re.I)]
+              output.append('\n=== '+needle+' (found '+str(len(offsets))+') ===\n')
+              for pos in offsets[:4]:
+                  a=max(0,pos-500);b=min(len(s),pos+1100)
+                  if any(a>=x and b<=y for x,y in used):continue
+                  used.append((a,b));output.append(s[a:b]+'\n-- excerpt --\n')
+          data=''.join(output)
+          Path('qa/facebook-ui-excerpts.txt').write_text(data[:80000],encoding='utf-8')
+          print('Written bytes',len(data[:80000]))
+          PY
+      - name: Commit diagnostic (no runtime changes)
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add qa/facebook-ui-excerpts.txt
+          git commit -m "Inspect Facebook popup and photo viewer wiring"
+          git pull --rebase origin main
+          git push
