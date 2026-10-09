@@ -1,0 +1,222 @@
+
+=== const REQUESTS= / 398427 ===
+const REQUESTS=[["Thiago Moura", 4], ["Renata Castro", 7], ["Paulo Henrique Braga", 2], ["Letícia Ramos", 11], ["Bruno Oliveira", 3], ["Fernanda Carvalho", 5]].map((x,i)=>({id:'r'+i,name:x[0],mutual:x[1]}));
+  const SUGGEST=[["Carlos Matos", 9], ["Ana Beatriz Costa", 6], ["Rafael Almeida", 12], ["Igor Lima", 4], ["Priscila Moreira", 8], ["Murilo Santos", 3], ["Beatriz Souza", 7], ["Felipe Ramos", 10]].map((x,i)=>({id:'s'+i,name:x[0],mutual:x[1]}));
+  const NOTIFS=[{"date":"23/08/2015","time":"21:44","type":"comment","text":"Marina Campos đã bình luận về bài viết của bạn.","detail":"Ông thắng bóng đá hay ông vừa vô địch vậy =)))","context":"Bài viết: 2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"21:36","type":"like","text":"João Cardoso, Camila Ribeiro và 18 người khác đã thích bài viết của bạn.","context":"2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"21:18","type":"photo","text":"Flamengo đã thêm một ảnh mới.","context":"Chiến thắng tại Maracanã. ❤️🖤","unread":true},{"date":"23/08/2015","time":"20:57","type":"comment","text":"Breno Martins đã bình luận về bài viết của bạn.","detail":"Tôi nói 2-1 từ đầu rồi nhé.","extra":["Lucas Andrade đã trả lời bình luận của Breno Martins.","Không ai hỏi."],"unread":true},{"date":"23/08/2015","time":"20:42","type":"comment","text":"Natália Borges đã bình luận về bài viết của Subsolo.","detail":"Thứ Sáu bên mình còn nhận nhóm 8 người không ạ?","unread":true},{"date":"23/08/2015","time":"20:29","type":"reply","text":"Gabriel Rocha đã trả lời bình luận của bạn.","detail":"Thứ Tư nói chuyện tiếp.","context":"Trên bài viết: 2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"20:11","type":"link","text":"Globo Esporte - Bóng đá Brazil đã đăng một liên kết mới.","context":"Flamengo thắng São Paulo 2-1 tại Maracanã.","unread":true},{"date":"23/08/2015","time":"19:58","type":"like","text":"Eduardo Santos và 11 người khác đã thích bài viết của bạn.","context":"2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"19:41","type":"comment","text":"Pedro Tavares đã bình luận về bài viết của bạn.","detail":"kkkkkkkkkkkkkkkkkk","context":"2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"19:26","type":"tag","text":"Felipe Duarte đã nhắc đến bạn trong một bình luận.","detail":"Hỏi @Cauã Valença đi, ổng biết chỗ.","context":"Trong nhóm Người làm sự kiện tại Rio","unread":true},{"date":"23/08/2015","time":"19:03","type":"group","text":"Marcela Ferreira đã đăng trong Người làm sự kiện tại Rio.","detail":"Cần thêm 1 người đứng cửa tối thứ Sáu, Centro. Ai rảnh inbox.","unread":false},{"date":"23/08/2015","time":"18:52","type":"comment","text":"Gabriel Rocha đã bình luận về bài viết của bạn.","detail":"thắng hên vl","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"18:38","type":"like","text":"Rafael Vieira, Isabela Torres và 9 người khác đã thích bài viết của bạn.","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"18:31","type":"album","text":"Fundição Progresso đã thêm 14 ảnh mới.","context":"Album: Cuối tuần tại Lapa","unread":false},{"date":"23/08/2015","time":"18:24","type":"comment","text":"Matheus Queiroz đã bình luận về bài viết của bạn.","detail":"Thắng là được anh em ơi 😂","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"18:20","type":"system","text":"Bài viết của bạn đang nhận được nhiều lượt thích.","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"17:46","type":"friend","text":"Bianca Freitas đã gửi cho bạn một lời mời kết bạn.","context":"3 bạn chung","unread":false},{"date":"23/08/2015","time":"17:12","type":"photo","text":"Rodrigo Paiva đã gắn thẻ bạn trong một ảnh.","detail":"Ông chủ Subsolo cũng biết nghỉ Chủ nhật nha mọi người.","extra":["Gabriela Lins","Không tin."],"unread":false},{"date":"23/08/2015","time":"16:38","type":"event","text":"Circo Voador đã đăng một sự kiện mới.","context":"Đêm nhạc cuối tháng tại Lapa","unread":false},{"date":"23/08/2015","time":"15:54","type":"comment","text":"Priscila Almeida đã bình luận về bài viết của Subsolo.","detail":"Tối nay mở bình thường không?","unread":false},{"date":"23/08/2015","time":"14:27","type":"photo","text":"Karina Nunes đã thích ảnh mà Ana Clara Moreira gắn thẻ bạn.","context":"Ảnh từ tháng 7/2014","unread":false},{"date":"23/08/2015","time":"13:46","type":"group","text":"Thiago Pires đã đăng trong Việc làm truyền thông & sự kiện - Rio de Janeiro.","detail":"Ai cần người tối thứ Bảy không? Centro/Lapa đều được.","unread":false},{"date":"23/08/2015","time":"12:31","type":"photo","text":"Flamengo đã đăng một ảnh mới.","context":"Ngày thi đấu. Flamengo × São Paulo.","unread":false},{"date":"22/08/2015","time":"23:43","type":"comment","text":"Felipe Duarte đã bình luận về bài viết của bạn.","detail":"'Phụ tôi' = tôi làm hết.","context":"Bài viết: Tối nay tôi k
+
+=== const SUGGEST= / 398637 ===
+const SUGGEST=[["Carlos Matos", 9], ["Ana Beatriz Costa", 6], ["Rafael Almeida", 12], ["Igor Lima", 4], ["Priscila Moreira", 8], ["Murilo Santos", 3], ["Beatriz Souza", 7], ["Felipe Ramos", 10]].map((x,i)=>({id:'s'+i,name:x[0],mutual:x[1]}));
+  const NOTIFS=[{"date":"23/08/2015","time":"21:44","type":"comment","text":"Marina Campos đã bình luận về bài viết của bạn.","detail":"Ông thắng bóng đá hay ông vừa vô địch vậy =)))","context":"Bài viết: 2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"21:36","type":"like","text":"João Cardoso, Camila Ribeiro và 18 người khác đã thích bài viết của bạn.","context":"2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"21:18","type":"photo","text":"Flamengo đã thêm một ảnh mới.","context":"Chiến thắng tại Maracanã. ❤️🖤","unread":true},{"date":"23/08/2015","time":"20:57","type":"comment","text":"Breno Martins đã bình luận về bài viết của bạn.","detail":"Tôi nói 2-1 từ đầu rồi nhé.","extra":["Lucas Andrade đã trả lời bình luận của Breno Martins.","Không ai hỏi."],"unread":true},{"date":"23/08/2015","time":"20:42","type":"comment","text":"Natália Borges đã bình luận về bài viết của Subsolo.","detail":"Thứ Sáu bên mình còn nhận nhóm 8 người không ạ?","unread":true},{"date":"23/08/2015","time":"20:29","type":"reply","text":"Gabriel Rocha đã trả lời bình luận của bạn.","detail":"Thứ Tư nói chuyện tiếp.","context":"Trên bài viết: 2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"20:11","type":"link","text":"Globo Esporte - Bóng đá Brazil đã đăng một liên kết mới.","context":"Flamengo thắng São Paulo 2-1 tại Maracanã.","unread":true},{"date":"23/08/2015","time":"19:58","type":"like","text":"Eduardo Santos và 11 người khác đã thích bài viết của bạn.","context":"2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"19:41","type":"comment","text":"Pedro Tavares đã bình luận về bài viết của bạn.","detail":"kkkkkkkkkkkkkkkkkk","context":"2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"19:26","type":"tag","text":"Felipe Duarte đã nhắc đến bạn trong một bình luận.","detail":"Hỏi @Cauã Valença đi, ổng biết chỗ.","context":"Trong nhóm Người làm sự kiện tại Rio","unread":true},{"date":"23/08/2015","time":"19:03","type":"group","text":"Marcela Ferreira đã đăng trong Người làm sự kiện tại Rio.","detail":"Cần thêm 1 người đứng cửa tối thứ Sáu, Centro. Ai rảnh inbox.","unread":false},{"date":"23/08/2015","time":"18:52","type":"comment","text":"Gabriel Rocha đã bình luận về bài viết của bạn.","detail":"thắng hên vl","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"18:38","type":"like","text":"Rafael Vieira, Isabela Torres và 9 người khác đã thích bài viết của bạn.","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"18:31","type":"album","text":"Fundição Progresso đã thêm 14 ảnh mới.","context":"Album: Cuối tuần tại Lapa","unread":false},{"date":"23/08/2015","time":"18:24","type":"comment","text":"Matheus Queiroz đã bình luận về bài viết của bạn.","detail":"Thắng là được anh em ơi 😂","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"18:20","type":"system","text":"Bài viết của bạn đang nhận được nhiều lượt thích.","context":"2-1 KKKKKKKKKKKKK","unread":false},{"date":"23/08/2015","time":"17:46","type":"friend","text":"Bianca Freitas đã gửi cho bạn một lời mời kết bạn.","context":"3 bạn chung","unread":false},{"date":"23/08/2015","time":"17:12","type":"photo","text":"Rodrigo Paiva đã gắn thẻ bạn trong một ảnh.","detail":"Ông chủ Subsolo cũng biết nghỉ Chủ nhật nha mọi người.","extra":["Gabriela Lins","Không tin."],"unread":false},{"date":"23/08/2015","time":"16:38","type":"event","text":"Circo Voador đã đăng một sự kiện mới.","context":"Đêm nhạc cuối tháng tại Lapa","unread":false},{"date":"23/08/2015","time":"15:54","type":"comment","text":"Priscila Almeida đã bình luận về bài viết của Subsolo.","detail":"Tối nay mở bình thường không?","unread":false},{"date":"23/08/2015","time":"14:27","type":"photo","text":"Karina Nunes đã thích ảnh mà Ana Clara Moreira gắn thẻ bạn.","context":"Ảnh từ tháng 7/2014","unread":false},{"date":"23/08/2015","time":"13:46","type":"group","text":"Thiago Pires đã đăng trong Việc làm truyền thông & sự kiện - Rio de Janeiro.","detail":"Ai cần người tối thứ Bảy không? Centro/Lapa đều được.","unread":false},{"date":"23/08/2015","time":"12:31","type":"photo","text":"Flamengo đã đăng một ảnh mới.","context":"Ngày thi đấu. Flamengo × São Paulo.","unread":false},{"date":"22/08/2015","time":"23:43","type":"comment","text":"Felipe Duarte đã bình luận về bài viết của bạn.","detail":"'Phụ tôi' = tôi làm hết.","context":"Bài viết: Tối nay tôi không đứng quầy nhiều nhé. Felipe với Marina phụ tôi.","unread":false},{"date":"22/08/2015","time":"23:31","type":"comment","text":"Marina Campos đã bình luận về bài viết của bạn.","detail":"Tôi muốn tăng lương.
+
+=== const NPC_ASSIGN= / 415243 ===
+const NPC_ASSIGN={"Breno Martins":26,"Luísa Montenegro":27,"Rafaela Lima":33,"Eduardo Santos":28,"Lucas Andrade":30,"Brenda Santos":31,"João Cardoso":25,"Jéssica Ferreira":50,"Henrique Lima":83,"Letícia Ramos":71,"Tiago Neves":11,"Clara Dias":52,"Gabriela Lins":22,"Marina Campos":3,"Erik Ramon":82,"Raquel Martins":49,"Matheus Queiroz":93,"Felipe Duarte":63,"Matheus Diniz":74,"Gabriel Rocha":85,"Daniel Moura":55,"Matheus Silva":96,"Rodrigo Mota":66,"Vinícius Souza":36,"Rômulo Braga":6,"Guilherme Ramos":47,"Matheus Rocha":17,"Letícia Gomes":14,"Bruno Vasconcelos":81,"Natasha Correia":62,"Marcelo Braga":99,"Renato Farias":51,"Juliana Nascimento":58,"Thiago Pires":61,"Beatriz Lima":69,"Rodrigo Mendes":72,"Rodrigo Paiva":8,"Aline Peixoto":39,"Fernanda Coutinho":9,"Paulo Motta":53,"Juliana Rocha":20,"Marcelo Prado":98,"André Carvalho":34,"Renan Oliver":4,"Lucas Vianna":60,"Igor Ferreira":15,"Helena Prado":91,"Rafael Vieira":86,"Caio Lopes":97,"Larissa Moura":1,"Rodrigo Melo":78,"Natália Borges":16,"Thiago Lima":89,"Diego Santana":59,"Mariana Costa":12,"Galdino Ferreira":70,"Thiago Oliveira":40,"Luana Vieira":94,"Lucas Silva":10,"Pedro Tavares":88,"Paula Moreira":64,"Marcela Ferreira":75,"Dona Maria Aparecida":56,"Lívia Rezende":67,"Igor Santos":80,"Laura Pires":37,"Ana Clara Moreira":7,"Felipe Costa":21,"Rafael Almeida":92,"Amanda Freitas":48,"Leonardo Castro":32,"Karina Nunes":18,"Renan Castro":2,"Júlia Mendes":29,"Bianca Freitas":100,"Bruno Santos":19,"Bruno Faria":13,"Fabio Junior":95,"Thiago Silva":65,"Priscila Almeida":77,"Gustavo Melo":76,"Cláudio Farias":57,"Isabela Torres":84,"Tainá Carvalho":73,"Fernanda Reis":54,"Débora Farias":24,"Beatriz Amaral":35,"Henrique Melo":23,"Thiago Neves":68,"Yan Felipo":38,"Carolina Nunes":5,"Camila Ribeiro":46};
+  const NPC_F=[1,3,5,7,9,12,14,16,18,20,22,24], NPC_M=[2,4,6,8,10,11,13,15,17,19,21,23,25];
+  const NPC_FNAME=new Set('aline amanda ana beatriz brenda camila carolina fernanda gabriela helena isabela isabella julia júlia letícia luísa luisa marcela mariana marina natália natalia paula priscila rafaela renata jéssica'.split(' '));
+  const NPC_PAGE=/globo|folha|\bg1\b|mídia|midia|agência|agencia|observatório|business review|datafolha|flamengo|fundição|quản lý|jurídica|tư vấn|giao thông|game agar|rio không|góc xả|thành phố|dược phẩm|sinh lý|subsolo/i;
+
+  const FB15_NPC_SPECIAL={
+    'Cauã Valença':'assets/facebook/avatar.jpg',
+    'Breno Martins':'MC01_Breno_Martins.png.png',
+    'Luísa Montenegro':'MC02_Luisa_Montenegro.png.png',
+    'Rafaela Lima':'MC03_Rafaela_Lima.png.png',
+    'Eduardo Santos':'MC04_Eduardo_Santos.png.png',
+    'Lucas Andrade':'MC05_Lucas_Andrade.png.png',
+    'Brenda Santos':'MC06_Brenda_Santos.png.png',
+    'João Cardoso':'MC07_Joao_Cardoso.png.png',
+    'Jéssica Ferreira':'MC08_Jessica_Ferreira.png.png',
+    'Henrique Lima':'MC09_Henrique_Lima.png.png',
+    'Dona Maria Aparecida':'OLD01.png.jpg',
+    'Cláudio Farias':'OLD02.png.webp'
+  };
+  function npcAvatarUrl(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name])return './'+FB15_NPC_SPECIAL[name];
+    if(!name||PAGES.includes(name)||NPC_PAGE.test(name))return '';
+    let n=NPC_ASSIGN[name];
+    if(!n){
+      let h=2166136261;
+      for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}
+      const first=name.split(/\s+/)[0].toLowerCase();
+      const pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;
+      n=pool[(h>>>0)%pool.length];
+    }
+    const replacement={48:'R48.png.png',54:'R54.png.png',75:'R75.png.png',97:'R97.png.png'}[n];
+    return replacement?'./'+replacement:'https://dangkhanhke-ui.github.io/caua-phone-preview/assets/facebook/avatars/hd/extra_'+String(n).padStart(3,'0')+'.png';
+  }
+  function npcAvatarAttrs(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name]||!name||PAGES.includes(name)||NPC_PAGE.test(name))return ' data-npc-avatar="image"';
+    let n=NPC_ASSIGN[name];
+    if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase(),pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
+    const i=(n-1)%25,x=(i%5)*25,y=Math.floor(i/5)*25;
+    const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
+    return ' data-npc-avatar="image" style="--fb15-avatar-fallback:url(&quot;./assets/facebook/avatars/'+file+'&quot;);--fb15-avatar-pos-x:'+x+'%;--fb15-avatar-pos-y:'+y+'%"';
+  }
+  function npcAvatarPhoto(name){
+    const src=npcAvatarUrl(name);
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
+  }
+
+  const authorType=n=>PAGES.includes(n)?'page':'friend';
+  function setMainTop(){top.classList.remove('sub'); title.textContent='Facebook';}
+  function setSubTop(t){top.classList.add('su
+
+=== const FB15_NPC_SPECIAL= / 417578 ===
+const FB15_NPC_SPECIAL={
+    'Cauã Valença':'assets/facebook/avatar.jpg',
+    'Breno Martins':'MC01_Breno_Martins.png.png',
+    'Luísa Montenegro':'MC02_Luisa_Montenegro.png.png',
+    'Rafaela Lima':'MC03_Rafaela_Lima.png.png',
+    'Eduardo Santos':'MC04_Eduardo_Santos.png.png',
+    'Lucas Andrade':'MC05_Lucas_Andrade.png.png',
+    'Brenda Santos':'MC06_Brenda_Santos.png.png',
+    'João Cardoso':'MC07_Joao_Cardoso.png.png',
+    'Jéssica Ferreira':'MC08_Jessica_Ferreira.png.png',
+    'Henrique Lima':'MC09_Henrique_Lima.png.png',
+    'Dona Maria Aparecida':'OLD01.png.jpg',
+    'Cláudio Farias':'OLD02.png.webp'
+  };
+  function npcAvatarUrl(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name])return './'+FB15_NPC_SPECIAL[name];
+    if(!name||PAGES.includes(name)||NPC_PAGE.test(name))return '';
+    let n=NPC_ASSIGN[name];
+    if(!n){
+      let h=2166136261;
+      for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}
+      const first=name.split(/\s+/)[0].toLowerCase();
+      const pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;
+      n=pool[(h>>>0)%pool.length];
+    }
+    const replacement={48:'R48.png.png',54:'R54.png.png',75:'R75.png.png',97:'R97.png.png'}[n];
+    return replacement?'./'+replacement:'https://dangkhanhke-ui.github.io/caua-phone-preview/assets/facebook/avatars/hd/extra_'+String(n).padStart(3,'0')+'.png';
+  }
+  function npcAvatarAttrs(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name]||!name||PAGES.includes(name)||NPC_PAGE.test(name))return ' data-npc-avatar="image"';
+    let n=NPC_ASSIGN[name];
+    if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase(),pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
+    const i=(n-1)%25,x=(i%5)*25,y=Math.floor(i/5)*25;
+    const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
+    return ' data-npc-avatar="image" style="--fb15-avatar-fallback:url(&quot;./assets/facebook/avatars/'+file+'&quot;);--fb15-avatar-pos-x:'+x+'%;--fb15-avatar-pos-y:'+y+'%"';
+  }
+  function npcAvatarPhoto(name){
+    const src=npcAvatarUrl(name);
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
+  }
+
+  const authorType=n=>PAGES.includes(n)?'page':'friend';
+  function setMainTop(){top.classList.remove('sub'); title.textContent='Facebook';}
+  function setSubTop(t){top.classList.add('sub');title.textContent=t;}
+  function setTabs(on){tabbar.style.display=on?'grid':'none';content.classList.toggle('no-tabs',!on);}
+  function openApp(){app.classList.add('open');screen.classList.add('facebook-open');state.tab='feed';state.stack=[];state.feedCount=10;setTabs(true);setMainTop();renderTab('feed');}
+  function closeApp(){app.classList.remove('open');screen.classList.remove('facebook-open');closeSearch();closeOverlay();}
+  launch.addEventListener('click',openApp); home?.addEventListener('click',()=>{if(app.classList.contains('open')) closeApp();});
+  document.querySelectorAll('[data-fbtab]').forEach(b=>b.addEventListener('click',()=>{state.stack=[];state.tab=b.dataset.fbtab;document.querySelectorAll('[data-fbtab]').forEach(x=>x.classList.toggle('active',x===b));setTabs(true);setMainTop();renderTab(state.tab);}));
+  document.getElementById('fb15Back').addEventListener('click',()=>{if(state.stack.length){const prev=state.stack.pop();renderPage(prev.kind,prev.arg,false);}else{setTabs(true);setMainTop();renderTab(state.tab);}});
+  document.getElementById('fb15SearchLaunch').addEventListener('click',openSearch); document.getElementById('fb15SearchCancel').addEventListener('click',closeSearch); searchInput.addEventListener('input',renderSearch);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeOverlay();});
+  function openSearch(){state.searchOpen=true;searchScreen.classList.add('open');searchInput.value='';searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';setTimeout(()=>searchInput.focus(),30);}
+  function closeSearch(){state.searchOpen=false;searchScreen.classList.remove('open');searchInput.blur();}
+  function renderSearch(){const q=searchInput.value.trim().toLocaleLowerCase('vi');if(!q){searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';return;}const people=FRIENDS.filter(x=>x.name.toLocaleLowerCase('vi').includes(q));const pages=PAGES.filter(x=>x.toLocaleLowerCase('vi').includes(q));const special='cauã valença'.includes(q)||'cauã'.includes(q)?[{name:'Cauã Valença',city:'Rio de Janeiro',detail:'Chủ quán · Tổ chức sự kiện tại Subsolo',self:true}]:[];let out='';[...special,...people].slice(0,8).forEach(p=>out+=personRow(p,false));pages.slice(0,8).forEach(p=>out+=`<button clas
+
+=== function npcAvatarUrl / 418201 ===
+function npcAvatarUrl(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name])return './'+FB15_NPC_SPECIAL[name];
+    if(!name||PAGES.includes(name)||NPC_PAGE.test(name))return '';
+    let n=NPC_ASSIGN[name];
+    if(!n){
+      let h=2166136261;
+      for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}
+      const first=name.split(/\s+/)[0].toLowerCase();
+      const pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;
+      n=pool[(h>>>0)%pool.length];
+    }
+    const replacement={48:'R48.png.png',54:'R54.png.png',75:'R75.png.png',97:'R97.png.png'}[n];
+    return replacement?'./'+replacement:'https://dangkhanhke-ui.github.io/caua-phone-preview/assets/facebook/avatars/hd/extra_'+String(n).padStart(3,'0')+'.png';
+  }
+  function npcAvatarAttrs(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name]||!name||PAGES.includes(name)||NPC_PAGE.test(name))return ' data-npc-avatar="image"';
+    let n=NPC_ASSIGN[name];
+    if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase(),pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
+    const i=(n-1)%25,x=(i%5)*25,y=Math.floor(i/5)*25;
+    const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
+    return ' data-npc-avatar="image" style="--fb15-avatar-fallback:url(&quot;./assets/facebook/avatars/'+file+'&quot;);--fb15-avatar-pos-x:'+x+'%;--fb15-avatar-pos-y:'+y+'%"';
+  }
+  function npcAvatarPhoto(name){
+    const src=npcAvatarUrl(name);
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
+  }
+
+  const authorType=n=>PAGES.includes(n)?'page':'friend';
+  function setMainTop(){top.classList.remove('sub'); title.textContent='Facebook';}
+  function setSubTop(t){top.classList.add('sub');title.textContent=t;}
+  function setTabs(on){tabbar.style.display=on?'grid':'none';content.classList.toggle('no-tabs',!on);}
+  function openApp(){app.classList.add('open');screen.classList.add('facebook-open');state.tab='feed';state.stack=[];state.feedCount=10;setTabs(true);setMainTop();renderTab('feed');}
+  function closeApp(){app.classList.remove('open');screen.classList.remove('facebook-open');closeSearch();closeOverlay();}
+  launch.addEventListener('click',openApp); home?.addEventListener('click',()=>{if(app.classList.contains('open')) closeApp();});
+  document.querySelectorAll('[data-fbtab]').forEach(b=>b.addEventListener('click',()=>{state.stack=[];state.tab=b.dataset.fbtab;document.querySelectorAll('[data-fbtab]').forEach(x=>x.classList.toggle('active',x===b));setTabs(true);setMainTop();renderTab(state.tab);}));
+  document.getElementById('fb15Back').addEventListener('click',()=>{if(state.stack.length){const prev=state.stack.pop();renderPage(prev.kind,prev.arg,false);}else{setTabs(true);setMainTop();renderTab(state.tab);}});
+  document.getElementById('fb15SearchLaunch').addEventListener('click',openSearch); document.getElementById('fb15SearchCancel').addEventListener('click',closeSearch); searchInput.addEventListener('input',renderSearch);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeOverlay();});
+  function openSearch(){state.searchOpen=true;searchScreen.classList.add('open');searchInput.value='';searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';setTimeout(()=>searchInput.focus(),30);}
+  function closeSearch(){state.searchOpen=false;searchScreen.classList.remove('open');searchInput.blur();}
+  function renderSearch(){const q=searchInput.value.trim().toLocaleLowerCase('vi');if(!q){searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';return;}const people=FRIENDS.filter(x=>x.name.toLocaleLowerCase('vi').includes(q));const pages=PAGES.filter(x=>x.toLocaleLowerCase('vi').includes(q));const special='cauã valença'.includes(q)||'cauã'.includes(q)?[{name:'Cauã Valença',city:'Rio de Janeiro',detail:'Chủ quán · Tổ chức sự kiện tại Subsolo',self:true}]:[];let out='';[...special,...people].slice(0,8).forEach(p=>out+=personRow(p,false));pages.slice(0,8).forEach(p=>out+=`<button class="fb15-page-item" data-page="${esc(p)}"><span class="fb15-page-logo">${esc(initials(p))}</span><span><strong>${esc(p)}</strong><small>Trang</small></span></button>`);if(q.includes('subsolo'))out+=`<button class="fb15-page-item" data-page="Subsolo"><span class="fb15-page-logo">S</span><span><strong>Subsolo</strong><small>Địa điểm · Rio de Janeiro</small></span></button>`;searchResults.innerHTML=out||'<div class="fb15-search-empty">Không tìm thấy kết quả.</div>';wireCommon(searchResults);}
+  function renderTab(tab){content.scrollTop=0;if(tab==='feed')return renderFeed();if(tab==='requests')return renderRequests();if(
+
+=== function npcAvatarAttrs / 418992 ===
+function npcAvatarAttrs(name){
+    name=String(name||'').trim();
+    if(FB15_NPC_SPECIAL[name]||!name||PAGES.includes(name)||NPC_PAGE.test(name))return ' data-npc-avatar="image"';
+    let n=NPC_ASSIGN[name];
+    if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase(),pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
+    const i=(n-1)%25,x=(i%5)*25,y=Math.floor(i/5)*25;
+    const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
+    return ' data-npc-avatar="image" style="--fb15-avatar-fallback:url(&quot;./assets/facebook/avatars/'+file+'&quot;);--fb15-avatar-pos-x:'+x+'%;--fb15-avatar-pos-y:'+y+'%"';
+  }
+  function npcAvatarPhoto(name){
+    const src=npcAvatarUrl(name);
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
+  }
+
+  const authorType=n=>PAGES.includes(n)?'page':'friend';
+  function setMainTop(){top.classList.remove('sub'); title.textContent='Facebook';}
+  function setSubTop(t){top.classList.add('sub');title.textContent=t;}
+  function setTabs(on){tabbar.style.display=on?'grid':'none';content.classList.toggle('no-tabs',!on);}
+  function openApp(){app.classList.add('open');screen.classList.add('facebook-open');state.tab='feed';state.stack=[];state.feedCount=10;setTabs(true);setMainTop();renderTab('feed');}
+  function closeApp(){app.classList.remove('open');screen.classList.remove('facebook-open');closeSearch();closeOverlay();}
+  launch.addEventListener('click',openApp); home?.addEventListener('click',()=>{if(app.classList.contains('open')) closeApp();});
+  document.querySelectorAll('[data-fbtab]').forEach(b=>b.addEventListener('click',()=>{state.stack=[];state.tab=b.dataset.fbtab;document.querySelectorAll('[data-fbtab]').forEach(x=>x.classList.toggle('active',x===b));setTabs(true);setMainTop();renderTab(state.tab);}));
+  document.getElementById('fb15Back').addEventListener('click',()=>{if(state.stack.length){const prev=state.stack.pop();renderPage(prev.kind,prev.arg,false);}else{setTabs(true);setMainTop();renderTab(state.tab);}});
+  document.getElementById('fb15SearchLaunch').addEventListener('click',openSearch); document.getElementById('fb15SearchCancel').addEventListener('click',closeSearch); searchInput.addEventListener('input',renderSearch);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeOverlay();});
+  function openSearch(){state.searchOpen=true;searchScreen.classList.add('open');searchInput.value='';searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';setTimeout(()=>searchInput.focus(),30);}
+  function closeSearch(){state.searchOpen=false;searchScreen.classList.remove('open');searchInput.blur();}
+  function renderSearch(){const q=searchInput.value.trim().toLocaleLowerCase('vi');if(!q){searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';return;}const people=FRIENDS.filter(x=>x.name.toLocaleLowerCase('vi').includes(q));const pages=PAGES.filter(x=>x.toLocaleLowerCase('vi').includes(q));const special='cauã valença'.includes(q)||'cauã'.includes(q)?[{name:'Cauã Valença',city:'Rio de Janeiro',detail:'Chủ quán · Tổ chức sự kiện tại Subsolo',self:true}]:[];let out='';[...special,...people].slice(0,8).forEach(p=>out+=personRow(p,false));pages.slice(0,8).forEach(p=>out+=`<button class="fb15-page-item" data-page="${esc(p)}"><span class="fb15-page-logo">${esc(initials(p))}</span><span><strong>${esc(p)}</strong><small>Trang</small></span></button>`);if(q.includes('subsolo'))out+=`<button class="fb15-page-item" data-page="Subsolo"><span class="fb15-page-logo">S</span><span><strong>Subsolo</strong><small>Địa điểm · Rio de Janeiro</small></span></button>`;searchResults.innerHTML=out||'<div class="fb15-search-empty">Không tìm thấy kết quả.</div>';wireCommon(searchResults);}
+  function renderTab(tab){content.scrollTop=0;if(tab==='feed')return renderFeed();if(tab==='requests')return renderRequests();if(tab==='messages')return renderMessages();if(tab==='notifications')return renderNotifications();renderMore();}
+  function postMedia(p,profile=false){if(p.sponsored&&p.media==='ad'){const src=esc(p.source||'');const hasImg=!!(p.imageKey&&ASSET[p.imageKey]);const cls=p.adStyle==='side-game'?'game':'law';const icon=cls==='game'?'':'§';const thumb=hasImg?`<div class="fb15-ad-thumb photo"><img src="${ASSET[p.imageKey]}" alt="" /></div>`:`<div class="fb15-ad-thumb ${cls}">${icon}</div>`;return `<div class="fb15-ad-card side">${thumb}<div class="fb15-ad-sidecopy"><strong>${esc(p.author)}</strong><div class="fb15-ad-source">${src}</div></div></div>`;}if(profile&&PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'))return `<di
+
+=== function npcAvatarPhoto / 419754 ===
+function npcAvatarPhoto(name){
+    const src=npcAvatarUrl(name);
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
+  }
+
+  const authorType=n=>PAGES.includes(n)?'page':'friend';
+  function setMainTop(){top.classList.remove('sub'); title.textContent='Facebook';}
+  function setSubTop(t){top.classList.add('sub');title.textContent=t;}
+  function setTabs(on){tabbar.style.display=on?'grid':'none';content.classList.toggle('no-tabs',!on);}
+  function openApp(){app.classList.add('open');screen.classList.add('facebook-open');state.tab='feed';state.stack=[];state.feedCount=10;setTabs(true);setMainTop();renderTab('feed');}
+  function closeApp(){app.classList.remove('open');screen.classList.remove('facebook-open');closeSearch();closeOverlay();}
+  launch.addEventListener('click',openApp); home?.addEventListener('click',()=>{if(app.classList.contains('open')) closeApp();});
+  document.querySelectorAll('[data-fbtab]').forEach(b=>b.addEventListener('click',()=>{state.stack=[];state.tab=b.dataset.fbtab;document.querySelectorAll('[data-fbtab]').forEach(x=>x.classList.toggle('active',x===b));setTabs(true);setMainTop();renderTab(state.tab);}));
+  document.getElementById('fb15Back').addEventListener('click',()=>{if(state.stack.length){const prev=state.stack.pop();renderPage(prev.kind,prev.arg,false);}else{setTabs(true);setMainTop();renderTab(state.tab);}});
+  document.getElementById('fb15SearchLaunch').addEventListener('click',openSearch); document.getElementById('fb15SearchCancel').addEventListener('click',closeSearch); searchInput.addEventListener('input',renderSearch);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeOverlay();});
+  function openSearch(){state.searchOpen=true;searchScreen.classList.add('open');searchInput.value='';searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';setTimeout(()=>searchInput.focus(),30);}
+  function closeSearch(){state.searchOpen=false;searchScreen.classList.remove('open');searchInput.blur();}
+  function renderSearch(){const q=searchInput.value.trim().toLocaleLowerCase('vi');if(!q){searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';return;}const people=FRIENDS.filter(x=>x.name.toLocaleLowerCase('vi').includes(q));const pages=PAGES.filter(x=>x.toLocaleLowerCase('vi').includes(q));const special='cauã valença'.includes(q)||'cauã'.includes(q)?[{name:'Cauã Valença',city:'Rio de Janeiro',detail:'Chủ quán · Tổ chức sự kiện tại Subsolo',self:true}]:[];let out='';[...special,...people].slice(0,8).forEach(p=>out+=personRow(p,false));pages.slice(0,8).forEach(p=>out+=`<button class="fb15-page-item" data-page="${esc(p)}"><span class="fb15-page-logo">${esc(initials(p))}</span><span><strong>${esc(p)}</strong><small>Trang</small></span></button>`);if(q.includes('subsolo'))out+=`<button class="fb15-page-item" data-page="Subsolo"><span class="fb15-page-logo">S</span><span><strong>Subsolo</strong><small>Địa điểm · Rio de Janeiro</small></span></button>`;searchResults.innerHTML=out||'<div class="fb15-search-empty">Không tìm thấy kết quả.</div>';wireCommon(searchResults);}
+  function renderTab(tab){content.scrollTop=0;if(tab==='feed')return renderFeed();if(tab==='requests')return renderRequests();if(tab==='messages')return renderMessages();if(tab==='notifications')return renderNotifications();renderMore();}
+  function postMedia(p,profile=false){if(p.sponsored&&p.media==='ad'){const src=esc(p.source||'');const hasImg=!!(p.imageKey&&ASSET[p.imageKey]);const cls=p.adStyle==='side-game'?'game':'law';const icon=cls==='game'?'':'§';const thumb=hasImg?`<div class="fb15-ad-thumb photo"><img src="${ASSET[p.imageKey]}" alt="" /></div>`:`<div class="fb15-ad-thumb ${cls}">${icon}</div>`;return `<div class="fb15-ad-card side">${thumb}<div class="fb15-ad-sidecopy"><strong>${esc(p.author)}</strong><div class="fb15-ad-source">${src}</div></div></div>`;}if(profile&&PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'))return `<div class="fb15-media photo ${esc(p.mediaRatio||'landscape')}"><img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="" /></div>`;if(p.imageKey&&ASSET[p.imageKey]&&p.media==='link'){const ttl=p.headline||p.text||'Nội dung đã lưu',src=p.source||p.author,desc=p.description||'';return `<div class="fb15-linkcard"><div class="fb15-link-thumb photo"><img src="${ASSET[p.imageKey]}" alt="" /></div><div class="fb15-link-body"><div class="fb15-link-title">${esc(ttl)}</div>${desc?`<div class="fb15-link-desc">${esc(desc)}</div>`:''}<div class="fb15-link-source">${esc(src)}</div></div></div>`;}if(p.imageKey&&ASSET[p.imageKey])return `<div class="fb15-media photo ${esc(p.mediaRatio||'landscape')}"><img src="${ASSET[p.imageKey]}" alt="" /></div>`;if(p.media==='placeholder')retu
