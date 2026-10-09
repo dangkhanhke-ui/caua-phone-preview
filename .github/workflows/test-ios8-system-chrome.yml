@@ -129,7 +129,7 @@ jobs:
               for(const [app,contrast] of [
                 ['messages','dark'],['notes','dark'],['calendar','dark'],
                 ['safari','dark'],['phone','dark'],['voice','dark'],
-                ['whatsapp','light'],['itau','light']]){
+                ['whatsapp','light'],['itau','light'],['itau-biz','light']]){
                 const t=await newPage();
                 await t.evaluate(appName=>document.querySelector('[data-app="'+appName+'"]')?.click(),app);
                 await t.waitForTimeout(280);
@@ -145,7 +145,8 @@ jobs:
               }
               // The phone's parent can scale; glyph ratios must remain native
               // and their sizes must not jump independently of other UI.
-              const ratios=await p.evaluate(()=>{
+              const scalePage=await newPage();
+              const ratios=await scalePage.evaluate(()=>{
                 const phone=document.querySelector('#phoneWrap'), root=document.documentElement;
                 const status=document.querySelector('#statusBar'), s=document.querySelector('#screen');
                 const initial=root.style.getPropertyValue('--phone-scale');
@@ -161,6 +162,7 @@ jobs:
                 return measured;
               });
               console.log(name,'RESPONSIVE_RATIOS',JSON.stringify(ratios));
+              await scalePage.close();
               if(ratios.some(r=>Math.abs(r.battery/r.screen-21/320)>.004||
                                   Math.abs(r.wifi/r.screen-10.5/320)>.004||
                                   Math.abs(r.status/r.screen-1)>.004))
