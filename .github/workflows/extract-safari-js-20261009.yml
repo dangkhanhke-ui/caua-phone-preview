@@ -1,0 +1,74 @@
+name: Extract Safari JavaScript
+on:
+  push:
+    paths:
+      - '.github/workflows/extract-safari-js-20261009.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: safari-js-extraction
+  cancel-in-progress: false
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract Safari script without changing execution order
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, hashlib
+          html=Path('index.html')
+          source=html.read_text(encoding='utf-8')
+          dst=Path('js/safari.js')
+          if dst.exists():
+              if '<script src="js/safari.js"></script>' in source:
+                  print('Already extracted; no changes needed')
+                  raise SystemExit(0)
+              raise SystemExit('Destination exists but script reference is missing')
+          pattern=re.compile(r'<script(?P<attrs>[^>]*)>(?P<body>[\s\S]*?)</script\s*>',re.I)
+          matches=[m for m in pattern.finditer(source) if "document.getElementById('safariApp')" in m.group('body')]
+          if len(matches)!=1:raise SystemExit(f'Expected exactly one Safari script; found {len(matches)}')
+          match=matches[0]
+          attrs=match.group('attrs').strip()
+          if attrs:raise SystemExit(f'Safari script has unexpected attributes: {attrs}')
+          body=match.group('body')
+          if "document.getElementById('safariPage')" not in body or 'function showTabs(' not in body:
+              raise SystemExit('Safari code markers missing; refusing extraction')
+          if re.search(r'\bdocument\.write\s*\(|\bdocument\.currentScript\b',body):
+              raise SystemExit('Potential inline script dependency needs manual review')
+          # Preserve every JS byte, retaining the original parser-execution position.
+          dst.parent.mkdir(exist_ok=True)
+          dst.write_text(body,encoding='utf-8')
+          new=source[:match.start()]+'<script src="js/safari.js"></script>'+source[match.end():]
+          reconstructed=new.replace('<script src="js/safari.js"></script>',match.group(0),1)
+          if reconstructed!=source:raise SystemExit('Round-trip HTML validation failed')
+          if dst.read_text(encoding='utf-8')!=body:raise SystemExit('JS bytes differ')
+          html.write_text(new,encoding='utf-8')
+          print('Safari JS extracted:',len(body.encode('utf-8')),'bytes')
+          print('HTML size:',len(source.encode('utf-8')),'->',len(new.encode('utf-8')))
+          print('sha256:',hashlib.sha256(body.encode('utf-8')).hexdigest())
+          PY
+      - name: Validate JS syntax and linked file
+        run: |
+          node --check js/safari.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html').read_text(encoding='utf-8')
+          assert p.count('<script src="js/safari.js"></script>')==1
+          assert Path('js/safari.js').is_file()
+          assert "document.getElementById('safariApp')" in Path('js/safari.js').read_text(encoding='utf-8')
+          print('Safari JS structure and parser order: OK')
+          PY
+      - name: Commit Safari-only extraction
+        run: |
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard js/safari.js)" ]; then
+            echo "No migration changes"; exit 0
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html js/safari.js
+          git commit -m "Extract standalone Safari JavaScript preserving execution order"
+          git pull --rebase origin main
+          git push
