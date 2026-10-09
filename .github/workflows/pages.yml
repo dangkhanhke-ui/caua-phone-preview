@@ -35,6 +35,20 @@ jobs:
             test -f assets/facebook/avatars/hd/extra_001.png
             test -f assets/facebook/avatars/hd/extra_050.png
           fi
+      - name: Unpack HD avatar batches 3 and 4
+        run: |
+          archive=''
+          for candidate in npc_batch3_4_combined_hd*.zip; do
+            if [ -f "$candidate" ]; then archive="$candidate"; break; fi
+          done
+          if [ -n "$archive" ]; then
+            echo "Extracting batch 3 and 4 from $archive"
+            unzip -oq "$archive" -d .
+            test -f assets/facebook/avatars/hd/extra_051.png
+            test -f assets/facebook/avatars/hd/extra_100.png
+          else
+            echo "Batch 3+4 ZIP not uploaded yet; existing avatars remain intact"
+          fi
       - name: Verify static site
         run: test -f index.html
       - name: Configure Pages
