@@ -261,7 +261,8 @@ function viewSetup(){
  {title:'Sắp theo tên '+(sort==='name'?'✓':''),run:()=>{sort='name';save();render()}},
  {title:'Sắp theo ngày '+(sort==='date'?'✓':''),run:()=>{sort='date';save();render()}},
  {title:'Thùng rác',run:()=>{const gone=entries.filter(e=>e.deleted);
-  sheet('Thùng rác',gone.length?[...gone.map(f=>({title:f.filename+' — khôi phục',run:()=>{f.deleted=false;save();render()}})),{title:'Xóa vĩnh viễn các bản sao',danger:true,run:()=>{entries=entries.filter(e=>!e.copied||!e.deleted);save();render()}}]:[{title:'Thùng rác trống',run:()=>{}}]);
+  if(!gone.length){toast('Thùng rác trống');return;}
+  sheet('Thùng rác',[...gone.map(f=>({title:f.filename+' — khôi phục',run:()=>{f.deleted=false;save();render()}})),{title:'Xóa vĩnh viễn các bản sao',danger:true,run:()=>{entries=entries.filter(e=>!e.copied||!e.deleted);save();render()}}]);
  }}
  ]);
 }
