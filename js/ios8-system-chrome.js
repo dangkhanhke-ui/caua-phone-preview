@@ -128,7 +128,7 @@
      .filter(el=>{
        if(!el?.classList.contains('open'))return false;
        const style=getComputedStyle(el);
-       return style.display!=='none' && style.visibility!=='hidden' && Number(style.opacity||1)>.1;
+       return style.display!=='none' && style.visibility!=='hidden'; // .open is authoritative even during fade-in
      })
      .sort((a,b)=>Number(getComputedStyle(b).zIndex||0)-Number(getComputedStyle(a).zIndex||0))[0];
    if(active)return getComputedStyle(active).backgroundColor;
