@@ -114,7 +114,35 @@ jobs:
               await page.keyboard.press('Escape');
               const afterEscape=await page.evaluate(()=>document.querySelectorAll('.fb-photo-clean').length);
               if(afterEscape)throw Error(name+' Escape close failed');
-              console.log(name,'PASS full-profile photo open/close/Escape');
+              // The user's regression is inside Cauã > Ảnh, not only cover.
+              const gallery=await page.evaluate(()=>{
+                const tab=document.querySelector('#facebookApp [data-ptab="photos"]');
+                if(!tab)return {error:'photos tab missing'};
+                tab.click();
+                const images=document.querySelectorAll('#facebookApp .fb15-photo-grid img');
+                if(!images.length)return {error:'profile image grid empty'};
+                const src=images[0].getAttribute('src');
+                images[0].click();
+                return {count:images.length,src};
+              });
+              console.log(name,'PROFILE_PHOTOS',JSON.stringify(gallery));
+              if(gallery.error)throw Error(name+' profile photos: '+gallery.error);
+              await page.waitForTimeout(500);
+              const gridResult=await page.evaluate(()=>{
+                const screen=document.querySelector('#screen'),panel=screen.querySelector(':scope > .fb-photo-clean'),r=screen.getBoundingClientRect();
+                const image=panel?.querySelector('img');
+                const covered=[5,40,115,170,260,r.height-10].every(y=>document.elementFromPoint(r.left+r.width/2,r.top+y)?.closest('.fb-photo-clean')===panel);
+                return {onlyOne:document.querySelectorAll('.fb-photo-clean,.caua-photo-overlay,.fb15-lightbox,.fb15-image-viewer').length===1,
+                  panel:!!panel,covered,barHidden:getComputedStyle(document.querySelector('#statusBar')).visibility==='hidden',
+                  appHidden:getComputedStyle(document.querySelector('#facebookApp')).visibility==='hidden',
+                  imageWidth:image?.naturalWidth||0,src:image?.getAttribute('src')};
+              });
+              console.log(name,'PROFILE_PHOTOS_OPEN',JSON.stringify(gridResult));
+              await page.screenshot({path:'/tmp/fb-'+name+'-profile-photos.png'});
+              if(!gridResult.panel||!gridResult.onlyOne||!gridResult.covered||!gridResult.barHidden||!gridResult.appHidden||!gridResult.imageWidth)throw Error(name+' profile gallery fullscreen check failed');
+              await page.locator('#screen .fb-photo-clean-back').click();
+              if(await page.locator('#screen .fb-photo-clean').count())throw Error(name+' gallery did not close');
+              console.log(name,'PASS profile cover AND profile photo grid open/close/Escape');
             } finally {await browser.close();}
           }
           (async()=>{await one('chromium',chromium);await one('webkit',webkit)})().catch(e=>{console.error('FAIL:',e.stack||e);process.exit(1)});
