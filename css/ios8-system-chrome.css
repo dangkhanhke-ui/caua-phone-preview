@@ -3,7 +3,7 @@
   --ios8-ink:#fff;
   color:var(--ios8-ink)!important;
   text-shadow:0 1px 1px rgba(0,0,0,.09);
-  transition:color 170ms ease,background-color 170ms ease;
+  transition:none!important; /* immediate ink swap; WebKit must not fade white over white */
   display:grid;
   grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
   align-items:center;

@@ -55,7 +55,7 @@ jobs:
                 return {buttons:b.length,allSVG:[...b].every(x=>!!x.querySelector('svg.ios8-tool-svg')),photosOpen:document.querySelector('#screen').classList.contains('photos-open'),contrast:document.querySelector('#statusBar').dataset.ios8Contrast,foreground:getComputedStyle(document.querySelector('#statusBar')).color,firstImage:img?.getAttribute('src')};
               });
               console.log(name,'PHOTOS',JSON.stringify(photos));
-              if(photos.buttons!==3||!photos.allSVG||!photos.photosOpen||photos.contrast!=='dark')throw Error('Photos toolbar or status contrast incorrect');
+              if(photos.buttons!==3||!photos.allSVG||!photos.photosOpen||photos.contrast!=='dark'||photos.foreground!=='rgb(32, 33, 36)')throw Error('Photos toolbar or actual visible status ink incorrect');
               await p.close();
 
               const m=await newPage();
@@ -97,7 +97,7 @@ jobs:
               await f.waitForTimeout(450);
               const fb=await f.evaluate(()=>({opened:document.querySelector('#screen').classList.contains('facebook-open'),mode:document.querySelector('#statusBar').dataset.ios8Contrast,fg:getComputedStyle(document.querySelector('#statusBar')).color}));
               console.log(name,'FACEBOOK',JSON.stringify(fb));
-              if(!fb.opened||fb.mode!=='light')throw Error('Facebook light-on-blue contrast failed');
+              if(!fb.opened||fb.mode!=='light'||fb.fg!=='rgb(255, 255, 255)')throw Error('Facebook actual white-on-blue contrast failed');
               await f.close();
               console.log(name,'PASS Photos, Mail, GoodReader, status contrast');
             } finally{await browser.close();}
