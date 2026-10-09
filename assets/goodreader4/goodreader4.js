@@ -212,7 +212,17 @@ function moveSelected(){
  const ids=[...selected];if(!ids.length){toast('Chọn một tệp để di chuyển');return;}
  const buttons=[{title:'My Documents',run:()=>moveTo([])},...folders.map(p=>({title:pathLabel(p),run:()=>moveTo(p)}))];
  function moveTo(dest){
-  for(const id of ids){const f=find(id);if(f)f.path=[...dest];}
+  for(const id of ids){
+   const f=find(id);
+   if(f){f.path=[...dest];continue;}
+   const oldPath=folders.find(p=>folderId(p)===id);
+   if(!oldPath)continue;
+   const prefix=(p,base)=>base.every((v,i)=>p[i]===v);
+   if(prefix(dest,oldPath)){toast('Không thể chuyển thư mục vào chính nó');continue;}
+   const newPath=[...dest,oldPath.at(-1)];
+   folders=folders.map(p=>prefix(p,oldPath)?[...newPath,...p.slice(oldPath.length)]:p);
+   entries.forEach(e=>{if(prefix(e.path,oldPath))e.path=[...newPath,...e.path.slice(oldPath.length)];});
+  }
   selected.clear();mode='normal';save();render();toast('Đã di chuyển '+ids.length+' tệp');
  }
  sheet('Di chuyển đến',buttons);
