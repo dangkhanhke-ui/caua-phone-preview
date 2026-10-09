@@ -1,0 +1,4 @@
+facebook.FEED: 47 records; 25658 bytes
+facebook.PROFILE_POSTS: 31 records; 24245 bytes
+facebook.FRIENDS: 69 records; 4028 bytes
+whatsapp.THREADS: expected 1 declaration, got 0
