@@ -23,3 +23,39 @@
   z-index:1;
   background:#fff;
 }
+
+
+/* Facebook 2015 profile: opaque sticky tabs with an independent covering plane.
+   Important: a sticky child cannot outpaint every independently positioned image
+   unless its own paint plane and stacking order are explicit. */
+.fb15-content .fb15-profile-tabs{
+  position:sticky!important;
+  top:0!important;
+  z-index:80!important;
+  isolation:isolate!important;
+  background:#fff!important;
+  background-image:linear-gradient(#fff,#fff)!important;
+  opacity:1!important;
+  overflow:hidden!important;
+  transform:translateZ(0);
+  -webkit-transform:translateZ(0);
+  box-shadow:0 -2px 0 2px #fff, 0 1px 0 #cfd2d8!important;
+}
+.fb15-content .fb15-profile-tabs::before{
+  content:"";
+  position:absolute;
+  inset:-3px 0 0;
+  z-index:-1;
+  background:#fff;
+  pointer-events:none;
+}
+.fb15-content .fb15-profile-tab{
+  position:relative;
+  z-index:1;
+  background:#fff!important;
+}
+.fb15-content .fb15-profile-cover,
+.fb15-content .fb15-profile-avatar,
+.fb15-content .fb15-profile-hero{
+  isolation:isolate;
+}
