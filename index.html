@@ -3343,6 +3343,11 @@ body.caua-immersive #caua-home-gesture{display:flex}
 body.caua-immersive #caua-home-gesture{width:132px;height:28px;padding-bottom:6px}
 body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
 #caua-home-gesture{transition:transform .13s ease-out,opacity .13s ease-out;user-select:none;-webkit-user-select:none}
+</style><style id="caua-gesture-v3-smooth">
+body.caua-immersive #screen{touch-action:pan-x pan-y}
+body.caua-immersive #caua-home-gesture{pointer-events:auto;touch-action:none;transition:transform .18s cubic-bezier(.18,.8,.25,1),opacity .18s;transform:translate(-50%,var(--gesture-rise,0px));width:140px;height:29px}
+body.caua-immersive #screen.caua-gesture-active #caua-home-gesture{transition:none}
+body.caua-immersive #ios8AppSwitcher .ios8-switcher-card{will-change:transform}
 </style></head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -8333,80 +8338,58 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
 const screen=document.getElementById('screen'),home=document.getElementById('homeButton');
 if(!screen||!home)return;
 const button=document.createElement('button');button.id='caua-immersive-toggle';button.type='button';
-button.setAttribute('aria-label','Bật hoặc tắt chế độ toàn màn hình');
-document.body.appendChild(button);
+button.setAttribute('aria-label','Bật hoặc tắt chế độ toàn màn hình');document.body.appendChild(button);
 const handle=document.createElement('div');handle.id='caua-home-gesture';
-handle.setAttribute('role','button');handle.setAttribute('aria-label','Vuốt lên để về Home; vuốt xa và giữ để mở đa nhiệm');
+handle.setAttribute('role','button');handle.setAttribute('aria-label','Vuốt từ cạnh dưới về Home; vuốt rồi giữ để mở đa nhiệm');
 handle.tabIndex=0;screen.appendChild(handle);
-let active=false,gesture=null,lastTap=0,holdTimer=0;
-function fit(){
- const vw=window.visualViewport?.width||window.innerWidth,vh=window.visualViewport?.height||window.innerHeight;
- document.documentElement.style.setProperty('--immersive-scale',Math.min(vw/320,vh/568).toFixed(5));
+let active=false,g=null,frame=0,hold=0,homePending=0,tapTime=0;
+const switcher=document.getElementById('ios8AppSwitcher');
+function fit(){const vp=window.visualViewport;document.documentElement.style.setProperty('--immersive-scale',Math.min((vp?.width||innerWidth)/320,(vp?.height||innerHeight)/568).toFixed(5))}
+function setMode(on){active=!!on;document.body.classList.toggle('caua-immersive',active);button.textContent=active?'⤢ thu nhỏ':'⛶ phóng lớn';button.setAttribute('aria-pressed',String(active));if(!active)cancel();fit()}
+function locked(){return !!(document.getElementById('lockScreen')?.classList.contains('active')||document.getElementById('passcodeScreen')?.classList.contains('active'))}
+function goHome(){if(active)home.click()}
+function multitask(){if(!active||locked()||switcher?.classList.contains('open'))return;clearTimeout(homePending);homePending=0;home.click();home.click()}
+function resetVisual(){cancelAnimationFrame(frame);frame=0;handle.style.removeProperty('--gesture-rise');screen.classList.remove('caua-gesture-active')}
+function cancel(){clearTimeout(hold);hold=0;g=null;resetVisual()}
+function paint(){frame=0;if(!g)return;handle.style.setProperty('--gesture-rise',(-Math.min(18,g.dy*.16))+'px')}
+function moved(e){if(!g||e.pointerId!==g.id)return;
+ const dx=e.clientX-g.x,dy=g.y-e.clientY;g.dy=Math.max(0,dy);
+ if(Math.abs(dx)>Math.max(35,g.dy*1.2)){cancel();return}
+ if(g.dy>8){g.moved=true;if(!frame)frame=requestAnimationFrame(paint)}
+ if(g.dy>65&&!hold&&!g.triggered){
+   hold=setTimeout(()=>{hold=0;if(g&&g.dy>65&&!g.triggered){g.triggered=true;multitask();resetVisual()}},290);
+ }else if(g.dy<53&&hold){clearTimeout(hold);hold=0}
+ if(g.moved&&e.cancelable)e.preventDefault();
 }
-function setMode(on){
- active=!!on;document.body.classList.toggle('caua-immersive',active);
- button.textContent=active?'⤢ thu nhỏ':'⛶ phóng lớn';
- button.setAttribute('aria-pressed',String(active));fit();
+function down(e){
+ if(!active||g||e.isPrimary===false||e.button>0)return;
+ const r=screen.getBoundingClientRect();
+ // Edge-only activation leaves app scrolling, photo pan and tap gestures untouched.
+ if(e.clientY<r.bottom-Math.max(28,r.height*.065)||e.clientY>r.bottom+5||e.clientX<r.left||e.clientX>r.right)return;
+ if(e.target.closest('input,textarea,select,[contenteditable="true"]'))return;
+ g={id:e.pointerId,x:e.clientX,y:e.clientY,dy:0,moved:false,triggered:false,start:performance.now()};
+ screen.classList.add('caua-gesture-active');
 }
-function goHome(){if(active)home.click();}
-function openSwitcher(){
- if(!active)return;
- const switcher=document.getElementById('ios8AppSwitcher');
- if(switcher?.classList.contains('open'))return;
- if(document.getElementById('lockScreen')?.classList.contains('active')||
-    document.getElementById('passcodeScreen')?.classList.contains('active'))return;
- // Existing iOS8 home-button handler opens the app switcher on two quick presses.
- home.click();home.click();
-}
-function clearGesture(){
- if(holdTimer)clearTimeout(holdTimer);holdTimer=0;
- handle.style.transform='translateX(-50%)';handle.style.opacity='';
- gesture=null;
+function up(e){
+ if(!g||e.pointerId!==g.id)return;
+ const d=g.dy,triggered=g.triggered,duration=performance.now()-g.start;
+ cancel();if(triggered)return;
+ if(d>88&&duration>230){multitask();return}
+ if(d>25){clearTimeout(homePending);homePending=0;goHome();return}
+ if(d<9&&e.target.closest('#caua-home-gesture')){
+   const now=performance.now();
+   if(now-tapTime<290){tapTime=0;clearTimeout(homePending);homePending=0;multitask()}
+   else{tapTime=now;clearTimeout(homePending);homePending=setTimeout(()=>{homePending=0;goHome()},300)}
+ }
 }
 button.addEventListener('click',()=>setMode(!active));
-handle.addEventListener('pointerdown',e=>{
- if(!active||gesture||e.button>0)return;
- gesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastY:e.clientY,started:performance.now(),switched:false,travel:0};
- try{handle.setPointerCapture(e.pointerId)}catch(_){}
- e.preventDefault();e.stopPropagation();
-});
-handle.addEventListener('pointermove',e=>{
- const g=gesture;if(!g||g.id!==e.pointerId)return;
- const dy=e.clientY-g.startY,dx=e.clientX-g.startX;
- g.lastY=e.clientY;g.travel=Math.max(0,-dy);
- if(Math.abs(dx)>85){clearGesture();return}
- const offset=-Math.min(11,g.travel/11);
- handle.style.transform='translate(-50%,'+offset+'px)';
- if(g.travel>=90&&!holdTimer&&!g.switched){
-   holdTimer=setTimeout(()=>{
-     holdTimer=0;
-     if(gesture===g&&g.travel>=90){g.switched=true;openSwitcher()}
-   },240);
- }
- if(g.travel<75&&holdTimer){clearTimeout(holdTimer);holdTimer=0}
- e.preventDefault();
-});
-handle.addEventListener('pointerup',e=>{
- const g=gesture;if(!g||g.id!==e.pointerId)return;
- const travelled=g.travel,switched=g.switched,elapsed=performance.now()-g.started;
- clearGesture();
- if(switched)return;
- if(travelled>=115&&elapsed>=230){openSwitcher();return}
- if(travelled>=23){goHome();return}
- if(travelled<12){
-   const now=performance.now();
-   if(now-lastTap<330){lastTap=0;openSwitcher()}else{lastTap=now;goHome()}
- }
- e.preventDefault();e.stopPropagation();
-});
-handle.addEventListener('pointercancel',clearGesture);
+screen.addEventListener('pointerdown',down,true);
+screen.addEventListener('pointermove',moved,true);
+screen.addEventListener('pointerup',up,true);
+screen.addEventListener('pointercancel',cancel,true);
 handle.addEventListener('click',e=>{e.preventDefault();e.stopPropagation()});
-handle.addEventListener('keydown',e=>{
- if(e.key==='Enter'||e.key===' '){e.preventDefault();goHome()}
- if(e.key==='ArrowUp'){e.preventDefault();openSwitcher()}
-});
-window.addEventListener('resize',fit,{passive:true});
-window.visualViewport?.addEventListener('resize',fit,{passive:true});
+handle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();goHome()}else if(e.key==='ArrowUp'){e.preventDefault();multitask()}});
+window.addEventListener('resize',fit,{passive:true});window.visualViewport?.addEventListener('resize',fit,{passive:true});
 fit();setMode(false);
 })();
 </script>
