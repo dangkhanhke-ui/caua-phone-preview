@@ -1,0 +1,90 @@
+name: Extract Embedded Image Assets
+on:
+  push:
+    paths:
+      - '.github/workflows/extract-embedded-assets-20261009.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: embedded-assets-migration
+  cancel-in-progress: false
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move base64 image data URIs into actual image files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,base64,hashlib
+          roots=[Path('index.html')]
+          for d in ('css','js','data'):
+              if Path(d).exists():
+                  roots.extend(p for p in Path(d).rglob('*') if p.suffix.lower() in ('.css','.js','.json') and p.is_file())
+          out=Path('assets/embedded')
+          # Only image data URIs. Leave other base64 content unchanged.
+          pattern=re.compile(r'data:image/(png|jpeg|jpg|webp|gif|svg\+xml|avif);base64,([A-Za-z0-9+/]+={0,2})',re.I)
+          count=0
+          changed=[]
+          manifest={}
+          for p in roots:
+              source=p.read_text(encoding='utf-8')
+              def sub(m):
+                  global count
+                  ext=m.group(1).lower()
+                  ext={'jpeg':'jpg','svg+xml':'svg'}.get(ext,ext)
+                  binary=base64.b64decode(m.group(2),validate=True)
+                  if not binary:raise SystemExit(f'Empty embedded image in {p}')
+                  if len(binary)>15*1024*1024:raise SystemExit(f'Oversized image in {p}')
+                  digest=hashlib.sha256(binary).hexdigest()
+                  name=f'{digest[:24]}.{ext}'
+                  target=out/name
+                  out.mkdir(parents=True,exist_ok=True)
+                  if target.exists() and target.read_bytes()!=binary:
+                      raise SystemExit('Asset filename collision')
+                  target.write_bytes(binary)
+                  manifest[name]=(len(binary),digest)
+                  count+=1
+                  # URL resolution is relative to the file holding the reference.
+                  prefix='../assets/embedded/' if p.parent!=Path('.') else './assets/embedded/'
+                  return prefix+name
+              result=pattern.sub(sub,source)
+              if result!=source:
+                  p.write_text(result,encoding='utf-8')
+                  changed.append(str(p))
+          # Every extracted reference must decode to exactly the original bytes.
+          for name,(length,digest) in manifest.items():
+              b=(out/name).read_bytes()
+              assert len(b)==length and hashlib.sha256(b).hexdigest()==digest
+          print('DATA_URI_IMAGES_REPLACED:',count)
+          print('UNIQUE_IMAGE_FILES:',len(manifest))
+          print('SOURCE_FILES_CHANGED:',changed)
+          print('BYTES_EXTRACTED:',sum(t[0] for t in manifest.values()))
+          if not count:print('No inline base64 image data URIs found; migration is a no-op')
+          PY
+      - name: Confirm source refs exist and script syntax is valid
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for p in [Path('index.html'),*Path('css').rglob('*.css'),*Path('js').rglob('*.js'),*Path('data').rglob('*.js')]:
+              if not p.exists():continue
+              s=p.read_text(encoding='utf-8')
+              for ref in re.findall(r'(?:\.\./|\./)assets/embedded/[a-f0-9]{24}\.(?:png|jpg|webp|gif|svg|avif)',s):
+                  assert (p.parent/ref).resolve().is_file(),(p,ref)
+          print('Embedded image file references verified')
+          PY
+          for f in js/*.js data/*.js; do [ ! -f "$f" ] || node --check "$f"; done
+      - name: Commit image extraction only if needed
+        run: |
+          if [ -z "$(git status --porcelain -- index.html css js data assets/embedded)" ]; then
+            echo "No embedded images to extract"; exit 0
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html css js data assets/embedded
+          git commit -m "Extract remaining base64 image assets without changing pixels"
+          git pull --rebase origin main
+          git push
