@@ -4,7 +4,7 @@ on:
     paths: ['.github/workflows/inspect-social-data-20261009.yml']
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   inspect:
     runs-on: ubuntu-latest
@@ -28,3 +28,22 @@ jobs:
                   if re.search('fb|face|post|feed|friend|comment|chat|wa|message|contact|thread|media',name,re.I):
                       print('DATA_CANDIDATE:',name,'offset',decl.start(),'initial',repr(body[decl.start():decl.start()+105]))
           PY
+      - name: Save inventory to repository
+        run: |
+          mkdir -p qa
+          python3 - <<'PY' > qa/social-script-inventory.txt
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          matches=list(re.finditer(r'<script\\b([^>]*)>([\\s\\S]*?)</script\\s*>',s,re.I))
+          for n,m in enumerate(matches,1):
+              body=m.group(2)
+              print('SCRIPT',n,'BYTES',len(body.encode()),'FB',body.lower().count('facebook'),'WA',body.lower().count('whatsapp'),'START',repr(body[:130]))
+              for line in body.splitlines():
+                  if re.search(r'\\b(?:const|let|var)\\s+\\w*(?:posts?|feed|chats?|messages?|contacts?|threads?|friends?|fbdata|wadata)\\w*\\s*=',line,re.I):
+                      print('DECL',line[:200])
+          PY
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add qa/social-script-inventory.txt
+          git diff --cached --quiet || (git commit -m 'Record social data boundaries' && git pull --rebase && git push)
