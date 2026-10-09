@@ -8397,5 +8397,75 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
   fit();mode(false);
 })();
 </script>
+
+<!-- facebook npc avatars batch 1 (2026-10-09) -->
+<style id="caua-fb-avatar-batch1-css">
+#facebookApp .fb15-author-avatar[data-npc-avatar],
+#facebookApp .fb15-comment-avatar[data-npc-avatar],
+#facebookApp .fb15-person-avatar[data-npc-avatar],
+#facebookApp .fb15-friend-pic[data-npc-avatar] {
+  background-image:url('./assets/facebook/avatars/batch1-sprite.jpg') !important;
+  background-size:500% 500% !important;
+  background-repeat:no-repeat !important;
+  color:transparent !important;
+  font-size:0 !important;
+  text-shadow:none !important;
+  overflow:hidden !important;
+}
+</style>
+<script id="caua-fb-avatar-batch1-script">
+(function(){
+'use strict';
+const app=document.getElementById('facebookApp');
+if(!app)return;
+const assigned={"Gabriel Rocha":2,"Rômulo Braga":4,"Paula Moreira":1,"Camila Ribeiro":5,"Fernanda Coutinho":7,"Thiago Pires":6,"Carolina Nunes":9,"Diego Santana":8,"Marcela Ferreira":12,"Aline Peixoto":3,"Mariana Costa":14,"Felipe Duarte":11,"Marina Campos":16,"Helena Prado":18,"Amanda Freitas":20,"Bruno Vasconcelos":10,"Matheus Queiroz":13,"Igor Ferreira":15,"Júlia Mendes":22,"Gabriela Lins":24,"André Carvalho":17,"Bruno Faria":19,"Gustavo Melo":21,"Galdino Ferreira":23,"João Cardoso":25};
+const female=[1,3,5,7,9,12,14,16,18,20,22,24];
+const male=[2,4,6,8,10,11,13,15,17,19,21,23,25];
+const pageNames=new Set(["G1","O Globo","Folha de S.Paulo","Mídia NINJA","Meu Rio","Flamengo","Globo Esporte","Bóng đá Rio","Kèo cuối tuần","Dự đoán Brasileirão","Circo Voador","Fundição Progresso","Lapa đêm nay","Âm nhạc Rio","Sự kiện Rio","Nhạc độc lập Brazil","Xăm Rio","Nghệ thuật đường phố Rio","Nhiếp ảnh Rio","Thiết kế & Poster","Meme Carioca","Rio có gì hôm nay?","Cuộc sống quán bar","Harvard Business Review Brasil","O Globo - Tin Rio & Brazil","Vận hành quán & sự kiện","Meu Rio - Thành phố & quyền công dân","EXAME - Quản lý & doanh nghiệp nhỏ","Globo Esporte - Bóng đá Brazil","Agência Pública - Báo chí điều tra & quyền công dân","Tâm lý khách hàng trong ngành dịch vụ","Observatório das Metrópoles - Đô thị & bất bình đẳng","VOCÊ S/A - Công việc & sự nghiệp","Đại học công & đời sống sinh viên","Rio sau nửa đêm","G1 - Tin tức Brazil","Folha de S.Paulo - Chính trị & kinh tế","Quản lý quán nhỏ","Mídia NINJA - Tin độc lập & đường phố","Datafolha","Thiết kế poster","Rio & giao thông","Thành phố dành cho ai?"]);
+const femaleFirst=new Set('aline amanda ana beatriz brenda camila carolina fernanda gabriela helena isabela isabella julia júlia letícia luísa luisa marcela mariana marina natália natalia paula priscila rafaela renata jéssica'.split(' '));
+const maleFirst=new Set('andré andre breno bruno caio diego eduardo erik fabio fábio felipe gabriel galdino gustavo henrique igor joão joao leonardo lucas marcos matheus murilo paulo pedro rafael renan renato rodrigo romulo rômulo thiago tiago yan tiago'.split(' '));
+const pageHint=/globo|folha|\bg1\b|mídia|midia|agência|agencia|observatório|business review|datafolha|flamengo|fundição|quản lý|jurídica|tư vấn|giao thông|game agar|rio không|góc xả|thành phố|dược phẩm|empresa|sinh lý|công ty|subsolo/i;
+function hash(str){let h=2166136261;for(const char of str){h^=char.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function pick(name){
+ if(name==='Cauã Valença'||pageNames.has(name)||pageHint.test(name)||!name||name.length>65)return 0;
+ if(assigned[name])return assigned[name];
+ const first=name.split(/\s+/)[0].toLowerCase();
+ let pool=femaleFirst.has(first)?female:maleFirst.has(first)?male:/a$/.test(first)?female:male;
+ return pool[hash(name)%pool.length];
+}
+function nameFor(el){
+ if(el.classList.contains('fb15-author-avatar'))return el.closest('.fb15-post')?.querySelector('.fb15-post-name')?.textContent.trim()||'';
+ if(el.classList.contains('fb15-comment-avatar')){
+   const row=el.closest('.fb15-comment-row,.fb15-reply');
+   return row?.querySelector('.fb15-comment-content strong')?.textContent.trim()||'';
+ }
+ if(el.classList.contains('fb15-person-avatar'))return el.closest('.fb15-person')?.querySelector('.fb15-person-name')?.textContent.trim()||'';
+ if(el.classList.contains('fb15-friend-pic'))return el.closest('.fb15-friend-tile')?.querySelector('span')?.textContent.trim()||'';
+ return '';
+}
+const selector='.fb15-author-avatar,.fb15-comment-avatar,.fb15-person-avatar,.fb15-friend-pic';
+function scan(){
+ for(const el of app.querySelectorAll(selector)){
+  const name=nameFor(el); if(!name)continue;
+  if(el.dataset.npcAvatarName===name)continue;
+  const n=pick(name);
+  el.dataset.npcAvatarName=name;
+  if(!n){el.removeAttribute('data-npc-avatar');el.style.removeProperty('background-position');continue;}
+  el.setAttribute('data-npc-avatar',String(n));
+  const idx=n-1, x=(idx%5)*25, y=Math.floor(idx/5)*25;
+  el.style.setProperty('background-position',x+'% '+y+'%','important');
+ }
+}
+let queued=false;
+const observer=new MutationObserver(records=>{
+ if(queued)return;
+ if(records.every(r=>r.target.closest?.('[data-npc-avatar]')))return;
+ queued=true;
+ requestAnimationFrame(()=>{queued=false;scan();});
+});
+observer.observe(app,{childList:true,subtree:true});
+scan();
+})();
+</script>
 </body>
 </html>
