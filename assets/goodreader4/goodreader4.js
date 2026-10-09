@@ -38,7 +38,7 @@ function init(data){
   if(original)entries.push({...original,...x,type:'file'});
  }}
  const seen=new Map();
- for(const d of entries){for(let i=1;i<=d.path.length;i++){const p=d.path.slice(0,i);seen.set(key(p),p);}}
+ for(const d of entries.filter(x=>!x.deleted)){for(let i=1;i<=d.path.length;i++){const p=d.path.slice(0,i);seen.set(key(p),p);}}
  for(const p of saved.folderNames||[])seen.set(key(p),p);
  folders=[...seen.values()];
  render();
