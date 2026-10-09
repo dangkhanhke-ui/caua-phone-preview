@@ -41,11 +41,17 @@ jobs:
               seen.add(filename)
               # Relative CSS url() references resolve differently after moving directories.
               # Abort safely rather than silently breaking image URLs.
-              for raw in re.findall(r'url\(\s*([^)]*?)\s*\)',body,re.I):
-                  url=raw.strip().strip('"\'')
-                  if url and not (url.startswith(('/', '#', 'data:', 'http:', 'https:', '//'))):
-                      raise SystemExit(f'Relative CSS url requires manual migration: {url}')
-              cssdir.joinpath(filename).write_text(body,encoding='utf-8')
+              # Adjust URLs when moving from repository root into css/.
+              def rewrite_url(m):
+                  raw=m.group(1)
+                  url=raw.strip().strip(chr(34)+chr(39))
+                  if not url or url.startswith(('/', '#', 'data:', 'http:', 'https:', '//')):
+                      return m.group(0)
+                  if url.startswith('../'):
+                      raise SystemExit(f'Parent-relative URL needs manual review: {url}')
+                  return 'url('+raw.replace(url,'../'+url,1)+')'
+              migrated=re.sub(r'url\(\s*([^)]*?)\s*\)',rewrite_url,body,flags=re.I)
+              cssdir.joinpath(filename).write_text(migrated,encoding='utf-8')
               files.append((filename,body,attrs))
               # Preserve the original id in case JavaScript looks it up.
               idattr=f' id="{label_match.group(1)}"' if label_match else ''
