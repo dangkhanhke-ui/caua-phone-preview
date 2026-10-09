@@ -76,7 +76,7 @@ function folderRows(location){
  return [...subs.sort((a,b)=>a.name.localeCompare(b.name,'vi')), ...files.sort((a,b)=>sort==='date'?b.modified.localeCompare(a.modified):a.filename.localeCompare(b.filename,'vi'))];
 }
 function allMatches(term){
- const q=term.trim().toLocaleLowerCase();return entries.filter(e=>!e.deleted&&(!q||[e.filename,...e.path].join(' ').toLocaleLowerCase().includes(q)));
+ const q=term.trim().toLocaleLowerCase();const dirs=folders.filter(p=>!q||p.join(' ').toLocaleLowerCase().includes(q)).map(p=>({id:folderId(p),name:p.at(-1),path:p,type:'folder'}));const docs=entries.filter(e=>!e.deleted&&(!q||[e.filename,...e.path].join(' ').toLocaleLowerCase().includes(q)));return [...dirs,...docs];
 }
 function fileRow(e){
  const isFolder=e.type==='folder',st=stars.has(e.id);
@@ -89,7 +89,7 @@ function setNav(back,title,right){
 }
 function tools(items){el.bar.style.display='flex';el.bar.innerHTML=items.map(a=>'<button type="button" data-gr="'+esc(a.id)+'" class="'+(a.active?'active':'')+'"><span>'+a.icon+'</span>'+esc(a.label)+'</button>').join('');}
 function renderFiles(){
- const rows=view==='files'?folderRows(path):view==='find'?allMatches(query):view==='recents'?recents.map(find).filter(x=>x&&!x.deleted):entries.filter(x=>!x.deleted&&stars.has(x.id));
+ const rows=view==='files'?folderRows(path):view==='find'?allMatches(query):view==='recents'?recents.map(find).filter(x=>x&&!x.deleted):[...folders.filter(p=>stars.has(folderId(p))).map(p=>({id:folderId(p),name:p.at(-1),path:p,type:'folder'})),...entries.filter(x=>!x.deleted&&stars.has(x.id))];
  const title=view==='files'?(path.at(-1)||'My Documents'):({find:'Find Files',recents:'Recent Files',starred:'Starred'})[view];
  setNav(path.length||view!=='files',title,true);
  let out='';
