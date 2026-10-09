@@ -3382,8 +3382,13 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
   overflow:visible!important;
 }
 .goodreader-launch .gr4-home-icon img{
-  width:100%!important;
-  height:100%!important;
+  position:absolute!important;
+  inset:auto!important;
+  top:50%!important;
+  left:50%!important;
+  width:calc(100% - 1px)!important;
+  height:calc(100% - 1px)!important;
+  transform:translate(-50%,-50%)!important;
   object-fit:contain!important;
   background:transparent!important;
   border:0!important;
