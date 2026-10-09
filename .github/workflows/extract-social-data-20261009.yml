@@ -51,7 +51,8 @@ jobs:
                   while end<len(body) and body[end] in ' \t':end+=1
                   if end<len(body) and body[end]==';':end+=1
                   extracted[name]=value
-                  body=body[:mdecl.start()]+mdecl.group(1)+f'const {name}=window.__CAUA_{app.upper()}_DATA__.{name};'+body[end:]
+                  suffix=';' if end>=len(body) or body[end]!='.' else ''
+                  body=body[:mdecl.start()]+mdecl.group(1)+f'const {name}=window.__CAUA_{app.upper()}_DATA__.{name}'+suffix+body[end:]
                   print(f'{app}.{name}: {len(parsed)} records; {len(value.encode())} bytes')
               data=Path('data')/(app+'.js')
               data.parent.mkdir(exist_ok=True)
