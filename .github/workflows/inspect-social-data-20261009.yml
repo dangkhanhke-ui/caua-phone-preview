@@ -1,0 +1,30 @@
+name: Inspect FB WhatsApp data boundaries
+on:
+  push:
+    paths: ['.github/workflows/inspect-social-data-20261009.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inventory inline scripts and data declarations
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          matches=list(re.finditer(r'<script\b([^>]*)>([\s\S]*?)</script\s*>',s,re.I))
+          print('INLINE_SCRIPTS:',len(matches))
+          for n,m in enumerate(matches,1):
+              body=m.group(2)
+              if not body.strip():continue
+              print('SCRIPT',n,'bytes',len(body.encode()),'facebook',len(re.findall('facebook|fbApp|fb-',body,re.I)),'whatsapp',len(re.findall('whatsapp|waApp|wa-',body,re.I)))
+              print('FIRST:',repr(body[:160]))
+              for decl in re.finditer(r'(?m)^\s*(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([\[{\x60"\x27])',body):
+                  name=decl.group(1)
+                  if re.search('fb|face|post|feed|friend|comment|chat|wa|message|contact|thread|media',name,re.I):
+                      print('DATA_CANDIDATE:',name,'offset',decl.start(),'initial',repr(body[decl.start():decl.start()+105]))
+          PY
