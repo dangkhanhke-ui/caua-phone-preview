@@ -131,3 +131,11 @@
 #waIos15 .wai-chat-more:active,#waIos15 .wai-chat-more:focus-visible{background:#ededf2;color:#007aff}
 #waIos15 .wai-action-sheet button.wai-danger{color:#d83d43}
 @media(max-height:540px){#waIos15 .wai-chat-more{min-height:58px}}
+
+/* 2015 chat list separators: draw ONE continuous hairline per chat.
+   Old ::after + right ellipsis border created a broken vertical seam. */
+#waIos15 .wai-chat-item{position:relative;border-bottom:1px solid #e1e1e5!important}
+#waIos15 .wai-chat-item>.wai-chat-row::after,
+#waIos15 .wai-chat-item>.wai-chat-row:after{display:none!important;content:none!important}
+#waIos15 .wai-chat-item>.wai-chat-more{border-bottom:0!important;box-shadow:none!important}
+#waIos15 .wai-chat-item>.wai-chat-row{border-bottom:0!important}

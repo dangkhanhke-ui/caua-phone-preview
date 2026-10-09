@@ -12,9 +12,10 @@
   stage.classList.toggle('zoomed',scale>1.01);
  }
  function zoomTo(next){scale=clamp(next,1,4);if(scale===1){dx=0;dy=0}apply()}
- function close(){if(overlay){overlay.remove();overlay=null;stage=null;photo=null;tracking.clear();pinch=null;drag=null}}
+ function close(){if(overlay){overlay.remove();overlay=null;stage=null;photo=null;tracking.clear();pinch=null;drag=null}document.getElementById('screen')?.classList.remove('fb15-photo-fullscreen')}
  function open(src){
   close();scale=1;dx=0;dy=0;
+  document.getElementById('screen')?.classList.add('fb15-photo-fullscreen');
   overlay=document.createElement('div');overlay.className='fb15-lightbox';
   overlay.innerHTML='<div class="fb15-lightbox-toolbar"><button type="button" data-fb-photo-close="1" aria-label="Đóng ảnh">‹ Quay lại</button><strong>Ảnh</strong><button type="button" data-fb-photo-reset="1" aria-label="Thu nhỏ">1×</button></div><div class="fb15-lightbox-stage"><img class="fb15-lightbox-photo" alt="Ảnh" draggable="false"><div class="fb15-lightbox-hint">Chạm hai lần hoặc dùng hai ngón để phóng to</div></div>';
   app.appendChild(overlay);

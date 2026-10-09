@@ -10,3 +10,10 @@
 #facebookApp .fb15-lightbox-stage.zoomed{cursor:grab}
 #facebookApp .fb15-lightbox-photo{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none;transform-origin:center center;will-change:transform}
 #facebookApp .fb15-lightbox-hint{position:absolute;left:0;right:0;bottom:12px;color:#c7c7cd;font:11px Arial;text-align:center;pointer-events:none}
+
+/* Fullscreen photo has no iOS clock / carrier / battery overlay. */
+#screen.fb15-photo-fullscreen .status-bar{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#facebookApp .fb15-lightbox{background:#08080a!important}
+#facebookApp .fb15-lightbox-toolbar{height:48px;min-height:48px;flex:0 0 48px;align-items:center;padding:0 10px;background:#101114;border-bottom:1px solid #27282c}
+#facebookApp .fb15-lightbox-toolbar button{display:flex;align-items:center;min-height:44px;font-family:"Helvetica Neue",Arial,sans-serif;font-size:13px;line-height:20px;white-space:nowrap}
+#facebookApp .fb15-lightbox-toolbar strong{position:absolute;left:50%;transform:translateX(-50%);pointer-events:none;font-size:14px}
