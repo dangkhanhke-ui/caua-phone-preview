@@ -3,6 +3,22 @@
  if(!app)return;
  let overlay=null,stage=null,photo=null,scale=1,dx=0,dy=0,tracking=new Map(),pinch=null,drag=null,lastTap=0;
  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+ let savedStatusInline=null;
+ const statusBar=()=>document.querySelector('#screen .status-bar')||document.querySelector('.screen .status-bar')||document.querySelector('.status-bar');
+ function setPhotoStatusHidden(hidden){
+  const bar=statusBar();
+  if(!bar)return;
+  if(hidden){
+   if(savedStatusInline===null)savedStatusInline={visibility:bar.style.getPropertyValue('visibility'),visibilityPriority:bar.style.getPropertyPriority('visibility'),opacity:bar.style.getPropertyValue('opacity'),opacityPriority:bar.style.getPropertyPriority('opacity'),pointerEvents:bar.style.getPropertyValue('pointer-events'),pointerPriority:bar.style.getPropertyPriority('pointer-events')};
+   bar.style.setProperty('visibility','hidden','important');bar.style.setProperty('opacity','0','important');bar.style.setProperty('pointer-events','none','important');
+  }else if(savedStatusInline){
+   const saved=savedStatusInline;savedStatusInline=null;
+   for(const [prop,val,priority] of [['visibility',saved.visibility,saved.visibilityPriority],['opacity',saved.opacity,saved.opacityPriority],['pointer-events',saved.pointerEvents,saved.pointerPriority]]){
+    if(val)bar.style.setProperty(prop,val,priority);else bar.style.removeProperty(prop);
+   }
+  }
+ }
+
  function apply(){
   if(!photo||!stage)return;
   const w=stage.clientWidth,h=stage.clientHeight;
@@ -12,10 +28,11 @@
   stage.classList.toggle('zoomed',scale>1.01);
  }
  function zoomTo(next){scale=clamp(next,1,4);if(scale===1){dx=0;dy=0}apply()}
- function close(){if(overlay){overlay.remove();overlay=null;stage=null;photo=null;tracking.clear();pinch=null;drag=null}document.getElementById('screen')?.classList.remove('fb15-photo-fullscreen')}
+ function close(){if(overlay){overlay.remove();overlay=null;stage=null;photo=null;tracking.clear();pinch=null;drag=null}document.getElementById('screen')?.classList.remove('fb15-photo-fullscreen');setPhotoStatusHidden(false)}
  function open(src){
   close();scale=1;dx=0;dy=0;
   document.getElementById('screen')?.classList.add('fb15-photo-fullscreen');
+  setPhotoStatusHidden(true);
   overlay=document.createElement('div');overlay.className='fb15-lightbox';
   overlay.innerHTML='<div class="fb15-lightbox-toolbar"><button type="button" data-fb-photo-close="1" aria-label="Đóng ảnh">‹ Quay lại</button><strong>Ảnh</strong><button type="button" data-fb-photo-reset="1" aria-label="Thu nhỏ">1×</button></div><div class="fb15-lightbox-stage"><img class="fb15-lightbox-photo" alt="Ảnh" draggable="false"><div class="fb15-lightbox-hint">Chạm hai lần hoặc dùng hai ngón để phóng to</div></div>';
   app.appendChild(overlay);
