@@ -87,7 +87,7 @@ function fileRow(e){
  return '<button class="gr4-file" data-gr="entry" data-id="'+esc(e.id)+'"><span class="gr4-file-icon '+(isFolder?'folder':'pdf')+'">'+(isFolder?'':'')+'</span><span class="gr4-file-copy"><span class="gr4-file-name">'+esc(leaf(e))+'</span><span class="gr4-file-meta">'+esc(small)+'</span></span><span class="gr4-file-end">'+end+'</span></button>';
 }
 function setNav(back,title,right){
- el.nav.innerHTML='<button class="'+(back?'gr4-has-back':'')+'" data-gr="'+(back?'back':'root')+'">'+(back?'‹ Quay lại':'⌂')+'</button><strong>'+esc(title)+'</strong><button class="gr4-nav-right" data-gr="'+(right?'view-setup':'none')+'">'+(right?'☷ Chọn':'')+'</button>';
+ el.nav.innerHTML='<button class="'+(back?'gr4-has-back':'')+'" data-gr="'+(back?'back':'root')+'">'+(back?'‹ Quay lại':'⌂')+'</button><strong>'+esc(title)+'</strong>'+(right?'<button class="gr4-nav-right" data-gr="view-setup">☷ Chọn</button>':'<span class="gr4-nav-spacer" aria-hidden="true"></span>');
 }
 function tools(items){el.bar.style.display='flex';el.bar.innerHTML=items.map(a=>'<button type="button" data-gr="'+esc(a.id)+'" class="'+(a.active?'active':'')+'"><span>'+a.icon+'</span>'+esc(a.label)+'</button>').join('');}
 function renderFiles(){
@@ -185,7 +185,7 @@ function openFile(id){
  else{view='reader';renderReader();}
 }
 function back(){
- if(view==='pages'||view==='bookmarks'){view='reader';renderReader();return;}
+ if(view==='pages'||view==='bookmarks'||view==='annotations'){view='reader';renderReader();return;}
  if(view==='locked'||view==='reader'){
   if(current){const d=find(current);if(d?.password)unlocked.delete(d.id);}
   const prev=history.pop();current=null;readerSearch='';highlightMode=false;
@@ -199,17 +199,32 @@ function back(){
 function render(){
  if(view==='locked')unlockView();
  else if(view==='reader')renderReader(false);
- else if(view==='pages'||view==='bookmarks')renderLocations();
+ else if(view==='pages'||view==='bookmarks'||view==='annotations')renderLocations();
  else renderFiles();
 }
+
 function renderLocations(){
  const d=find(current);if(!d)return;
- const isBookmarks=view==='bookmarks';
- setNav(true,isBookmarks?'Bookmarks':'Page Management',false);
- let rows=isBookmarks?(bookmarks[d.id]||[]):d.pages.map((p,i)=>i+1);
- el.body.innerHTML='<div class="gr4-section-title">'+(isBookmarks?'Các trang đã đánh dấu':'Chọn trang để chuyển đến')+'</div><div class="gr4-panel-list">'+(rows.length?rows.map(n=>'<button data-gr="jump-page" data-page="'+n+'">'+(isBookmarks?'★ ':'▤ ')+'Trang '+n+' <span>›</span></button>').join(''):'<div class="gr4-empty">Chưa có dấu trang.</div>')+'</div>';
- tools([{id:'locations-return',icon:'‹',label:'Trở về PDF'},{id:'pages-list',icon:'▦',label:'Trang'},{id:'bookmarks-list',icon:'☆',label:'Bookmarks'}]);
+ const isBookmarks=view==='bookmarks',isAnnotations=view==='annotations';
+ const title=isAnnotations?'Annotations':isBookmarks?'Bookmarks':'Pages';
+ setNav(true,title,false);
+ let rows=[];
+ if(isAnnotations){
+  const highlighted=(highlights[d.id]||[]).map(item=>Number(item.split(':')[0]));
+  const noted=Object.keys(notes[d.id]||{}).map(Number);
+  rows=[...new Set([...highlighted,...noted])].filter(n=>n>=1&&n<=d.pages.length).sort((a,b)=>a-b);
+ }else rows=isBookmarks?(bookmarks[d.id]||[]):d.pages.map((p,i)=>i+1);
+ const desc=isAnnotations?'Ghi chú & tô sáng (lưu trên máy)':isBookmarks?'Các trang đã đánh dấu':'Chọn trang để chuyển đến';
+ const body=rows.length?rows.map(n=>{
+  const count=(highlights[d.id]||[]).filter(x=>x.startsWith(n+':')).length;
+  const note=noteState(d.id,n);
+  const suffix=isAnnotations?' · '+[count?count+' đoạn tô sáng':'',note?'có ghi chú':''].filter(Boolean).join(', '):'';
+  return '<button data-gr="jump-page" data-page="'+n+'">'+(isAnnotations?'✎ ':isBookmarks?'★ ':'▤ ')+'Trang '+n+esc(suffix)+' <span>›</span></button>';
+ }).join(''):'<div class="gr4-empty">'+(isAnnotations?'Chưa có ghi chú hoặc đoạn tô sáng.':'Chưa có dấu trang.')+'</div>';
+ el.body.innerHTML='<div class="gr4-section-title">'+desc+'</div><div class="gr4-panel-list">'+body+'</div>';
+ tools([{id:'locations-return',icon:'‹',label:'Đọc PDF'},{id:'pages-list',icon:'▦',label:'Trang'},{id:'bookmarks-list',icon:'☆',label:'Bookmarks'},{id:'annotations-list',icon:'✎',label:'Ghi chú'}]);
 }
+
 function remapFolderStars(oldPath,newPath){
  const from=folderId(oldPath),to=folderId(newPath);
  stars=new Set([...stars].map(id=>id===from?to:(id.startsWith(from+'\u0001')?to+id.slice(from.length):id)));
@@ -311,6 +326,7 @@ function readerActions(){
  {title:reflow?'Trở lại chế độ PDF':'Chế độ PDF Reflow',run:()=>{reflow=!reflow;renderReader()}},
  {title:'Page Management',run:()=>{view='pages';renderLocations()}},
  {title:'Bookmarks',run:()=>{view='bookmarks';renderLocations()}},
+ {title:'Annotations (Ghi chú & tô sáng)',run:()=>{view='annotations';renderLocations()}},
  {title:'Ghi chú trên trang '+page,run:()=>promptBox('Ghi chú - trang '+page,noteState(d.id,page),val=>{(notes[d.id]||(notes[d.id]={}))[String(page)]=val;save();renderReader();})},
  {title:highlightMode?'✓ Thoát chế độ tô sáng':'Tô sáng văn bản (lưu trong ứng dụng)',run:()=>{highlightMode=!highlightMode;renderReader();}},
  ...(noteState(d.id,page)?[{title:'Xóa ghi chú trang '+page,danger:true,run:()=>{delete notes[d.id][String(page)];save();renderReader();}}]:[]),
@@ -364,6 +380,7 @@ function handler(action,target){
  else if(action==='locations-return'){view='reader';renderReader();}
  else if(action==='pages-list'){view='pages';renderLocations();}
  else if(action==='bookmarks-list'){view='bookmarks';renderLocations();}
+ else if(action==='annotations-list'){view='annotations';renderLocations();}
 }
 app.addEventListener('click',evt=>{
  if(view==='reader'&&highlightMode){
