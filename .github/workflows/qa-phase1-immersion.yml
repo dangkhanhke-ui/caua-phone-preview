@@ -6,6 +6,7 @@ on:
       - 'js/safari.js'
       - 'assets/whatsapp/wa-enhancements-2015.js'
       - 'qa/phase1-immersion-audit.cjs'
+      - 'qa/phase1-immersion-browser.cjs'
       - '.github/workflows/qa-phase1-immersion.yml'
   workflow_dispatch:
 permissions:
@@ -13,11 +14,18 @@ permissions:
 jobs:
   copy-guard:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Verify player-facing copy and app launchers
+      - name: Static copy guard
         run: |
           node --check js/safari.js
           node --check assets/whatsapp/wa-enhancements-2015.js
+          node --check qa/phase1-immersion-browser.cjs
           node qa/phase1-immersion-audit.cjs
+      - name: Install browsers and run live UI smoke tests
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-http.log 2>&1 &
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+          node qa/phase1-immersion-browser.cjs
