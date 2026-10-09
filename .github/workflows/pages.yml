@@ -59,7 +59,7 @@ jobs:
           python-version: '3.11'
       - name: Generate PDF files for GoodReader
         run: |
-          python -m pip install --quiet reportlab pypdf
+          python -m pip install --quiet reportlab 'pypdf[crypto]'
           python assets/goodreader4/generate_pdfs.py
           test -s assets/goodreader4/docs/Dat_rieng_26-08.pdf
           test -s assets/goodreader4/docs/N09_declaracao_2012.pdf
