@@ -1,13 +1,7 @@
 /* Photo viewer for Facebook / WhatsApp. Gesture rules ported from Photos. */
 (()=>{'use strict';
 const css=document.createElement('style');css.textContent=`
-#facebookApp .caua-photo-overlay{position:absolute;inset:0;z-index:170;background:#08090c;color:white;display:flex;flex-direction:column;overflow:hidden}
-#facebookApp .caua-photo-toolbar{height:46px;flex:none;background:#0d0e12;display:flex;justify-content:space-between;align-items:center;padding:0 10px;font:13px Arial}
-#facebookApp .caua-photo-toolbar button{background:none;color:white;border:0;padding:10px;font:14px Arial}
-#facebookApp .caua-photo-stage{min-height:0;flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;cursor:zoom-in;user-select:none;-webkit-user-select:none}
-#facebookApp .caua-photo-stage.is-zoomed{cursor:grab}
-#facebookApp .caua-photo-stage.is-panning{cursor:grabbing}
-#facebookApp .caua-photo-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;transform-origin:center center;pointer-events:none;user-select:none;-webkit-user-drag:none;will-change:transform}
+/* Facebook photo display is owned solely by facebook-lightbox.js. */
 #waIos15 .wai-viewer{touch-action:none;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:zoom-in}
 #waIos15 .wai-viewer.is-zoomed{cursor:grab}
 #waIos15 .wai-viewer.is-panning{cursor:grabbing}
@@ -105,25 +99,7 @@ function bind(stage,img){
  },{passive:false});
  img.addEventListener('load',()=>apply(false));apply(false);
 }
-const fb=document.getElementById('facebookApp'),wa=document.getElementById('whatsappApp');
-let overlay=null;
-function close(){if(overlay){overlay.remove();overlay=null;}}
-function open(src){
- close();overlay=document.createElement('div');overlay.className='caua-photo-overlay';
- overlay.innerHTML='<div class="caua-photo-toolbar"><button type="button" data-caua-close>‹ Quay lại</button><span>Ảnh</span><button type="button" data-caua-reset>1×</button></div><div class="caua-photo-stage"><img alt="Ảnh Facebook" draggable="false"></div>';
- fb.appendChild(overlay);
- overlay.querySelector('[data-caua-close]').onclick=close;
- overlay.querySelector('[data-caua-reset]').onclick=()=>overlay.querySelector('.caua-photo-stage').dispatchEvent(new Event('caua-photo-reset'));
- const im=overlay.querySelector('img');im.src=src;bind(overlay.querySelector('.caua-photo-stage'),im);
-}
-if(fb)fb.addEventListener('click',e=>{
- if(overlay)return;
- const im=e.target.closest('.fb15-media.photo img,.fb15-photo-grid img,.fb15-link-thumb.photo img,.fb15-ad-thumb.photo img,.fb15-profile-cover img');
- if(!im||!fb.contains(im))return;
- e.preventDefault();e.stopImmediatePropagation();open(im.currentSrc||im.src);
-},true);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')close()},true);
-document.getElementById('homeButton')?.addEventListener('click',close,true);
+const wa=document.getElementById('whatsappApp');
 if(wa){
  const observe=new MutationObserver(()=>{
   const v=wa.querySelector('.wai-viewer');
