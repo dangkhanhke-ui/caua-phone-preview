@@ -1,0 +1,30 @@
+name: Inventory Facebook NPC avatar mappings
+on:
+  push:
+    paths: ['.github/workflows/inventory-facebook-requests.yml']
+permissions:
+  contents: write
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Save exact request lists and portrait assignments
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          out=[]
+          for needle in ['const REQUESTS=','const SUGGEST=','const NPC_ASSIGN=','const FB15_NPC_SPECIAL=','function npcAvatarUrl','function npcAvatarAttrs','function npcAvatarPhoto']:
+              i=s.find(needle)
+              out.append('\n=== '+needle+' / '+str(i)+' ===\n')
+              if i>=0:out.append(s[i:i+4900]+'\n')
+          Path('qa/facebook-request-avatars.txt').write_text(''.join(out),encoding='utf-8')
+          PY
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add qa/facebook-request-avatars.txt
+          git commit -m "Inventory Facebook request avatar mappings before further changes"
+          git pull --rebase origin main
+          git push
