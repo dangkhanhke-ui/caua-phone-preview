@@ -47,6 +47,13 @@ jobs:
               const initial=await p.evaluate(()=>({exists:!!document.querySelector('#statusBar .status-svg'),mode:document.querySelector('#statusBar')?.dataset.ios8Contrast,fg:getComputedStyle(document.querySelector('#statusBar')).color}));
               console.log(name,'STATUS_INITIAL',JSON.stringify(initial));
               if(!initial.exists)throw Error('Status SVG not installed');
+              const withoutBackground=await p.evaluate(()=>{
+                const s=document.querySelector('#statusBar'), st=getComputedStyle(s);
+                return {background:st.backgroundColor,image:st.backgroundImage,border:st.borderBottomWidth,shadow:st.boxShadow};
+              });
+              console.log(name,'TRANSPARENT_STATUS',JSON.stringify(withoutBackground));
+              if(withoutBackground.background!=='rgba(0, 0, 0, 0)'||withoutBackground.image!=='none'||parseFloat(withoutBackground.border)>0||withoutBackground.shadow!=='none')throw Error('Status bar still paints a background or divider');
+
               const native=await p.evaluate(()=>{
                 const root=document.querySelector('#statusBar');
                 const ids=['.signal-dots','.wifi','.bluetooth','.battery'];
@@ -58,7 +65,7 @@ jobs:
               });
               console.log(name,'SKETCH_NATIVE',JSON.stringify(native));
               if(native.source!=='aubrey-sketch-2015-iphone5')throw Error('Not using supplied Sketch file vectors');
-              const target=[[34,6,'0 0 68 12'],[12,9,'0 0 24 18'],[8,13.021,'0 0 16 26.042'],[26,10,'0 0 52 20']];
+              const target=[[24,4.235,'0 0 68 12'],[10.5,7.875,'0 0 24 18'],[6.5,10.579,'0 0 16 26.042'],[21,8.077,'0 0 52 20']];
               native.icons.forEach((glyph,i)=>{
                 const [w,h,vb]=target[i];
                 if(!glyph.present||Math.abs(glyph.cssWidth-w)>0.12||Math.abs(glyph.cssHeight-h)>0.12||Math.abs(glyph.width/glyph.height-w/h)>0.04||glyph.viewBox!==vb)
@@ -116,6 +123,48 @@ jobs:
               console.log(name,'FACEBOOK',JSON.stringify(fb));
               if(!fb.opened||fb.mode!=='light'||fb.fg!=='rgb(255, 255, 255)')throw Error('Facebook actual white-on-blue contrast failed');
               await f.close();
+
+              // Re-open real app launchers in fresh sessions, not synthetic class
+              // toggles, and check that status ink contrasts with the app itself.
+              for(const [app,contrast] of [
+                ['messages','dark'],['notes','dark'],['calendar','dark'],
+                ['safari','dark'],['phone','dark'],['voice','dark'],
+                ['whatsapp','light'],['itau','light']]){
+                const t=await newPage();
+                await t.evaluate(appName=>document.querySelector('[data-app="'+appName+'"]')?.click(),app);
+                await t.waitForTimeout(280);
+                const mode=await t.evaluate(()=>{
+                  const s=document.querySelector('#statusBar'), st=getComputedStyle(s);
+                  return {mode:s.dataset.ios8Contrast,ink:st.color,bg:st.backgroundColor};
+                });
+                console.log(name,'APP_STATUS',app,JSON.stringify(mode));
+                if(mode.mode!==contrast||mode.bg!=='rgba(0, 0, 0, 0)' ||
+                  mode.ink!==(contrast==='dark'?'rgb(32, 33, 36)':'rgb(255, 255, 255)'))
+                  throw Error('Unmatched status contrast for '+app);
+                await t.close();
+              }
+              // The phone's parent can scale; glyph ratios must remain native
+              // and their sizes must not jump independently of other UI.
+              const ratios=await p.evaluate(()=>{
+                const phone=document.querySelector('#phoneWrap'), root=document.documentElement;
+                const status=document.querySelector('#statusBar'), s=document.querySelector('#screen');
+                const initial=root.style.getPropertyValue('--phone-scale');
+                const measured=[];
+                for(const scale of ['0.64','1','1.45']){
+                  root.style.setProperty('--phone-scale',scale);
+                  measured.push({scale,screen:s.getBoundingClientRect().width,
+                    status:status.getBoundingClientRect().width,
+                    battery:status.querySelector('.battery').getBoundingClientRect().width,
+                    wifi:status.querySelector('.wifi').getBoundingClientRect().width});
+                }
+                root.style.setProperty('--phone-scale',initial);
+                return measured;
+              });
+              console.log(name,'RESPONSIVE_RATIOS',JSON.stringify(ratios));
+              if(ratios.some(r=>Math.abs(r.battery/r.screen-21/320)>.004||
+                                  Math.abs(r.wifi/r.screen-10.5/320)>.004||
+                                  Math.abs(r.status/r.screen-1)>.004))
+                throw Error('Status glyphs jump sizes when phone scales');
               console.log(name,'PASS Photos, Mail, GoodReader, status contrast');
             } finally{await browser.close();}
           }

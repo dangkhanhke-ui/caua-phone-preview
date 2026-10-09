@@ -93,3 +93,87 @@
 #statusBar.ios8-svg-status .ios8-sketch-svg > rect {
   fill:currentColor;stroke:none;
 }
+
+
+/* ==============================================================
+   iPhone 5 / iOS 8 status bar — seamless surface, no color slab.
+   This intentionally overrides legacy per-app .status-bar backgrounds,
+   including Safari's !important and the old gray dividing lines.
+   ============================================================== */
+#screen #statusBar.ios8-svg-status{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-top:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  outline:0!important;
+  padding:0 6px!important;
+  height:20px!important;
+  text-shadow:none!important;
+  --ios8-ink:#fff;
+  pointer-events:none;
+}
+#screen #statusBar.ios8-svg-status::before,
+#screen #statusBar.ios8-svg-status::after{
+  display:none!important;
+  content:none!important;
+}
+#screen #statusBar.ios8-svg-status[data-ios8-contrast="dark"]{--ios8-ink:#202124}
+#screen #statusBar.ios8-svg-status[data-ios8-contrast="light"]{--ios8-ink:#fff}
+/* Also defeat the old Safari tabs rule that forces WHITE on every child. */
+#screen #statusBar.ios8-svg-status,
+#screen #statusBar.ios8-svg-status *,
+#screen #statusBar.ios8-svg-status svg{
+  color:var(--ios8-ink)!important;
+}
+#screen #statusBar.ios8-svg-status .status-left,
+#screen #statusBar.ios8-svg-status .status-right{
+  gap:3px!important;align-items:center;min-width:0;
+}
+#screen #statusBar.ios8-svg-status .status-time{
+  font-size:10px!important;line-height:1;
+  font-weight:600!important;letter-spacing:-.12px;
+}
+#screen #statusBar.ios8-svg-status .carrier,
+#screen #statusBar.ios8-svg-status .battery-percent{
+  font-size:9px!important;line-height:1;
+  letter-spacing:-.1px;font-weight:500!important;
+}
+#screen #statusBar.ios8-svg-status .signal-dots{
+  width:24px!important;height:4.235px!important;
+  min-width:24px!important;flex:0 0 24px!important;
+}
+#screen #statusBar.ios8-svg-status .wifi{
+  width:10.5px!important;height:7.875px!important;
+  min-width:10.5px!important;flex:0 0 10.5px!important;
+}
+#screen #statusBar.ios8-svg-status .bluetooth{
+  width:6.5px!important;height:10.579px!important;
+  min-width:6.5px!important;flex:0 0 6.5px!important;
+}
+#screen #statusBar.ios8-svg-status .battery{
+  width:21px!important;height:8.077px!important;
+  min-width:21px!important;flex:0 0 21px!important;
+}
+#screen #statusBar.ios8-svg-status .status-svg.ios8-sketch-svg{
+  width:100%!important;height:100%!important;
+  max-width:none!important;display:block!important;
+  overflow:visible!important;transform:none!important;
+}
+#screen #statusBar.ios8-svg-status .ios8-sketch-svg > *{
+  fill:currentColor!important;
+  stroke:none!important;
+}
+/* Extend the actual colored app surface underneath the transparent icons.
+   Each app's content begins 20px lower; this changes only its backdrop,
+   not the bars, buttons, icons, app layout or any navigation handlers. */
+#screen.facebook-open #facebookApp{background-color:#3b5998!important}
+#screen.whatsapp-open #whatsappApp{background-color:#075e54!important}
+#screen.itau-open #itauApp{background-color:#ec7000!important}
+#screen.itau-biz-open #itauBizApp{background-color:#ec7000!important}
+#screen.photos-open.ios8-photo-fullscreen-status #photosApp{background-color:#000!important}

@@ -97,48 +97,74 @@
  bar.classList.add('ios8-svg-status');
  bar.dataset.svgSource='aubrey-sketch-2015-iphone5';
 
- // Explicit app palette (2015 iOS) is more reliable than sampling an image
- // under a composited translucent status bar. Fall back to surface luminance.
- const lightHeader = /(?:^|\s)(?:facebook-open|whatsapp-open|itau-open|itau-biz-open|phone-open|voice-open)(?=\s|$)/;
- const darkHeader = /(?:^|\s)(?:photos-open|mail-open|goodreader-open|notes-open|calendar-open|messages-open|safari-open)(?=\s|$)/;
- function luminance(color) {
-   const m=color&&color.match(/^rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+ // The status bar has NO painted background. Its icons sit over the visible
+ // app surface, like iOS 8. Read that app's real backdrop instead of assuming
+ // every app except Facebook uses a dark header.
+ const appIds=['photosApp','mailApp','goodreaderApp','notesApp','calendarApp',
+   'messagesApp','safariApp','phoneApp','voiceApp','facebookApp','whatsappApp',
+   'itauApp','itauBizApp'];
+ const photosViewer=document.getElementById('photosViewer');
+ const safariApp=document.getElementById('safariApp');
+ function luminance(color){
+   const m=color && color.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i);
    if(!m)return null;
-   return (Number(m[1])*.2126+Number(m[2])*.7152+Number(m[3])*.0722);
+   const rgb=[Number(m[1]),Number(m[2]),Number(m[3])].map(v=>{
+     const c=Math.max(0,Math.min(255,v))/255;
+     return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);
+   });
+   return (rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722)*255;
+ }
+ function photoInDarkFullscreen(){
+   return !!(screen.classList.contains('photos-open') &&
+     photosViewer?.classList.contains('active') &&
+     photosViewer?.classList.contains('chrome-hidden'));
+ }
+ function surface(){
+   // Dark Safari tab overview has a different background than a normal page.
+   if(screen.classList.contains('safari-tabs-open') || safariApp?.classList.contains('tabs-mode'))
+     return '#25272c';
+   if(photoInDarkFullscreen())return '#000000';
+   const active=appIds.map(id=>document.getElementById(id))
+     .filter(el=>{
+       if(!el?.classList.contains('open'))return false;
+       const style=getComputedStyle(el);
+       return style.display!=='none' && style.visibility!=='hidden' && Number(style.opacity||1)>.1;
+     })
+     .sort((a,b)=>Number(getComputedStyle(b).zIndex||0)-Number(getComputedStyle(a).zIndex||0))[0];
+   if(active)return getComputedStyle(active).backgroundColor;
+   // Lock screen, passcode and home: wallpaper is predominantly dark.
+   return '#0f171f';
  }
  function statusContrast(){
    const override=screen.getAttribute('data-status-contrast');
    if(override==='light'||override==='dark')return override;
-   const className=screen.className;
-   if(darkHeader.test(className))return 'dark';
-   if(lightHeader.test(className))return 'light';
-   if(/(?:^|\s)(?:lock|passcode|home)(?:-|\s)/.test(className))return 'light';
-   const candidate=[...screen.querySelectorAll('.open')].find(el=>el!==bar);
-   const source=candidate?getComputedStyle(candidate).backgroundColor:getComputedStyle(screen).backgroundColor;
-   const l=luminance(source);
-   return l===null||l<145?'light':'dark';
+   const l=luminance(surface());
+   return l===null || l<=145?'light':'dark';
  }
  let scheduled=false;
  function update(){
    scheduled=false;
+   const fullscreen=photoInDarkFullscreen();
+   if(screen.classList.contains('ios8-photo-fullscreen-status')!==fullscreen)
+     screen.classList.toggle('ios8-photo-fullscreen-status',fullscreen);
    const mode=statusContrast();
    bar.dataset.ios8Contrast=mode;
-   // Inline property wins over old app-specific white/black rules.
-   bar.style.setProperty('color',mode==='dark'?'#202124':'#ffffff','important');
-   const carrier=bar.querySelector('.carrier');
-   if(carrier)carrier.style.color='inherit';
+   bar.style.setProperty('color',mode==='dark'?'#202124':'#fff','important');
  }
  function queue(){
    if(scheduled)return;
    scheduled=true;
-   // WebKit can delay rAF while entering an app; a microtask keeps
-   // status glyph contrast synchronized with the same class mutation.
+   // Same microtask as a view transition: no Safari white-on-white fade.
    Promise.resolve().then(update);
  }
- new MutationObserver(queue).observe(screen,{attributes:true,attributeFilter:['class','data-status-contrast']});
- // Photos viewer / other nested screens may change without changing screen class.
- for(const el of [document.getElementById('photosViewer'),document.getElementById('photosApp'),document.getElementById('mailApp'),document.getElementById('gr4App')]){
-   if(el)new MutationObserver(queue).observe(el,{attributes:true,attributeFilter:['class']});
+ new MutationObserver(queue).observe(screen,{
+   attributes:true,attributeFilter:['class','data-status-contrast']
+ });
+ for(const id of [...appIds,'photosViewer']){
+   const el=document.getElementById(id);
+   if(el)new MutationObserver(queue).observe(el,{
+     attributes:true,attributeFilter:['class','style']
+   });
  }
  update();
 })();
