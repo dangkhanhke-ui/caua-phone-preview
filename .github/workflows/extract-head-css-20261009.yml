@@ -1,5 +1,6 @@
 name: Extract head CSS safely
 on:
+  workflow_dispatch:
   push:
     paths:
       - '.github/workflows/extract-head-css-20261009.yml'
