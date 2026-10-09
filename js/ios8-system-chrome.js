@@ -113,7 +113,9 @@
  function queue(){
    if(scheduled)return;
    scheduled=true;
-   requestAnimationFrame(update);
+   // WebKit can delay rAF while entering an app; a microtask keeps
+   // status glyph contrast synchronized with the same class mutation.
+   Promise.resolve().then(update);
  }
  new MutationObserver(queue).observe(screen,{attributes:true,attributeFilter:['class','data-status-contrast']});
  // Photos viewer / other nested screens may change without changing screen class.
