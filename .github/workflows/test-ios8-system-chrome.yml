@@ -1,0 +1,107 @@
+name: Verify iOS SVG Toolbars and Status Contrast
+on:
+  push:
+    paths:
+      - '.github/workflows/test-ios8-system-chrome.yml'
+      - 'js/ios8-system-chrome.js'
+      - 'css/ios8-system-chrome.css'
+      - 'index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source and install headless browsers
+        run: |
+          node --check js/ios8-system-chrome.js
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          assert s.count('ios8-system-chrome.css')==1
+          assert s.count('ios8-system-chrome.js')==1
+          assert Path('css/ios8-system-chrome.css').exists()
+          assert Path('js/ios8-system-chrome.js').exists()
+          PY
+          python3 -m http.server 8000 >/tmp/http.log 2>&1 &
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Test actual app navigation and toolbar icons
+        run: |
+          cat >/tmp/test-chrome.cjs <<'JS'
+          const {chromium,webkit}=require(process.cwd()+'/node_modules/playwright');
+          async function main(browserType,name){
+            const browser=await browserType.launch({headless:true});
+            async function newPage(){
+              const page=await browser.newPage({viewport:{width:500,height:850},hasTouch:true});
+              page.on('pageerror',e=>console.log(name,'PAGE_ERROR',e.message));
+              await page.goto('http://127.0.0.1:8000/index.html',{waitUntil:'domcontentloaded'});
+              await page.waitForTimeout(600);
+              return page;
+            }
+            try {
+              const p=await newPage();
+              const initial=await p.evaluate(()=>({exists:!!document.querySelector('#statusBar .status-svg'),mode:document.querySelector('#statusBar')?.dataset.ios8Contrast,fg:getComputedStyle(document.querySelector('#statusBar')).color}));
+              console.log(name,'STATUS_INITIAL',JSON.stringify(initial));
+              if(!initial.exists)throw Error('Status SVG not installed');
+              await p.evaluate(()=>document.querySelector('[data-app="photos"]')?.click());
+              await p.waitForTimeout(450);
+              const photos=await p.evaluate(()=>{
+                const b=document.querySelectorAll('#photosViewer .photos-viewer-toolbar button');
+                const img=document.querySelector('#photosMomentsScroll .photos-thumb img');
+                return {buttons:b.length,allSVG:[...b].every(x=>!!x.querySelector('svg.ios8-tool-svg')),photosOpen:document.querySelector('#screen').classList.contains('photos-open'),contrast:document.querySelector('#statusBar').dataset.ios8Contrast,foreground:getComputedStyle(document.querySelector('#statusBar')).color,firstImage:img?.getAttribute('src')};
+              });
+              console.log(name,'PHOTOS',JSON.stringify(photos));
+              if(photos.buttons!==3||!photos.allSVG||!photos.photosOpen||photos.contrast!=='dark')throw Error('Photos toolbar or status contrast incorrect');
+              await p.close();
+
+              const m=await newPage();
+              await m.evaluate(()=>document.querySelector('[data-app="mail"]')?.click());
+              await m.waitForTimeout(450);
+              const mailStatus=await m.evaluate(()=>({open:document.querySelector('#screen').classList.contains('mail-open'),mode:document.querySelector('#statusBar').dataset.ios8Contrast,compose:!!document.querySelector('#mailToolbar button[data-mail-action="compose"] svg.ios8-tool-svg'),rows:document.querySelectorAll('#mailBody .mail-row').length}));
+              console.log(name,'MAIL_INBOX',JSON.stringify(mailStatus));
+              if(!mailStatus.open||mailStatus.mode!=='dark'||!mailStatus.compose||!mailStatus.rows)throw Error('Mail inbox status/compose failed');
+              await m.locator('#mailBody .mail-row').first().click();
+              const mailDetail=await m.evaluate(()=>{const buttons=[...document.querySelectorAll('#mailToolbar button[data-mail-action]')];return{actions:buttons.map(b=>b.dataset.mailAction),allSvg:buttons.every(b=>!!b.querySelector('svg.ios8-tool-svg'))}});
+              console.log(name,'MAIL_DETAIL',JSON.stringify(mailDetail));
+              if(mailDetail.actions.length!==5||!mailDetail.allSvg)throw Error('Mail detail toolbar missing SVG buttons');
+              await m.locator('#mailToolbar [data-mail-action="flag"]').click();
+              const flagged=await m.evaluate(()=>!!document.querySelector('#mailToolbar [data-mail-action="flag"].is-flagged svg.ios8-tool-svg'));
+              if(!flagged)throw Error('Mail flag click stopped working');
+              console.log(name,'MAIL_FLAG_CLICK PASS');
+              await m.close();
+
+              const g=await newPage();
+              await g.evaluate(()=>document.querySelector('[data-app="goodreader"]')?.click());
+              await g.waitForTimeout(1300);
+              const good=await g.evaluate(()=>({
+                open:document.querySelector('#screen').classList.contains('goodreader-open'),
+                mode:document.querySelector('#statusBar').dataset.ios8Contrast,
+                nav:!!document.querySelector('#gr4Nav'),
+                left:!!document.querySelector('#gr4Nav button[data-gr="root"] .ios8-gr4-svg'),
+                right:!!document.querySelector('#gr4Nav button[data-gr="view-setup"] .ios8-gr4-svg'),
+                title:document.querySelector('#gr4Nav strong')?.textContent
+              }));
+              console.log(name,'GOODREADER',JSON.stringify(good));
+              if(!good.open||good.mode!=='dark'||!good.left||!good.right)throw Error('GoodReader nav/status failed');
+              await g.locator('#gr4Nav button[data-gr="view-setup"]').click();
+              const choose=await g.evaluate(()=>({stillOn:!!document.querySelector('#gr4Nav button[data-gr="view-setup"] .ios8-gr4-svg'),text:document.querySelector('#gr4Nav')?.innerText}));
+              console.log(name,'GOODREADER_SELECT',JSON.stringify(choose));
+              await g.close();
+
+              const f=await newPage();
+              await f.evaluate(()=>document.querySelector('[data-app="facebook"]')?.click());
+              await f.waitForTimeout(450);
+              const fb=await f.evaluate(()=>({opened:document.querySelector('#screen').classList.contains('facebook-open'),mode:document.querySelector('#statusBar').dataset.ios8Contrast,fg:getComputedStyle(document.querySelector('#statusBar')).color}));
+              console.log(name,'FACEBOOK',JSON.stringify(fb));
+              if(!fb.opened||fb.mode!=='light')throw Error('Facebook light-on-blue contrast failed');
+              await f.close();
+              console.log(name,'PASS Photos, Mail, GoodReader, status contrast');
+            } finally{await browser.close();}
+          }
+          (async()=>{await main(chromium,'chromium');await main(webkit,'webkit')})().catch(e=>{console.error('FAIL',e.stack||e);process.exit(1)});
+          JS
+          node /tmp/test-chrome.cjs
