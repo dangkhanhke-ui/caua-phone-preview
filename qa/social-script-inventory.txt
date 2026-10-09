@@ -1,0 +1,49 @@
+SCRIPT 1 BYTES 7931 FB 0 WA 0 START "\n(() => {\n  const CONFIG = {\n    passcode: '1111',\n    carrier: 'VIVO',\n    time: (() => { const d = new Date(); const z = n => St"
+SCRIPT 2 BYTES 23810 FB 0 WA 0 START "\n(() => {\n  const OWNER_NAME = 'Cauã Valença';\n  const OWNER_EMAIL = 'caua.valenca@gmail.com';\n  const mails = [\n    {\n      id: 1"
+SCRIPT 3 BYTES 50861 FB 0 WA 0 START "\n(() => {\n  const app = document.getElementById('itauApp');\n  const content = document.getElementById('itauContent');\n  const titl"
+SCRIPT 4 BYTES 37962 FB 0 WA 0 START "\n(() => {\n  const app = document.getElementById('itauBizApp');\n  const content = document.getElementById('itauBizContent');\n  cons"
+SCRIPT 5 BYTES 62974 FB 0 WA 0 START '\n(() => {\n  const app=document.getElementById(\'phoneApp\');\n  const launcher=document.querySelector(\'[data-app="phone"]\');\n  const '
+DECL   const CONTACTS=[{"id":"mae","displayName":"Mãe","fullName":"Mãe","company":"","role":"","phone":"+55 (21) 90000-0001","phoneLabel":"di động","favorite":true,"note":"","messageThreadId":"mae","faceTi
+DECL   const unknownMessageThreads={'(21) 99841-0627':'police'};
+DECL   function actionsHTML(c,raw){const msgThread=c?.messageThreadId||unknownMessageThreads[raw]||null;const face=c?.faceTime!==false&&!!c;return `<div class="phone-actions">${msgThread?`<button class="ph
+SCRIPT 6 BYTES 33183 FB 0 WA 0 START '\n(() => {\n  const app = document.getElementById(\'messagesApp\');\n  const launcher = document.querySelector(\'[data-app="messages"]\')'
+DECL   const threadsEl = document.getElementById('messagesThreads');
+DECL   const threads = [
+DECL   const savedContacts = threads.filter(t=>t.saved && !t.automated).map(t=>({name:t.listName, number:t.number}));
+DECL       const messageText=t.messages.map(m=>m.body).join(' ');
+DECL     const finalMessage = t.messages[t.messages.length-1] || null;
+SCRIPT 7 BYTES 0 FB 0 WA 0 START ''
+SCRIPT 8 BYTES 34950 FB 0 WA 0 START '\n(() => {\n  const app = document.getElementById(\'calendarApp\');\n  const launcher = document.querySelector(\'[data-app="calendar"]\')'
+SCRIPT 9 BYTES 29496 FB 0 WA 0 START '\n(() => {\n  const app=document.getElementById(\'notesApp\');\n  const launcher=document.querySelector(\'[data-app="notes"]\');\n  const '
+SCRIPT 10 BYTES 37177 FB 1 WA 0 START '\n(() => {\n  const app=document.getElementById(\'photosApp\');\n  const launcher=document.querySelector(\'[data-app="photos"]\');\n  cons'
+SCRIPT 11 BYTES 22682 FB 2 WA 0 START "\n(() => {\n  const app=document.getElementById('voiceApp');\n  const screen=document.getElementById('screen');\n  const launcher=docu"
+SCRIPT 12 BYTES 12270 FB 4 WA 4 START "\n(() => {\n  const home = document.getElementById('homeButton');\n  const screen = document.getElementById('screen');\n  const switch"
+DECL   const contacts = document.getElementById('ios8SwitcherContacts');
+DECL   const RECENT_CONTACTS = [
+SCRIPT 13 BYTES 385 FB 0 WA 0 START "\n(() => {\n  const notes=document.getElementById('notesApp');\n  const screen=document.getElementById('screen');\n  document.addEvent"
+SCRIPT 14 BYTES 1001 FB 0 WA 0 START "\n(() => {\n  const clockText = () => {\n    const d = new Date();\n    const z = n => String(n).padStart(2, '0');\n    return `${z(d.g"
+SCRIPT 15 BYTES 122862 FB 55 WA 0 START "\n(() => {\n  const app=document.getElementById('facebookApp');\n  const launch=document.querySelector('.facebook-launch');\n  const s"
+DECL   const FEED=[{"id":"fyp01","timestamp":"23/08/2015 · 21:43","author":"Rômulo Braga","text":"Dilma ơi cho dân nghỉ một ngày được không, sáng mở báo ra lại thêm chuyện mới 😭","media":"placeholder","ima
+DECL   const PROFILE_POSTS=[{"id":"cp201508070214","dateISO":"2015-08-07","year":"2015","timestamp":"07/08/2015 · 02:14","author":"Cauã Valença","context":"","text":"Điều hòa chết tiếp rồi ❤️","media":"non
+DECL   const FRIENDS=[{"id":"f1","name":"Luísa Montenegro","city":"","detail":""},{"id":"f2","name":"João Cardoso","city":"","detail":""},{"id":"f3","name":"Rafaela Lima","city":"","detail":""},{"id":"f4",
+DECL   function renderPost(p,profile=false){const ac=p.sponsored?'page':authorType(p.author);const sampleCount=(p.comments||[]).reduce((n,c)=>n+1+(c.replies||[]).length,0);const rawCount=String(p.commentCo
+SCRIPT 16 BYTES 46727 FB 1 WA 6 START '\n(() => {\n  const app=document.getElementById(\'whatsappApp\');\n  const launcher=document.querySelector(\'[data-app="whatsapp"]\');\n  '
+DECL   const threadName=document.getElementById('waThreadName'),threadStatus=document.getElementById('waThreadStatus'),threadHead=document.getElementById('waThreadHead'),info=document.getElementById('waCon
+DECL   const CONTACT=(id,date,time,sender,contactName,contactSubtitle,phone)=>({type:'contact',id,date,time,sender,contactName,contactSubtitle,phone});
+DECL   const THREADS=[{"id":"mother","name":"Mẹ","status":"lần cuối hôm nay lúc 09:46","lastDate":"09:46","preview":"📞 Cuộc gọi thoại nhỡ","activity":"2015-08-24T09:46:00","events":[{"type":"message","date
+SCRIPT 17 BYTES 1638 FB 0 WA 1 START "\n(() => {\n  const listView=document.getElementById('waListView');\n  const nav=listView?.querySelector('.wa-nav');\n  const searchWr"
+SCRIPT 18 BYTES 1057 FB 0 WA 1 START "\n(() => {\n  const app=document.getElementById('whatsappApp');\n  if(!app) return;\n  const compose=app.querySelector('.wa-compose');"
+SCRIPT 19 BYTES 586 FB 0 WA 1 START "\n(() => {\n  const app = document.getElementById('whatsappApp');\n  if(!app) return;\n  function patchCallRows(){\n    app.querySelect"
+SCRIPT 20 BYTES 704 FB 0 WA 1 START '\n(()=>{const root=document.getElementById(\'whatsappApp\');if(!root)return;\nconst svg=(body)=>\'<svg class="wa-header-svg" xmlns="htt'
+SCRIPT 21 BYTES 1001 FB 9 WA 0 START "\n(function(){\n  var launcher=document.querySelector('.facebook-launch');\n  var facebook=document.getElementById('facebookApp');\n  "
+SCRIPT 22 BYTES 2532 FB 0 WA 10 START '\n(function(){\n  const P={"wa_avatar_mother": "./assets/whatsapp/photos/wa_avatar_mother.png", "wa_avatar_camila": "./assets/whatsa'
+SCRIPT 23 BYTES 0 FB 0 WA 0 START ''
+SCRIPT 24 BYTES 638 FB 0 WA 0 START "\n(()=>{'use strict';\n  // Browser pinch/gesture must never scale the entire handset or its apps.\n  const prevent=e=>{if(e.cancelab"
+SCRIPT 25 BYTES 3603 FB 2 WA 0 START "\n(()=>{'use strict';\nconst app=document.getElementById('facebookApp');if(!app)return;\nlet viewer=null,img=null,zoom=1,x=0,y=0,poin"
+SCRIPT 26 BYTES 0 FB 0 WA 0 START ''
+SCRIPT 27 BYTES 1725 FB 0 WA 0 START "\n(()=>{'use strict';\nconst screen=document.getElementById('screen');if(!screen||screen.querySelector('.ios-scroll-indicator'))retu"
+SCRIPT 28 BYTES 2508 FB 0 WA 0 START "\n(()=>{'use strict';\n  const screen=document.getElementById('screen');\n  if(!screen)return;\n  const toggle=document.createElement("
+SCRIPT 29 BYTES 0 FB 0 WA 0 START ''
+SCRIPT 30 BYTES 660 FB 0 WA 0 START "\n(function(){\nconst img=document.getElementById('gr4IconImage');\nif(!img)return;\n// GR04_ICON_2015: send an image and place it at "
+SCRIPT 31 BYTES 0 FB 0 WA 0 START ''
+SCRIPT 32 BYTES 0 FB 0 WA 0 START ''
