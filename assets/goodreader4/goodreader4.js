@@ -8,7 +8,7 @@ if(!app||!launch||!screen)return;
 const el={nav:app.querySelector('#gr4Nav'),body:app.querySelector('#gr4Body'),bar:app.querySelector('#gr4Bar'),layer:app.querySelector('#gr4Layer')};
 const STORE='caua.goodreader4.2015.v1';
 let source=[], entries=[], folders=[], selected=new Set(), history=[], bookmarks={}, notes={}, stars=new Set(), saved={}, recents=[];
-let path=[],view='files',query='',sort='name',grid=false,current=null,page=1,zoom=1,reflow=false,readerSearch='',unlocked=new Set(),mode='normal';
+let path=[],view='files',query='',sort='name',grid=false,current=null,page=1,zoom=1,reflow=false,readerSearch='',unlocked=new Set(),mode='normal',highlightMode=false,highlights={};
 let copySequence=0;
 const specials=['Sự kiện','Tài liệu cũ','Lưu trữ'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -22,13 +22,13 @@ const fileUrl=e=>'./assets/goodreader4/docs/'+encodeURIComponent(e.original||e.f
 function save(){
  try{
   const changes=entries.map(x=>({id:x.id,filename:x.filename,path:x.path,deleted:!!x.deleted,original:x.original,copied:!!x.copied}));
-  localStorage.setItem(STORE,JSON.stringify({changes,folderNames:folders,stars:[...stars],recents,bookmarks,notes,sort,grid}));
+  localStorage.setItem(STORE,JSON.stringify({changes,folderNames:folders,stars:[...stars],recents,bookmarks,notes,highlights,sort,grid}));
  }catch(e){}
 }
 function load(){
  try{saved=JSON.parse(localStorage.getItem(STORE)||'{}')||{};}catch(e){saved={};}
  stars=new Set(saved.stars||[]);recents=saved.recents||[];
- bookmarks=saved.bookmarks||{};notes=saved.notes||{};sort=saved.sort||'name';grid=!!saved.grid;
+ bookmarks=saved.bookmarks||{};notes=saved.notes||{};highlights=saved.highlights||{};sort=saved.sort||'name';grid=!!saved.grid;
 }
 function init(data){
  source=(data.documents||[]).map(d=>({...d,original:d.filename,type:'file'}));
@@ -84,7 +84,7 @@ function fileRow(e){
  const isFolder=e.type==='folder',st=stars.has(e.id);
  const small=isFolder?'Thư mục':(e.modified+'   ·   '+(e.password?'🔒 PDF bảo vệ':'PDF'));
  const end=mode==='manage'?(selected.has(e.id)?'☑':'□'):(st?'★':(isFolder?'›':'›'));
- return '<button class="gr4-file" data-gr="entry" data-id="'+esc(e.id)+'"><span class="gr4-file-icon '+(isFolder?'folder':'pdf')+'">'+(isFolder?'📁':'')+'</span><span class="gr4-file-copy"><span class="gr4-file-name">'+esc(leaf(e))+'</span><span class="gr4-file-meta">'+esc(small)+'</span></span><span class="gr4-file-end">'+end+'</span></button>';
+ return '<button class="gr4-file" data-gr="entry" data-id="'+esc(e.id)+'"><span class="gr4-file-icon '+(isFolder?'folder':'pdf')+'">'+(isFolder?'':'')+'</span><span class="gr4-file-copy"><span class="gr4-file-name">'+esc(leaf(e))+'</span><span class="gr4-file-meta">'+esc(small)+'</span></span><span class="gr4-file-end">'+end+'</span></button>';
 }
 function setNav(back,title,right){
  el.nav.innerHTML='<button class="'+(back?'gr4-has-back':'')+'" data-gr="'+(back?'back':'root')+'">'+(back?'‹ Quay lại':'⌂')+'</button><strong>'+esc(title)+'</strong><button class="gr4-nav-right" data-gr="'+(right?'view-setup':'none')+'">'+(right?'☷ Chọn':'')+'</button>';
@@ -133,16 +133,24 @@ function blockHtml(b){
  if(t==='seal')return '<p class="gr4-docseal">'+x+'</p>';
  return '<p>'+x+'</p>';
 }
+function markedBlock(e,block,num,idx){
+ const marked=(highlights[e.id]||[]).includes(num+':'+idx);
+ return '<div class="gr4-block'+(marked?' gr4-highlight':'')+'" data-page="'+num+'" data-index="'+idx+'">'+blockHtml(block)+'</div>';
+}
 function readerPage(e,num){
- const note=noteState(e.id,num);return '<section class="gr4-page" data-page="'+num+'" style="--gr4-zoom:'+zoom+';width:'+Math.round(92*zoom)+'%">'+e.pages[num-1].map(blockHtml).join('')+(note?'<div class="gr4-note">🗒 '+esc(note)+'</div>':'')+'<small>'+num+'</small></section>';
+ const note=noteState(e.id,num);
+ return '<section class="gr4-page" data-page="'+num+'" style="--gr4-zoom:'+zoom+';width:'+Math.round(92*zoom)+'%">'+e.pages[num-1].map((b,i)=>markedBlock(e,b,num,i)).join('')+(note?'<div class="gr4-note">🗒 '+esc(note)+'</div>':'')+'<small>'+num+'</small></section>';
 }
 function renderReader(restorePage=true){
  const e=find(current);if(!e){view='files';return renderFiles();}
  setNav(true,e.filename,true);
  const content=reflow?
-  '<div class="gr4-reading"><div class="gr4-page" style="width:'+Math.round(92*zoom)+'%;--gr4-zoom:'+zoom+'">'+e.pages.flat().map(blockHtml).join('')+'</div></div>':
+  '<div class="gr4-reading"><div class="gr4-page" style="width:'+Math.round(92*zoom)+'%;--gr4-zoom:'+zoom+'">'+e.pages.map((part,i)=>part.map((b,j)=>markedBlock(e,b,i+1,j)).join('')).join('')+'</div></div>':
   '<div class="gr4-reading">'+e.pages.map((p,i)=>readerPage(e,i+1)).join('')+'</div>';
- el.body.innerHTML=(readerSearch!==''?'<div class="gr4-search"><input id="gr4ReaderSearch" value="'+esc(readerSearch)+'" placeholder="Tìm trong PDF" type="search"/><button data-gr="reader-search-close">Xong</button></div>':'')+content;
+ const controls='<div class="gr4-page-controls"><button type="button" data-gr="prev-page" '+(page<=1?'disabled':'')+' aria-label="Trang trước">‹</button><input id="gr4PageRange" type="range" min="1" max="'+e.pages.length+'" value="'+page+'" aria-label="Chọn trang"/><span class="gr4-current-page">'+page+'/'+e.pages.length+'</span><button type="button" data-gr="next-page" '+(page>=e.pages.length?'disabled':'')+' aria-label="Trang sau">›</button></div>';
+ el.body.innerHTML=(readerSearch!==''?'<div class="gr4-search"><input id="gr4ReaderSearch" value="'+esc(readerSearch)+'" placeholder="Tìm trong PDF" type="search"/><button data-gr="reader-search-close">Xong</button></div>':'')+(highlightMode?'<div class="gr4-highlight-hint">Tô sáng: chạm đoạn văn để đánh dấu hoặc bỏ đánh dấu.</div>':'')+controls+content;
+ const scrub=el.body.querySelector('#gr4PageRange');
+ if(scrub)scrub.addEventListener('input',()=>{goPage(Number(scrub.value));});
  if(readerSearch!==''){
   const input=el.body.querySelector('#gr4ReaderSearch');input.addEventListener('change',evt=>{readerSearch=evt.target.value;renderReader(true)});input.addEventListener('keydown',evt=>{if(evt.key==='Enter'){readerSearch=input.value;renderReader(true)}});
  }
@@ -155,6 +163,7 @@ function goPage(n){
  const target=el.body.querySelector('.gr4-page[data-page="'+page+'"]');
  if(target)el.body.scrollTop+=(target.getBoundingClientRect().top-el.body.getBoundingClientRect().top)-10;
  const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+e.pages.length;
+ const range=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(range)range.value=page;if(label)label.textContent=page+'/'+e.pages.length;
 }
 function unlockView(){
  const e=find(current);setNav(true,e.filename,false);
@@ -169,7 +178,7 @@ function unlock(){
 }
 function openFile(id){
  const e=find(id);if(!e)return;
- history.push({path:[...path],view:view});current=id;page=1;zoom=1;reflow=false;readerSearch='';
+ history.push({path:[...path],view:view});current=id;page=1;zoom=1;reflow=false;readerSearch='';highlightMode=false;
  recents=[id,...recents.filter(x=>x!==id)].slice(0,15);save();
  if(e.password&&!unlocked.has(e.id)){view='locked';unlockView();}
  else{view='reader';renderReader();}
@@ -178,7 +187,7 @@ function back(){
  if(view==='pages'||view==='bookmarks'){view='reader';renderReader();return;}
  if(view==='locked'||view==='reader'){
   if(current){const d=find(current);if(d?.password)unlocked.delete(d.id);}
-  const prev=history.pop();current=null;readerSearch='';
+  const prev=history.pop();current=null;readerSearch='';highlightMode=false;
   view=prev?.view||'files';path=prev?.path||path;mode='normal';selected.clear();render();return;
  }
  if(view!=='files'){view='files';path=[];}
@@ -296,6 +305,7 @@ function readerActions(){
  {title:'Page Management',run:()=>{view='pages';renderLocations()}},
  {title:'Bookmarks',run:()=>{view='bookmarks';renderLocations()}},
  {title:'Ghi chú trên trang '+page,run:()=>promptBox('Ghi chú - trang '+page,noteState(d.id,page),val=>{(notes[d.id]||(notes[d.id]={}))[String(page)]=val;save();renderReader();})},
+ {title:highlightMode?'✓ Thoát chế độ tô sáng':'Tô sáng văn bản (lưu trong ứng dụng)',run:()=>{highlightMode=!highlightMode;renderReader();}},
  ...(noteState(d.id,page)?[{title:'Xóa ghi chú trang '+page,danger:true,run:()=>{delete notes[d.id][String(page)];save();renderReader();}}]:[]),
  {title:stars.has(d.id)?'Bỏ yêu thích':'Thêm vào yêu thích',run:()=>{setStar([d.id]);renderReader();}}
  ]);
@@ -341,12 +351,23 @@ function handler(action,target){
  else if(action==='bookmark'){const list=bookmarks[current]||[];bookmarks[current]=list.includes(page)?list.filter(x=>x!==page):[...list,page].sort((a,b)=>a-b);save();renderReader();}
  else if(action==='pages'){view='pages';renderLocations();}
  else if(action==='reader-actions')readerActions();
+ else if(action==='prev-page')goPage(page-1);
+ else if(action==='next-page')goPage(page+1);
  else if(action==='jump-page'){page=Number(target.dataset.page)||1;view='reader';renderReader();}
  else if(action==='locations-return'){view='reader';renderReader();}
  else if(action==='pages-list'){view='pages';renderLocations();}
  else if(action==='bookmarks-list'){view='bookmarks';renderLocations();}
 }
 app.addEventListener('click',evt=>{
+ if(view==='reader'&&highlightMode){
+  const block=evt.target.closest('.gr4-block');
+  if(block&&el.body.contains(block)){
+   const id=Number(block.dataset.page)+':'+Number(block.dataset.index),items=highlights[current]||[];
+   highlights[current]=items.includes(id)?items.filter(x=>x!==id):[...items,id];
+   block.classList.toggle('gr4-highlight',highlights[current].includes(id));
+   save();return;
+  }
+ }
  const button=evt.target.closest('[data-gr]');
  if(!button||!app.contains(button))return;
  evt.preventDefault();handler(button.dataset.gr,button);
@@ -355,7 +376,7 @@ el.body.addEventListener('scroll',()=>{
  if(view!=='reader'||reflow)return;
  const ps=[...el.body.querySelectorAll('.gr4-page[data-page]')];let best=1,d=Infinity;
  for(const item of ps){const dist=Math.abs(item.getBoundingClientRect().top-el.body.getBoundingClientRect().top);if(dist<d){d=dist;best=Number(item.dataset.page)}}
- if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;}
+ if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;}
 },{passive:true});
 launch.addEventListener('click',()=>{
  app.classList.add('open');screen.classList.add('goodreader-open');
