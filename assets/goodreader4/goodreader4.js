@@ -164,6 +164,7 @@ function goPage(n){
  if(target)el.body.scrollTop+=(target.getBoundingClientRect().top-el.body.getBoundingClientRect().top)-10;
  const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+e.pages.length;
  const range=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(range)range.value=page;if(label)label.textContent=page+'/'+e.pages.length;
+ const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=e.pages.length;
 }
 function unlockView(){
  const e=find(current);setNav(true,e.filename,false);
@@ -208,6 +209,10 @@ function renderLocations(){
  let rows=isBookmarks?(bookmarks[d.id]||[]):d.pages.map((p,i)=>i+1);
  el.body.innerHTML='<div class="gr4-section-title">'+(isBookmarks?'Các trang đã đánh dấu':'Chọn trang để chuyển đến')+'</div><div class="gr4-panel-list">'+(rows.length?rows.map(n=>'<button data-gr="jump-page" data-page="'+n+'">'+(isBookmarks?'★ ':'▤ ')+'Trang '+n+' <span>›</span></button>').join(''):'<div class="gr4-empty">Chưa có dấu trang.</div>')+'</div>';
  tools([{id:'locations-return',icon:'‹',label:'Trở về PDF'},{id:'pages-list',icon:'▦',label:'Trang'},{id:'bookmarks-list',icon:'☆',label:'Bookmarks'}]);
+}
+function remapFolderStars(oldPath,newPath){
+ const from=folderId(oldPath),to=folderId(newPath);
+ stars=new Set([...stars].map(id=>id===from?to:(id.startsWith(from+'\u0001')?to+id.slice(from.length):id)));
 }
 function setStar(ids){for(const id of ids){if(stars.has(id))stars.delete(id);else stars.add(id)}save();render();}
 function newFolder(){promptBox('Tạo thư mục mới','',name=>{const p=[...path,name];if(folders.some(x=>key(x)===key(p))){toast('Thư mục đã tồn tại');return;}folders.push(p);save();render();});}
@@ -275,6 +280,7 @@ function moveSelected(){
    const prefix=(p,base)=>base.every((v,i)=>p[i]===v);
    if(prefix(dest,oldPath)){toast('Không thể chuyển thư mục vào chính nó');continue;}
    const newPath=[...dest,oldPath.at(-1)];
+   remapFolderStars(oldPath,newPath);
    folders=folders.map(p=>prefix(p,oldPath)?[...newPath,...p.slice(oldPath.length)]:p);
    entries.forEach(e=>{if(prefix(e.path,oldPath))e.path=[...newPath,...e.path.slice(oldPath.length)];});
   }
@@ -287,6 +293,7 @@ function renameSelected(){
  const id=[...selected][0],f=find(id);
  if(f)promptBox('Đổi tên file',f.filename,val=>{f.filename=val.endsWith('.pdf')?val:val+'.pdf';mode='normal';selected.clear();save();render();});
  else {const p=folders.find(x=>folderId(x)===id);if(p)promptBox('Đổi tên thư mục',p.at(-1),val=>{const old=[...p],updated=[...p.slice(0,-1),val];
+  remapFolderStars(old,updated);
   folders=folders.map(x=>x.slice(0,old.length).every((v,i)=>v===old[i])?[...updated,...x.slice(old.length)]:x);
   entries.forEach(e=>{if(e.path.slice(0,old.length).every((v,i)=>v===old[i]))e.path=[...updated,...e.path.slice(old.length)]});
   mode='normal';selected.clear();save();render();
@@ -376,7 +383,7 @@ el.body.addEventListener('scroll',()=>{
  if(view!=='reader'||reflow)return;
  const ps=[...el.body.querySelectorAll('.gr4-page[data-page]')];let best=1,d=Infinity;
  for(const item of ps){const dist=Math.abs(item.getBoundingClientRect().top-el.body.getBoundingClientRect().top);if(dist<d){d=dist;best=Number(item.dataset.page)}}
- if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;}
+ if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=ps.length;}
 },{passive:true});
 launch.addEventListener('click',()=>{
  app.classList.add('open');screen.classList.add('goodreader-open');
