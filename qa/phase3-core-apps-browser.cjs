@@ -1,6 +1,13 @@
 const {chromium,webkit}=require('playwright');
 const assert=require('node:assert/strict');
 const base='http://127.0.0.1:8000/index.html';
+const vm=require('node:vm');
+const fs=require('node:fs');
+let checked=0;
+for(const hit of fs.readFileSync('index.html','utf8').matchAll(/<script\b(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/gi)){
+  new vm.Script(hit[1],{filename:'index-inline-'+(++checked)+'.js'});
+}
+console.log('PHASE3_INLINE_SYNTAX_PASS',checked);
 const ids={
   photos:'photosApp',notes:'notesApp',phone:'phoneApp',
   messages:'messagesApp',calendar:'calendarApp',safari:'safariApp',
@@ -108,6 +115,21 @@ async function run(engine,label){
       await p.locator('#photosSheetBackdrop .row.cancel').click();
       await p.locator('#photosViewerBack').click();
       assert(await p.locator('#photosMomentsView.active').count(),'photo navigation back failed');
+    });
+    await probe('PHOTOS_FAVORITES_PERSIST_AFTER_RELOAD',async p=>{
+      await open(p,'photos');
+      await p.locator('#photosMomentsScroll .photos-thumb').first().evaluate(el=>el.click());
+      const selected=await p.locator('#photosViewerImage').getAttribute('src');
+      const before=await p.locator('#photosFavoriteBtn').evaluate(el=>el.classList.contains('on'));
+      await p.locator('#photosFavoriteBtn').click();
+      const next=!before;
+      assert.equal(await p.locator('#photosFavoriteBtn').evaluate(el=>el.classList.contains('on')),next);
+      await p.reload({waitUntil:'domcontentloaded'});
+      await p.waitForTimeout(400);
+      await open(p,'photos');
+      await p.locator('#photosMomentsScroll .photos-thumb').first().evaluate(el=>el.click());
+      assert.equal(await p.locator('#photosViewerImage').getAttribute('src'),selected);
+      assert.equal(await p.locator('#photosFavoriteBtn').evaluate(el=>el.classList.contains('on')),next,'favorite was not persisted');
     });
     await probe('CALENDAR_SEARCH_AND_BACK',async p=>{
       await open(p,'calendar');
