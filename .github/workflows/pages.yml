@@ -49,8 +49,11 @@ jobs:
           else
             echo "Batch 3+4 ZIP not uploaded yet; existing avatars remain intact"
           fi
-      - name: Verify static site
-        run: test -f index.html
+      - name: Verify static site and GoodReader scripts
+        run: |
+          test -f index.html
+          node --check assets/goodreader4/goodreader4.js
+          python -c "import json; d=json.load(open('assets/goodreader4/documents.json',encoding='utf-8')); assert len(d['documents']) == 2; assert sorted(x['filename'] for x in d['documents']) == ['Dat_rieng_26-08.pdf', 'N09_declaracao_2012.pdf']; assert next(x for x in d['documents'] if x['id']=='n09-2012')['password']=='1111'"
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Build GoodReader 4 case PDFs
@@ -63,6 +66,7 @@ jobs:
           python assets/goodreader4/generate_pdfs.py
           test -s assets/goodreader4/docs/Dat_rieng_26-08.pdf
           test -s assets/goodreader4/docs/N09_declaracao_2012.pdf
+          python -c "from pypdf import PdfReader; plain=PdfReader('assets/goodreader4/docs/Dat_rieng_26-08.pdf'); locked=PdfReader('assets/goodreader4/docs/N09_declaracao_2012.pdf'); assert not plain.is_encrypted; assert locked.is_encrypted; assert locked.decrypt('1111'); assert len(plain.pages)>=1 and len(locked.pages)>=2"
       - name: Upload static website
         uses: actions/upload-pages-artifact@v3
         with:
