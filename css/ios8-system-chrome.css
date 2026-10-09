@@ -67,3 +67,29 @@
   fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
 #gr4Nav button[data-gr="root"] .ios8-gr4-svg{width:17px;height:17px}
 #gr4Nav button.gr4-nav-right .ios8-gr4-svg{width:15px;height:15px;flex-basis:15px}
+
+/* Native 2015 iPhone 5 symbol proportions: source 640×40 @2x => 320×20pt.
+   Shapes sourced from aubrey_iOS8_Status_Bars.sketch, not approximations. */
+#statusBar.ios8-svg-status .signal-dots {
+  width:34px;height:6px;min-width:34px;flex:0 0 34px;
+}
+#statusBar.ios8-svg-status .wifi {
+  width:12px;height:9px;min-width:12px;flex:0 0 12px;
+}
+#statusBar.ios8-svg-status .bluetooth {
+  width:8px;height:13.021px;min-width:8px;flex:0 0 8px;
+  transform:none;opacity:1;
+}
+#statusBar.ios8-svg-status .battery {
+  width:26px;height:10px;min-width:26px;flex:0 0 26px;
+}
+#statusBar.ios8-svg-status .status-svg.ios8-sketch-svg {
+  display:block;width:100%;height:100%;max-width:none;
+  overflow:visible;fill:currentColor;stroke:none;
+  color:inherit;aspect-ratio:auto;
+}
+#statusBar.ios8-svg-status .ios8-sketch-svg > circle,
+#statusBar.ios8-svg-status .ios8-sketch-svg > path,
+#statusBar.ios8-svg-status .ios8-sketch-svg > rect {
+  fill:currentColor;stroke:none;
+}

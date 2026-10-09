@@ -64,20 +64,38 @@
  }
  if(goodreaderNav){new MutationObserver(decorateGoodReader).observe(goodreaderNav,{childList:true});decorateGoodReader();}
 
- // Rebuild status glyphs, preserving carrierLabel / statusTime / battery percent.
+ // The four glyphs below are traced directly from the *2015* original vectors
+ // in aubrey_iOS8_Status_Bars.sketch (iPhone 5 @2x, 640x40 artboard).
+ // No generic icon-library paths. Preserve native aspect ratios at 1x.
  const signal=bar.querySelector('.signal-dots');
  const wifi=bar.querySelector('.wifi');
  const bluetooth=bar.querySelector('.bluetooth');
  const battery=bar.querySelector('.battery');
- if(signal)signal.innerHTML=svg('<circle class="ios8-signal-dot" cx="3" cy="6.1" r="2.1"/><circle class="ios8-signal-dot" cx="9.2" cy="6.1" r="2.1"/><circle class="ios8-signal-dot" cx="15.4" cy="6.1" r="2.1"/><circle class="ios8-signal-dot" cx="21.6" cy="6.1" r="2.1"/><circle class="ios8-signal-dot is-empty" cx="27.6" cy="6.1" r="2.1"/>','0 0 31 12','status-svg');
- if(wifi)wifi.innerHTML=svg('<path d="M1 4.2C4.2 1.2 9.8 1.2 13 4.2M3.5 6.8C5.2 5.2 8.8 5.2 10.5 6.8"/><circle cx="7" cy="9.5" r=".8" fill="currentColor" stroke="none"/>','0 0 14 11','status-svg');
- if(bluetooth)bluetooth.innerHTML=svg('<path d="M4.7 1v10l4-3.1-6-5.4m0 7.8 6-5.3-4-3.8"/>','0 0 11 12','status-svg');
+ if(signal)signal.innerHTML=svg(
+   '<circle cx="6" cy="6" r="6"/><circle cx="20" cy="6" r="6"/><circle cx="34" cy="6" r="6"/><circle cx="48" cy="6" r="6"/><circle cx="62" cy="6" r="6"/>',
+   '0 0 68 12','status-svg ios8-sketch-svg'
+ );
+ if(wifi)wifi.innerHTML=svg(
+   '<path d="M 11.992 3.042 C 15.871 3.042 19.407 4.471 22.118 6.814 L 24 4.736 C 20.789 1.949 16.596 0 11.992 0 C 7.394 0 3.207 1.943 0 4.721 L 1.878 6.803 C 4.587 4.466 8.117 3.042 11.992 3.042 L 11.992 3.042 Z"/><path d="M 18.079 11.275 L 20.07 9.076 C 17.903 7.216 15.084 6.001 11.992 6.001 C 8.905 6.001 6.088 7.213 3.923 9.067 L 5.911 11.269 C 7.548 9.882 9.669 9.04 11.992 9.04 C 14.317 9.04 16.441 9.885 18.079 11.275 Z"/><path d="M 16.087 13.475 C 14.978 12.555 13.551 11.917 11.991 11.917 C 10.433 11.917 9.008 12.554 7.899 13.47 L 11.991 18 L 16.087 13.475 L 16.087 13.475 Z"/>',
+   '0 0 24 18','status-svg ios8-sketch-svg'
+ );
+ if(bluetooth)bluetooth.innerHTML=svg(
+   '<path d="M 10 15 L 13 18 L 10 21 L 10 15 Z"/><path d="M 10 11 L 10 5 L 13 8 L 10 11 Z"/><path d="M 16 8 L 8.057 0 L 8.057 11 L 2 5 L 0 7 L 6.907 13.022 L 0 19 L 2 21 L 8.057 15 L 8.057 26.042 L 16 18 L 11 13.022 L 16 8 Z"/>',
+   '0 0 16 26.042','status-svg ios8-sketch-svg'
+ );
  const percent=(bar.querySelector('.battery-percent')?.textContent||'62').match(/\d+/);
  const level=percent?Math.min(100,Math.max(0,Number(percent[0]))):62;
  if(battery){
-   battery.innerHTML=svg('<rect class="ios8-battery-shell" x="1" y="1.5" width="19" height="9" rx="1.8"/><rect class="ios8-battery-level" x="2.7" y="3.15" width="'+(16*level/100).toFixed(2)+'" height="5.7" rx=".6"/><path d="M21 4.2c1.4.2 2.1 1 2.1 1.8s-.7 1.6-2.1 1.8" stroke-width="1.2"/>','0 0 24 12','status-svg');
+   // Original battery outline = 46×20 rx3, hollow inset 1px,
+   // terminal x48..52, and adjustable fill inside the 42×16 well.
+   const width=(42*level/100).toFixed(2);
+   battery.innerHTML=svg(
+     '<path fill-rule="evenodd" d="M3 0h40a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V3a3 3 0 0 1 3-3zm0 1a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h40a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2z"/><rect x="48" y="6" width="4" height="8" rx="1"/><rect class="ios8-sketch-battery-level" x="2" y="2" width="'+width+'" height="16" rx="2"/>',
+     '0 0 52 20','status-svg ios8-sketch-svg'
+   );
  }
  bar.classList.add('ios8-svg-status');
+ bar.dataset.svgSource='aubrey-sketch-2015-iphone5';
 
  // Explicit app palette (2015 iOS) is more reliable than sampling an image
  // under a composited translucent status bar. Fall back to surface luminance.

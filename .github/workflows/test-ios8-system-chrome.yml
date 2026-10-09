@@ -47,6 +47,23 @@ jobs:
               const initial=await p.evaluate(()=>({exists:!!document.querySelector('#statusBar .status-svg'),mode:document.querySelector('#statusBar')?.dataset.ios8Contrast,fg:getComputedStyle(document.querySelector('#statusBar')).color}));
               console.log(name,'STATUS_INITIAL',JSON.stringify(initial));
               if(!initial.exists)throw Error('Status SVG not installed');
+              const native=await p.evaluate(()=>{
+                const root=document.querySelector('#statusBar');
+                const ids=['.signal-dots','.wifi','.bluetooth','.battery'];
+                return {source:root.dataset.svgSource,icons:ids.map(sel=>{
+                  const host=root.querySelector(sel),glyph=host?.querySelector('svg.ios8-sketch-svg');
+                  const b=host?.getBoundingClientRect();
+                  return {width:b?.width,height:b?.height,viewBox:glyph?.getAttribute('viewBox'),present:!!glyph};
+                })};
+              });
+              console.log(name,'SKETCH_NATIVE',JSON.stringify(native));
+              if(native.source!=='aubrey-sketch-2015-iphone5')throw Error('Not using supplied Sketch file vectors');
+              const target=[[34,6,'0 0 68 12'],[12,9,'0 0 24 18'],[8,13.021,'0 0 16 26.042'],[26,10,'0 0 52 20']];
+              native.icons.forEach((glyph,i)=>{
+                const [w,h,vb]=target[i];
+                if(!glyph.present||Math.abs(glyph.width-w)>0.12||Math.abs(glyph.height-h)>0.12||glyph.viewBox!==vb)
+                  throw Error('Original Sketch aspect ratio lost for icon '+i+': '+JSON.stringify(glyph));
+              });
               await p.evaluate(()=>document.querySelector('[data-app="photos"]')?.click());
               await p.waitForTimeout(450);
               const photos=await p.evaluate(()=>{
