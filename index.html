@@ -3461,6 +3461,251 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
   pointer-events:none!important;
 }
 </style>
+
+<style id="safari-ios8-perspective-stack-20261009">
+/* Safari iOS 8: layered page snapshots seen from above, not flat web cards.
+   Scoped strictly to the tab overview. All pages/history remain unchanged. */
+.screen.safari-tabs-open .status-bar{
+  background:#22252a!important;
+  color:#f6f6f8!important;
+  border-bottom:0!important;
+  text-shadow:0 1px 1px #0008!important;
+}
+.screen.safari-tabs-open .status-bar *{color:#f7f7fa!important}
+.safari-app.tabs-mode{background:#25272c!important}
+.safari-app.tabs-mode .safari-topbar{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+.safari-app.tabs-mode .safari-page{visibility:hidden!important;pointer-events:none!important}
+.safari-app.tabs-mode .safari-tabs{
+  inset:20px 0 0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(ellipse at 50% 2%,rgba(108,113,125,.3),transparent 66%),
+    linear-gradient(180deg,#25292f 0%,#25282d 48%,#17191d 100%)!important;
+  isolation:isolate;
+}
+.safari-app.tabs-mode .safari-tabs::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,#0d0e1180 0%,transparent 18%,transparent 82%,#0d0e1180 100%);
+  z-index:1;
+}
+.safari-app.tabs-mode .safari-tab-stack.safari-ios8-perspective{
+  position:absolute!important;
+  inset:0 0 44px!important;
+  width:100%!important;
+  padding:23px 0 92px!important;
+  margin:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  perspective:650px;
+  perspective-origin:50% 4%;
+  transform-style:preserve-3d;
+  overscroll-behavior:contain;
+  scroll-padding-bottom:90px;
+  box-sizing:border-box;
+  z-index:2;
+}
+.safari-app.tabs-mode .safari-ios8-card{
+  display:block!important;
+  position:relative!important;
+  flex:0 0 262px!important;
+  width:calc(100% - 52px)!important;
+  max-width:320px!important;
+  height:262px!important;
+  min-height:262px!important;
+  margin:0 auto 0!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  box-shadow:none!important;
+  z-index:var(--saf-layer)!important;
+  transform-origin:50% 0;
+  transform:translateZ(var(--saf-depth)) rotateX(-23deg) scale(var(--saf-scale));
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  will-change:transform;
+  cursor:pointer;
+  outline:none;
+}
+.safari-app.tabs-mode .safari-ios8-card:not(:first-child){
+  margin-top:-188px!important;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-tab-sheet{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  border-radius:3px 3px 7px 7px;
+  background:#fff;
+  border:1px solid rgba(255,255,255,.74);
+  box-shadow:
+    0 2px 2px #0005,
+    0 11px 18px #0009,
+    0 25px 42px #0007,
+    inset 0 1px #fff8;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-tab-sheet::after{
+  content:"";pointer-events:none;position:absolute;inset:0;
+  box-shadow:inset 0 0 0 1px #00000013,inset 0 -28px 34px #ffffff13;
+}
+.safari-app.tabs-mode .safari-ios8-card .chrome{
+  position:relative;
+  height:32px!important;
+  min-height:32px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0 27px!important;
+  margin:0!important;
+  border-bottom:1px solid #c8c8cd!important;
+  border-radius:3px 3px 0 0;
+  background:linear-gradient(#f9f9fa,#e1e1e4)!important;
+  color:#434349!important;
+  font:600 12px/1.1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.08px;
+  text-align:center;
+  text-shadow:0 1px #fff9;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-tab-host{
+  display:block;
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.safari-app.tabs-mode .safari-ios8-card .close{
+  position:absolute!important;
+  top:0!important;left:0!important;right:auto!important;
+  display:grid!important;
+  place-items:center!important;
+  min-width:30px!important;
+  width:30px!important;height:31px!important;
+  padding:0!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#676970!important;
+  font:300 20px/31px "Helvetica Neue",Arial,sans-serif!important;
+  text-shadow:0 1px #fff;
+  z-index:6;
+}
+.safari-app.tabs-mode .safari-ios8-card .close:disabled{opacity:.3}
+.safari-app.tabs-mode .safari-ios8-card .thumb{
+  height:230px!important;
+  min-height:230px!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  background:#fff!important;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-snapshot-website{
+  position:relative;
+  height:156px;min-height:156px;
+  flex:0 0 156px;
+  overflow:hidden;
+  background:#f7f7f7;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-snapshot-website img{
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center top!important;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-snapshot-copy{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:10px 13px 16px;
+  min-height:70px;
+  background:#fff;
+  font:11px/1.35 "Helvetica Neue",Arial,sans-serif;
+  color:#34363b;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-snapshot-copy b{
+  font-size:12px;font-weight:600;line-height:15px;
+  max-height:30px;overflow:hidden;
+}
+.safari-app.tabs-mode .safari-ios8-card .safari-snapshot-copy span{
+  font-size:10px;color:#83868c;
+}
+.safari-app.tabs-mode .safari-ios8-card.active .safari-tab-sheet{
+  border-color:#ecf0f9;
+  box-shadow:0 4px 4px #0007,0 13px 27px #000a,0 29px 48px #0008;
+}
+.safari-app.tabs-mode .safari-ios8-card.active .chrome{
+  color:#21252c!important;
+  background:linear-gradient(#fff,#e7e8eb)!important;
+}
+.safari-app.tabs-mode .safari-ios8-card:focus-visible .safari-tab-sheet{
+  outline:2px solid #80b2f6;outline-offset:2px;
+}
+.safari-app.tabs-mode .safari-tab-stack.safari-ios8-animate .safari-ios8-card{
+  animation:safari-ios8-card-in .34s cubic-bezier(.22,1,.35,1) both;
+  animation-delay:var(--saf-delay);
+}
+@keyframes safari-ios8-card-in{
+  from{opacity:.64;transform:translateY(-24px) translateZ(calc(var(--saf-depth) - 28px)) rotateX(-29deg) scale(.91)}
+  to{opacity:1;transform:translateZ(var(--saf-depth)) rotateX(-23deg) scale(var(--saf-scale))}
+}
+.safari-app.tabs-mode .safari-ios8-card.safari-tab-opening{
+  transition:transform .15s ease-out,opacity .15s ease-out!important;
+  transform:translateZ(65px) rotateX(-4deg) scale(1.025)!important;
+}
+.safari-app.tabs-mode .safari-ios8-card.safari-tab-dismissing{
+  transition:transform .16s ease-in,opacity .16s ease-in!important;
+  transform:translateX(115%) translateZ(var(--saf-depth)) rotateX(-19deg) scale(.89)!important;
+  opacity:0!important;
+}
+/* The actual bottom dock of the 2015 Safari tab browser. */
+.safari-app.tabs-mode .safari-tabs-bottom{
+  position:absolute!important;
+  inset:auto 0 0!important;
+  height:44px!important;
+  min-height:44px!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr 1fr!important;
+  margin:0!important;
+  padding:0!important;
+  border-top:1px solid #7779!important;
+  background:rgba(43,45,49,.94)!important;
+  box-shadow:0 -6px 22px #0005,inset 0 1px #ffffff17!important;
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  z-index:20!important;
+}
+.safari-app.tabs-mode .safari-tabs-bottom button{
+  display:flex!important;
+  height:44px!important;
+  min-height:44px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  color:#f2f2f5!important;
+  text-shadow:0 1px #0008;
+  font:400 15px/44px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+.safari-app.tabs-mode .safari-tabs-bottom #safariPrivateToggle{justify-content:flex-start!important;padding-left:14px!important}
+.safari-app.tabs-mode .safari-tabs-bottom #safariTabsDone{justify-content:flex-end!important;padding-right:14px!important}
+.safari-app.tabs-mode .safari-tabs-bottom #safariNewTab{
+  font:200 31px/44px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+@media (prefers-reduced-motion:reduce){
+  .safari-app.tabs-mode .safari-ios8-card{
+    animation:none!important;transition:none!important;
+  }
+}
+</style>
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -6082,7 +6327,7 @@ const SAFARI_HISTORY = [
     app.classList.add('open'); screen?.classList.add('safari-open');
     renderCurrent(false);
   }
-  function closeApp() { if(!app.classList.contains('open')) return; saveScroll(); hideOverlay(); tabsView.classList.remove('show'); app.classList.remove('tabs-mode'); privatePanel.classList.remove('show'); app.classList.remove('open'); screen?.classList.remove('safari-open'); }
+  function closeApp() { if(!app.classList.contains('open')) return; saveScroll(); hideOverlay(); tabsView.classList.remove('show'); app.classList.remove('tabs-mode'); privatePanel.classList.remove('show'); app.classList.remove('open'); screen?.classList.remove('safari-open'); screen?.classList.remove('safari-tabs-open'); }
   launcher.addEventListener('click', openApp);
   homeButton?.addEventListener('click', closeApp);
   page.addEventListener('scroll', () => { const e=currentEntry(); if(e) e.scroll = page.scrollTop; }, {passive:true});
@@ -6166,40 +6411,119 @@ const SAFARI_HISTORY = [
     overlay.querySelectorAll('[data-saf-close]').forEach(n=>n.addEventListener('click',hideOverlay));
   }
 
-  function showTabs() {
+
+  function hideSafariTabOverview(){
+    tabsView.classList.remove('show');
+    app.classList.remove('tabs-mode');
+    screen?.classList.remove('safari-tabs-open');
+  }
+
+  function showTabs(opts={}) {
     app.classList.add('tabs-mode');
+    screen?.classList.add('safari-tabs-open');
     tabsView.classList.add('show');
-    tabsView.innerHTML = `<div class="safari-tab-stack">${state.tabs.map(t => {
-      const e = t.historyStack[t.historyIndex];
-      const meta = pageMeta(e.pageId, e.extra);
-      const host = (meta.url || meta.title || '').split('/')[0] || meta.title || 'Tab';
-      return `<div class="safari-tab-card ${t.id===state.currentTabId?'active':''}" data-tabid="${t.id}">
-        <button class="close" data-close-tab="${t.id}">×</button>
-        <div class="chrome">${esc(host)}</div>
-        <div class="thumb">${thumbForPage(e.pageId,e.extra)}</div>
-        <div class="cap">${esc(meta.title)}</div>
-      </div>`;
+
+    const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    const escapeTabId=t=>esc(String(t));
+    tabsView.innerHTML = `<div class="safari-tab-stack safari-ios8-perspective" role="list" aria-label="Các tab Safari">${state.tabs.map((t,i) => {
+      const e=t.historyStack[t.historyIndex];
+      const meta=pageMeta(e.pageId,e.extra);
+      const host=(meta.url || meta.title || '').replace(/^https?:\/\//,'').split('/')[0] || meta.title || 'Tab';
+      const id=escapeTabId(t.id);
+      const depth=(i-state.tabs.length+1)*7;
+      const zoom=(.962+i/Math.max(1,state.tabs.length-1)*.032).toFixed(3);
+      return `<section class="safari-tab-card safari-ios8-card ${t.id===state.currentTabId?'active':''}"
+          data-tabid="${id}" role="listitem"
+          aria-label="Tab: ${esc(host)}"
+          style="--saf-layer:${i+1};--saf-depth:${depth}px;--saf-scale:${zoom};--saf-delay:${i*24}ms">
+        <div class="safari-tab-sheet">
+          <div class="chrome">
+            <button class="close" data-close-tab="${id}" type="button"
+                aria-label="Đóng tab ${esc(host)}" ${state.tabs.length===1?'disabled':''}>×</button>
+            <span class="safari-tab-host">${esc(host)}</span>
+          </div>
+          <div class="thumb">
+            <div class="safari-snapshot-website">${thumbForPage(e.pageId,e.extra)}</div>
+            <div class="safari-snapshot-copy"><b>${esc(meta.title)}</b><span>${esc(host)}</span></div>
+          </div>
+        </div>
+      </section>`;
     }).join('')}</div>
-    <div class="safari-tabs-bottom"><button id="safariPrivateToggle" type="button">Private</button><button id="safariNewTab" type="button">＋</button><button id="safariTabsDone" type="button">Done</button></div>`;
-    tabsView.querySelectorAll('[data-tabid]').forEach(card => card.addEventListener('click', e => {
-      if(e.target.closest('[data-close-tab]')) return;
-      saveScroll(); state.currentTabId = card.dataset.tabid; tabsView.classList.remove('show'); app.classList.remove('tabs-mode'); renderCurrent(true);
-    }));
-    tabsView.querySelectorAll('[data-close-tab]').forEach(btn => btn.addEventListener('click', e => {
-      e.stopPropagation();
-      if(state.tabs.length===1) return;
-      const id=btn.dataset.closeTab;
-      state.tabs = state.tabs.filter(t=>t.id!==id);
-      if(state.currentTabId===id) state.currentTabId = state.tabs[0].id;
-      showTabs(); renderCurrent(true);
-    }));
-    tabsView.querySelector('#safariNewTab').addEventListener('click', () => {
-      const id='t'+Date.now();
-      state.tabs.unshift({id, title:'Tab mới', historyStack:[makeEntry('new-tab')], historyIndex:0});
-      state.currentTabId=id; tabsView.classList.remove('show'); app.classList.remove('tabs-mode'); renderCurrent(false);
+    <div class="safari-tabs-bottom">
+      <button id="safariPrivateToggle" type="button">Private</button>
+      <button id="safariNewTab" type="button" aria-label="Tab mới">＋</button>
+      <button id="safariTabsDone" type="button">Done</button>
+    </div>`;
+
+    const stack=tabsView.querySelector('.safari-tab-stack');
+    const reveal=()=>{
+      if(!stack?.isConnected || !tabsView.classList.contains('show'))return;
+      if(typeof opts.scroll==='number'){
+        stack.scrollTop=opts.scroll;
+      }else{
+        const selected=[...stack.querySelectorAll('[data-tabid]')].find(card=>card.dataset.tabid===state.currentTabId);
+        if(selected){
+          const target=selected.offsetTop-stack.offsetTop-stack.clientHeight*.58;
+          stack.scrollTop=Math.max(0,target);
+        }
+      }
+      if(!opts.instant)stack.classList.add('safari-ios8-animate');
+    };
+    requestAnimationFrame(reveal);
+
+    const selectTab=card=>{
+      if(!card || tabsView.dataset.busy==='1')return;
+      tabsView.dataset.busy='1';
+      if(!reduceMotion)card.classList.add('safari-tab-opening');
+      window.setTimeout(()=>{
+        saveScroll();
+        state.currentTabId=card.dataset.tabid;
+        hideSafariTabOverview();
+        renderCurrent(true);
+        tabsView.dataset.busy='';
+      },reduceMotion?0:155);
+    };
+    stack.querySelectorAll('.safari-tab-card').forEach(card=>{
+      card.addEventListener('click',ev=>{
+        if(ev.target.closest('[data-close-tab]'))return;
+        selectTab(card);
+      });
+      card.addEventListener('keydown',ev=>{
+        if(ev.target!==card || (ev.key!=='Enter'&&ev.key!==' '))return;
+        ev.preventDefault();selectTab(card);
+      });
+      card.setAttribute('tabindex','0');
     });
-    tabsView.querySelector('#safariPrivateToggle').addEventListener('click', () => { tabsView.classList.remove('show'); app.classList.remove('tabs-mode'); privatePanel.classList.add('show'); });
-    tabsView.querySelector('#safariTabsDone').addEventListener('click', () => { tabsView.classList.remove('show'); app.classList.remove('tabs-mode'); });
+
+    stack.querySelectorAll('[data-close-tab]').forEach(btn=>btn.addEventListener('click',ev=>{
+      ev.stopPropagation();
+      if(state.tabs.length<=1||tabsView.dataset.busy==='1')return;
+      tabsView.dataset.busy='1';
+      const sc=stack.scrollTop;
+      const id=btn.dataset.closeTab;
+      if(!reduceMotion)btn.closest('.safari-tab-card')?.classList.add('safari-tab-dismissing');
+      window.setTimeout(()=>{
+        state.tabs=state.tabs.filter(t=>t.id!==id);
+        if(state.currentTabId===id)state.currentTabId=state.tabs[0].id;
+        tabsView.dataset.busy='';
+        showTabs({scroll:sc,instant:true});
+        renderCurrent(true);
+      },reduceMotion?0:160);
+    }));
+
+    tabsView.querySelector('#safariNewTab').addEventListener('click',()=>{
+      if(tabsView.dataset.busy==='1')return;
+      const id='t'+Date.now();
+      state.tabs.unshift({id,title:'Tab mới',historyStack:[makeEntry('new-tab')],historyIndex:0});
+      state.currentTabId=id;
+      hideSafariTabOverview();renderCurrent(false);
+    });
+    tabsView.querySelector('#safariPrivateToggle').addEventListener('click',()=>{
+      hideSafariTabOverview();privatePanel.classList.add('show');
+    });
+    tabsView.querySelector('#safariTabsDone').addEventListener('click',()=>{
+      hideSafariTabOverview();
+    });
   }
 
   function thumbForPage(pageId, extra={}) {
