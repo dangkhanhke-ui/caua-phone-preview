@@ -68,7 +68,7 @@ function boot(){
  const dateLabel=s=>{if(!s)return '';let a=s.split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:s};
  const daySort=t=>{const e=latest(t);return e?e.date+'T'+(e.time||'00:00'):t.activity||''};
  let pendingCauaShare=null;
- let ui={tab:'chats',page:'main',id:'',sub:'',query:'',search:'',callFilter:'all',stack:[],overlay:null,viewer:'',select:[],edit:false,scrollThread:true,chatScroll:{},recording:false};
+ let ui={tab:'chats',page:'main',id:'',sub:'',query:'',search:'',callFilter:'all',stack:[],overlay:null,viewer:'',select:[],edit:false,photoPickerFor:'chat',scrollThread:true,chatScroll:{},recording:false};
  let toastTimeout,callTimer,recorder,recParts=[];
  const action=(a,label,extra='')=>'<button type="button" data-act="'+a+'" '+extra+'>'+label+'</button>';
  function nav(title,left='',right=''){
@@ -461,18 +461,21 @@ function boot(){
   if(a==='status-presets'){ui.overlay=null;navigate('sub',{sub:'choose-status'});return}
   if(a==='status-edit'){modalInput('status');return}
   if(a==='status-choose'){data.status=val;save();back();return}
-  if(a==='attach-image'){ui.overlay=null;navigate('photo-picker');return}
+  if(a==='attach-image'){ui.overlay=null;ui.photoPickerFor='chat';navigate('photo-picker');return}
   if(a==='photo-pick'){
     const src=el.dataset.src||'';
     if(!/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(src))return;
+    if(ui.photoPickerFor==='profile'){
+      data.photo=src;save();ui.photoPickerFor='chat';back();toast('Đã đổi ảnh đại diện');return;
+    }
     if(!contact(ui.id)){toast('Không tìm thấy liên hệ');return}
     makeMessage(contact(ui.id),'image',{src});
     ui.scrollThread=true;back();toast('Đã gửi ảnh');return;
   }
-  if(a==='change-photo'){ui.overlay=null;const input=root.querySelector('#waiFile');if(input){input.dataset.kind='avatar';input.click()}return}
+  if(a==='change-photo'){ui.photoPickerFor='profile';navigate('photo-picker');return}
   if(a==='send'){sendText();return}
   if(a==='attach'){attachment();return}
-  if(a==='mic'){ui.overlay=null;showRecording();return}
+  if(a==='mic'){ui.overlay=null;render();toast('Không có kết nối. Không thể ghi âm lúc này.');return}
   if(a==='attach-location'){ui.overlay=null;makeMessage(contact(ui.id),'location',{title:'Rio de Janeiro, RJ'});render();return}
   if(a==='attach-contact'){ui.overlay=null;ui.select=[];navigate('sub',{sub:'contact-picker'});return}
   if(a==='toggle-select'){ui.select=ui.select.includes(id)?ui.select.filter(x=>x!==id):[...ui.select,id];render();return}
