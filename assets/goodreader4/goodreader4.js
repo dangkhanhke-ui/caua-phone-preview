@@ -9,6 +9,7 @@ const el={nav:app.querySelector('#gr4Nav'),body:app.querySelector('#gr4Body'),ba
 const STORE='caua.goodreader4.2015.v1';
 let source=[], entries=[], folders=[], selected=new Set(), history=[], bookmarks={}, notes={}, stars=new Set(), saved={}, recents=[];
 let path=[],view='files',query='',sort='name',grid=false,current=null,page=1,zoom=1,reflow=false,readerSearch='',unlocked=new Set(),mode='normal';
+let copySequence=0;
 const specials=['Sự kiện','Tài liệu cũ','Lưu trữ'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const key=p=>p.join('\u0001');
@@ -70,10 +71,11 @@ function promptBox(title,initial,cb){
  input.onkeydown=e=>{if(e.key==='Enter')box.querySelector('.gr4-prompt-save').click()};
  wrap.onclick=e=>{if(e.target===wrap)closeLayer()};wrap.appendChild(box);el.layer.appendChild(wrap);input.focus();input.select();
 }
+function dateCode(value){const d=String(value||'').split('/');return d.length===3?d[2]+d[1].padStart(2,'0')+d[0].padStart(2,'0'):String(value||'');}
 function folderRows(location){
  const subs=folders.filter(f=>f.length===location.length+1&&location.every((v,i)=>f[i]===v)).map(f=>({id:folderId(f),type:'folder',name:f.at(-1),path:f}));
  const files=entries.filter(e=>!e.deleted&&key(e.path)===key(location));
- return [...subs.sort((a,b)=>a.name.localeCompare(b.name,'vi')), ...files.sort((a,b)=>sort==='date'?b.modified.localeCompare(a.modified):a.filename.localeCompare(b.filename,'vi'))];
+ return [...subs.sort((a,b)=>a.name.localeCompare(b.name,'vi')), ...files.sort((a,b)=>sort==='date'?dateCode(b.modified).localeCompare(dateCode(a.modified)):a.filename.localeCompare(b.filename,'vi'))];
 }
 function allMatches(term){
  const q=term.trim().toLocaleLowerCase();const dirs=folders.filter(p=>!q||p.join(' ').toLocaleLowerCase().includes(q)).map(p=>({id:folderId(p),name:p.at(-1),path:p,type:'folder'}));const docs=entries.filter(e=>!e.deleted&&(!q||[e.filename,...e.path].join(' ').toLocaleLowerCase().includes(q)));return [...dirs,...docs];
@@ -103,7 +105,7 @@ function renderFiles(){
   input.addEventListener('input',e=>{query=e.target.value;const rows=allMatches(query);el.body.querySelector('#gr4Rows').innerHTML=rows.length?rows.map(fileRow).join(''):'<div class="gr4-empty">Không tìm thấy.</div>';});
  }
  if(mode==='manage'){
-  tools([{id:'manage-done',icon:'✓',label:'Xong'},{id:'manage-star',icon:'★',label:'Star'},{id:'manage-move',icon:'↪',label:'Di chuyển'},{id:'manage-rename',icon:'✎',label:'Đổi tên'},{id:'manage-delete',icon:'▤',label:'Xóa'}]);
+  tools([{id:'manage-done',icon:'✓',label:'Xong'},{id:'manage-star',icon:'★',label:'Star'},{id:'manage-move',icon:'↪',label:'Di chuyển'},{id:'manage-copy',icon:'▣',label:'Sao chép'},{id:'manage-rename',icon:'✎',label:'Đổi tên'},{id:'manage-delete',icon:'▤',label:'Xóa'}]);
  }else{
   tools([{id:'new-folder',icon:'+',label:'Thư mục'},{id:'manage',icon:'☑',label:'Quản lý'},{id:'find',icon:'⌕',label:'Tìm'},{id:'recents',icon:'◷',label:'Gần đây'},{id:'starred',icon:'☆',label:'Yêu thích'}]);
  }
@@ -208,6 +210,50 @@ function deleteSelected(){
   selected.clear();mode='normal';save();render();toast('Đã chuyển vào Thùng rác');
  }}]);
 }
+
+function copySelected(){
+ const ids=[...selected];if(!ids.length){toast('Chọn mục cần sao chép');return;}
+ const matches=(p,base)=>base.every((v,i)=>p[i]===v);
+ const uniqueFile=(name,dest)=>{
+  const ext=name.toLowerCase().endsWith('.pdf')?'.pdf':'';
+  const stem=ext?name.slice(0,-4):name;
+  let candidate=name,n=1;
+  while(entries.some(e=>!e.deleted&&key(e.path)===key(dest)&&e.filename.toLocaleLowerCase()===candidate.toLocaleLowerCase())){
+   candidate=stem+' (copy'+(n>1?' '+n:'')+')'+ext;n++;
+  }
+  return candidate;
+ };
+ const uniqueFolder=(name,dest)=>{
+  let candidate=name,n=1;
+  while(folders.some(f=>key(f)===key([...dest,candidate]))){candidate=name+' (copy'+(n>1?' '+n:'')+')';n++;}
+  return candidate;
+ };
+ const duplicate=(file,dest)=>{
+  entries.push({...file,id:'gr4-copy-'+Date.now().toString(36)+'-'+(++copySequence),filename:uniqueFile(file.filename,dest),path:[...dest],deleted:false,copied:true,original:file.original||file.filename});
+ };
+ const copyTo=(dest)=>{
+  const originalFolders=folders.map(f=>[...f]),originalFiles=entries.filter(e=>!e.deleted).map(e=>({...e,path:[...e.path]}));
+  let done=0;
+  for(const id of ids){
+   const f=originalFiles.find(x=>x.id===id);
+   if(f){duplicate(f,dest);done++;continue;}
+   const root=originalFolders.find(x=>folderId(x)===id);
+   if(!root)continue;
+   const target=[...dest,uniqueFolder(root.at(-1),dest)];
+   folders.push(target);
+   originalFolders.filter(x=>x.length>root.length&&matches(x,root)).forEach(x=>folders.push([...target,...x.slice(root.length)]));
+   originalFiles.filter(x=>matches(x.path,root)).forEach(x=>duplicate(x,[...target,...x.path.slice(root.length)]));
+   done++;
+  }
+  if(!done){toast('Không có mục để sao chép');return;}
+  selected.clear();mode='normal';save();render();toast('Đã sao chép '+done+' mục');
+ };
+ sheet('Sao chép đến',[
+  {title:'My Documents',run:()=>copyTo([])},
+  ...folders.map(f=>({title:pathLabel(f),run:()=>copyTo(f)}))
+ ]);
+}
+
 function moveSelected(){
  const ids=[...selected];if(!ids.length){toast('Chọn một tệp để di chuyển');return;}
  const buttons=[{title:'My Documents',run:()=>moveTo([])},...folders.map(p=>({title:pathLabel(p),run:()=>moveTo(p)}))];
@@ -240,7 +286,7 @@ function renameSelected(){
 function download(){
  const d=find(current);if(!d)return;
  const a=document.createElement('a');a.href=fileUrl(d);a.download=d.original||d.filename;document.body.appendChild(a);a.click();a.remove();
- toast('Đang mở PDF gốc'+(d.password?' (mật khẩu 1111)':''));
+ toast('Đang tải tệp PDF gốc');
 }
 function readerActions(){
  const d=find(current);
@@ -262,7 +308,7 @@ function viewSetup(){
  {title:'Sắp theo ngày '+(sort==='date'?'✓':''),run:()=>{sort='date';save();render()}},
  {title:'Thùng rác',run:()=>{const gone=entries.filter(e=>e.deleted);
   if(!gone.length){toast('Thùng rác trống');return;}
-  sheet('Thùng rác',[...gone.map(f=>({title:f.filename+' — khôi phục',run:()=>{f.deleted=false;save();render()}})),{title:'Xóa vĩnh viễn các bản sao',danger:true,run:()=>{entries=entries.filter(e=>!e.copied||!e.deleted);save();render()}}]);
+  sheet('Thùng rác',[...gone.map(f=>({title:f.filename+' — khôi phục',run:()=>{f.deleted=false;for(let i=1;i<=f.path.length;i++){const p=f.path.slice(0,i);if(!folders.some(x=>key(x)===key(p)))folders.push(p);}save();render();toast('Đã khôi phục '+f.filename)}})),{title:'Xóa vĩnh viễn các bản sao',danger:true,run:()=>{entries=entries.filter(e=>!e.copied||!e.deleted);save();render()}}]);
  }}
  ]);
 }
@@ -281,6 +327,7 @@ function handler(action,target){
  else if(action==='manage-star'){if(!selected.size){toast('Hãy chọn tệp');return;}setStar([...selected]);}
  else if(action==='manage-rename')renameSelected();
  else if(action==='manage-move')moveSelected();
+ else if(action==='manage-copy')copySelected();
  else if(action==='manage-delete')deleteSelected();
  else if(action==='find'){view='find';query='';render();el.body.querySelector('input')?.focus();}
  else if(action==='clear-search'){query='';render();}
