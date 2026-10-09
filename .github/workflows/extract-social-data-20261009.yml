@@ -1,0 +1,92 @@
+name: Extract Social Data
+on:
+  push:
+    paths: ['.github/workflows/extract-social-data-20261009.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: social-data-extraction
+  cancel-in-progress: false
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract Facebook and WhatsApp JSON datasets
+        run: |
+          python3 - <<'PY'
+          import re,json
+          from pathlib import Path
+          h=Path('index.html')
+          src=h.read_text(encoding='utf-8')
+          if '<script src="data/facebook.js"></script>' in src:
+              print('Social data already extracted');raise SystemExit(0)
+          script_pat=re.compile(r'<script\b([^>]*)>([\s\S]*?)</script\s*>',re.I)
+          matches=list(script_pat.finditer(src))
+          targets={
+              'facebook':("document.getElementById('facebookApp')",['FEED','PROFILE_POSTS','FRIENDS']),
+              'whatsapp':("document.getElementById('whatsappApp')",['THREADS'])
+          }
+          replacements={}
+          for app,(marker,names) in targets.items():
+              scripts=[m for m in matches if marker in m.group(2) and (('const FEED=' in m.group(2)) if app=='facebook' else ('const THREADS=' in m.group(2)))]
+              if len(scripts)!=1:raise SystemExit(f'Could not identify unique {app} data script: {len(scripts)}')
+              m=scripts[0]
+              body=m.group(2)
+              extracted={}
+              for name in names:
+                  pattern=re.compile(r'(?m)^([ \t]*)const '+name+r'=(\[[^\r\n]*\]);')
+                  found=list(pattern.finditer(body))
+                  if len(found)!=1:raise SystemExit(f'{app}.{name}: expected 1 declaration, got {len(found)}')
+                  value=found[0].group(2)
+                  try: parsed=json.loads(value)
+                  except ValueError as exc:raise SystemExit(f'{app}.{name} not JSON: {exc}')
+                  if not isinstance(parsed,list):raise SystemExit('Expected JSON array')
+                  extracted[name]=value
+                  body=pattern.sub(lambda q:q.group(1)+f'const {name}=window.__CAUA_{app.upper()}_DATA__.{name};',body,count=1)
+                  print(f'{app}.{name}: {len(parsed)} records; {len(value.encode())} bytes')
+              data=Path('data')/(app+'.js')
+              data.parent.mkdir(exist_ok=True)
+              text='// Generated from original inline datasets; preserve exact values.\nwindow.__CAUA_'+app.upper()+'_DATA__={\n'+',\n'.join('  '+key+':'+value for key,value in extracted.items())+'\n};\n'
+              data.write_text(text,encoding='utf-8')
+              replacements[m.start()]=(m,body,app)
+          # Apply from the end so source offsets remain stable.
+          modified=src
+          for pos,(m,body,app) in sorted(replacements.items(),reverse=True):
+              replacement=f'<script src="data/{app}.js"></script>\n<script'+m.group(1)+'>'+body+'</script>'
+              modified=modified[:m.start()]+replacement+modified[m.end():]
+          for name in targets:
+              if modified.count(f'<script src="data/{name}.js"></script>')!=1:
+                  raise SystemExit('Missing or duplicate dataset reference')
+          h.write_text(modified,encoding='utf-8')
+          print('Index reduced by',len(src.encode())-len(modified.encode()),'bytes')
+          PY
+      - name: Validate JS and referenced datasets
+        run: |
+          node --check data/facebook.js
+          node --check data/whatsapp.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          s=Path('index.html').read_text(encoding='utf-8')
+          for name in ('facebook','whatsapp'):
+              tag=f'<script src="data/{name}.js"></script>'
+              assert s.count(tag)==1
+              assert Path('data/'+name+'.js').is_file()
+          for n,m in enumerate(re.finditer(r'<script\b[^>]*>([\s\S]*?)</script\s*>',s,re.I)):
+              body=m.group(1)
+              if 'window.__CAUA_FACEBOOK_DATA__' in body or 'window.__CAUA_WHATSAPP_DATA__' in body:
+                  f=Path('/tmp/social-inline-'+str(n)+'.js')
+                  f.write_text(body,encoding='utf-8')
+                  subprocess.run(['node','--check',str(f)],check=True)
+          print('Both dataset files and consumer script syntax verified')
+          PY
+      - name: Commit extracted data
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html data/facebook.js data/whatsapp.js
+          git commit -m "Extract Facebook and WhatsApp data arrays from UI scripts"
+          git pull --rebase origin main
+          git push
