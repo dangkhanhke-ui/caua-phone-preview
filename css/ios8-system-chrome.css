@@ -1,0 +1,69 @@
+/* iOS 8 chrome restoration, scoped to existing functional controls. */
+#statusBar.ios8-svg-status {
+  --ios8-ink:#fff;
+  color:var(--ios8-ink)!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.09);
+  transition:color 170ms ease,background-color 170ms ease;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:10px;
+  letter-spacing:-.1px;
+}
+#statusBar.ios8-svg-status[data-ios8-contrast="dark"] {
+  --ios8-ink:#202124;
+  text-shadow:none!important;
+}
+#statusBar.ios8-svg-status[data-ios8-contrast="light"] {
+  --ios8-ink:#fff;
+  text-shadow:0 1px 1px rgba(0,0,0,.12)!important;
+}
+#statusBar.ios8-svg-status .status-left,
+#statusBar.ios8-svg-status .status-right {gap:3px;white-space:nowrap;align-items:center}
+#statusBar.ios8-svg-status .status-left{min-width:0}
+#statusBar.ios8-svg-status .status-right{justify-content:flex-end}
+#statusBar.ios8-svg-status .status-time{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+#statusBar.ios8-svg-status .carrier{font-size:10px;font-weight:400;letter-spacing:-.15px}
+#statusBar.ios8-svg-status .battery-percent{font-size:10px;font-weight:400}
+#statusBar.ios8-svg-status .bluetooth{opacity:.88;transform:none}
+#statusBar.ios8-svg-status .signal-dots,
+#statusBar.ios8-svg-status .wifi,
+#statusBar.ios8-svg-status .battery{
+  display:inline-flex;position:relative;overflow:visible;
+  padding:0;margin:0;align-items:center;justify-content:center;
+  color:var(--ios8-ink)!important;border:0!important;
+  background:none!important;box-shadow:none!important;
+}
+#statusBar.ios8-svg-status .signal-dots{width:29px;height:11px;gap:0}
+#statusBar.ios8-svg-status .wifi{width:14px;height:11px}
+#statusBar.ios8-svg-status .battery{width:23px;height:11px}
+#statusBar.ios8-svg-status .bluetooth{width:9px;height:11px;display:inline-flex;align-items:center}
+#statusBar.ios8-svg-status .battery::after{content:none!important}
+#statusBar.ios8-svg-status .status-svg{display:block;max-width:100%;height:auto;overflow:visible;color:inherit;fill:none;stroke:currentColor}
+#statusBar.ios8-svg-status .ios8-signal-dot{fill:currentColor;stroke:none}
+#statusBar.ios8-svg-status .ios8-signal-dot.is-empty{fill:none;stroke:currentColor;stroke-width:1}
+#statusBar.ios8-svg-status .ios8-battery-level{fill:currentColor;stroke:none}
+#statusBar.ios8-svg-status .ios8-battery-shell{stroke:currentColor;stroke-width:1.15;fill:none}
+#statusBar.ios8-svg-status svg *{vector-effect:non-scaling-stroke}
+#photosViewer .photos-viewer-toolbar .photos-viewer-tool {
+  display:flex;align-items:center;justify-content:center;min-width:40px;padding:0;
+}
+#photosViewer .photos-viewer-toolbar .ios8-tool-svg,
+#mailToolbar .ios8-tool-svg {
+  display:block;width:25px;height:25px;color:#007aff;
+  fill:none;stroke:currentColor;stroke-width:1.65;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+#photosViewer .photos-viewer-toolbar .ios8-heart{fill:transparent!important;stroke:currentColor!important}
+#photosViewer .photos-viewer-toolbar .favorite.on .ios8-heart{fill:#007aff!important;stroke:#007aff!important}
+#mailToolbar .mail-toolbar-btn {display:flex;align-items:center;justify-content:center;min-width:37px;height:40px}
+#mailToolbar .mail-toolbar-btn .ios8-tool-svg{width:24px;height:24px}
+#mailToolbar .mail-toolbar-btn[data-mail-action="flag"].is-flagged .ios8-tool-svg{fill:#007aff}
+#gr4Nav button{display:inline-flex;align-items:center;justify-content:center;gap:4px}
+#gr4Nav button.gr4-has-back{justify-content:flex-start}
+#gr4Nav button.gr4-nav-right{justify-content:flex-end}
+#gr4Nav .ios8-gr4-svg{width:16px;height:16px;flex:0 0 16px;display:block;
+  fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+#gr4Nav button[data-gr="root"] .ios8-gr4-svg{width:17px;height:17px}
+#gr4Nav button.gr4-nav-right .ios8-gr4-svg{width:15px;height:15px;flex-basis:15px}
