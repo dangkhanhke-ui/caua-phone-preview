@@ -3181,7 +3181,9 @@
     {id:'photo38',src:'./assets/photos/photo38.jpg',filename:'IMG_9184.jpeg',date:'2015-07-18',time:'20:36',dateDisplay:'18 tháng 7, 2015',dateTimeDisplay:'18 tháng 7, 2015 · 20:36',location:'Santa Teresa, Rio de Janeiro · RJ',locationShort:'Santa Teresa',width:420,height:236},
     {id:'photo41',src:'./assets/photos/photo41.jpg',filename:'IMG_9189.jpeg',date:'2015-08-23',time:'23:16',dateDisplay:'23 tháng 8, 2015',dateTimeDisplay:'23 tháng 8, 2015 · 23:16',location:'Santa Teresa, Rio de Janeiro · RJ',locationShort:'Santa Teresa',width:315,height:420}
   ];
-  const state={view:'moments',lastView:'moments',currentIndex:0,favorites:new Set(),source:'Khoảnh khắc',scrolls:{moments:0,collections:0,years:0,albums:0,albumGrid:0},viewerReturn:null};
+  const PHOTO_FAVORITES_KEY='caua.photos.favorites.v1';
+  function loadPhotoFavorites(){try{const ids=JSON.parse(localStorage.getItem(PHOTO_FAVORITES_KEY)||'[]');const valid=new Set(PHOTOS.map(p=>p.id));return Array.isArray(ids)?ids.filter(id=>valid.has(id)):[]}catch(_){return []}}
+  const state={view:'moments',lastView:'moments',currentIndex:0,favorites:new Set(loadPhotoFavorites()),source:'Khoảnh khắc',scrolls:{moments:0,collections:0,years:0,albums:0,albumGrid:0},viewerReturn:null};
   const views={moments:document.getElementById('photosMomentsView'),collections:document.getElementById('photosCollectionsView'),years:document.getElementById('photosYearsView'),shared:document.getElementById('photosSharedView'),albums:document.getElementById('photosAlbumsView'),albumGrid:document.getElementById('photosAlbumGridView')};
   const momentsScroll=document.getElementById('photosMomentsScroll');
   const collectionsScroll=document.getElementById('photosCollectionsScroll');
@@ -3324,7 +3326,7 @@
     state.viewerReturn=null;
   });
   document.getElementById('photosInfoClose').addEventListener('click',()=>info.classList.remove('open'));
-  document.getElementById('photosFavoriteBtn').addEventListener('click',()=>{const p=PHOTOS[state.currentIndex];state.favorites.has(p.id)?state.favorites.delete(p.id):state.favorites.add(p.id);favBtn.classList.toggle('on',state.favorites.has(p.id));renderAlbums();});
+  document.getElementById('photosFavoriteBtn').addEventListener('click',()=>{const p=PHOTOS[state.currentIndex];state.favorites.has(p.id)?state.favorites.delete(p.id):state.favorites.add(p.id);try{localStorage.setItem(PHOTO_FAVORITES_KEY,JSON.stringify([...state.favorites]))}catch(_){}favBtn.classList.toggle('on',state.favorites.has(p.id));renderAlbums();});
   document.getElementById('photosShareBtn').addEventListener('click',showShareSheet);
   document.getElementById('photosTrashBtn').addEventListener('click',()=>showAlert('Không thể xóa ảnh lúc này.'));
   document.getElementById('photosEditBtn').addEventListener('click',()=>showAlert('Không thể chỉnh sửa ảnh lúc này.'));
