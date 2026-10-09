@@ -2632,6 +2632,10 @@ body,
 .ufrj-oldsite{width:520px;min-height:560px;background:#fff;border-right:1px solid #d8d8d8;}
 .ufrj-old-header{height:78px;padding:10px 16px 7px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #b9c4cf;background:#fff;}
 .ufrj-old-logo{width:69px;height:48px;border:0;display:block;flex:0 0 auto;}
+/* UFRJ_LOGO_2015 -- overlay the uploaded logo, but keep the 2015 SVG fallback. */
+.ufrj-logo-slot{position:relative;display:block;flex:0 0 69px;width:69px;height:48px}
+.ufrj-logo-slot .ufrj-old-logo{position:absolute;inset:0;width:100%;height:100%}
+.ufrj-logo-slot .ufrj-logo-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;z-index:1}
 .ufrj-old-headtext{min-width:0;}
 .ufrj-old-university{font:700 11px/14px Arial,Helvetica,sans-serif;color:#2b4661;letter-spacing:.015em;white-space:nowrap;}
 .ufrj-old-intranet{margin-top:4px;font:700 17px/20px Arial,Helvetica,sans-serif;color:#143b61;}
@@ -3422,7 +3426,7 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
               <div class="app itau-launch" data-app="itau"><div class="icon image-icon"><img src="./assets/media/b8304cae6865ff99f4f10cef.png" alt="" /></div><span>Itaú</span></div>
               <div class="app itau-biz-launch" data-app="itau-biz"><div class="icon image-icon"><img src="./assets/media/ead9f6efcc82327a07570445.png" alt="" /></div><span>Itaú Doanh nghiệp</span></div>
               <div class="app whatsapp-launch" data-app="whatsapp"><div class="icon image-icon"><img src="./assets/media/2c0eb1b8cfa0778bce3ddea7.png" alt="" /></div><span>WhatsApp</span></div>
-              <div class="app goodreader-launch" data-app="goodreader"><div class="icon gr4-home-icon"><span class="gr4-logo-fallback">G</span><img id="gr4IconImage" src="./GR04_Icon.png" alt="" style="display:none" /></div><span>GoodReader</span></div>
+              <div class="app goodreader-launch" data-app="goodreader"><div class="icon gr4-home-icon"><span class="gr4-logo-fallback">G</span><img id="gr4IconImage" src="./assets/goodreader4/GR04_Icon.png" alt="" style="display:none" /></div><span>GoodReader</span></div>
             </div>
 
             <div class="page-dots single-page" aria-hidden="true"><i></i></div>
@@ -6299,7 +6303,8 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
   }
 
   function renderUfrjIntranet() {
-    const logo = `<svg class="ufrj-old-logo" viewBox="0 0 138 96" xmlns="http://www.w3.org/2000/svg" aria-label="UFRJ"><rect width="138" height="96" fill="#fff"/><g fill="none" stroke="#1f4d75" stroke-width="3"><circle cx="28" cy="37" r="22"/><path d="M19 46c4-13 9-23 18-28-2 8 0 15 7 21-7 1-13 4-18 10"/><path d="M15 59h28"/></g><text x="56" y="43" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="#1f4d75">UFRJ</text><text x="56" y="59" font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="700" fill="#1f4d75">UNIVERSIDADE FEDERAL</text><text x="56" y="69" font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="700" fill="#1f4d75">DO RIO DE JANEIRO</text></svg>`;
+    // UFRJ_LOGO_2015: custom image replaces only the header logo, original SVG stays as fallback.
+    const logo = `<span class="ufrj-logo-slot"><img class="ufrj-logo-image" src="./assets/safari/UFRJ_logo.png" alt="UFRJ" onerror="this.style.display='none'"><svg class="ufrj-old-logo" viewBox="0 0 138 96" xmlns="http://www.w3.org/2000/svg" aria-label="UFRJ"><rect width="138" height="96" fill="#fff"/><g fill="none" stroke="#1f4d75" stroke-width="3"><circle cx="28" cy="37" r="22"/><path d="M19 46c4-13 9-23 18-28-2 8 0 15 7 21-7 1-13 4-18 10"/><path d="M15 59h28"/></g><text x="56" y="43" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="#1f4d75">UFRJ</text><text x="56" y="59" font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="700" fill="#1f4d75">UNIVERSIDADE FEDERAL</text><text x="56" y="69" font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="700" fill="#1f4d75">DO RIO DE JANEIRO</text></svg></span>`;
     return `<div class="ufrj-oldpage"><div class="ufrj-oldsite">
       <header class="ufrj-old-header">${logo}<div class="ufrj-old-headtext"><div class="ufrj-old-university">UNIVERSIDADE FEDERAL DO RIO DE JANEIRO</div><div class="ufrj-old-intranet">MẠNG NỘI BỘ UFRJ</div></div></header>
       <div class="ufrj-oldbar">Truy cập các hệ thống nội bộ của trường</div>
@@ -8412,7 +8417,7 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
   const toggle=document.createElement('button');
   toggle.id='caua-immersive-toggle';
   toggle.type='button';
-  toggle.setAttribute('aria-label','Phóng lớn hoặc thu nhỏ màn hình iPhone');
+  toggle.setAttribute('aria-label','Phóng to hoặc thu nhỏ màn hình iPhone');
   document.body.appendChild(toggle);
 
   const homeBar=document.createElement('div');
@@ -8437,7 +8442,7 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     active=!!on;
     lastTap=0;
     document.body.classList.toggle('caua-immersive',active);
-    toggle.textContent=active?'⤢ thu nhỏ':'⛶ phóng lớn';
+    toggle.textContent=active?'⤢ thu nhỏ':'⛶ phóng to';
     toggle.setAttribute('aria-pressed',String(active));
     fit();
   }
@@ -8472,10 +8477,13 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
 (function(){
 const img=document.getElementById('gr4IconImage');
 if(!img)return;
-const options=['./GR04_Icon.png','./GR04_Icon.png.png','./GR04_Icon.jpg','./GR04_Icon.webp'];
+// GR04_ICON_2015: send an image and place it at assets/goodreader4/GR04_Icon.png
+const options=['./assets/goodreader4/GR04_Icon.png','./GR04_Icon.png','./GR04_Icon.png.png','./GR04_Icon.jpg','./GR04_Icon.webp'];
 let n=0;
 img.onload=()=>{img.style.display='block'};
 img.onerror=()=>{n++;if(n<options.length)img.src=options[n];else img.style.display='none'};
+// Assign after listeners so cached images also trigger onload reliably.
+img.src=options[0];
 })();
 </script>
 

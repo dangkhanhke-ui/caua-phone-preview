@@ -7,7 +7,7 @@ const screen=document.getElementById('screen');
 if(!app||!launch||!screen)return;
 const el={nav:app.querySelector('#gr4Nav'),body:app.querySelector('#gr4Body'),bar:app.querySelector('#gr4Bar'),layer:app.querySelector('#gr4Layer')};
 const STORE='caua.goodreader4.2015.v1';
-let source=[], entries=[], folders=[], selected=new Set(), history=[], bookmarks={}, notes={}, stars=new Set(), saved={}, recents=[];
+let source=[], entries=[], folders=[], folderDates={}, selected=new Set(), history=[], bookmarks={}, notes={}, stars=new Set(), saved={}, recents=[];
 let path=[],view='files',query='',sort='name',grid=false,current=null,page=1,zoom=1,reflow=false,readerSearch='',unlocked=new Set(),mode='normal',highlightMode=false,highlights={};
 let copySequence=0;
 const specials=['Sự kiện','Tài liệu cũ','Lưu trữ'];
@@ -22,12 +22,12 @@ const fileUrl=e=>'./assets/goodreader4/docs/'+encodeURIComponent(e.original||e.f
 function save(){
  try{
   const changes=entries.map(x=>({id:x.id,filename:x.filename,path:x.path,deleted:!!x.deleted,original:x.original,copied:!!x.copied}));
-  localStorage.setItem(STORE,JSON.stringify({changes,folderNames:folders,stars:[...stars],recents,bookmarks,notes,highlights,sort,grid}));
+  localStorage.setItem(STORE,JSON.stringify({changes,folderNames:folders,folderDates,stars:[...stars],recents,bookmarks,notes,highlights,sort,grid}));
  }catch(e){}
 }
 function load(){
  try{saved=JSON.parse(localStorage.getItem(STORE)||'{}')||{};}catch(e){saved={};}
- stars=new Set(saved.stars||[]);recents=saved.recents||[];
+ stars=new Set(saved.stars||[]);recents=saved.recents||[];folderDates=saved.folderDates||{};
  bookmarks=saved.bookmarks||{};notes=saved.notes||{};highlights=saved.highlights||{};sort=saved.sort||'name';grid=!!saved.grid;
 }
 function init(data){
@@ -42,7 +42,9 @@ function init(data){
  for(const d of entries.filter(x=>!x.deleted)){for(let i=1;i<=d.path.length;i++){const p=d.path.slice(0,i);seen.set(key(p),p);}}
  for(const p of saved.folderNames||[])seen.set(key(p),p);
  folders=[...seen.values()];
- render();
+ // Legacy user-created empty folders need a one-time timestamp as well.
+ for(const p of folders){if(!folderDates[key(p)]&&!entries.some(e=>!e.deleted&&p.every((v,i)=>e.path[i]===v)))folderDates[key(p)]=gr4Now();}
+ save();render();
 }
 function find(id){return entries.find(d=>d.id===id);}
 function toast(msg){const x=document.createElement('div');x.className='gr4-toast';x.textContent=msg;app.appendChild(x);setTimeout(()=>x.remove(),2300);}
@@ -80,16 +82,21 @@ function folderRows(location){
 function allMatches(term){
  const q=term.trim().toLocaleLowerCase();const dirs=folders.filter(p=>!q||p.join(' ').toLocaleLowerCase().includes(q)).map(p=>({id:folderId(p),name:p.at(-1),path:p,type:'folder'}));const docs=entries.filter(e=>!e.deleted&&(!q||[e.filename,...e.path].join(' ').toLocaleLowerCase().includes(q)));return [...dirs,...docs];
 }
+const GR4_ICON_PATHS={"new-folder":"<path d=\"M12 4.5v15M4.5 12h15\"/>","manage":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"3\"/><path d=\"m7.5 12 3.1 3.1 6.1-7\"/>","manage-done":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m7.5 12 3.1 3.1 6.1-7\"/>","find":"<circle cx=\"10.8\" cy=\"10.8\" r=\"6.8\"/><path d=\"m16 16 4.5 4.5\"/>","recents":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 6.5v5.8l4.1 2.2\"/>","starred":"<path d=\"m12 2.5 3 6.1 6.7 1-4.85 4.7L18 21l-6-3.2L6 21l1.15-6.7L2.3 9.6l6.7-1Z\"/>","manage-star":"<path d=\"m12 2.5 3 6.1 6.7 1-4.85 4.7L18 21l-6-3.2L6 21l1.15-6.7L2.3 9.6l6.7-1Z\"/>","manage-move":"<path d=\"M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4\"/>","manage-copy":"<rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2\"/>","manage-rename":"<path d=\"m4 16 11-11 4 4L8 20l-5 1 1-5ZM13 7l4 4\"/>","manage-delete":"<path d=\"M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7M10 11v6m4-6v6\"/>","zoom-out":"<path d=\"M5 12h14\"/>","zoom-in":"<path d=\"M5 12h14M12 5v14\"/>","reader-find":"<circle cx=\"10.8\" cy=\"10.8\" r=\"6.8\"/><path d=\"m16 16 4.5 4.5\"/>","bookmark":"<path d=\"m12 2.5 3 6.1 6.7 1-4.85 4.7L18 21l-6-3.2L6 21l1.15-6.7L2.3 9.6l6.7-1Z\"/>","pages":"<rect x=\"3.5\" y=\"3.5\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"13.5\" y=\"3.5\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3.5\" y=\"13.5\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"13.5\" y=\"13.5\" width=\"7\" height=\"7\" rx=\"1\"/>","reader-actions":"<circle cx=\"5\" cy=\"12\" r=\"1.25\"/><circle cx=\"12\" cy=\"12\" r=\"1.25\"/><circle cx=\"19\" cy=\"12\" r=\"1.25\"/>","locations-return":"<path d=\"m15 4-8 8 8 8\"/>","pages-list":"<rect x=\"3.5\" y=\"3.5\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"13.5\" y=\"3.5\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3.5\" y=\"13.5\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"13.5\" y=\"13.5\" width=\"7\" height=\"7\" rx=\"1\"/>","bookmarks-list":"<path d=\"m12 2.5 3 6.1 6.7 1-4.85 4.7L18 21l-6-3.2L6 21l1.15-6.7L2.3 9.6l6.7-1Z\"/>","annotations-list":"<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 14h8m-8 4h5\"/>","row-chevron":"<path d=\"m9 5 7 7-7 7\"/>","row-check":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"3\"/><path d=\"m7.5 12 3.1 3.1 6.1-7\"/>","row-empty":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"3\"/>"};
+function gr4Svg(name,fill){const p=GR4_ICON_PATHS[name]||GR4_ICON_PATHS['row-chevron'];return '<svg class="gr4-svg" viewBox="0 0 24 24" width="22" height="22" fill="'+(fill?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+p+'</svg>';}
+function gr4DateText(date,time){return date ? String(date)+' · '+(time||'12:00') : '—';}
+function gr4Now(){const d=new Date(),z=n=>String(n).padStart(2,'0');return z(d.getDate())+'/'+z(d.getMonth()+1)+'/'+d.getFullYear()+' · '+z(d.getHours())+':'+z(d.getMinutes());}
+function gr4FolderDate(p){const files=entries.filter(x=>!x.deleted&&p.every((v,i)=>x.path[i]===v));if(files.length){files.sort((a,b)=>dateCode(b.modified).localeCompare(dateCode(a.modified))||String(b.modifiedTime||'').localeCompare(String(a.modifiedTime||'')));return gr4DateText(files[0].modified,files[0].modifiedTime);}return folderDates[key(p)]||'—';}
 function fileRow(e){
  const isFolder=e.type==='folder',st=stars.has(e.id);
- const small=isFolder?'Thư mục':(e.modified+'   ·   '+(e.password?'🔒 PDF bảo vệ':'PDF'));
- const end=mode==='manage'?(selected.has(e.id)?'☑':'□'):(st?'★':(isFolder?'›':'›'));
+ const small=isFolder?gr4FolderDate(e.path):gr4DateText(e.modified,e.modifiedTime);
+ const end=mode==='manage'?gr4Svg(selected.has(e.id)?'row-check':'row-empty'):gr4Svg(st?'starred':'row-chevron',st);
  return '<button class="gr4-file" data-gr="entry" data-id="'+esc(e.id)+'"><span class="gr4-file-icon '+(isFolder?'folder':'pdf')+'">'+(isFolder?'':'')+'</span><span class="gr4-file-copy"><span class="gr4-file-name">'+esc(leaf(e))+'</span><span class="gr4-file-meta">'+esc(small)+'</span></span><span class="gr4-file-end">'+end+'</span></button>';
 }
 function setNav(back,title,right){
  el.nav.innerHTML='<button class="'+(back?'gr4-has-back':'')+'" data-gr="'+(back?'back':'root')+'">'+(back?'‹ Quay lại':'⌂')+'</button><strong>'+esc(title)+'</strong>'+(right?'<button class="gr4-nav-right" data-gr="view-setup">☷ Chọn</button>':'<span class="gr4-nav-spacer" aria-hidden="true"></span>');
 }
-function tools(items){el.bar.style.display='flex';el.bar.innerHTML=items.map(a=>'<button type="button" data-gr="'+esc(a.id)+'" class="'+(a.active?'active':'')+'"><span>'+a.icon+'</span>'+esc(a.label)+'</button>').join('');}
+function tools(items){el.bar.style.display='flex';el.bar.innerHTML=items.map(a=>'<button type="button" data-gr="'+esc(a.id)+'" aria-label="'+esc(a.label)+'" class="'+(a.active?'active':'')+'"><span class="gr4-tool-icon" aria-hidden="true">'+gr4Svg(a.id,a.id==='bookmark'&&a.icon==='★')+'</span><span class="gr4-tool-label">'+esc(a.label)+'</span></button>').join('');}
 function renderFiles(){
  const rows=view==='files'?folderRows(path):view==='find'?allMatches(query):view==='recents'?recents.map(find).filter(x=>x&&!x.deleted):[...folders.filter(p=>stars.has(folderId(p))).map(p=>({id:folderId(p),name:p.at(-1),path:p,type:'folder'})),...entries.filter(x=>!x.deleted&&stars.has(x.id))];
  const title=view==='files'?(path.at(-1)||'My Documents'):({find:'Find Files',recents:'Recent Files',starred:'Starred'})[view];
@@ -165,7 +172,7 @@ function goPage(n){
  const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+e.pages.length;
  const range=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(range)range.value=page;if(label)label.textContent=page+'/'+e.pages.length;
  const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=e.pages.length;
- const star=el.bar.querySelector('[data-gr="bookmark"] span:first-child');if(star)star.textContent=bookmarked(current,page)?'★':'☆';
+ const star=el.bar.querySelector('[data-gr="bookmark"] span:first-child');if(star)star.innerHTML=gr4Svg('bookmark',bookmarked(current,page));
 }
 function unlockView(){
  const e=find(current);setNav(true,e.filename,false);
@@ -226,12 +233,13 @@ function renderLocations(){
  tools([{id:'locations-return',icon:'‹',label:'Đọc PDF'},{id:'pages-list',icon:'▦',label:'Trang'},{id:'bookmarks-list',icon:'☆',label:'Bookmarks'},{id:'annotations-list',icon:'✎',label:'Ghi chú'}]);
 }
 
+function gr4RemapFolderDates(oldPath,newPath){const from=key(oldPath),to=key(newPath);const next={};for(const [k,v] of Object.entries(folderDates)){next[k===from?to:k.startsWith(from+'\u0001')?to+k.slice(from.length):k]=v;}folderDates=next;}
 function remapFolderStars(oldPath,newPath){
  const from=folderId(oldPath),to=folderId(newPath);
  stars=new Set([...stars].map(id=>id===from?to:(id.startsWith(from+'\u0001')?to+id.slice(from.length):id)));
 }
 function setStar(ids){for(const id of ids){if(stars.has(id))stars.delete(id);else stars.add(id)}save();render();}
-function newFolder(){promptBox('Tạo thư mục mới','',name=>{const p=[...path,name];if(folders.some(x=>key(x)===key(p))){toast('Thư mục đã tồn tại');return;}folders.push(p);save();render();});}
+function newFolder(){promptBox('Tạo thư mục mới','',name=>{const p=[...path,name];if(folders.some(x=>key(x)===key(p))){toast('Thư mục đã tồn tại');return;}folders.push(p);folderDates[key(p)]=gr4Now();save();render();});}
 function deleteSelected(){
  const ids=[...selected];if(!ids.length){toast('Chọn ít nhất một tệp');return;}
  sheet('Xóa '+ids.length+' mục?',[
@@ -270,8 +278,8 @@ function copySelected(){
    const root=originalFolders.find(x=>folderId(x)===id);
    if(!root)continue;
    const target=[...dest,uniqueFolder(root.at(-1),dest)];
-   folders.push(target);
-   originalFolders.filter(x=>x.length>root.length&&matches(x,root)).forEach(x=>folders.push([...target,...x.slice(root.length)]));
+   folders.push(target);folderDates[key(target)]=gr4Now();
+   originalFolders.filter(x=>x.length>root.length&&matches(x,root)).forEach(x=>{const child=[...target,...x.slice(root.length)];folders.push(child);folderDates[key(child)]=gr4Now();});
    originalFiles.filter(x=>matches(x.path,root)).forEach(x=>duplicate(x,[...target,...x.path.slice(root.length)]));
    done++;
   }
@@ -296,6 +304,7 @@ function moveSelected(){
    const prefix=(p,base)=>base.every((v,i)=>p[i]===v);
    if(prefix(dest,oldPath)){toast('Không thể chuyển thư mục vào chính nó');continue;}
    const newPath=[...dest,oldPath.at(-1)];
+   gr4RemapFolderDates(oldPath,newPath);
    remapFolderStars(oldPath,newPath);
    folders=folders.map(p=>prefix(p,oldPath)?[...newPath,...p.slice(oldPath.length)]:p);
    entries.forEach(e=>{if(prefix(e.path,oldPath))e.path=[...newPath,...e.path.slice(oldPath.length)];});
@@ -309,6 +318,7 @@ function renameSelected(){
  const id=[...selected][0],f=find(id);
  if(f)promptBox('Đổi tên file',f.filename,val=>{f.filename=val.endsWith('.pdf')?val:val+'.pdf';mode='normal';selected.clear();save();render();});
  else {const p=folders.find(x=>folderId(x)===id);if(p)promptBox('Đổi tên thư mục',p.at(-1),val=>{const old=[...p],updated=[...p.slice(0,-1),val];
+  gr4RemapFolderDates(old,updated);
   remapFolderStars(old,updated);
   folders=folders.map(x=>x.slice(0,old.length).every((v,i)=>v===old[i])?[...updated,...x.slice(old.length)]:x);
   entries.forEach(e=>{if(e.path.slice(0,old.length).every((v,i)=>v===old[i]))e.path=[...updated,...e.path.slice(old.length)]});
@@ -401,7 +411,7 @@ el.body.addEventListener('scroll',()=>{
  if(view!=='reader')return;
  const ps=[...el.body.querySelectorAll('.gr4-page[data-page],.gr4-reflow-section[data-page]')];let best=1,d=Infinity;
  for(const item of ps){const dist=Math.abs(item.getBoundingClientRect().top-el.body.getBoundingClientRect().top);if(dist<d){d=dist;best=Number(item.dataset.page)}}
- if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=ps.length;const star=el.bar.querySelector('[data-gr="bookmark"] span:first-child');if(star)star.textContent=bookmarked(current,page)?'★':'☆';}
+ if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=ps.length;const star=el.bar.querySelector('[data-gr="bookmark"] span:first-child');if(star)star.innerHTML=gr4Svg('bookmark',bookmarked(current,page));}
 },{passive:true});
 launch.addEventListener('click',()=>{
  app.classList.add('open');screen.classList.add('goodreader-open');
