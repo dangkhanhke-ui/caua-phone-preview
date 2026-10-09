@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="theme-color" content="#000000" />
   <title>iPhone 6 · iOS 8.4.1 · v1.8.48</title>
   <style>
@@ -3864,14 +3864,28 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
       return value;
     }catch(e){return current}
   })();
+  // The visual viewport loses height when iOS opens its keyboard.
+  // Size the hardware from a stable *pre-keyboard* viewport instead.
+  let stablePhoneWidth=0, stablePhoneHeight=0;
+  function phoneIsTyping(){
+    const e=document.activeElement;
+    return !!(e && e.closest && e.closest('#phoneWrap') &&
+      (e.matches('input:not([type=hidden]), textarea, select, [contenteditable], [role=textbox]')));
+  }
   function fitPhone() {
-    // Fit nearly edge-to-edge on mobile while keeping the full Home button visible.
-    // The handset is a single uniformly scaled canvas, never an independently zoomed UI.
-    const viewport=window.visualViewport;
-    const width=viewport?.width||innerWidth;
-    const height=viewport?.height||innerHeight;
+    const v=window.visualViewport;
+    const w=window.innerWidth;
+    const typing=phoneIsTyping();
+    if (!stablePhoneWidth || Math.abs(w-stablePhoneWidth)>40) {
+      stablePhoneWidth=w;
+      stablePhoneHeight=Math.max(window.innerHeight,v?.height||0);
+    } else if (!typing) {
+      stablePhoneHeight=Math.max(stablePhoneHeight,window.innerHeight,v?.height||0);
+    }
+    if (typing) return;
+    const width=stablePhoneWidth;
     const safe=width<600?0:4;
-    const scale=Math.min((width-safe*2)/375,(height-safe*2)/791);
+    const scale=Math.min((width-safe*2)/375,(stablePhoneHeight-safe*2)/791);
     document.documentElement.style.setProperty('--phone-scale',Math.max(.2,scale).toFixed(4));
   }
 
@@ -8409,10 +8423,15 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
   screen.appendChild(homeBar);
 
   let active=false,lastTap=0;
+  let immersiveWidth=0,immersiveHeight=0;
   function fit(){
-    const v=window.visualViewport;
-    const w=v?.width||window.innerWidth,h=v?.height||window.innerHeight;
-    document.documentElement.style.setProperty('--immersive-scale',Math.max(.15,Math.min(w/320,h/568)).toFixed(5));
+    const w=window.innerWidth;
+    const field=document.activeElement;
+    const typing=!!(field&&field.closest&&field.closest('#phoneWrap')&&field.matches('input:not([type=hidden]),textarea,select,[contenteditable],[role=textbox]'));
+    if(!immersiveWidth||Math.abs(immersiveWidth-w)>40){immersiveWidth=w;immersiveHeight=window.innerHeight;}
+    else if(!typing)immersiveHeight=Math.max(immersiveHeight,window.innerHeight);
+    if(typing)return;
+    document.documentElement.style.setProperty('--immersive-scale',Math.max(.15,Math.min(w/320,immersiveHeight/568)).toFixed(5));
   }
   function mode(on){
     active=!!on;
