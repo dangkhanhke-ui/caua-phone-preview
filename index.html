@@ -116,6 +116,7 @@
 
 <link rel="stylesheet" id="safari-ios8-perspective-stack-20261009" href="css/head-42-safari-ios8-perspective-stack-20261009.css">
 <link rel="stylesheet" href="css/ios8-system-chrome.css?v=20261010-seamless2">
+<link rel="stylesheet" href="css/caua-phase2-cross-app.css?v=20261010a">
 <link rel="stylesheet" href="./assets/whatsapp/wa-enhancements-2015.css?v=2">
 </head>
 <body>
@@ -1102,7 +1103,8 @@
     view='attachment';
     setNav({left:'‹ Mail', title:'PDF', right:''});
     toolbar.innerHTML=''; bodyEl.classList.add('no-toolbar');
-    bodyEl.innerHTML=`<div class="mail-pdf-view"><div class="mail-pdf-page"><div class="pdf-big">PDF</div><div class="pdf-name">${esc(filename)}</div><div class="pdf-note">Bản xem trước tệp đính kèm</div></div></div>`;
+    bodyEl.innerHTML=`<div class="mail-pdf-view"><div class="mail-pdf-page"><div class="pdf-big">PDF</div><div class="pdf-name">${esc(filename)}</div><div class="pdf-note">Bản xem trước tệp đính kèm</div><button class="mail-open-goodreader" type="button">Mở trong GoodReader</button></div></div>`;
+    bodyEl.querySelector('.mail-open-goodreader')?.addEventListener('click',()=>window.CauaCrossApp?.openMailAttachment(filename));
     bodyEl.scrollTop=0;
   }
 
@@ -1121,6 +1123,24 @@
     </div>`;
     setTimeout(()=>bodyEl.querySelector('#composeBody')?.focus(),50);
   }
+
+
+  // Local handoff from Photos, Safari or GoodReader; a draft, never a real-world email.
+  window.addEventListener('caua:mail-compose',event=>{
+    const item=event.detail||{};
+    renderCompose();
+    if(item.to)bodyEl.querySelector('#composeTo').value=String(item.to);
+    if(item.subject)bodyEl.querySelector('#composeSubject').value=String(item.subject);
+    if(item.body)bodyEl.querySelector('#composeBody').value=String(item.body);
+    if(item.filename&&/^[\w.\- ]{1,120}$/i.test(item.filename)){
+      const preview=document.createElement('div');
+      preview.className='caua-share-preview';
+      const src=typeof item.src==='string'&&/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(item.src)?item.src:'';
+      if(src){const image=document.createElement('img');image.src=src;image.alt='Ảnh đính kèm';preview.appendChild(image)}
+      const text=document.createElement('span');text.className='caua-share-file';text.textContent=item.filename;preview.appendChild(text);
+      bodyEl.querySelector('#composeBody')?.before(preview);
+    }
+  });
 
   function sendCompose() {
     if(view!=='compose') return;
@@ -2483,6 +2503,23 @@
     setView('new'); recipientInput.value=''; newText.value=''; recipientResults.style.display='none'; recipientResults.innerHTML=''; updateNewSend(); setTimeout(()=>recipientInput.focus(),40);
   }
   document.getElementById('messagesComposeBtn').addEventListener('click',openNewMessage);
+
+  window.addEventListener('caua:messages-draft',event=>{
+    const item=event.detail||{};
+    openNewMessage();
+    recipientInput.value=String(item.to||'');
+    if(item.kind==='link')newText.value=[item.title,item.url].filter(Boolean).join(' ');
+    else newText.value=String(item.text||'');
+    const empty=newView.querySelector('.msg-new-empty');
+    empty.querySelector('.caua-share-preview')?.remove();
+    if(item.kind==='photo'&&typeof item.src==='string'&&/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(item.src)){
+      const preview=document.createElement('div');preview.className='caua-share-preview';
+      const image=document.createElement('img');image.src=item.src;image.alt='Ảnh đính kèm';
+      const label=document.createElement('span');label.textContent=item.filename||'Ảnh';preview.append(image,label);empty.appendChild(preview);
+    }
+    updateNewSend();
+  });
+
   document.getElementById('messagesNewCancel').addEventListener('click',()=>renderList(true));
   document.getElementById('messagesContactPicker').addEventListener('click',()=>{ recipientInput.value=''; renderRecipientResults(''); });
   function renderRecipientResults(q) {
@@ -2493,8 +2530,8 @@
   }
   recipientInput.addEventListener('input',()=>{renderRecipientResults(recipientInput.value); updateNewSend();});
   newText.addEventListener('input',updateNewSend);
-  function updateNewSend(){ const active=recipientInput.value.trim() && newText.value.trim(); newSend.textContent=active?'Gửi':''; newSend.classList.toggle('send',!!active); newSendTop.style.color=active?'#007aff':'#c7c7cc'; }
-  function blockNewSend(){ if(recipientInput.value.trim()&&newText.value.trim()) showAlert('Không thể gửi tin nhắn','Không có kết nối.'); }
+  function updateNewSend(){ const active=recipientInput.value.trim() && (newText.value.trim()||newView.querySelector('.caua-share-preview')); newSend.textContent=active?'Gửi':''; newSend.classList.toggle('send',!!active); newSendTop.style.color=active?'#007aff':'#c7c7cc'; }
+  function blockNewSend(){ if(recipientInput.value.trim()&&(newText.value.trim()||newView.querySelector('.caua-share-preview'))) showAlert('Không thể gửi tin nhắn','Không có kết nối.'); }
   newSend.addEventListener('click',blockNewSend); newSendTop.addEventListener('click',blockNewSend);
 
   searchInput.addEventListener('focus',()=>searchBox.classList.add('focused'));
@@ -3489,7 +3526,7 @@
     bindPhotoButtons(searchResults,'Tìm kiếm');
   }
 
-  function showShareSheet(){sheet.innerHTML='<div class="photos-sheet"><div class="row">Tin nhắn</div><div class="row">Mail</div><div class="row">Facebook</div><div class="row">Sao chép</div><div class="row cancel">Hủy</div></div>';sheet.classList.add('open');sheet.querySelectorAll('.row').forEach(r=>r.addEventListener('click',()=>sheet.classList.remove('open')));}
+  function showShareSheet(){sheet.innerHTML='<div class="photos-sheet"><div class="row">Tin nhắn</div><div class="row">Mail</div><div class="row">WhatsApp</div><div class="row">Facebook</div><div class="row">Sao chép</div><div class="row cancel">Hủy</div></div>';sheet.classList.add('open');sheet.querySelectorAll('.row').forEach(r=>r.addEventListener('click',()=>sheet.classList.remove('open')));}
   sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.classList.remove('open')});
   function showAlert(msg){alertText.textContent=msg;alertBox.classList.add('open')}
   document.getElementById('photosAlertOk').addEventListener('click',()=>alertBox.classList.remove('open'));
@@ -4038,7 +4075,7 @@
   function closeSearch(){state.searchOpen=false;searchScreen.classList.remove('open');searchInput.blur();}
   function renderSearch(){const q=searchInput.value.trim().toLocaleLowerCase('vi');if(!q){searchResults.innerHTML='<div class="fb15-search-empty">Nhập tên người, Trang hoặc địa điểm.</div>';return;}const people=FRIENDS.filter(x=>x.name.toLocaleLowerCase('vi').includes(q));const pages=PAGES.filter(x=>x.toLocaleLowerCase('vi').includes(q));const special='cauã valença'.includes(q)||'cauã'.includes(q)?[{name:'Cauã Valença',city:'Rio de Janeiro',detail:'Chủ quán · Tổ chức sự kiện tại Subsolo',self:true}]:[];let out='';[...special,...people].slice(0,8).forEach(p=>out+=personRow(p,false));pages.slice(0,8).forEach(p=>out+=`<button class="fb15-page-item" data-page="${esc(p)}"><span class="fb15-page-logo">${esc(initials(p))}</span><span><strong>${esc(p)}</strong><small>Trang</small></span></button>`);if(q.includes('subsolo'))out+=`<button class="fb15-page-item" data-page="Subsolo"><span class="fb15-page-logo">S</span><span><strong>Subsolo</strong><small>Địa điểm · Rio de Janeiro</small></span></button>`;searchResults.innerHTML=out||'<div class="fb15-search-empty">Không tìm thấy kết quả.</div>';wireCommon(searchResults);}
   function renderTab(tab){content.scrollTop=0;if(tab==='feed')return renderFeed();if(tab==='requests')return renderRequests();if(tab==='messages')return renderMessages();if(tab==='notifications')return renderNotifications();renderMore();}
-  function postMedia(p,profile=false){if(p.sponsored&&p.media==='ad'){const src=esc(p.source||'');const hasImg=!!(p.imageKey&&ASSET[p.imageKey]);const cls=p.adStyle==='side-game'?'game':'law';const icon=cls==='game'?'':'§';const thumb=hasImg?`<div class="fb15-ad-thumb photo"><img src="${ASSET[p.imageKey]}" alt="" /></div>`:`<div class="fb15-ad-thumb ${cls}">${icon}</div>`;return `<div class="fb15-ad-card side">${thumb}<div class="fb15-ad-sidecopy"><strong>${esc(p.author)}</strong><div class="fb15-ad-source">${src}</div></div></div>`;}if(profile&&PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'))return `<div class="fb15-media photo ${esc(p.mediaRatio||'landscape')}"><img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="" /></div>`;if(p.imageKey&&ASSET[p.imageKey]&&p.media==='link'){const ttl=p.headline||p.text||'Nội dung đã lưu',src=p.source||p.author,desc=p.description||'';return `<div class="fb15-linkcard"><div class="fb15-link-thumb photo"><img src="${ASSET[p.imageKey]}" alt="" /></div><div class="fb15-link-body"><div class="fb15-link-title">${esc(ttl)}</div>${desc?`<div class="fb15-link-desc">${esc(desc)}</div>`:''}<div class="fb15-link-source">${esc(src)}</div></div></div>`;}if(p.imageKey&&ASSET[p.imageKey])return `<div class="fb15-media photo ${esc(p.mediaRatio||'landscape')}"><img src="${ASSET[p.imageKey]}" alt="" /></div>`;if(p.media==='placeholder')return `<div class="fb15-media empty-slot ${esc(p.mediaRatio||'landscape')}"><div class="fb15-empty-photo-icon"></div><div class="fb15-empty-photo-label">Ảnh sẽ thêm sau</div></div>`;if(profile&&p.media==='none')return '';if(p.media==='none'||p.media==='checkin')return '';if(p.media==='link'){const ttl=p.headline||p.text||'Nội dung đã lưu',src=p.source||p.author,desc=p.description||'';return `<div class="fb15-linkcard"><div class="fb15-link-thumb">${esc(p.author)}</div><div class="fb15-link-body"><div class="fb15-link-title">${esc(ttl)}</div>${desc?`<div class="fb15-link-desc">${esc(desc)}</div>`:''}<div class="fb15-link-source">${esc(src)}</div></div></div>`;}let label=p.category==='football'?'BÓNG ĐÁ':p.category==='news'?'TIN TỨC':p.category==='nightlife'?'RIO · SỰ KIỆN':p.category==='creative'?'HÌNH ẢNH / THIẾT KẾ':p.category==='meme'?'MEME':'ẢNH';return `<div class="fb15-media placeholder ${p.category}"><div class="big">${label}</div><div class="small">Không thể tải ảnh.</div></div>`;}
+  function postMedia(p,profile=false){if(p._cauaSharedImage&&/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(p._cauaSharedImage))return `<div class="fb15-media photo landscape"><img src="${esc(p._cauaSharedImage)}" alt="Ảnh" /></div>`;if(p.sponsored&&p.media==='ad'){const src=esc(p.source||'');const hasImg=!!(p.imageKey&&ASSET[p.imageKey]);const cls=p.adStyle==='side-game'?'game':'law';const icon=cls==='game'?'':'§';const thumb=hasImg?`<div class="fb15-ad-thumb photo"><img src="${ASSET[p.imageKey]}" alt="" /></div>`:`<div class="fb15-ad-thumb ${cls}">${icon}</div>`;return `<div class="fb15-ad-card side">${thumb}<div class="fb15-ad-sidecopy"><strong>${esc(p.author)}</strong><div class="fb15-ad-source">${src}</div></div></div>`;}if(profile&&PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'))return `<div class="fb15-media photo ${esc(p.mediaRatio||'landscape')}"><img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="" /></div>`;if(p.imageKey&&ASSET[p.imageKey]&&p.media==='link'){const ttl=p.headline||p.text||'Nội dung đã lưu',src=p.source||p.author,desc=p.description||'';return `<div class="fb15-linkcard"><div class="fb15-link-thumb photo"><img src="${ASSET[p.imageKey]}" alt="" /></div><div class="fb15-link-body"><div class="fb15-link-title">${esc(ttl)}</div>${desc?`<div class="fb15-link-desc">${esc(desc)}</div>`:''}<div class="fb15-link-source">${esc(src)}</div></div></div>`;}if(p.imageKey&&ASSET[p.imageKey])return `<div class="fb15-media photo ${esc(p.mediaRatio||'landscape')}"><img src="${ASSET[p.imageKey]}" alt="" /></div>`;if(p.media==='placeholder')return `<div class="fb15-media empty-slot ${esc(p.mediaRatio||'landscape')}"><div class="fb15-empty-photo-icon"></div><div class="fb15-empty-photo-label">Ảnh sẽ thêm sau</div></div>`;if(profile&&p.media==='none')return '';if(p.media==='none'||p.media==='checkin')return '';if(p.media==='link'){const ttl=p.headline||p.text||'Nội dung đã lưu',src=p.source||p.author,desc=p.description||'';return `<div class="fb15-linkcard"><div class="fb15-link-thumb">${esc(p.author)}</div><div class="fb15-link-body"><div class="fb15-link-title">${esc(ttl)}</div>${desc?`<div class="fb15-link-desc">${esc(desc)}</div>`:''}<div class="fb15-link-source">${esc(src)}</div></div></div>`;}let label=p.category==='football'?'BÓNG ĐÁ':p.category==='news'?'TIN TỨC':p.category==='nightlife'?'RIO · SỰ KIỆN':p.category==='creative'?'HÌNH ẢNH / THIẾT KẾ':p.category==='meme'?'MEME':'ẢNH';return `<div class="fb15-media placeholder ${p.category}"><div class="big">${label}</div><div class="small">Không thể tải ảnh.</div></div>`;}
   function renderCommentThread(c){const replies=(c.replies||[]).map(r=>`<div class="fb15-reply"><div class="fb15-comment-avatar"${npcAvatarAttrs(r.name)}>${npcAvatarPhoto(r.name)}<span class="fb15-npc-fallback">${esc(initials(r.name))}</span></div><div class="fb15-comment-content"><div><strong>${esc(r.name)}</strong> ${esc(r.text)}</div><div class="fb15-comment-actions"><a>Thích</a> · <a>Trả lời</a></div></div></div>`).join('');return `<div class="fb15-comment-thread"><div class="fb15-comment-row"><div class="fb15-comment-avatar"${npcAvatarAttrs(c.name)}>${npcAvatarPhoto(c.name)}<span class="fb15-npc-fallback">${esc(initials(c.name))}</span></div><div class="fb15-comment-content"><div><strong>${esc(c.name)}</strong> ${esc(c.text)}</div><div class="fb15-comment-actions"><a>Thích</a> · <a>Trả lời</a></div></div></div>${replies?`<div class="fb15-replies">${replies}</div>`:''}</div>`;}
   function countToNumber(v){const s=String(v||'').trim().toLowerCase();if(!s)return 0;let m=s.match(/^([\d]+(?:[.,]\d+)?)\s*nghìn$/);if(m)return Math.round(parseFloat(m[1].replace(',','.'))*1000);const n=parseInt(s.replace(/[^\d]/g,''),10);return Number.isFinite(n)?n:0;}
   function exactCount(n){try{return new Intl.NumberFormat('vi-VN').format(Math.max(0,n||0));}catch(e){return String(Math.max(0,n||0));}}
@@ -4077,7 +4114,23 @@
 
   function addActivity(icon,text,meta='Vừa xong'){ACTIVITY_LOG.unshift({icon,text,meta});if(ACTIVITY_LOG.length>40)ACTIVITY_LOG.length=40;}
   function openProfileSub(kind){state.stack.push({kind:'profile'});renderPage(kind,null,false);}
-  function openComposer(origin='profile'){dialog.innerHTML=`<div class="fb15-composer-dialog"><div class="fb15-composer-title">Tạo bài viết</div><div class="fb15-composer-user"><img src="${ASSET.avatar}" alt=""><div><b>Cauã Valença</b><span class="fb15-privacy-chip">♟ Bạn bè</span></div></div><textarea class="fb15-composer-text" id="fb15ComposerText" placeholder="Bạn đang nghĩ gì?"></textarea><div class="fb15-dialog-actions"><button id="fb15ComposerCancel" type="button">Hủy</button><button class="primary" id="fb15ComposerPost" type="button">Đăng</button></div></div>`;overlay.classList.add('open');const ta=document.getElementById('fb15ComposerText');setTimeout(()=>ta?.focus(),30);document.getElementById('fb15ComposerCancel').onclick=closeOverlay;document.getElementById('fb15ComposerPost').onclick=()=>{const value=(ta.value||'').trim();if(!value)return;const id='userpost-'+Date.now();const p={id,dateISO:'2015-08-23',year:'2015',timestamp:'23/08/2015 · Vừa xong',author:'Cauã Valença',context:'',text:value,media:'none',category:'generic',likes:'0',commentCount:'0',shareCount:'',liked:false,comments:[],_userCreated:true};PROFILE_POSTS.unshift(p);FEED.unshift(p);state.feedCount=Math.min(FEED.length,Math.max(10,state.feedCount+1));addActivity('✎','Bạn đã đăng một bài viết.');closeOverlay();if(origin==='feed'){state.stack=[];state.tab='feed';setTabs(true);setMainTop();renderFeed();content.scrollTop=0;}else{state.profileTab='timeline';renderProfile();content.scrollTop=0;}};}
+  let cauaSharedPhoto=null;
+  function openComposer(origin='profile'){cauaSharedPhoto=null;dialog.innerHTML=`<div class="fb15-composer-dialog"><div class="fb15-composer-title">Tạo bài viết</div><div class="fb15-composer-user"><img src="${ASSET.avatar}" alt=""><div><b>Cauã Valença</b><span class="fb15-privacy-chip">♟ Bạn bè</span></div></div><textarea class="fb15-composer-text" id="fb15ComposerText" placeholder="Bạn đang nghĩ gì?"></textarea><div class="fb15-dialog-actions"><button id="fb15ComposerCancel" type="button">Hủy</button><button class="primary" id="fb15ComposerPost" type="button">Đăng</button></div></div>`;overlay.classList.add('open');const ta=document.getElementById('fb15ComposerText');setTimeout(()=>ta?.focus(),30);document.getElementById('fb15ComposerCancel').onclick=closeOverlay;document.getElementById('fb15ComposerPost').onclick=()=>{const value=(ta.value||'').trim();if(!value&&!cauaSharedPhoto)return;const id='userpost-'+Date.now();const p={id,dateISO:'2015-08-23',year:'2015',timestamp:'23/08/2015 · Vừa xong',author:'Cauã Valença',context:'',text:value,media:'none',category:'generic',likes:'0',commentCount:'0',shareCount:'',liked:false,comments:[],_userCreated:true};if(cauaSharedPhoto){p._cauaSharedImage=cauaSharedPhoto;p.media='photo';}cauaSharedPhoto=null;PROFILE_POSTS.unshift(p);FEED.unshift(p);state.feedCount=Math.min(FEED.length,Math.max(10,state.feedCount+1));addActivity('✎','Bạn đã đăng một bài viết.');closeOverlay();if(origin==='feed'){state.stack=[];state.tab='feed';setTabs(true);setMainTop();renderFeed();content.scrollTop=0;}else{state.profileTab='timeline';renderProfile();content.scrollTop=0;}};}
+
+  window.addEventListener('caua:facebook-compose',event=>{
+    const item=event.detail||{};
+    openComposer('feed');
+    const text=document.getElementById('fb15ComposerText');
+    if(text)text.value=String(item.text||'');
+    const src=String(item.src||'');
+    if(item.kind==='photo'&&/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(src)){
+      cauaSharedPhoto=src;
+      const preview=document.createElement('div');preview.className='caua-share-preview';
+      const image=document.createElement('img');image.src=src;image.alt='Ảnh';
+      const label=document.createElement('span');label.textContent='Ảnh đính kèm';preview.append(image,label);
+      text?.after(preview);
+    }
+  });
   function renderActivityLog(){content.onscroll=null;setSubTop('Nhật ký hoạt động');content.innerHTML='<div class="fb15-section-label">Hoạt động gần đây</div>'+ACTIVITY_LOG.map(x=>`<div class="fb15-activity-item"><div class="fb15-activity-icon">${esc(x.icon)}</div><div><strong>${esc(x.text)}</strong><small>${esc(x.meta)}</small></div></div>`).join('');}
   function renderProfileEdit(){content.onscroll=null;setSubTop('Cập nhật thông tin');content.innerHTML=`<div class="fb15-form"><div class="fb15-form-row"><label>Công việc</label><input id="fb15EditRole" value="${esc(PROFILE_EDIT.role)}"></div><div class="fb15-form-row"><label>Nơi làm việc</label><input id="fb15EditWorkplace" value="${esc(PROFILE_EDIT.workplace)}"></div><div class="fb15-form-row"><label>Nơi sống</label><input id="fb15EditCity" value="${esc(PROFILE_EDIT.city)}"></div><div class="fb15-form-row"><label>Học vấn</label><input id="fb15EditSchool" value="${esc(PROFILE_EDIT.school)}"></div><div class="fb15-form-actions"><button class="fb15-btn" id="fb15EditCancel">Hủy</button><button class="fb15-btn primary" id="fb15EditSave">Lưu</button></div></div>`;document.getElementById('fb15EditCancel').onclick=()=>renderProfile();document.getElementById('fb15EditSave').onclick=()=>{PROFILE_EDIT.role=document.getElementById('fb15EditRole').value.trim()||PROFILE_EDIT.role;PROFILE_EDIT.workplace=document.getElementById('fb15EditWorkplace').value.trim()||PROFILE_EDIT.workplace;PROFILE_EDIT.city=document.getElementById('fb15EditCity').value.trim()||PROFILE_EDIT.city;PROFILE_EDIT.school=document.getElementById('fb15EditSchool').value.trim()||PROFILE_EDIT.school;addActivity('▣','Bạn đã cập nhật thông tin cá nhân.');renderProfile();};}
   function renderSaved(){content.onscroll=null;setSubTop('Đã lưu');const items=[['HBR','Im lặng trong cuộc họp không có nghĩa là đồng thuận','Harvard Business Review Brasil'],['GE','Flamengo lội ngược dòng thắng São Paulo 2-1','Globo Esporte'],['EV','Đêm nhạc độc lập - 28/08','Sự kiện tại Rio'],['RJ','Thành phố dành bao nhiêu thời gian cho việc di chuyển?','Meu Rio']];content.innerHTML='<div class="fb15-section-label">Mục đã lưu</div>'+items.map((x,i)=>`<button class="fb15-saved-item" data-saved="${i}"><span class="fb15-saved-thumb">${x[0]}</span><span><strong>${esc(x[1])}</strong><small>${esc(x[2])}</small></span><span class="chev">›</span></button>`).join('');content.querySelectorAll('[data-saved]').forEach(b=>b.onclick=()=>showDialog('Mục đã lưu','Không có kết nối. Vui lòng thử lại sau.'));}
@@ -4507,5 +4560,6 @@ img.src=options[0];
 <!-- Profile tabs now scroll naturally with the Facebook timeline (no cloned overlay). -->
 <script src="js/ios8-system-chrome.js?v=20261010-seamless3" defer></script>
 <script src="./assets/whatsapp/wa-enhancements-2015.js?v=2"></script>
+<script src="./js/caua-phase2-cross-app.js?v=20261010a"></script>
 </body>
 </html>

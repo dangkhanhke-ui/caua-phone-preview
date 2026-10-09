@@ -10,6 +10,7 @@ const STORE='caua.goodreader4.2015.v1';
 let source=[], entries=[], folders=[], folderDates={}, selected=new Set(), history=[], bookmarks={}, notes={}, stars=new Set(), saved={}, recents=[];
 let path=[],view='files',query='',sort='name',grid=false,current=null,page=1,zoom=1,reflow=false,readerSearch='',unlocked=new Set(),mode='normal',highlightMode=false,highlights={};
 let copySequence=0;
+let pendingCauaMailAttachment=null;
 const specials=['Sự kiện','Tài liệu cũ','Lưu trữ'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const key=p=>p.join('\u0001');
@@ -193,6 +194,7 @@ function openFile(id){
  else{view='reader';renderReader();}
 }
 function back(){
+ if(view==='mail-unavailable'){const previous=history.pop();view=previous?.view||'files';path=previous?.path||[];current=null;render();return;}
  if(view==='pages'||view==='bookmarks'||view==='annotations'){view='reader';renderReader();return;}
  if(view==='locked'||view==='reader'){
   if(current){const d=find(current);if(d?.password)unlocked.delete(d.id);}
@@ -334,6 +336,7 @@ function readerActions(){
  const d=find(current);
  sheet(d.filename,[
  {title:'Tải xuống PDF gốc',run:download},
+ {title:'Gửi qua Mail',run:()=>window.CauaCrossApp?.shareDocument(d.filename)},
  {title:reflow?'Trở lại chế độ PDF':'Chế độ PDF Reflow',run:()=>{reflow=!reflow;renderReader()}},
  {title:'Page Management',run:()=>{view='pages';renderLocations()}},
  {title:'Bookmarks',run:()=>{view='bookmarks';renderLocations()}},
@@ -413,6 +416,21 @@ el.body.addEventListener('scroll',()=>{
  for(const item of ps){const dist=Math.abs(item.getBoundingClientRect().top-el.body.getBoundingClientRect().top);if(dist<d){d=dist;best=Number(item.dataset.page)}}
  if(page!==best){page=best;const count=el.bar.querySelector('[data-gr="pages"]');if(count)count.lastChild.textContent=page+'/'+ps.length;const slider=el.body.querySelector('#gr4PageRange'),label=el.body.querySelector('.gr4-current-page');if(slider)slider.value=page;if(label)label.textContent=page+'/'+ps.length;const previous=el.body.querySelector('[data-gr="prev-page"]'),next=el.body.querySelector('[data-gr="next-page"]');if(previous)previous.disabled=page<=1;if(next)next.disabled=page>=ps.length;const star=el.bar.querySelector('[data-gr="bookmark"] span:first-child');if(star)star.innerHTML=gr4Svg('bookmark',bookmarked(current,page));}
 },{passive:true});
+
+function importMailAttachment(item){
+  if(!source.length){pendingCauaMailAttachment=item;return}
+  pendingCauaMailAttachment=null;
+  const name=String(item.filename||'').trim();
+  if(!/^[\w .-]{1,130}\.pdf$/i.test(name))return;
+  const existing=entries.find(e=>!e.deleted&&e.filename.toLowerCase()===name.toLowerCase());
+  if(existing){path=[...existing.path];view='files';render();openFile(existing.id);return}
+  history.push({path:[...path],view});
+  view='mail-unavailable';current=null;
+  setNav(true,name,false);el.bar.style.display='none';
+  el.body.innerHTML='<div class="gr4-lock"><div class="symbol" aria-hidden="true">☁</div><h3>Không có kết nối</h3><p>Không thể tải nội dung tệp đính kèm.<br>Vui lòng thử lại sau.</p></div>';
+}
+window.addEventListener('caua:goodreader-attachment',event=>importMailAttachment(event.detail||{}));
+
 launch.addEventListener('click',()=>{
  app.classList.add('open');screen.classList.add('goodreader-open');
  if(!source.length)toast('Đang mở My Documents...');
@@ -420,6 +438,6 @@ launch.addEventListener('click',()=>{
 load();render();
 fetch('./assets/goodreader4/documents.json',{cache:'no-store'})
  .then(r=>{if(!r.ok)throw Error('Could not load GoodReader documents');return r.json()})
- .then(init)
+ .then(data=>{init(data);if(pendingCauaMailAttachment)importMailAttachment(pendingCauaMailAttachment)})
  .catch(()=>{el.body.innerHTML='<div class="gr4-empty">Không đọc được thư viện tài liệu. Vui lòng tải lại trang.</div>';});
 })();

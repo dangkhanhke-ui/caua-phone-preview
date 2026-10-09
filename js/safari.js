@@ -156,6 +156,27 @@ const SAFARI_HISTORY = [
 
   const state = { initialized:false, currentTabId:null, tabs:[] };
 
+  const SAVED_KEY='caua.safari.phase2.saved.v1';
+  let userSaved={bookmarks:[],reading:[]};
+  try{
+    const v=JSON.parse(localStorage.getItem(SAVED_KEY)||'null');
+    if(v&&Array.isArray(v.bookmarks)&&Array.isArray(v.reading))userSaved=v;
+  }catch(e){}
+  function saveUserPages(){
+    try{localStorage.setItem(SAVED_KEY,JSON.stringify(userSaved))}catch(e){}
+  }
+  function saveCurrentPage(mode){
+    const entry=currentEntry();if(!entry)return;
+    const name=entry.title||pageMeta(entry.pageId,entry.extra).title||'Trang web';
+    const url=entry.url||entry.extra?.url||'';
+    const item={title:String(name),url:String(url),pageId:String(entry.pageId),extra:entry.extra||{}};
+    const key=mode==='reading'?'reading':'bookmarks', items=userSaved[key];
+    if(!items.some(x=>x.url===item.url&&x.title===item.title)){
+      items.unshift(item);if(items.length>24)items.length=24;saveUserPages();
+    }
+  }
+
+
   function normalize(s='') { return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
   function esc(s='') { return String(s).replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
   function closeOtherApps() {
@@ -282,18 +303,36 @@ const SAFARI_HISTORY = [
     requestAnimationFrame(() => { page.scrollTop = restore ? (entry.scroll || 0) : (entry.extra.scroll || 0); });
   }
 
+
+  // Open a shared URL in Safari without navigating outside the phone.
+  window.addEventListener('caua:safari-open-url',event=>{
+    const url=String(event.detail?.url||'');
+    if(!url)return;
+    if(!state.initialized)initTabs();
+    performAddressSearch(url);
+  });
   function showOverlay(inner) { overlay.innerHTML = inner; overlay.classList.add('show'); }
   function hideOverlay() { overlay.classList.remove('show'); overlay.innerHTML=''; alertBox.classList.remove('show'); }
   overlay.addEventListener('click', e => { if(e.target === overlay) hideOverlay(); });
 
   function showShareSheet() {
     const entry = currentEntry();
-    showOverlay(`<div class="safari-sheet"><div class="safari-sheet-title">${esc(entry.title)}</div>
-      ${['Tin nhắn','Mail','Facebook','Thêm dấu trang','Thêm vào Danh sách đọc','Sao chép','Thêm vào Màn hình chính'].map(x=>`<div class="safari-sheet-row" data-saf-close>${x}</div>`).join('')}
-      <div class="safari-sheet-row cancel" data-saf-close>Hủy</div></div>`);
-    overlay.querySelectorAll('[data-saf-close]').forEach(n=>n.addEventListener('click',hideOverlay));
+    showOverlay('<div class="safari-sheet"><div class="safari-sheet-title">'+esc(entry.title)+
+      '</div>'+['Tin nhắn','Mail','WhatsApp','Facebook','Thêm dấu trang','Thêm vào Danh sách đọc','Sao chép','Thêm vào Màn hình chính']
+      .map(x=>'<div class="safari-sheet-row" data-saf-action="'+esc(x)+'">'+esc(x)+'</div>').join('')+
+      '<div class="safari-sheet-row cancel" data-saf-close>Hủy</div></div>');
+    overlay.querySelectorAll('[data-saf-action]').forEach(row=>row.addEventListener('click',()=>{
+      const act=row.dataset.safAction,title=entry.title,url=entry.url||entry.extra?.url||'';
+      hideOverlay();
+      const map={'Tin nhắn':'messages','Mail':'mail','WhatsApp':'whatsapp','Facebook':'facebook'};
+      if(map[act]){window.CauaCrossApp?.shareLink(map[act],title,url);return}
+      if(act==='Thêm dấu trang'){saveCurrentPage('bookmarks');return}
+      if(act==='Thêm vào Danh sách đọc'){saveCurrentPage('reading');return}
+      if(act==='Sao chép'){window.CauaCrossApp?.copy(url);return}
+      if(act==='Thêm vào Màn hình chính'){alertBox.querySelector('.msg').textContent='Không có kết nối.';alertBox.classList.add('show')}
+    }));
+    overlay.querySelector('[data-saf-close]')?.addEventListener('click',hideOverlay);
   }
-
 
   function hideSafariTabOverview(){
     tabsView.classList.remove('show');
@@ -670,7 +709,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
   function renderBookmarks(mode) {
     const header = `<div class="safari-header"><div class="safari-titlebar"><button class="left" data-history-back>Done</button><div>Bookmarks</div><button class="right"></button></div><div class="safari-segments"><button data-seg="bookmarks" ${mode==='bookmarks'?'class="active"':''}>📘</button><button data-seg="reading" ${mode==='reading'?'class="active"':''}>👓</button><button data-seg="links" ${mode==='links'?'class="active"':''}>@</button></div></div>`;
     if(mode==='reading') {
-      return `${header}<div class="safari-list"><div class="safari-book-group-title">Reading List</div>${READING_LIST.map((r,i)=>`<div class="safari-item" data-reading="${i}"><div class="safari-item-title">${esc(r.title)}</div><div class="safari-item-sub">${esc(r.source)} · ${r.date} · ${r.state}</div></div>`).join('')}</div>`;
+      return `${header}<div class="safari-list"><div class="safari-book-group-title">Reading List</div>${userSaved.reading.map((r,i)=>`<div class="safari-item" data-user-reading="${i}"><div class="safari-item-title">${esc(r.title)}</div><div class="safari-item-sub">${esc(r.url||'')}</div></div>`).join('')}${READING_LIST.map((r,i)=>`<div class="safari-item" data-reading="${i}"><div class="safari-item-title">${esc(r.title)}</div><div class="safari-item-sub">${esc(r.source)} · ${r.date} · ${r.state}</div></div>`).join('')}</div>`;
     }
     if(mode==='links') {
       return `${header}<div class="safari-empty"><strong>Shared Links</strong><br><br>Không có liên kết mới.</div>`;
@@ -681,7 +720,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
       {title:'Rio Agora', url:'rioagora.com.br', targetPageId:'article-vinculo-investigation'},
       {title:'Subsolo', url:'subsolo.com.br', targetPageId:'subsolo-home'}
     ];
-    return `${header}<div class="safari-list"><div class="safari-book-group-title">Favorites</div>${favorites.map(item=>`<div class="safari-item" data-book-open="${item.targetPageId}" data-book-title="${esc(item.title)}" data-book-url="${esc(item.url)}"><div class="safari-item-title">${esc(item.title)}</div></div>`).join('')}<div class="safari-book-group-title">Collections</div><div class="safari-item" data-book-history><div class="safari-item-title">History</div></div>${BOOKMARKS.filter(section => !section.history).map(section => {
+    return `${header}<div class="safari-list"><div class="safari-book-group-title">Favorites</div>${favorites.map(item=>`<div class="safari-item" data-book-open="${item.targetPageId}" data-book-title="${esc(item.title)}" data-book-url="${esc(item.url)}"><div class="safari-item-title">${esc(item.title)}</div></div>`).join('')}${userSaved.bookmarks.length?'<div class="safari-book-group-title">Đã lưu</div>'+userSaved.bookmarks.map((item,i)=>`<div class="safari-item" data-user-book="${i}"><div class="safari-item-title">${esc(item.title)}</div><div class="safari-item-sub">${esc(item.url)}</div></div>`).join(''):''}<div class="safari-book-group-title">Collections</div><div class="safari-item" data-book-history><div class="safari-item-title">History</div></div>${BOOKMARKS.filter(section => !section.history).map(section => {
       const inner = section.items.map((item,i)=>`<div class="safari-item" data-book-open="${item.targetPageId}" data-book-title="${esc(item.title)}" data-book-url="${esc(item.url)}"><div class="safari-item-title">${esc(item.title)}</div><div class="safari-item-sub">${esc(item.url)}</div></div>`).join('');
       return section.folder ? `<div class="safari-book-group-title">${esc(section.section)}</div><div class="safari-folder-items">${inner}</div>` : `<div class="safari-book-group-title">${esc(section.section)}</div>${inner}`;
     }).join('')}</div>`;
@@ -741,6 +780,14 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
         navigate(target);
       }));
       page.querySelectorAll('[data-reading]').forEach(row=>row.addEventListener('click',()=>navigate('stub-page',{title:'Không thể mở bài viết', url:'', domain:'Danh sách đọc', body:'Không có kết nối.'})));
+      const openSaved=(item)=>{
+        if(!item)return;
+        const id=item.pageId||'stub-page';
+        if(id==='stub-page')navigate(id,item.extra||{title:item.title,url:item.url});
+        else navigate(id,item.extra||{});
+      };
+      page.querySelectorAll('[data-user-book]').forEach(row=>row.addEventListener('click',()=>openSaved(userSaved.bookmarks[+row.dataset.userBook])));
+      page.querySelectorAll('[data-user-reading]').forEach(row=>row.addEventListener('click',()=>openSaved(userSaved.reading[+row.dataset.userReading])));
     }
     if(currentEntry().pageId==='history-view') {
       page.querySelector('[data-history-back]')?.addEventListener('click',()=>navigate('bookmarks'));

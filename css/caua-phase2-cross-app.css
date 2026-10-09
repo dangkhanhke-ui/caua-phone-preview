@@ -1,0 +1,12 @@
+/* Phase 2: attachment handoff previews, sized in the 320pt iPhone canvas. */
+.caua-share-preview{border:1px solid #dadade;border-radius:7px;background:#f5f5f7;color:#444;
+  padding:7px 9px;margin:10px 12px;font:12px/1.35 -apple-system,"Helvetica Neue",Arial,sans-serif;
+  display:flex;gap:9px;align-items:center;min-height:38px}
+.caua-share-preview img{width:54px;height:54px;object-fit:cover;border-radius:3px;flex-shrink:0}
+.caua-share-preview .caua-share-file{overflow-wrap:anywhere;word-break:break-word}
+.mail-compose .caua-share-preview{margin:8px 12px}
+.mail-open-goodreader{display:block;margin:18px auto;padding:10px 18px;border:0;border-radius:7px;background:#007aff;color:#fff;font-size:14px}
+#messagesNewView .msg-new-empty{overflow-y:auto}
+#messagesNewView .caua-share-preview{width:auto;margin:12px;max-width:calc(100% - 24px)}
+.fb15-composer-dialog .caua-share-preview{margin:8px 0 14px}
+.fb15-composer-dialog .caua-share-preview img{width:70px;height:70px}

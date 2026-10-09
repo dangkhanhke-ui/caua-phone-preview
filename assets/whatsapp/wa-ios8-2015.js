@@ -67,6 +67,7 @@ function boot(){
  const lastTime=t=>{const e=latest(t);return e?.time||t.lastDate||''};
  const dateLabel=s=>{if(!s)return '';let a=s.split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:s};
  const daySort=t=>{const e=latest(t);return e?e.date+'T'+(e.time||'00:00'):t.activity||''};
+ let pendingCauaShare=null;
  let ui={tab:'chats',page:'main',id:'',sub:'',query:'',search:'',callFilter:'all',stack:[],overlay:null,viewer:'',select:[],edit:false,scrollThread:true,chatScroll:{},recording:false};
  let toastTimeout,callTimer,recorder,recParts=[];
  const action=(a,label,extra='')=>'<button type="button" data-act="'+a+'" '+extra+'>'+label+'</button>';
@@ -413,6 +414,17 @@ function boot(){
   if(a==='tab'){tab(id);return}
   if(a==='back'){back();return}
   if(a==='noop')return;
+  if(a==='pick-contact'&&pendingCauaShare){
+    const item=pendingCauaShare;pendingCauaShare=null;
+    selectContact(id);
+    const to=contact(id);if(!to)return;
+    if(item.kind==='photo'&&/^\.\/assets\/photos\/[a-z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(item.src||'')){
+      makeMessage(to,'image',{src:item.src});
+    }else if(item.kind==='link'){
+      makeMessage(to,'message',{text:[item.title,item.url].filter(Boolean).join('\n')});
+    }
+    ui.scrollThread=true;render();toast('Đã chia sẻ');return;
+  }
   if(a==='open-chat'||a==='pick-contact'){selectContact(id);return}
   if(a==='open-contact'){navigate('contact-info',{id});return}
   if(a==='new-chat'){ui.select=[];navigate('new-chat');return}
@@ -493,6 +505,14 @@ function boot(){
   if(a==='feedback'){toast('Không thể gửi phản hồi lúc này');return}
   if(a==='contact-share'){const person=contact(id);if(person){makeMessage(contact(ui.id),'contact',{contactName:person.name,phone:phones[id]||''});backToChat()}return}
  }
+
+ window.addEventListener('caua:whatsapp-share',event=>{
+   const item=event.detail||{};
+   if(item.kind!=='photo'&&item.kind!=='link')return;
+   pendingCauaShare=item;
+   ui.stack=[];ui.tab='chats';ui.page='new-chat';ui.id='';ui.select=[];ui.overlay=null;
+   render();
+ });
  root.addEventListener('click',e=>{
   const image=e.target.closest('[data-open-img]');if(image){e.preventDefault();e.stopPropagation();ui.viewer=image.dataset.openImg;render();return}
   const bubble=e.target.closest('.wai-bubble[data-msg]');if(bubble&&!e.target.closest('audio,button')){if(bubble.dataset.msg){ui.selectedMessage=bubble.dataset.msg;openSheet('Tin nhắn',[{text:'Sao chép',act:'copy-msg'},{text:'Chuyển tiếp',act:'forward-msg'},{text:'Thông tin',act:'message-info'},{text:'Xóa tin nhắn',act:'hide-msg'}])}return}
