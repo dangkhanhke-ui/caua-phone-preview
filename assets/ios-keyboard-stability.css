@@ -1,0 +1,15 @@
+/* iOS Safari keyboard layout stabilization (mobile only). */
+@supports (-webkit-touch-callout: none) {
+  html.phone-keyboard-open .phone-wrap {
+    transform: scale(var(--phone-locked-scale, var(--phone-scale, 1))) !important;
+  }
+  html.phone-keyboard-open .stage {
+    height: var(--phone-stable-height, 100%) !important;
+    bottom: auto !important;
+    transform: translate3d(0,var(--phone-keyboard-shift,0px),0) !important;
+  }
+  .iphone input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  .iphone textarea, .iphone select, .iphone [contenteditable="true"] {
+    font-size: max(16px, 1em) !important;
+  }
+}
