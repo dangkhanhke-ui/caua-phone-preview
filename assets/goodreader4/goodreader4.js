@@ -173,7 +173,8 @@ function openFile(id){
  else{view='reader';renderReader();}
 }
 function back(){
- if(view==='locked'||view==='reader'||view==='pages'||view==='bookmarks'){
+ if(view==='pages'||view==='bookmarks'){view='reader';renderReader();return;}
+ if(view==='locked'||view==='reader'){
   if(current){const d=find(current);if(d?.password)unlocked.delete(d.id);}
   const prev=history.pop();current=null;readerSearch='';
   view=prev?.view||'files';path=prev?.path||path;mode='normal';selected.clear();render();return;
