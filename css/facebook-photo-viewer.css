@@ -1,0 +1,90 @@
+/* Single Facebook photo viewer for the locked iPhone display. */
+#screen.fb-photo-clean-open > #facebookApp,
+#screen.fb-photo-clean-open > #statusBar {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#screen > .fb-photo-clean {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2147483600 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  flex-direction: column;
+  overflow: hidden;
+  background: #08090d;
+  color: #fff;
+  isolation: isolate;
+  box-sizing: border-box;
+  font-family: "Helvetica Neue",Arial,sans-serif;
+}
+#screen .fb-photo-clean-header {
+  position: relative;
+  flex: 0 0 44px;
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111217;
+  border-bottom: 1px solid #282932;
+  box-sizing: border-box;
+  padding: 0 7px;
+  z-index: 1;
+}
+#screen .fb-photo-clean-header button {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 400 13px/22px "Helvetica Neue",Arial,sans-serif;
+  padding: 8px 4px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+#screen .fb-photo-clean-header strong {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+}
+#screen .fb-photo-clean-stage {
+  position: relative;
+  min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #08090d;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#screen .fb-photo-clean-stage img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: center center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+#facebookApp .fb15-media.photo img,
+#facebookApp .fb15-photo-grid img,
+#facebookApp .fb15-link-thumb.photo img,
+#facebookApp .fb15-ad-thumb.photo img,
+#facebookApp .fb15-profile-cover > img {
+  cursor: zoom-in;
+}
