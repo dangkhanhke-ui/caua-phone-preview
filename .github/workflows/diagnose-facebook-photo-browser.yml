@@ -55,10 +55,11 @@ jobs:
               const screen=document.querySelector('#screen'),bar=document.querySelector('#statusBar'),lightbox=screen?.querySelector(':scope > .fb15-lightbox');
               const r=screen.getBoundingClientRect();
               const hits=[5,26,100,130].map(y=>document.elementFromPoint(r.left+Math.min(120,r.width/2),r.top+y)?.closest('.fb15-lightbox')===lightbox);
-              return {viewerAttachedToScreen:!!lightbox,onlyOneViewer:document.querySelectorAll('.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length===1,statusHidden:getComputedStyle(bar).visibility==='hidden',fullscreenClass:screen.classList.contains('fb15-photo-fullscreen'),viewerCoversEveryPoint:hits.every(Boolean),hits};
+              return {viewerAttachedToScreen:!!lightbox,onlyOneViewer:document.querySelectorAll('.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length===1,statusHidden:getComputedStyle(bar).visibility==='hidden',fullscreenClass:screen.classList.contains('fb15-photo-fullscreen'),viewerCoversEveryPoint:!!lightbox&&hits.every(Boolean),hits};
             });
             console.log('ASSERT_OPEN',JSON.stringify(verify));
             if(Object.values(verify).some(v=>v===false))throw Error('Facebook fullscreen failed checks: '+JSON.stringify(verify));
+            await page.screenshot({path:'/tmp/facebook-after-open.png'});
             await page.evaluate(()=>document.querySelector('#screen .fb15-lightbox [data-fb-photo-close]')?.click());
             const afterClose=await page.evaluate(()=>({viewerCount:document.querySelectorAll('.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length,statusVisible:getComputedStyle(document.querySelector('#statusBar')).visibility==='visible',fullscreenClass:document.querySelector('#screen').classList.contains('fb15-photo-fullscreen')}));
             console.log('ASSERT_CLOSE',JSON.stringify(afterClose));
