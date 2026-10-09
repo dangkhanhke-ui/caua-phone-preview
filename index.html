@@ -7898,7 +7898,8 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase();const pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
     const i=(n-1)%25; const x=(i%5)*25,y=Math.floor(i/5)*25;
     const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
-    return ' data-npc-avatar="'+n+'" style="background-image:url(&quot;./assets/facebook/avatars/'+file+'&quot;)!important;background-size:500% 500%!important;background-repeat:no-repeat!important;background-position:'+x+'% '+y+'%!important;color:transparent!important;font-size:0!important;overflow:hidden!important"';
+    const hd='extra_'+String(n).padStart(3,'0')+'.png';
+    return ' data-npc-avatar="'+n+'" style="background-image:url(&quot;./assets/facebook/avatars/hd/'+hd+'&quot;),url(&quot;./assets/facebook/avatars/'+file+'&quot;)!important;background-size:100% 100%,500% 500%!important;background-repeat:no-repeat,no-repeat!important;background-position:center center,'+x+'% '+y+'%!important;color:transparent!important;font-size:0!important;overflow:hidden!important"';
   }
 
   const authorType=n=>PAGES.includes(n)?'page':'friend';

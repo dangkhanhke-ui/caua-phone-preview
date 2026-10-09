@@ -23,6 +23,12 @@ jobs:
     steps:
       - name: Checkout site
         uses: actions/checkout@v4
+      - name: Unpack optional HD Facebook avatar archive
+        run: |
+          if [ -f caua_avatar_50_original_quality.zip ]; then
+            unzip -oq caua_avatar_50_original_quality.zip -d .
+            test -f assets/facebook/avatars/hd/extra_050.png
+          fi
       - name: Verify static site
         run: test -f index.html
       - name: Configure Pages
