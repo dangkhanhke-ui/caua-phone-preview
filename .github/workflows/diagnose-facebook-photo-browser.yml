@@ -29,6 +29,8 @@ jobs:
           assert 'facebook-lightbox.css' not in html
           assert 'fb15-image-viewer-style' not in html
           assert 'fb15-image-viewer-script' not in html
+          assert 'facebook-profile-sticky-fix.js' not in html
+          assert not Path('js/facebook-profile-sticky-fix.js').exists()
           assert not Path('assets/facebook/facebook-lightbox.js').exists()
           assert not Path('assets/facebook/facebook-lightbox.css').exists()
           print('PASS: single Facebook viewer, no legacy registration')
@@ -61,6 +63,27 @@ jobs:
                 return {app:document.querySelector('#facebookApp').classList.contains('open'),profile:!!cover,cover:cover?.getAttribute('src')};
               });
               console.log(name,'PROFILE',JSON.stringify(navigated));
+              // Verify profile tabs belong to the timeline, not a sticky overlay.
+              const scrolledTabs=await page.evaluate(()=>{
+                const content=document.querySelector('#facebookApp .fb15-content');
+                const nav=content.querySelector('.fb15-profile-tabs');
+                if(!nav)return {error:'Profile tabs missing'};
+                const style=getComputedStyle(nav);
+                const initial=nav.getBoundingClientRect();
+                content.scrollTop=900;
+                const after=nav.getBoundingClientRect();
+                const viewport=content.getBoundingClientRect();
+                return {position:style.position,initialBottom:initial.bottom,
+                  finalBottom:after.bottom,contentTop:viewport.top,
+                  scrollTop:content.scrollTop,
+                  scrolledAway:after.bottom<viewport.top,
+                  movedUp:after.bottom<initial.bottom-300,
+                  floatingCopies:document.querySelectorAll('.fb15-profile-tabs-overlay').length};
+              });
+              console.log(name,'PROFILE_TABS_SCROLL',JSON.stringify(scrolledTabs));
+              if(scrolledTabs.error||!scrolledTabs.scrolledAway||!scrolledTabs.movedUp||
+                 scrolledTabs.floatingCopies!==0||scrolledTabs.position==='sticky'||
+                 scrolledTabs.position==='fixed')throw Error(name+' profile tabs still stick/floating');
               if(!navigated.profile || !navigated.app)throw Error(name+' cannot navigate to Cauã profile');
               await page.waitForTimeout(400);
               await page.evaluate(()=>{
