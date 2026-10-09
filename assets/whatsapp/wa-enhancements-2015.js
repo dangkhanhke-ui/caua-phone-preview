@@ -125,7 +125,7 @@ function showOwnerProfile(){
    '<div class="wa-ext-section">Tên hiển thị</div><input class="wa-ext-field" id="waExtOwnerName" maxlength="45" value="'+safe(owner)+'">'+
    '<div class="wa-ext-muted">Tên này hiển thị cho người khác trên WhatsApp.</div>'+
    '<div class="wa-ext-section">Trạng thái</div><input class="wa-ext-field" id="waExtOwnerAbout" maxlength="139" value="'+safe(saved.about||'Có sẵn')+'">'+
-   '<div class="wa-ext-section">Số điện thoại</div><div class="wa-owner-number">Chưa có số điện thoại của Cauã trong dữ liệu case</div>'+
+   '<div class="wa-ext-section">Số điện thoại</div><div class="wa-owner-number">Chưa có số điện thoại.</div>'+
    '<div class="wa-ext-bottom"><button class="wa-ext-action" id="waExtOwnerSave" type="button">Lưu hồ sơ</button></div>';
   showSheet('Hồ sơ',html);
 }
@@ -206,7 +206,7 @@ app.addEventListener('click',e=>{
     else if(label.includes('cài đặt'))setTab('settings');
     else if(label.includes('whatsapp web'))showSheet('WhatsApp Web', '<div class="wa-ext-empty">Trên máy tính, mở web.whatsapp.com rồi quét mã QR.</div>');
     else if(label.includes('trạng thái'))showAbout();
-    else toast('Danh sách phát: sẽ hoàn thiện trong đợt tiếp theo');
+    else toast('Không có kết nối.');
     return;
   }
   const contact=e.target.closest('[data-wa-ext-contact]');

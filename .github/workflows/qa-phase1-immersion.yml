@@ -1,0 +1,23 @@
+name: Phase 1 — Immersion copy guard
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'js/safari.js'
+      - 'assets/whatsapp/wa-enhancements-2015.js'
+      - 'qa/phase1-immersion-audit.cjs'
+      - '.github/workflows/qa-phase1-immersion.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  copy-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify player-facing copy and app launchers
+        run: |
+          node --check js/safari.js
+          node --check assets/whatsapp/wa-enhancements-2015.js
+          node qa/phase1-immersion-audit.cjs
