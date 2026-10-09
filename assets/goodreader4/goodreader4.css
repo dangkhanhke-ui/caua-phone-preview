@@ -68,3 +68,16 @@
 .gr4-home-icon{position:relative;border-radius:11px;background:linear-gradient(140deg,#27bdd9,#157ba6)!important;border:1px solid #ffffff70;box-shadow:inset 0 1px 1px #ffffff73;display:flex;justify-content:center;align-items:center;overflow:hidden}
 .gr4-home-icon .gr4-logo-fallback{color:white;font-weight:800;font-size:27px;letter-spacing:-2px;transform:rotate(-8deg);text-shadow:0 1px 2px #145069}
 .gr4-home-icon img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+
+/* 2015-style blue folder glyph (avoids modern yellow emoji art). */
+.gr4-file-icon.folder{position:relative;font-size:0;text-shadow:none}
+.gr4-file-icon.folder::before{content:"";position:absolute;left:2px;top:13px;width:29px;height:22px;background:linear-gradient(#a8d1ec,#6caed6 28%,#5b9fcf);border:1px solid #5c91b7;border-radius:2px 3px 3px 3px;box-shadow:inset 0 1px 0 #e7f5ff,0 1px 1px #0002}
+.gr4-file-icon.folder::after{content:"";position:absolute;left:3px;top:9px;width:14px;height:7px;background:#79b4d9;border:1px solid #5c91b7;border-bottom:0;border-radius:3px 3px 0 0}
+.gr4-page-controls{height:36px;min-height:36px;position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:7px;padding:0 9px;background:linear-gradient(#f8f8fa,#e4e7ee);border-bottom:1px solid #abb3be}
+.gr4-page-controls button{border:0;background:none;color:#407daf;font-size:25px;min-width:25px;height:32px}
+.gr4-page-controls button:disabled{color:#bdc3ca}
+.gr4-page-controls input[type=range]{min-width:0;flex:1;accent-color:#518fbd;height:20px}
+.gr4-current-page{min-width:30px;color:#6a7280;text-align:center;font-size:11px;font-variant-numeric:tabular-nums}
+.gr4-highlight-hint{font-size:10px;line-height:1.4;padding:7px 9px;background:#fff5c7;color:#775917;border-bottom:1px solid #e0c982}
+.gr4-block.gr4-highlight{background:#ffe383;box-shadow:0 0 0 2px #ffe383;cursor:pointer}
+.gr4-block.gr4-highlight p,.gr4-block.gr4-highlight h1,.gr4-block.gr4-highlight h2,.gr4-block.gr4-highlight h3{background:transparent}
