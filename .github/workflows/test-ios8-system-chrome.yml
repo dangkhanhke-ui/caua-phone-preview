@@ -53,7 +53,7 @@ jobs:
                 return {source:root.dataset.svgSource,icons:ids.map(sel=>{
                   const host=root.querySelector(sel),glyph=host?.querySelector('svg.ios8-sketch-svg');
                   const b=host?.getBoundingClientRect();
-                  return {width:b?.width,height:b?.height,viewBox:glyph?.getAttribute('viewBox'),present:!!glyph};
+                  return {width:b?.width,height:b?.height,cssWidth:parseFloat(getComputedStyle(host).width),cssHeight:parseFloat(getComputedStyle(host).height),viewBox:glyph?.getAttribute('viewBox'),present:!!glyph};
                 })};
               });
               console.log(name,'SKETCH_NATIVE',JSON.stringify(native));
@@ -61,7 +61,7 @@ jobs:
               const target=[[34,6,'0 0 68 12'],[12,9,'0 0 24 18'],[8,13.021,'0 0 16 26.042'],[26,10,'0 0 52 20']];
               native.icons.forEach((glyph,i)=>{
                 const [w,h,vb]=target[i];
-                if(!glyph.present||Math.abs(glyph.width-w)>0.12||Math.abs(glyph.height-h)>0.12||glyph.viewBox!==vb)
+                if(!glyph.present||Math.abs(glyph.cssWidth-w)>0.12||Math.abs(glyph.cssHeight-h)>0.12||Math.abs(glyph.width/glyph.height-w/h)>0.04||glyph.viewBox!==vb)
                   throw Error('Original Sketch aspect ratio lost for icon '+i+': '+JSON.stringify(glyph));
               });
               await p.evaluate(()=>document.querySelector('[data-app="photos"]')?.click());
