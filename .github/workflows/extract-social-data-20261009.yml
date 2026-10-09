@@ -37,15 +37,21 @@ jobs:
               body=m.group(2)
               extracted={}
               for name in names:
-                  pattern=re.compile(r'(?m)^([ \t]*)const '+name+r'=(\[[^\r\n]*\]);')
+                  pattern=re.compile(r'(?m)^([ \t]*)const '+name+r'\s*=\s*')
                   found=list(pattern.finditer(body))
                   if len(found)!=1:raise SystemExit(f'{app}.{name}: expected 1 declaration, got {len(found)}')
-                  value=found[0].group(2)
-                  try: parsed=json.loads(value)
+                  mdecl=found[0]
+                  pos=mdecl.end()
+                  decoder=json.JSONDecoder()
+                  try: parsed,consumed=decoder.raw_decode(body[pos:])
                   except ValueError as exc:raise SystemExit(f'{app}.{name} not JSON: {exc}')
                   if not isinstance(parsed,list):raise SystemExit('Expected JSON array')
+                  value=body[pos:pos+consumed]
+                  end=pos+consumed
+                  while end<len(body) and body[end] in ' \t':end+=1
+                  if end<len(body) and body[end]==';':end+=1
                   extracted[name]=value
-                  body=pattern.sub(lambda q:q.group(1)+f'const {name}=window.__CAUA_{app.upper()}_DATA__.{name};',body,count=1)
+                  body=body[:mdecl.start()]+mdecl.group(1)+f'const {name}=window.__CAUA_{app.upper()}_DATA__.{name};'+body[end:]
                   print(f'{app}.{name}: {len(parsed)} records; {len(value.encode())} bytes')
               data=Path('data')/(app+'.js')
               data.parent.mkdir(exist_ok=True)
