@@ -1149,8 +1149,8 @@
     if(view!=='compose') return;
     const to=bodyEl.querySelector('#composeTo')?.value.trim();
     if(!to){ showToast('Nhập người nhận'); return; }
-    showToast('Đã gửi');
-    setTimeout(()=> currentMail ? renderDetail(currentMail) : renderInbox(), 450);
+    // Offline case: do not pretend an email was delivered or discard the draft.
+    showToast('Không có kết nối. Thư chưa được gửi.');
   }
 })();
 </script>
@@ -3560,7 +3560,13 @@
   function closeOtherApps(){['photosApp','phoneApp','notesApp','messagesApp','calendarApp','safariApp','mailApp','itauApp','itauBizApp','facebookApp'].forEach(id=>document.getElementById(id)?.classList.remove('open'));['photos-open','phone-open','notes-open','messages-open','calendar-open','safari-open','mail-open','itau-open','itau-biz-open','facebook-open'].forEach(c=>screen.classList.remove(c));}
   function openApp(){closeOtherApps();teardownAudio(true);currentId=null;detail.classList.remove('open');detail.innerHTML='';app.classList.add('open');screen.classList.add('voice-open');renderList();}
   launcher.addEventListener('click',openApp);
-  document.addEventListener('click',e=>{const l=e.target.closest('[data-app]');if(l&&l.dataset.app!=='voice'&&app.classList.contains('open')){teardownAudio(false);app.classList.remove('open');screen.classList.remove('voice-open')}},true);
+  app.querySelector('.voice-record-btn')?.addEventListener('click',()=>{
+    let tip=app.querySelector('.voice-offline-notice');
+    if(!tip){tip=document.createElement('div');tip.className='voice-offline-notice';tip.setAttribute('role','status');tip.style.cssText='position:absolute;z-index:25;left:10%;right:10%;top:35%;padding:15px 12px;border-radius:12px;background:rgba(25,25,28,.9);color:#fff;text-align:center;font:14px -apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 5px 20px #0004';app.querySelector('.voice-shell')?.appendChild(tip);}
+    tip.textContent='Không có kết nối. Không thể ghi âm mới.';
+    tip.hidden=false;clearTimeout(tip._timer);tip._timer=setTimeout(()=>{tip.hidden=true},2400);
+  });
+  document.addEventListener('click',e=>{const l=e.target.closest('[data-app]');if(l&&l.dataset.app!=='voice&&app.classList.contains('open')){teardownAudio(false);app.classList.remove('open');screen.classList.remove('voice-open')}},true);
   function memoById(id){return MEMOS.find(m=>m.id===id)}
   function renderList(){
     list.innerHTML=MEMOS.map(m=>`<div class="voice-row" data-voice-id="${m.id}"><div class="voice-row-head"><div><div class="voice-row-title">${esc(m.title)}</div><div class="voice-row-date">${esc(m.displayDate)}${m.displayTime?`<span class="voice-date-time"> · ${esc(m.displayTime)}</span>`:''}</div></div><div class="voice-row-duration" data-duration="${m.id}">${m.duration!=null?fmt(m.duration):(m.audio?'--:--':'')}</div><div class="voice-row-chevron" aria-hidden="true">›</div></div></div>`).join('');
@@ -4567,6 +4573,6 @@ img.src=options[0];
 <script src="./js/caua-phase2-cross-app.js?v=20261010b"></script>
 
 
-<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009h"></script>
+<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261010p3a"></script>
 </body>
 </html>
