@@ -1,0 +1,274 @@
+
+=== Bạn bè với Cauã (found 1) ===
+lick=()=>showPage(x.dataset.page));root.querySelectorAll('[data-inert]').forEach(x=>x.onclick=()=>showDialog(x.textContent.trim(),'Bạn đã đi tới phần cuối khả dụng của mục này trong bản Facebook offline.'));}
+  function showPerson(name){if(name==='Cauã Valença'){closeSearch();state.stack=[];setTabs(false);renderProfile();return;}const f=FRIENDS.find(x=>x.name===name)||{name,city:'',detail:''};const detail=[f.city,f.detail].filter(Boolean).join(' · ');showDialog(f.name,`${detail?detail+'<br>':''}Bạn bè với Cauã`,initials(f.name));}
+  function showPage(name){showDialog(name,'Trang<br>Đã thích',initials(name));}
+  function showDialog(head,body,ini=''){dialog.innerHTML=`<div class="fb15-dialog-body">${ini?`<div class="fb15-dialog-avatar">${esc(ini)}</div>`:''}<h3>${esc(head)}</h3><p>${body}</p></div><button type="button">Đóng</button>`;overlay.classList.add('open');dialog.querySelector('button').onclick=closeOverlay;}
+  function closeOverlay(){overlay.classList.remove('open');}
+})();
+</script>
+
+
+<script src="data/whatsapp.js"></script>
+<script id="whatsapp-ios2015-script">
+(() => {
+  const app=document.getElementById('whatsappApp');
+  const launcher=document.querySelector('[data-app="whatsapp"]');
+  const screen=document.getElementById('screen');
+  if(!app||!launcher||!screen)return;
+  const listView=document.getElementById('waListView'),threadView=document.getElementById('waThreadView'),list=document.getElementById('waChatList'),search=document.getElementById('waSearch'),canvas=document.getElementById('waChatCanvas');
+  const threadName=document.getElementById('waThreadName'),
+-- excerpt --
+
+=== fb15-dialog-avatar (found 1) ===
+Person(name){if(name==='Cauã Valença'){closeSearch();state.stack=[];setTabs(false);renderProfile();return;}const f=FRIENDS.find(x=>x.name===name)||{name,city:'',detail:''};const detail=[f.city,f.detail].filter(Boolean).join(' · ');showDialog(f.name,`${detail?detail+'<br>':''}Bạn bè với Cauã`,initials(f.name));}
+  function showPage(name){showDialog(name,'Trang<br>Đã thích',initials(name));}
+  function showDialog(head,body,ini=''){dialog.innerHTML=`<div class="fb15-dialog-body">${ini?`<div class="fb15-dialog-avatar">${esc(ini)}</div>`:''}<h3>${esc(head)}</h3><p>${body}</p></div><button type="button">Đóng</button>`;overlay.classList.add('open');dialog.querySelector('button').onclick=closeOverlay;}
+  function closeOverlay(){overlay.classList.remove('open');}
+})();
+</script>
+
+
+<script src="data/whatsapp.js"></script>
+<script id="whatsapp-ios2015-script">
+(() => {
+  const app=document.getElementById('whatsappApp');
+  const launcher=document.querySelector('[data-app="whatsapp"]');
+  const screen=document.getElementById('screen');
+  if(!app||!launcher||!screen)return;
+  const listView=document.getElementById('waListView'),threadView=document.getElementById('waThreadView'),list=document.getElementById('waChatList'),search=document.getElementById('waSearch'),canvas=document.getElementById('waChatCanvas');
+  const threadName=document.getElementById('waThreadName'),threadStatus=document.getElementById('waThreadStatus'),threadHead=document.getElementById('waThreadHead'),info=document.getElementById('waContactInfo'),infoName=document.getElementById('waInfoName'),viewer=document.getElemen
+-- excerpt --
+
+=== function showFriend (found 0) ===
+
+=== function renderFriends (found 1) ===
+ class="fb15-friends-count"><b>687 bạn bè</b> · hiển thị ${FRIENDS.length} hồ sơ</div>`+friendGrid();wireCommon(b);}else{b.innerHTML=photoGrid();}}
+  function friendGrid(){return '<div class="fb15-friends-grid">'+FRIENDS.map(f=>`<button class="fb15-friend-tile" data-person="${esc(f.name)}"><div class="fb15-friend-pic"${npcAvatarAttrs(f.name)}>${npcAvatarPhoto(f.name)}<span class="fb15-npc-fallback">${esc(initials(f.name))}</span></div><span>${esc(f.name)}</span></button>`).join('')+'</div>';}
+  function renderFriends(){content.onscroll=null;setSubTop('Bạn bè');content.innerHTML='<div class="fb15-section-label">687 bạn bè · hiển thị '+FRIENDS.length+' hồ sơ</div>'+friendGrid();wireCommon(content);}
+  function photoGrid(){const photos=PROFILE_POSTS.filter(p=>PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'));return '<div class="fb15-section-label">'+photos.length+' ảnh từ bài đăng của Cauã</div><div class="fb15-photo-grid">'+photos.map(p=>`<img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="Ảnh bài đăng ngày ${esc(p.timestamp)}" loading="lazy">`).join('')+'</div>';}
+  function renderPhotos(){content.onscroll=null;setSubTop('Ảnh');content.innerHTML=photoGrid();}
+  function renderEvents(){content.onscroll=null;setSubTop('Sự kiện');content.innerHTML='<div class="fb15-section-label">Sắp tới</div>'+EVENTS_UP.map(e=>`<div class="fb15-mini-row"><span class="fb15-event-state">${esc(e[2])}</span><strong>${esc(e[1])}</strong><small>${esc(e[0])}</small></div>`).join('')+'<div class="fb15-section-label">Trước đây</div>'+EVENTS
+-- excerpt --
+
+=== function renderRequests (found 1) ===
+class="fb15-person-avatar"${npcAvatarAttrs(p.name)}>${npcAvatarPhoto(p.name)}<span class="fb15-npc-fallback">${esc(initials(p.name))}</span></div><div><div class="fb15-person-name">${esc(p.name)}</div><div class="fb15-mutual">${p.mutual!=null?esc(p.mutual)+' bạn chung':esc(p.city||'Rio de Janeiro')+(p.detail?' · '+esc(p.detail):'')}</div>${actions?`<div class="fb15-person-actions"><button class="fb15-btn primary">Xác nhận</button><button class="fb15-btn">Xóa</button></div>`:''}</div></div>`;}
+  function renderRequests(){content.onscroll=null;content.innerHTML='<div class="fb15-section-label">Lời mời kết bạn</div><div class="fb15-list">'+REQUESTS.map(x=>personRow(x,true)).join('')+'</div><div class="fb15-section-label">Những người bạn có thể biết</div><div class="fb15-list">'+SUGGEST.map(x=>personRow(x,false)).join('')+'</div>';wireCommon(content);}
+  function renderMessages(){content.onscroll=null;content.innerHTML=`<div class="fb15-note" style="margin-top:7px"><strong>TIN NHẮN</strong>Tiếp tục cuộc trò chuyện trên Messenger.<br><button class="fb15-btn primary" id="fb15InstallMessenger">Cài đặt Messenger</button><br><button class="fb15-btn" style="margin-top:7px" id="fb15NotNow">Không phải bây giờ</button></div>`;document.getElementById('fb15InstallMessenger').onclick=()=>showDialog('Messenger','Không khả dụng trên thiết bị điều tra.');}
+  function notifIcon(type){const map={like:['👍','like'],comment:['💬','comment'],reply:['↩','reply'],photo:['📷','photo'],tag:['@','tag'],group:['☰','group'],link:['▣','link'],event:['★','event'],friend:['+','friend'],system:['!','system'],al
+-- excerpt --
+
+=== fb15-photo-view (found 0) ===
+
+=== function openPhoto (found 1) ===
+utton>`).join(''):`<div class="photos-empty" style="grid-column:1/-1"><strong>Không có ảnh</strong></div>`;
+    bindPhotoButtons(albumGrid,title);showView('albumGrid');
+  }
+  function bindPhotoButtons(root,source){root.querySelectorAll('[data-photo-id]').forEach(btn=>btn.addEventListener('click',()=>openPhoto(PHOTOS.findIndex(p=>p.id===btn.dataset.photoId),source)));}
+
+  function setViewerBackLabel(source){
+    viewerBackLabel.innerHTML=source==='Cuộn Camera'?'Cuộn<br>Camera':esc(source);
+  }
+  function openPhoto(index,source='Khoảnh khắc'){
+    const returnView=state.view;
+    const returnScroller=views[returnView]?.querySelector('.photos-scroll');
+    const photo=PHOTOS[Math.max(0,index)];
+    state.viewerReturn={view:returnView,scrollTop:returnScroller?returnScroller.scrollTop:0,photoId:photo?.id||null};
+    if(returnScroller)state.scrolls[returnView]=returnScroller.scrollTop;
+    state.currentIndex=Math.max(0,index);state.lastView=returnView;state.source=source;setViewerBackLabel(source);
+    viewer.classList.add('active');views[returnView]?.classList.remove('active');renderViewer();
+  }
+  const swipePreload=new Map();
+  function preloadAround(index){
+    const keep=new Set();
+    for(const i of [index-2,index-1,index,index+1,index+2]){
+      const p=PHOTOS[i];if(!p)continue;
+      keep.add(p.src);
+      if(!swipePreload.has(p.src)){
+        const im=new Image();im.decoding='async';im.src=p.src;
+        const promise=im.decode?im.decode().catch(()=>{}):Promise.resolve();
+        swipePreload.set(p.src,{im,promise});
+      }
+    }
+    for(const k of swipePreload.keys())i
+-- excerpt --
+
+=== fb15-profile-tabs (found 1) ===
+_EDIT.workplace)}</b></span></div><div class="sum-row"><span class="sum-ico"><svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7v9h-6v-6H9v6H3z"/></svg></span><span>Sống tại <b>${esc(PROFILE_EDIT.city)}</b></span></div><div class="sum-row"><span class="sum-ico"><svg viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 12v5c3 2 9 2 12 0v-5" fill="none"/></svg></span><span>Từng học tại <b>${esc(PROFILE_EDIT.school)}</b></span></div><div class="sum-friends">687 bạn bè</div></div><div class="fb15-profile-tabs">${[['timeline','Dòng thời gian'],['about','Giới thiệu'],['friends','Bạn bè'],['photos','Ảnh']].map(x=>`<button class="fb15-profile-tab ${state.profileTab===x[0]?'active':''}" data-ptab="${x[0]}">${x[1]}</button>`).join('')}</div><div id="fb15ProfileBody"></div>`;document.querySelectorAll('[data-ptab]').forEach(b=>b.onclick=()=>{state.profileTab=b.dataset.ptab;renderProfile();});wireProfileActions();renderProfileBody();}
+  function renderProfileBody(){const b=document.getElementById('fb15ProfileBody');if(!b)return;if(state.profileTab==='timeline'){let year='';let out='<div class="fb15-feed fb15-profile-feed">';PROFILE_POSTS.forEach(p=>{if(p.year!==year){year=p.year;out+=`<div class="fb15-profile-year">${esc(year)}</div>`;}out+=renderPost(p,true);});out+='</div>';b.innerHTML=out;wirePosts();}else if(state.profileTab==='about'){const history=(title,arr)=>`<section class="fb15-about-section"><div class="fb15-about-heading">${title}</div>${arr.map(x=>`<div class="fb15-history-item"><div class="fb15-history-logo">${esc(initials(x.place))}</div><div><div class="fb15-histo
+-- excerpt --
+
+=== avatarFor (found 0) ===
+
+=== avatarHTML (found 0) ===
+
+=== avatarImage (found 0) ===
+
+=== Camila Ribeiro (found 6) ===
+ction:'incoming',type:'Chuyển khoản nhận',status:'Đã hoàn tất'},
+    {id:'c150811-pedro',accountId:'caixa',date:'2015-08-11',displayName:'Pedro Henrique Siqueira Lopes',amount:120,direction:'incoming',type:'Chuyển khoản nhận',status:'Đã hoàn tất'},
+    {id:'c150812-aline',accountId:'caixa',date:'2015-08-12',displayName:'Aline Tavares de Moura',amount:100,direction:'incoming',type:'Chuyển khoản nhận',status:'Đã hoàn tất'},
+    {id:'c150812-camila',accountId:'caixa',date:'2015-08-12',displayName:'Camila Ribeiro da Rosa',amount:80,direction:'incoming',type:'Chuyển khoản nhận',status:'Đã hoàn tất'},
+    {id:'c150812-breno',accountId:'caixa',date:'2015-08-12',displayName:'Breno Gabriel Martins de Azevedo',amount:-220,direction:'outgoing',type:'Chuyển khoản',description:'Hoàn ứng',counterparty:'Breno Gabriel Martins de Azevedo',status:'Đã hoàn tất'},
+    {id:'c150813-enzo',accountId:'caixa',date:'2015-08-13',displayName:'Enzo Gabriel Nascimento Costa',amount:100,direction:'incoming',type:'Chuyển khoản nhận',status:'Đã hoàn tất'},
+    {id:'c150813-rafa',accountId:'caixa',date:'2015-08-13',displayName:'Rafaela Lima de Souza',amount:-420,direction:'outgoing',type:'Chuyển khoản',description:'Hồ sơ / vật tư',status:'Đã hoàn tất'},
+    {id:'c150815-maint',accountId:'caixa',date:'2015-08-15',displayName:'Bảo trì Santa Teresa',amount:-2850,direction:'outgoing',type:'Thanh toán',status:'Đã hoàn tất'},
+    {id:'c150817-office',accountId:'caixa',date:'2015-08-17',displayName:'Văn phòng phẩm / vật tư',amount:-610,direction:'outgoing',type:'Thanh toán',status:'Đã hoàn tất'},
+    {id:'c150818-
+-- excerpt --
+e":"Pedro Henrique","fullName":"Pedro Henrique Siqueira Lopes","company":"","role":"","phone":"+55 (21) 90001-0052","phoneLabel":"di động","favorite":false,"note":"","messageThreadId":null,"faceTime":true,"aliases":[]},{"id":"aline","displayName":"Aline","fullName":"Aline Tavares de Moura","company":"","role":"","phone":"+55 (21) 90001-0063","phoneLabel":"di động","favorite":false,"note":"","messageThreadId":null,"faceTime":true,"aliases":[]},{"id":"camila-vh","displayName":"Camila","fullName":"Camila Ribeiro da Rosa","company":"","role":"","phone":"+55 (21) 90001-0078","phoneLabel":"di động","favorite":false,"note":"","messageThreadId":null,"faceTime":true,"aliases":[]},{"id":"cesar","displayName":"César Augusto","fullName":"César Augusto Menezes Duarte","company":"","role":"","phone":"+55 (21) 90001-0081","phoneLabel":"di động","favorite":false,"note":"","messageThreadId":null,"faceTime":true,"aliases":[]},{"id":"felipe","displayName":"Felipe · Subsolo","fullName":"Felipe Azevedo","company":"Subsolo","role":"Điều phối ca","phone":"+55 (21) 90002-0001","phoneLabel":"di động","favorite":true,"note":"","messageThreadId":null,"faceTime":true,"aliases":["Felipe"]},{"id":"marina-costa","displayName":"Marina Costa","fullName":"Marina Costa","company":"Subsolo","role":"Bartender","phone":"+55 (21) 90002-0002","phoneLabel":"di động","favorite":false,"note":"","messageThreadId":null,"faceTime":true,"aliases":[]},{"id":"caio-nunes","displayName":"Caio Nunes","fullName":"Caio Nunes","company":"Subsolo","role":"Bartender","phone":"+55 (21) 90002-0003","phoneLabel":"di động","favorite"
+-- excerpt --
+a", 6], ["Rafael Almeida", 12], ["Igor Lima", 4], ["Priscila Moreira", 8], ["Murilo Santos", 3], ["Beatriz Souza", 7], ["Felipe Ramos", 10]].map((x,i)=>({id:'s'+i,name:x[0],mutual:x[1]}));
+  const NOTIFS=[{"date":"23/08/2015","time":"21:44","type":"comment","text":"Marina Campos đã bình luận về bài viết của bạn.","detail":"Ông thắng bóng đá hay ông vừa vô địch vậy =)))","context":"Bài viết: 2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"21:36","type":"like","text":"João Cardoso, Camila Ribeiro và 18 người khác đã thích bài viết của bạn.","context":"2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"21:18","type":"photo","text":"Flamengo đã thêm một ảnh mới.","context":"Chiến thắng tại Maracanã. ❤️🖤","unread":true},{"date":"23/08/2015","time":"20:57","type":"comment","text":"Breno Martins đã bình luận về bài viết của bạn.","detail":"Tôi nói 2-1 từ đầu rồi nhé.","extra":["Lucas Andrade đã trả lời bình luận của Breno Martins.","Không ai hỏi."],"unread":true},{"date":"23/08/2015","time":"20:42","type":"comment","text":"Natália Borges đã bình luận về bài viết của Subsolo.","detail":"Thứ Sáu bên mình còn nhận nhóm 8 người không ạ?","unread":true},{"date":"23/08/2015","time":"20:29","type":"reply","text":"Gabriel Rocha đã trả lời bình luận của bạn.","detail":"Thứ Tư nói chuyện tiếp.","context":"Trên bài viết: 2-1 KKKKKKKKKKKKK","unread":true},{"date":"23/08/2015","time":"20:11","type":"link","text":"Globo Esporte - Bóng đá Brazil đã đăng một liên kết mới.","context":"Flamengo thắng São Paulo 2-1 tại Maracanã.","unread":true},{"date":"23/08/2015","time":
+-- excerpt --
+nh nhật của Rafael Vieira và 2 người khác.","unread":false},{"date":"21/08/2015","time":"15:24","type":"friend","text":"Renato Farias đã gửi cho bạn một lời mời kết bạn.","context":"11 bạn chung","unread":false},{"date":"20/08/2015","time":"23:46","type":"photo","text":"Mídia NINJA - Tin độc lập & đường phố đã đăng một ảnh mới.","context":"Ảnh từ cuộc biểu tình tại Rio de Janeiro.","unread":false},{"date":"20/08/2015","time":"23:17","type":"reply","text":"André Carvalho đã trả lời bình luận của Camila Ribeiro.","detail":"Thế là ông Cauã cũng được phép không biết một chuyện rồi.","extra":["Bạn cũng đã bình luận trong bài viết này."],"unread":false},{"date":"20/08/2015","time":"22:53","type":"like","text":"Camila Ribeiro đã thích bình luận của bạn.","detail":"Cút đi kkkkk.","unread":false},{"date":"20/08/2015","time":"22:21","type":"photo","text":"Breno Martins đã gắn thẻ bạn trong một ảnh.","detail":"Nhìn hai ông này như đang chuẩn bị họp hội đồng quản trị.","extra":["Eduardo Santos: hội đồng thất nghiệp","Breno Martins: KKKKKKKKKK"],"unread":false},{"date":"20/08/2015","time":"21:57","type":"like","text":"Lucas Andrade đã thích ảnh mà Breno Martins gắn thẻ bạn.","unread":false},{"date":"20/08/2015","time":"21:31","type":"comment","text":"João Cardoso đã bình luận về ảnh mà Breno Martins gắn thẻ bạn.","detail":"Tại sao Cauã lúc nào cũng nhìn như đang giải quyết việc vậy?","unread":false},{"date":"20/08/2015","time":"20:58","type":"reply","text":"Helena Prado đã trả lời bình luận của João Cardoso.","detail":"Vì nó tự tạo thêm việc cho nó.","unread":false},{"date":"20/08/2015"
+-- excerpt --
+
+=== Júlia Mendes (found 1) ===
+"Rafael Vieira":86,"Caio Lopes":97,"Larissa Moura":1,"Rodrigo Melo":78,"Natália Borges":16,"Thiago Lima":89,"Diego Santana":59,"Mariana Costa":12,"Galdino Ferreira":70,"Thiago Oliveira":40,"Luana Vieira":94,"Lucas Silva":10,"Pedro Tavares":88,"Paula Moreira":64,"Marcela Ferreira":75,"Dona Maria Aparecida":56,"Lívia Rezende":67,"Igor Santos":80,"Laura Pires":37,"Ana Clara Moreira":7,"Felipe Costa":21,"Rafael Almeida":92,"Amanda Freitas":48,"Leonardo Castro":32,"Karina Nunes":18,"Renan Castro":2,"Júlia Mendes":29,"Bianca Freitas":100,"Bruno Santos":19,"Bruno Faria":13,"Fabio Junior":95,"Thiago Silva":65,"Priscila Almeida":77,"Gustavo Melo":76,"Cláudio Farias":57,"Isabela Torres":84,"Tainá Carvalho":73,"Fernanda Reis":54,"Débora Farias":24,"Beatriz Amaral":35,"Henrique Melo":23,"Thiago Neves":68,"Yan Felipo":38,"Carolina Nunes":5,"Camila Ribeiro":46};
+  const NPC_F=[1,3,5,7,9,12,14,16,18,20,22,24], NPC_M=[2,4,6,8,10,11,13,15,17,19,21,23,25];
+  const NPC_FNAME=new Set('aline amanda ana beatriz brenda camila carolina fernanda gabriela helena isabela isabella julia júlia letícia luísa luisa marcela mariana marina natália natalia paula priscila rafaela renata jéssica'.split(' '));
+  const NPC_PAGE=/globo|folha|\bg1\b|mídia|midia|agência|agencia|observatório|business review|datafolha|flamengo|fundição|quản lý|jurídica|tư vấn|giao thông|game agar|rio không|góc xả|thành phố|dược phẩm|sinh lý|subsolo/i;
+
+  const FB15_NPC_SPECIAL={
+    'Cauã Valença':'assets/facebook/avatar.jpg',
+    'Breno Martins':'MC01_Breno_Martins.png.png',
+    'Luísa Montenegro':'MC02_Luisa_Montenegro.png.png',
+ 
+-- excerpt --
+
+=== Carolina Nunes (found 2) ===
+uán nhỏ & quản lý bar - Rio.","detail":"Ai có nhà cung cấp đá giao sau nửa đêm không?","unread":false},{"date":"20/08/2015","time":"19:51","type":"tag","text":"Marina Campos đã nhắc đến bạn trong một bình luận.","detail":"@Cauã Valença ông còn số bên âm thanh Tijuca không?","unread":false},{"date":"20/08/2015","time":"19:24","type":"photo","text":"Fundição Progresso đã đăng một ảnh mới.","context":"Cuối tuần bắt đầu rồi.","unread":false},{"date":"20/08/2015","time":"18:52","type":"like","text":"Carolina Nunes đã thích bình luận của bạn.","context":"Trên một bài viết của André Carvalho.","unread":false},{"date":"20/08/2015","time":"18:16","type":"link","text":"Meu Rio - Thành phố & quyền công dân đã đăng một liên kết mới.","context":"Thành phố dành bao nhiêu thời gian của người lao động cho việc di chuyển?","unread":false},{"date":"20/08/2015","time":"17:42","type":"comment","text":"Felipe Duarte đã bình luận về ảnh của Subsolo.","detail":"Chụp góc này nên không thấy cái dây đang dán bằng băng keo.","extra":["Marina Campos","Felipe đừng phá marketing."],"unread":false},{"date":"20/08/2015","time":"17:19","type":"like","text":"Subsolo có 12 lượt thích mới trên một ảnh.","unread":false},{"date":"20/08/2015","time":"16:47","type":"photo","text":"Natália Borges đã gắn thẻ Subsolo trong một ảnh.","detail":"Thứ Sáu tuần trước ❤️","unread":false},{"date":"20/08/2015","time":"16:08","type":"event","text":"Daniel Moura đã mời bạn tham gia sự kiện.","context":"Đêm DJ & ban nhạc độc lập - 29/08","unread":false},{"date":"20/08/2015","time":"15:37","type":"friend","text":"Karina Nunes đã
+-- excerpt --
+nde":67,"Igor Santos":80,"Laura Pires":37,"Ana Clara Moreira":7,"Felipe Costa":21,"Rafael Almeida":92,"Amanda Freitas":48,"Leonardo Castro":32,"Karina Nunes":18,"Renan Castro":2,"Júlia Mendes":29,"Bianca Freitas":100,"Bruno Santos":19,"Bruno Faria":13,"Fabio Junior":95,"Thiago Silva":65,"Priscila Almeida":77,"Gustavo Melo":76,"Cláudio Farias":57,"Isabela Torres":84,"Tainá Carvalho":73,"Fernanda Reis":54,"Débora Farias":24,"Beatriz Amaral":35,"Henrique Melo":23,"Thiago Neves":68,"Yan Felipo":38,"Carolina Nunes":5,"Camila Ribeiro":46};
+  const NPC_F=[1,3,5,7,9,12,14,16,18,20,22,24], NPC_M=[2,4,6,8,10,11,13,15,17,19,21,23,25];
+  const NPC_FNAME=new Set('aline amanda ana beatriz brenda camila carolina fernanda gabriela helena isabela isabella julia júlia letícia luísa luisa marcela mariana marina natália natalia paula priscila rafaela renata jéssica'.split(' '));
+  const NPC_PAGE=/globo|folha|\bg1\b|mídia|midia|agência|agencia|observatório|business review|datafolha|flamengo|fundição|quản lý|jurídica|tư vấn|giao thông|game agar|rio không|góc xả|thành phố|dược phẩm|sinh lý|subsolo/i;
+
+  const FB15_NPC_SPECIAL={
+    'Cauã Valença':'assets/facebook/avatar.jpg',
+    'Breno Martins':'MC01_Breno_Martins.png.png',
+    'Luísa Montenegro':'MC02_Luisa_Montenegro.png.png',
+    'Rafaela Lima':'MC03_Rafaela_Lima.png.png',
+    'Eduardo Santos':'MC04_Eduardo_Santos.png.png',
+    'Lucas Andrade':'MC05_Lucas_Andrade.png.png',
+    'Brenda Santos':'MC06_Brenda_Santos.png.png',
+    'João Cardoso':'MC07_Joao_Cardoso.png.png',
+    'Jéssica Ferreira':'MC08_Jessica_Ferreira.png.png',
+    'Henrique Lima
+-- excerpt --
+
+=== fb15-friend (found 4) ===
+view-icon">◆</div><div><b>Học vấn</b>${esc(PROFILE_EDIT.school)}</div></div><div class="fb15-about-overview-row"><div class="fb15-about-overview-icon">●</div><div><b>Nơi sống</b>${esc(PROFILE_EDIT.city)}</div></div><div class="fb15-about-overview-row"><div class="fb15-about-overview-icon">◷</div><div><b>Sinh ngày</b>14 tháng 3 năm 1990</div></div></section>${history('Công việc',PROFILE_WORK)}${history('Học vấn',PROFILE_EDUCATION)}`;}else if(state.profileTab==='friends'){b.innerHTML=`<div class="fb15-friends-count"><b>687 bạn bè</b> · hiển thị ${FRIENDS.length} hồ sơ</div>`+friendGrid();wireCommon(b);}else{b.innerHTML=photoGrid();}}
+  function friendGrid(){return '<div class="fb15-friends-grid">'+FRIENDS.map(f=>`<button class="fb15-friend-tile" data-person="${esc(f.name)}"><div class="fb15-friend-pic"${npcAvatarAttrs(f.name)}>${npcAvatarPhoto(f.name)}<span class="fb15-npc-fallback">${esc(initials(f.name))}</span></div><span>${esc(f.name)}</span></button>`).join('')+'</div>';}
+  function renderFriends(){content.onscroll=null;setSubTop('Bạn bè');content.innerHTML='<div class="fb15-section-label">687 bạn bè · hiển thị '+FRIENDS.length+' hồ sơ</div>'+friendGrid();wireCommon(content);}
+  function photoGrid(){const photos=PROFILE_POSTS.filter(p=>PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'));return '<div class="fb15-section-label">'+photos.length+' ảnh từ bài đăng của Cauã</div><div class="fb15-photo-grid">'+photos.map(p=>`<img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="Ảnh bài đăng ngày ${esc(p.timestamp)}" loa
+-- excerpt --
+PROFILE_EDIT.city)}</div></div><div class="fb15-about-overview-row"><div class="fb15-about-overview-icon">◷</div><div><b>Sinh ngày</b>14 tháng 3 năm 1990</div></div></section>${history('Công việc',PROFILE_WORK)}${history('Học vấn',PROFILE_EDUCATION)}`;}else if(state.profileTab==='friends'){b.innerHTML=`<div class="fb15-friends-count"><b>687 bạn bè</b> · hiển thị ${FRIENDS.length} hồ sơ</div>`+friendGrid();wireCommon(b);}else{b.innerHTML=photoGrid();}}
+  function friendGrid(){return '<div class="fb15-friends-grid">'+FRIENDS.map(f=>`<button class="fb15-friend-tile" data-person="${esc(f.name)}"><div class="fb15-friend-pic"${npcAvatarAttrs(f.name)}>${npcAvatarPhoto(f.name)}<span class="fb15-npc-fallback">${esc(initials(f.name))}</span></div><span>${esc(f.name)}</span></button>`).join('')+'</div>';}
+  function renderFriends(){content.onscroll=null;setSubTop('Bạn bè');content.innerHTML='<div class="fb15-section-label">687 bạn bè · hiển thị '+FRIENDS.length+' hồ sơ</div>'+friendGrid();wireCommon(content);}
+  function photoGrid(){const photos=PROFILE_POSTS.filter(p=>PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'));return '<div class="fb15-section-label">'+photos.length+' ảnh từ bài đăng của Cauã</div><div class="fb15-photo-grid">'+photos.map(p=>`<img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="Ảnh bài đăng ngày ${esc(p.timestamp)}" loading="lazy">`).join('')+'</div>';}
+  function renderPhotos(){content.onscroll=null;setSubTop('Ảnh');content.innerHTML=photoGrid();}
+  function renderEvents(){content.onscroll=null;setS
+-- excerpt --
+t-overview-row"><div class="fb15-about-overview-icon">◷</div><div><b>Sinh ngày</b>14 tháng 3 năm 1990</div></div></section>${history('Công việc',PROFILE_WORK)}${history('Học vấn',PROFILE_EDUCATION)}`;}else if(state.profileTab==='friends'){b.innerHTML=`<div class="fb15-friends-count"><b>687 bạn bè</b> · hiển thị ${FRIENDS.length} hồ sơ</div>`+friendGrid();wireCommon(b);}else{b.innerHTML=photoGrid();}}
+  function friendGrid(){return '<div class="fb15-friends-grid">'+FRIENDS.map(f=>`<button class="fb15-friend-tile" data-person="${esc(f.name)}"><div class="fb15-friend-pic"${npcAvatarAttrs(f.name)}>${npcAvatarPhoto(f.name)}<span class="fb15-npc-fallback">${esc(initials(f.name))}</span></div><span>${esc(f.name)}</span></button>`).join('')+'</div>';}
+  function renderFriends(){content.onscroll=null;setSubTop('Bạn bè');content.innerHTML='<div class="fb15-section-label">687 bạn bè · hiển thị '+FRIENDS.length+' hồ sơ</div>'+friendGrid();wireCommon(content);}
+  function photoGrid(){const photos=PROFILE_POSTS.filter(p=>PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'));return '<div class="fb15-section-label">'+photos.length+' ảnh từ bài đăng của Cauã</div><div class="fb15-photo-grid">'+photos.map(p=>`<img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="Ảnh bài đăng ngày ${esc(p.timestamp)}" loading="lazy">`).join('')+'</div>';}
+  function renderPhotos(){content.onscroll=null;setSubTop('Ảnh');content.innerHTML=photoGrid();}
+  function renderEvents(){content.onscroll=null;setSubTop('Sự kiện');content.innerHTML='<div class="fb15
+-- excerpt --
+v><div><b>Sinh ngày</b>14 tháng 3 năm 1990</div></div></section>${history('Công việc',PROFILE_WORK)}${history('Học vấn',PROFILE_EDUCATION)}`;}else if(state.profileTab==='friends'){b.innerHTML=`<div class="fb15-friends-count"><b>687 bạn bè</b> · hiển thị ${FRIENDS.length} hồ sơ</div>`+friendGrid();wireCommon(b);}else{b.innerHTML=photoGrid();}}
+  function friendGrid(){return '<div class="fb15-friends-grid">'+FRIENDS.map(f=>`<button class="fb15-friend-tile" data-person="${esc(f.name)}"><div class="fb15-friend-pic"${npcAvatarAttrs(f.name)}>${npcAvatarPhoto(f.name)}<span class="fb15-npc-fallback">${esc(initials(f.name))}</span></div><span>${esc(f.name)}</span></button>`).join('')+'</div>';}
+  function renderFriends(){content.onscroll=null;setSubTop('Bạn bè');content.innerHTML='<div class="fb15-section-label">687 bạn bè · hiển thị '+FRIENDS.length+' hồ sơ</div>'+friendGrid();wireCommon(content);}
+  function photoGrid(){const photos=PROFILE_POSTS.filter(p=>PROFILE_MEDIA[p.id]&&ASSET[PROFILE_MEDIA[p.id]]&&!String(ASSET[PROFILE_MEDIA[p.id]]).startsWith('PENDING_FB_UPLOAD_'));return '<div class="fb15-section-label">'+photos.length+' ảnh từ bài đăng của Cauã</div><div class="fb15-photo-grid">'+photos.map(p=>`<img src="${ASSET[PROFILE_MEDIA[p.id]]}" alt="Ảnh bài đăng ngày ${esc(p.timestamp)}" loading="lazy">`).join('')+'</div>';}
+  function renderPhotos(){content.onscroll=null;setSubTop('Ảnh');content.innerHTML=photoGrid();}
+  function renderEvents(){content.onscroll=null;setSubTop('Sự kiện');content.innerHTML='<div class="fb15-section-label">Sắp tới</div>'+EVENTS_UP.map(e=>`<div class
+-- excerpt --
+
+=== fb15-person (found 4) ===
+rAll('[data-fbtab]').forEach(x=>x.classList.toggle('active',x.dataset.fbtab==='feed'));renderFeed();content.scrollTop=0;addActivity('↗',`Bạn đã chia sẻ bài viết của ${p.author}.`);showShareToast();}));content.querySelectorAll('[data-post-menu]').forEach(b=>b.addEventListener('click',()=>openPostMenu(b.dataset.postMenu)));content.querySelectorAll('.fb15-post-name').forEach(n=>{if(n.textContent==='Cauã Valença')n.style.cursor='pointer';});}
+  function personRow(p,actions=true){return `<div class="fb15-person" data-person="${esc(p.name)}"><div class="fb15-person-avatar"${npcAvatarAttrs(p.name)}>${npcAvatarPhoto(p.name)}<span class="fb15-npc-fallback">${esc(initials(p.name))}</span></div><div><div class="fb15-person-name">${esc(p.name)}</div><div class="fb15-mutual">${p.mutual!=null?esc(p.mutual)+' bạn chung':esc(p.city||'Rio de Janeiro')+(p.detail?' · '+esc(p.detail):'')}</div>${actions?`<div class="fb15-person-actions"><button class="fb15-btn primary">Xác nhận</button><button class="fb15-btn">Xóa</button></div>`:''}</div></div>`;}
+  function renderRequests(){content.onscroll=null;content.innerHTML='<div class="fb15-section-label">Lời mời kết bạn</div><div class="fb15-list">'+REQUESTS.map(x=>personRow(x,true)).join('')+'</div><div class="fb15-section-label">Những người bạn có thể biết</div><div class="fb15-list">'+SUGGEST.map(x=>personRow(x,false)).join('')+'</div>';wireCommon(content);}
+  function renderMessages(){content.onscroll=null;content.innerHTML=`<div class="fb15-note" style="margin-top:7px"><strong>TIN NHẮN</strong>Tiếp tục cuộc trò chuyện trên Messenger.<br><button 
+-- excerpt --
+tive',x.dataset.fbtab==='feed'));renderFeed();content.scrollTop=0;addActivity('↗',`Bạn đã chia sẻ bài viết của ${p.author}.`);showShareToast();}));content.querySelectorAll('[data-post-menu]').forEach(b=>b.addEventListener('click',()=>openPostMenu(b.dataset.postMenu)));content.querySelectorAll('.fb15-post-name').forEach(n=>{if(n.textContent==='Cauã Valença')n.style.cursor='pointer';});}
+  function personRow(p,actions=true){return `<div class="fb15-person" data-person="${esc(p.name)}"><div class="fb15-person-avatar"${npcAvatarAttrs(p.name)}>${npcAvatarPhoto(p.name)}<span class="fb15-npc-fallback">${esc(initials(p.name))}</span></div><div><div class="fb15-person-name">${esc(p.name)}</div><div class="fb15-mutual">${p.mutual!=null?esc(p.mutual)+' bạn chung':esc(p.city||'Rio de Janeiro')+(p.detail?' · '+esc(p.detail):'')}</div>${actions?`<div class="fb15-person-actions"><button class="fb15-btn primary">Xác nhận</button><button class="fb15-btn">Xóa</button></div>`:''}</div></div>`;}
+  function renderRequests(){content.onscroll=null;content.innerHTML='<div class="fb15-section-label">Lời mời kết bạn</div><div class="fb15-list">'+REQUESTS.map(x=>personRow(x,true)).join('')+'</div><div class="fb15-section-label">Những người bạn có thể biết</div><div class="fb15-list">'+SUGGEST.map(x=>personRow(x,false)).join('')+'</div>';wireCommon(content);}
+  function renderMessages(){content.onscroll=null;content.innerHTML=`<div class="fb15-note" style="margin-top:7px"><strong>TIN NHẮN</strong>Tiếp tục cuộc trò chuyện trên Messenger.<br><button class="fb15-btn primary" id="fb15InstallMessenger">Cài
+-- excerpt --
+uerySelectorAll('[data-post-menu]').forEach(b=>b.addEventListener('click',()=>openPostMenu(b.dataset.postMenu)));content.querySelectorAll('.fb15-post-name').forEach(n=>{if(n.textContent==='Cauã Valença')n.style.cursor='pointer';});}
+  function personRow(p,actions=true){return `<div class="fb15-person" data-person="${esc(p.name)}"><div class="fb15-person-avatar"${npcAvatarAttrs(p.name)}>${npcAvatarPhoto(p.name)}<span class="fb15-npc-fallback">${esc(initials(p.name))}</span></div><div><div class="fb15-person-name">${esc(p.name)}</div><div class="fb15-mutual">${p.mutual!=null?esc(p.mutual)+' bạn chung':esc(p.city||'Rio de Janeiro')+(p.detail?' · '+esc(p.detail):'')}</div>${actions?`<div class="fb15-person-actions"><button class="fb15-btn primary">Xác nhận</button><button class="fb15-btn">Xóa</button></div>`:''}</div></div>`;}
+  function renderRequests(){content.onscroll=null;content.innerHTML='<div class="fb15-section-label">Lời mời kết bạn</div><div class="fb15-list">'+REQUESTS.map(x=>personRow(x,true)).join('')+'</div><div class="fb15-section-label">Những người bạn có thể biết</div><div class="fb15-list">'+SUGGEST.map(x=>personRow(x,false)).join('')+'</div>';wireCommon(content);}
+  function renderMessages(){content.onscroll=null;content.innerHTML=`<div class="fb15-note" style="margin-top:7px"><strong>TIN NHẮN</strong>Tiếp tục cuộc trò chuyện trên Messenger.<br><button class="fb15-btn primary" id="fb15InstallMessenger">Cài đặt Messenger</button><br><button class="fb15-btn" style="margin-top:7px" id="fb15NotNow">Không phải bây giờ</button></div>`;document.getElementById('fb15I
+-- excerpt --
+a')n.style.cursor='pointer';});}
+  function personRow(p,actions=true){return `<div class="fb15-person" data-person="${esc(p.name)}"><div class="fb15-person-avatar"${npcAvatarAttrs(p.name)}>${npcAvatarPhoto(p.name)}<span class="fb15-npc-fallback">${esc(initials(p.name))}</span></div><div><div class="fb15-person-name">${esc(p.name)}</div><div class="fb15-mutual">${p.mutual!=null?esc(p.mutual)+' bạn chung':esc(p.city||'Rio de Janeiro')+(p.detail?' · '+esc(p.detail):'')}</div>${actions?`<div class="fb15-person-actions"><button class="fb15-btn primary">Xác nhận</button><button class="fb15-btn">Xóa</button></div>`:''}</div></div>`;}
+  function renderRequests(){content.onscroll=null;content.innerHTML='<div class="fb15-section-label">Lời mời kết bạn</div><div class="fb15-list">'+REQUESTS.map(x=>personRow(x,true)).join('')+'</div><div class="fb15-section-label">Những người bạn có thể biết</div><div class="fb15-list">'+SUGGEST.map(x=>personRow(x,false)).join('')+'</div>';wireCommon(content);}
+  function renderMessages(){content.onscroll=null;content.innerHTML=`<div class="fb15-note" style="margin-top:7px"><strong>TIN NHẮN</strong>Tiếp tục cuộc trò chuyện trên Messenger.<br><button class="fb15-btn primary" id="fb15InstallMessenger">Cài đặt Messenger</button><br><button class="fb15-btn" style="margin-top:7px" id="fb15NotNow">Không phải bây giờ</button></div>`;document.getElementById('fb15InstallMessenger').onclick=()=>showDialog('Messenger','Không khả dụng trên thiết bị điều tra.');}
+  function notifIcon(type){const map={like:['👍','like'],comment:['💬','comment'],reply:['↩','reply'],pho
+-- excerpt --
+
+=== showDialog (found 9) ===
+.map(x=>personRow(x,false)).join('')+'</div>';wireCommon(content);}
+  function renderMessages(){content.onscroll=null;content.innerHTML=`<div class="fb15-note" style="margin-top:7px"><strong>TIN NHẮN</strong>Tiếp tục cuộc trò chuyện trên Messenger.<br><button class="fb15-btn primary" id="fb15InstallMessenger">Cài đặt Messenger</button><br><button class="fb15-btn" style="margin-top:7px" id="fb15NotNow">Không phải bây giờ</button></div>`;document.getElementById('fb15InstallMessenger').onclick=()=>showDialog('Messenger','Không khả dụng trên thiết bị điều tra.');}
+  function notifIcon(type){const map={like:['👍','like'],comment:['💬','comment'],reply:['↩','reply'],photo:['📷','photo'],tag:['@','tag'],group:['☰','group'],link:['▣','link'],event:['★','event'],friend:['+','friend'],system:['!','system'],album:['▧','album'],birthday:['🎂','birthday']};return map[type]||['•','system'];}
+  function renderNotifications(){content.onscroll=null;const groups={};NOTIFS.forEach(n=>{(groups[n.date]||(groups[n.date]=[])).push(n);});let out='<div class="fb15-list">';Object.keys(groups).forEach(day=>{out+=`<div class="fb15-notif-day">${esc(day)}</div>`;groups[day].forEach(n=>{const ic=notifIcon(n.type);out+=`<div class="fb15-notification ${n.unread?'unread':''}"><div class="fb15-notif-icon ${ic[1]}">${ic[0]}</div><div><div class="fb15-notif-main">${esc(n.text)}</div>${n.detail?`<div class="fb15-notif-detail">${esc(n.detail)}</div>`:''}${n.context?`<div class="fb15-notif-context">${esc(n.context)}</div>`:''}${Array.isArray(n.extra)?n.extra.map(x=>`<div class="fb15-notif-extra">${esc(x)}</div>`).joi
+-- excerpt --
+porte'],['EV','Đêm nhạc độc lập - 28/08','Sự kiện tại Rio'],['RJ','Thành phố dành bao nhiêu thời gian cho việc di chuyển?','Meu Rio']];content.innerHTML='<div class="fb15-section-label">Mục đã lưu</div>'+items.map((x,i)=>`<button class="fb15-saved-item" data-saved="${i}"><span class="fb15-saved-thumb">${x[0]}</span><span><strong>${esc(x[1])}</strong><small>${esc(x[2])}</small></span><span class="chev">›</span></button>`).join('');content.querySelectorAll('[data-saved]').forEach(b=>b.onclick=()=>showDialog('Mục đã lưu','Bạn có thể xem nội dung đã lưu trong bản offline này.<br><br>Tùy chọn mở bài gốc trên Internet không khả dụng.'));}
+  function renderRecent(){content.onscroll=null;setSubTop('Bảng tin gần đây');content.innerHTML='<div class="fb15-section-label">Bài viết gần đây</div><div class="fb15-feed">'+FEED.slice(0,10).map(p=>renderPost(p)).join('')+'</div>';wirePosts();}
+  function renderSettings(){content.onscroll=null;setSubTop('Cài đặt');content.innerHTML=`<div class="fb15-section-label">Tùy chọn</div><div class="fb15-setting-row"><div class="fb15-setting-copy"><strong>Thông báo đẩy</strong><small>Hiển thị thông báo trên thiết bị</small></div><button class="fb15-switch ${SETTINGS.push?'on':''}" data-toggle-setting="push"></button></div><div class="fb15-setting-row"><div class="fb15-setting-copy"><strong>Tự động phát video</strong><small>Chỉ khi dùng Wi-Fi</small></div><button class="fb15-switch ${SETTINGS.autoplay?'on':''}" data-toggle-setting="autoplay"></button></div><div class="fb15-setting-row"><div class="fb15-setting-copy"><strong>Âm thanh trong ứng dụng</stron
+-- excerpt --
+tting-row"><div class="fb15-setting-copy"><strong>${x[1]}</strong><small>${x[2]}</small></div><span class="chev">›</span></div></button>`).join('')}`;content.querySelectorAll('[data-toggle-setting]').forEach(b=>b.onclick=()=>{const k=b.dataset.toggleSetting;SETTINGS[k]=!SETTINGS[k];b.classList.toggle('on',SETTINGS[k]);addActivity('⚙',`Bạn đã thay đổi cài đặt ${k==='push'?'thông báo':k==='autoplay'?'video':'âm thanh'}.`);});content.querySelectorAll('[data-setting-page]').forEach(b=>b.onclick=()=>showDialog(b.textContent.trim(), 'Tùy chọn này có thể xem trong bản offline, nhưng thay đổi sâu hơn cần kết nối với máy chủ Facebook.'));}
+  function renderLogout(){content.onscroll=null;setSubTop('Đăng xuất');content.innerHTML=`<div class="fb15-logout-screen"><div class="fb15-logout-logo">facebook</div><p>Bạn đang đăng nhập với tư cách <b>Cauã Valença</b>.</p><button class="fb15-btn primary" id="fb15LogoutConfirm">Đăng xuất</button><button class="fb15-btn" style="margin-top:7px" id="fb15LogoutCancel">Hủy</button></div>`;document.getElementById('fb15LogoutCancel').onclick=()=>{setTabs(true);setMainTop();renderTab('more');};document.getElementById('fb15LogoutConfirm').onclick=()=>{addActivity('↪','Bạn đã đăng xuất khỏi Facebook.');renderLoggedOut();};}
+  function renderLoggedOut(){state.stack=[];setTabs(false);setSubTop('Facebook');content.innerHTML=`<div class="fb15-logout-screen"><div class="fb15-logout-logo">facebook</div><p>Phiên đăng nhập đã kết thúc.</p><button class="fb15-btn primary" id="fb15LoginAgain">Đăng nhập lại với Cauã Valença</button></div>`;document.getElementById('fb
+-- excerpt --
+lse renderProfile();};}
+  function openPostMenu(id){const p=findPost(id);if(!p)return;const own=p.author==='Cauã Valença';dialog.innerHTML=`<div class="fb15-dialog-body"><h3>Tùy chọn bài viết</h3><p>${esc(p.timestamp)}</p></div><button id="fb15PostPrivacy">Chỉnh sửa quyền riêng tư</button><button id="fb15PostRemove">${own?'Xóa bài viết':'Ẩn khỏi dòng thời gian'}</button><button id="fb15PostCancel">Hủy</button>`;overlay.classList.add('open');document.getElementById('fb15PostPrivacy').onclick=()=>showDialog('Quyền riêng tư','Bài viết hiện được chia sẻ với Bạn bè.<br><br>Thay đổi quyền riêng tư sâu hơn cần kết nối máy chủ.');document.getElementById('fb15PostRemove').onclick=()=>confirmPostRemoval(id);document.getElementById('fb15PostCancel').onclick=closeOverlay;}
+  function openProfileMore(){dialog.innerHTML=`<div class="fb15-dialog-body"><h3>Tùy chọn trang cá nhân</h3></div><button id="fb15PublicView">Xem dưới dạng công khai</button><button id="fb15ManagePosts">Quản lý bài viết</button><button id="fb15CopyProfile">Sao chép liên kết trang cá nhân</button><button id="fb15MoreCancel">Hủy</button>`;overlay.classList.add('open');document.getElementById('fb15PublicView').onclick=()=>{closeOverlay();state.stack.push({kind:'profile'});setSubTop('Xem dưới dạng');content.innerHTML=`<div class="fb15-public-preview"><img src="${ASSET.avatar}" alt=""><h3>Cauã Valença</h3><p>Đây là nội dung công khai mà người không phải bạn bè có thể nhìn thấy.</p></div><div class="fb15-section-label">Thông tin công khai</div><div class="fb15-mini-row"><strong>${esc(PROFILE_EDIT.role)} tại ${esc(PROFILE_E
+-- excerpt --
+
+=== sprite (found 2) ===
+name||'').trim();
+    if(FB15_NPC_SPECIAL[name]||!name||PAGES.includes(name)||NPC_PAGE.test(name))return ' data-npc-avatar="image"';
+    let n=NPC_ASSIGN[name];
+    if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase(),pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
+    const i=(n-1)%25,x=(i%5)*25,y=Math.floor(i/5)*25;
+    const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
+    return ' data-npc-avatar="image" style="--fb15-avatar-fallback:url(&quot;./assets/facebook/avatars/'+file+'&quot;);--fb15-avatar-pos-x:'+x+'%;--fb15-avatar-pos-y:'+y+'%"';
+  }
+  function npcAvatarPhoto(name){
+    const src=npcAvatarUrl(name);
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
+  }
+
+  const authorType=n=>PAGES.includes(n)?'page':'friend';
+  function setMainTop(){top.classList.remove('sub'); title.textContent='Facebook';}
+  function setSubTop(t){top.classList.add('sub');title.textContent=t;}
+  function setTabs(on){tabbar.style.display=on?'grid':'none';content.classList.toggle('no-tabs',!on);}
+  function openApp(){app.classList.add('open');screen.classList.add('facebook-open');state.tab='feed';state.stack=[];state.feedCount=10;setTabs(true);setMainTop();renderTab('feed');}
+  function closeApp(){app.classList.remove('open');screen.classList.remove('facebook-open');closeSearch();closeOverlay();}
+  launch.addEventListener('click',openApp); home?.addEventLis
+-- excerpt --
+  if(FB15_NPC_SPECIAL[name]||!name||PAGES.includes(name)||NPC_PAGE.test(name))return ' data-npc-avatar="image"';
+    let n=NPC_ASSIGN[name];
+    if(!n){let h=2166136261;for(const ch of name){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}const first=name.split(/\s+/)[0].toLowerCase(),pool=NPC_FNAME.has(first)||(/a$/.test(first)&&!['luca'].includes(first))?NPC_F:NPC_M;n=pool[(h>>>0)%pool.length];}
+    const i=(n-1)%25,x=(i%5)*25,y=Math.floor(i/5)*25;
+    const file=n>25?'batch2-sprite.jpg':'batch1-sprite.jpg';
+    return ' data-npc-avatar="image" style="--fb15-avatar-fallback:url(&quot;./assets/facebook/avatars/'+file+'&quot;);--fb15-avatar-pos-x:'+x+'%;--fb15-avatar-pos-y:'+y+'%"';
+  }
+  function npcAvatarPhoto(name){
+    const src=npcAvatarUrl(name);
+    return src?'<img class="fb15-npc-photo" src="'+esc(src)+'" alt="" loading="eager" decoding="async" onerror="this.remove()">':'';
+  }
+
+  const authorType=n=>PAGES.includes(n)?'page':'friend';
+  function setMainTop(){top.classList.remove('sub'); title.textContent='Facebook';}
+  function setSubTop(t){top.classList.add('sub');title.textContent=t;}
+  function setTabs(on){tabbar.style.display=on?'grid':'none';content.classList.toggle('no-tabs',!on);}
+  function openApp(){app.classList.add('open');screen.classList.add('facebook-open');state.tab='feed';state.stack=[];state.feedCount=10;setTabs(true);setMainTop();renderTab('feed');}
+  function closeApp(){app.classList.remove('open');screen.classList.remove('facebook-open');closeSearch();closeOverlay();}
+  launch.addEventListener('click',openApp); home?.addEventListener('click',()=>{i
+-- excerpt --
+
+=== fb15-gallery (found 0) ===
