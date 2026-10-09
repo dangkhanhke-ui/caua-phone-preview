@@ -1,0 +1,107 @@
+STARTUP {"launch":"<div class=\"app facebook-launch\" data-app=\"facebook\"><div class=\"icon image-icon\"><img src=\"./assets/media/ded9c1162a09f194d6bd1cc0.png\" alt=\"\"></div><span>Facebook</span></div>","app":true,"lightboxSrc":["http://127.0.0.1:8000/assets/facebook/facebook-lightbox.js?v=20261009d"],"css":["http://127.0.0.1:8000/assets/facebook/facebook-lightbox.css?v=20261009d"]}
+CONSOLE_ERROR Failed to load resource: the server responded with a status of 404 (File not found)
+CONSOLE_ERROR Failed to load resource: the server responded with a status of 404 (File not found)
+APP {"opened":true,"photos":3,"photoGrid":0}
+OPEN <img src="./assets/facebook/fyp01_img.jpg" alt="" decoding="async">
+LAYERS {
+  "screen": {
+    "parent": "iphone",
+    "tag": "DIV",
+    "cls": "screen facebook-open",
+    "display": "block",
+    "visibility": "visible",
+    "opacity": "1",
+    "zIndex": "auto",
+    "position": "absolute",
+    "bounds": {
+      "top": 114.97789764404297,
+      "left": 79.67589569091797,
+      "bottom": 725.350700378418,
+      "right": 423.5479049682617
+    },
+    "html": "<div class=\"screen facebook-open\" id=\"screen\">\n          <div class=\"wallpaper\" aria-hidden=\"true\"></div>\n\n          <div class=\"status-bar\" id=\"statusBar\" aria-hidden=\"true\">\n    "
+  },
+  "screenHasPhotoClass": false,
+  "bar": {
+    "parent": "screen",
+    "tag": "DIV",
+    "cls": "status-bar",
+    "display": "grid",
+    "visibility": "visible",
+    "opacity": "1",
+    "zIndex": "40",
+    "position": "absolute",
+    "bounds": {
+      "top": 114.97789764404297,
+      "left": 79.67589569091797,
+      "bottom": 136.4698944091797,
+      "right": 423.5479049682617
+    },
+    "html": "<div class=\"status-bar\" id=\"statusBar\" aria-hidden=\"true\">\n            <div class=\"status-left\">\n              <span class=\"signal-dots\"><i></i><i></i><i></i><i></i><i class=\"off\">"
+  },
+  "app": {
+    "parent": "screen",
+    "tag": "SECTION",
+    "cls": "fb15-app open",
+    "display": "block",
+    "visibility": "visible",
+    "opacity": "1",
+    "zIndex": "39",
+    "position": "absolute",
+    "bounds": {
+      "top": 114.97789764404297,
+      "left": 79.67589569091797,
+      "bottom": 725.350700378418,
+      "right": 423.5479049682617
+    },
+    "html": "<section class=\"fb15-app open\" id=\"facebookApp\" aria-label=\"Facebook\" style=\"--caua-fb-icon: url(&quot;http://127.0.0.1:8000/assets/media/ded9c1162a09f194d6bd1cc0.png&quot;);\">\n  <"
+  },
+  "photo": null,
+  "oldViewer": null,
+  "nav": {
+    "parent": "facebookApp",
+    "tag": "DIV",
+    "cls": "fb15-profile-tabs fb15-profile-tabs-overlay",
+    "display": "none",
+    "visibility": "visible",
+    "opacity": "1",
+    "zIndex": "2147483000",
+    "position": "absolute",
+    "bounds": {
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    "html": "<div class=\"fb15-profile-tabs fb15-profile-tabs-overlay\" aria-hidden=\"true\" style=\"position: absolute; display: none; z-index: 2147483000; background: rgb(255, 255, 255); overflow:"
+  },
+  "elementsAtTop": [
+    {
+      "y": 5,
+      "name": "status-left"
+    },
+    {
+      "y": 25,
+      "name": "caua-photo-toolbar"
+    },
+    {
+      "y": 55,
+      "name": "caua-photo-stage"
+    },
+    {
+      "y": 95,
+      "name": "caua-photo-stage"
+    },
+    {
+      "y": 120,
+      "name": "caua-photo-stage"
+    },
+    {
+      "y": 150,
+      "name": "caua-photo-stage"
+    }
+  ],
+  "displayStyles": [
+    "http://127.0.0.1:8000/assets/facebook/facebook-lightbox.css?v=20261009d"
+  ]
+}
