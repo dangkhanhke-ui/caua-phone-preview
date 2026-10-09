@@ -3348,6 +3348,21 @@ body.caua-immersive #screen{touch-action:pan-x pan-y}
 body.caua-immersive #caua-home-gesture{pointer-events:auto;touch-action:none;transition:transform .18s cubic-bezier(.18,.8,.25,1),opacity .18s;transform:translate(-50%,var(--gesture-rise,0px));width:140px;height:29px}
 body.caua-immersive #screen.caua-gesture-active #caua-home-gesture{transition:none}
 body.caua-immersive #ios8AppSwitcher .ios8-switcher-card{will-change:transform}
+</style><style id="caua-switcher-fast-previews-v4">
+#ios8AppSwitcher .ios8-switcher-preview{border-radius:16px!important;overflow:hidden!important}
+.caua-switcher-lite{position:absolute;inset:20px 0 0;background:linear-gradient(155deg,#f7f9fc,#e4e8ee);color:#263143;font-family:"Helvetica Neue",Arial,sans-serif}
+.caua-switcher-lite-header{height:76px;padding:28px 18px 0;font-size:24px;font-weight:600;background:rgba(255,255,255,.87);border-bottom:1px solid rgba(0,0,0,.08)}
+.caua-switcher-lite-hero{height:164px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(145deg,#eef2f8,#dce5f4);font-size:18px;font-weight:600}
+.caua-switcher-lite-hero img{width:62px;height:62px;object-fit:contain;border-radius:13px}
+.caua-switcher-lite-rows{padding:10px 14px;background:#fff}
+.caua-switcher-lite-row{height:59px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e8e9ec}
+.caua-switcher-lite-row i{display:block;width:34px;height:34px;border-radius:50%;background:#dce0e6;flex:none}
+.caua-switcher-lite-row span{display:block;width:65%;height:10px;border-radius:6px;background:#e5e7eb}
+.caua-switcher-lite-row:nth-child(even) span{width:48%}
+.caua-switcher-lite-facebook .caua-switcher-lite-hero{background:linear-gradient(130deg,#e7efff,#bacff8)}
+.caua-switcher-lite-whatsapp .caua-switcher-lite-hero{background:linear-gradient(130deg,#e1fbed,#b2e9c8)}
+.caua-switcher-lite-photos .caua-switcher-lite-hero{background:linear-gradient(130deg,#f8ebfa,#f5e4c8)}
+.caua-switcher-lite-messages .caua-switcher-lite-hero{background:linear-gradient(130deg,#ebfaed,#c9eacb)}
 </style></head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -7567,48 +7582,35 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
       `<div class="ios8-switcher-contact"><div class="avatar">${initials}</div><div class="name">${name}</div></div>`
     ).join('');
   }
+  // Switcher must not deep-clone heavy app DOM on every navigation gesture.
   function makePreview(key) {
-    const cfg = APPS[key];
-    const source = appEl(key);
-    const card = document.createElement('article');
-    card.className = 'ios8-switcher-card';
-    card.dataset.switchApp = key;
-
-    const head = document.createElement('div');
-    head.className = 'ios8-switcher-apphead';
-    const src = iconSrcFor(key);
-    if (src) {
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = '';
-      head.appendChild(img);
-    }
-    const label = document.createElement('span');
-    label.textContent = cfg.name;
-    head.appendChild(label);
+    const cfg=APPS[key],card=document.createElement('article');
+    card.className='ios8-switcher-card';card.dataset.switchApp=key;
+    const head=document.createElement('div');head.className='ios8-switcher-apphead';
+    const src=iconSrcFor(key);
+    if(src){const img=document.createElement('img');img.src=src;img.alt='';head.appendChild(img)}
+    const label=document.createElement('span');label.textContent=cfg.name;head.appendChild(label);
     card.appendChild(head);
-
-    const preview = document.createElement('div');
-    preview.className = 'ios8-switcher-preview';
-    const inner = document.createElement('div');
-    inner.className = 'ios8-switcher-preview-inner';
-
-    const status = document.createElement('div');
-    status.className = 'ios8-switcher-preview-status';
-    const now = new Date(); const livePreviewTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`; status.innerHTML = `<span>VIVO</span><span class="center">${livePreviewTime}</span><span>62%</span>`;
+    const preview=document.createElement('div');preview.className='ios8-switcher-preview';
+    const inner=document.createElement('div');inner.className='ios8-switcher-preview-inner';
+    const status=document.createElement('div');status.className='ios8-switcher-preview-status';
+    const now=new Date(),time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    status.innerHTML='<span>VIVO</span><span class="center">'+time+'</span><span>62%</span>';
     inner.appendChild(status);
-
-    if (source) {
-      const clone = source.cloneNode(true);
-      clone.setAttribute('inert',''); clone.setAttribute('aria-hidden','true');
-      clone.classList.add('open');
-      clone.style.pointerEvents = 'none';
-      clone.style.zIndex = '1';
-      inner.appendChild(clone);
+    const page=document.createElement('div');page.className='caua-switcher-lite caua-switcher-lite-'+key.replace(/[^a-z0-9-]/g,'');
+    const bar=document.createElement('div');bar.className='caua-switcher-lite-header';bar.textContent=cfg.name;page.appendChild(bar);
+    const hero=document.createElement('div');hero.className='caua-switcher-lite-hero';
+    if(src){const icon=document.createElement('img');icon.src=src;icon.alt='';hero.appendChild(icon)}
+    const heroLabel=document.createElement('span');heroLabel.textContent=cfg.name;
+    hero.appendChild(heroLabel);page.appendChild(hero);
+    const rows=document.createElement('div');rows.className='caua-switcher-lite-rows';
+    for(let i=0;i<4;i++){
+      const row=document.createElement('div');row.className='caua-switcher-lite-row';
+      const circle=document.createElement('i'),lines=document.createElement('span');
+      row.append(circle,lines);rows.appendChild(row);
     }
-    preview.appendChild(inner);
-    card.appendChild(preview);
-    return card;
+    page.appendChild(rows);inner.appendChild(page);preview.appendChild(inner);
+    card.appendChild(preview);return card;
   }
   function renderSwitcher(activeKey) {
     track.innerHTML = '';
@@ -7801,6 +7803,19 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
       showSwitcher();
     }
   }, true);
+  // Immediate navigation path for immersive gestures (no Home click timers).
+  screen.addEventListener('caua:home-now',()=>{
+    if(homeClickTimer)clearTimeout(homeClickTimer);
+    homeClickTimer=null;homeClickCount=0;
+    if(lockedOrPasscode()){handleLockedHome();return}
+    goHomePreservingState();
+  });
+  screen.addEventListener('caua:switcher-now',()=>{
+    if(homeClickTimer)clearTimeout(homeClickTimer);
+    homeClickTimer=null;homeClickCount=0;
+    if(lockedOrPasscode()||switcherOpen)return;
+    showSwitcher();
+  });
 })();
 </script>
 
