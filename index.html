@@ -3363,6 +3363,17 @@ body.caua-immersive #ios8AppSwitcher .ios8-switcher-card{will-change:transform}
 .caua-switcher-lite-whatsapp .caua-switcher-lite-hero{background:linear-gradient(130deg,#e1fbed,#b2e9c8)}
 .caua-switcher-lite-photos .caua-switcher-lite-hero{background:linear-gradient(130deg,#f8ebfa,#f5e4c8)}
 .caua-switcher-lite-messages .caua-switcher-lite-hero{background:linear-gradient(130deg,#ebfaed,#c9eacb)}
+</style><style id="caua-immersive-responsive-navigation-v4">
+body.caua-immersive #caua-home-gesture{
+  left:0!important;right:0!important;bottom:0!important;
+  width:100%!important;height:29px!important;padding:0 0 5px!important;
+  display:flex!important;align-items:flex-end!important;justify-content:center!important;
+  transform:translate3d(0,var(--gesture-rise,0px),0)!important;
+  touch-action:none!important;-webkit-user-select:none!important;user-select:none!important;
+  -webkit-touch-callout:none!important;z-index:12000!important;
+}
+body.caua-immersive #screen.caua-gesture-live #caua-home-gesture{transition:none!important}
+body.caua-immersive #caua-home-gesture:after{height:4px!important;width:74px!important;flex-shrink:0}
 </style></head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
@@ -8350,62 +8361,150 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
 </script>
 <script id="caua-immersive-mode-script">
 (()=>{'use strict';
-const screen=document.getElementById('screen'),home=document.getElementById('homeButton');
-if(!screen||!home)return;
-const button=document.createElement('button');button.id='caua-immersive-toggle';button.type='button';
-button.setAttribute('aria-label','Bật hoặc tắt chế độ toàn màn hình');document.body.appendChild(button);
-const handle=document.createElement('div');handle.id='caua-home-gesture';
-handle.setAttribute('role','button');handle.setAttribute('aria-label','Vuốt từ cạnh dưới về Home; vuốt rồi giữ để mở đa nhiệm');
-handle.tabIndex=0;screen.appendChild(handle);
-let active=false,g=null,frame=0,hold=0,homePending=0,tapTime=0;
+const screen=document.getElementById('screen');
+const status=document.getElementById('statusBar');
 const switcher=document.getElementById('ios8AppSwitcher');
-function fit(){const vp=window.visualViewport;document.documentElement.style.setProperty('--immersive-scale',Math.min((vp?.width||innerWidth)/320,(vp?.height||innerHeight)/568).toFixed(5))}
-function setMode(on){active=!!on;document.body.classList.toggle('caua-immersive',active);button.textContent=active?'⤢ thu nhỏ':'⛶ phóng lớn';button.setAttribute('aria-pressed',String(active));if(!active)cancel();fit()}
-function locked(){return !!(document.getElementById('lockScreen')?.classList.contains('active')||document.getElementById('passcodeScreen')?.classList.contains('active'))}
-function goHome(){if(active)home.click()}
-function multitask(){if(!active||locked()||switcher?.classList.contains('open'))return;clearTimeout(homePending);homePending=0;home.click();home.click()}
-function resetVisual(){cancelAnimationFrame(frame);frame=0;handle.style.removeProperty('--gesture-rise');screen.classList.remove('caua-gesture-active')}
-function cancel(){clearTimeout(hold);hold=0;g=null;resetVisual()}
-function paint(){frame=0;if(!g)return;handle.style.setProperty('--gesture-rise',(-Math.min(18,g.dy*.16))+'px')}
-function moved(e){if(!g||e.pointerId!==g.id)return;
- const dx=e.clientX-g.x,dy=g.y-e.clientY;g.dy=Math.max(0,dy);
- if(Math.abs(dx)>Math.max(35,g.dy*1.2)){cancel();return}
- if(g.dy>8){g.moved=true;if(!frame)frame=requestAnimationFrame(paint)}
- if(g.dy>65&&!hold&&!g.triggered){
-   hold=setTimeout(()=>{hold=0;if(g&&g.dy>65&&!g.triggered){g.triggered=true;multitask();resetVisual()}},290);
- }else if(g.dy<53&&hold){clearTimeout(hold);hold=0}
- if(g.moved&&e.cancelable)e.preventDefault();
+if(!screen||!switcher)return;
+const button=document.createElement('button');button.id='caua-immersive-toggle';button.type='button';
+button.setAttribute('aria-label','Bật hoặc tắt chế độ phóng lớn');document.body.appendChild(button);
+const edge=document.createElement('div');edge.id='caua-home-gesture';edge.tabIndex=0;
+edge.setAttribute('role','button');edge.setAttribute('aria-label','Vuốt từ cạnh dưới để về Home, vuốt lên và giữ để xem đa nhiệm');
+screen.appendChild(edge);
+const ids=['voiceApp','photosApp','phoneApp','notesApp','messagesApp','calendarApp','safariApp','mailApp','itauApp','itauBizApp','facebookApp','whatsappApp'];
+const savedKeys=['transform','transition','transformOrigin','borderRadius','overflow','boxShadow','zIndex','willChange'];
+let active=false,g=null,raf=0,holdTimer=0,settleTimer=0,tapTimer=0,lastTap=0,settling=false;
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+function liveApp(){
+  for(const id of ids){const el=document.getElementById(id);if(el?.classList.contains('open'))return el}
+  return null;
+}
+function fit(){
+  const vp=window.visualViewport;
+  const w=vp?.width||window.innerWidth,h=vp?.height||window.innerHeight;
+  document.documentElement.style.setProperty('--immersive-scale',Math.max(.15,Math.min(w/320,h/568)).toFixed(5));
+}
+function fire(action){screen.dispatchEvent(new CustomEvent('caua:'+action))}
+function restore(){
+  cancelAnimationFrame(raf);raf=0;
+  if(g?.app){for(const key of savedKeys)g.app.style[key]=g.saved[key]}
+  if(status&&g)status.style.opacity=g.statusOpacity;
+  edge.style.removeProperty('--gesture-rise');
+  screen.classList.remove('caua-gesture-live');
+}
+function clearGesture(){
+  clearTimeout(holdTimer);holdTimer=0;
+  clearTimeout(settleTimer);settleTimer=0;
+  if(g)restore();g=null;settling=false;
+}
+function mode(on){
+  if(!on){clearGesture();clearTimeout(tapTimer);tapTimer=0}
+  active=!!on;document.body.classList.toggle('caua-immersive',active);
+  button.textContent=active?'⤢ thu nhỏ':'⛶ phóng lớn';
+  button.setAttribute('aria-pressed',String(active));fit();
+}
+function progress(dy){return clamp(dy/190,0,1)}
+function transformAt(p){
+  return 'translate3d(0,'+(-65*p).toFixed(2)+'px,0) scale('+(1-.22*p).toFixed(5)+')';
+}
+function paint(){
+  raf=0;if(!g||settling)return;
+  const p=progress(g.dy);
+  if(g.app){
+    g.app.style.transform=transformAt(p);
+    g.app.style.borderRadius=(16*p).toFixed(1)+'px';
+  }
+  if(status)status.style.opacity=String(1-.55*p);
+  edge.style.setProperty('--gesture-rise',(-Math.min(15,g.dy*.13)).toFixed(1)+'px');
+}
+function schedulePaint(){if(!raf)raf=requestAnimationFrame(paint)}
+function endWith(action){
+  if(!g||settling)return;
+  settling=true;clearTimeout(holdTimer);holdTimer=0;
+  cancelAnimationFrame(raf);raf=0;
+  const current=g;
+  if(!current.app){
+    if(action)fire(action);
+    clearGesture();return;
+  }
+  const p=action?1:0;
+  current.app.style.transition='transform 165ms cubic-bezier(.2,.8,.2,1),border-radius 165ms ease';
+  current.app.style.transform=transformAt(p);
+  current.app.style.borderRadius=(16*p)+'px';
+  if(status)status.style.opacity=String(1-.55*p);
+  edge.style.setProperty('--gesture-rise',action?'-15px':'0px');
+  settleTimer=setTimeout(()=>{
+    if(action)fire(action);
+    if(g===current)clearGesture();
+  },180);
 }
 function down(e){
- if(!active||g||e.isPrimary===false||e.button>0)return;
- const r=screen.getBoundingClientRect();
- // Edge-only activation leaves app scrolling, photo pan and tap gestures untouched.
- if(e.clientY<r.bottom-Math.max(28,r.height*.065)||e.clientY>r.bottom+5||e.clientX<r.left||e.clientX>r.right)return;
- if(e.target.closest('input,textarea,select,[contenteditable="true"]'))return;
- g={id:e.pointerId,x:e.clientX,y:e.clientY,dy:0,moved:false,triggered:false,start:performance.now()};
- screen.classList.add('caua-gesture-active');
+  if(!active||g||settling||e.isPrimary===false||e.button>0)return;
+  const app=liveApp();
+  const saved=app?Object.fromEntries(savedKeys.map(key=>[key,app.style[key]])):null;
+  const now=performance.now();
+  g={id:e.pointerId,startY:e.clientY,startX:e.clientX,dy:0,dx:0,
+     started:now,lastY:e.clientY,lastTime:now,speed:0,app,saved,
+     statusOpacity:status?.style.opacity||'',moved:false};
+  if(app){
+    app.style.transition='none';app.style.transformOrigin='50% 50%';
+    app.style.overflow='hidden';app.style.willChange='transform';
+    app.style.zIndex='85';app.style.boxShadow='0 12px 26px rgba(0,0,0,.22)';
+  }
+  screen.classList.add('caua-gesture-live');
+  try{edge.setPointerCapture(e.pointerId)}catch(_){}
+  if(e.cancelable)e.preventDefault();e.stopPropagation();
+}
+function move(e){
+  if(!g||e.pointerId!==g.id||settling)return;
+  const now=performance.now(),diff=Math.max(1,now-g.lastTime);
+  const dy=Math.max(0,g.startY-e.clientY);
+  g.dx=e.clientX-g.startX;
+  g.speed=.55*g.speed+.45*((g.lastY-e.clientY)/diff);
+  g.lastY=e.clientY;g.lastTime=now;g.dy=dy;
+  if(Math.abs(g.dx)>Math.max(65,dy*1.45)){endWith(null);return}
+  if(dy>5){g.moved=true;schedulePaint()}
+  if(dy>=88&&!holdTimer){
+    holdTimer=setTimeout(()=>{
+      holdTimer=0;
+      if(g&&g.dy>=80&&!settling)endWith('switcher-now');
+    },280);
+  }else if(dy<72&&holdTimer){clearTimeout(holdTimer);holdTimer=0}
+  if(e.cancelable)e.preventDefault();e.stopPropagation();
 }
 function up(e){
- if(!g||e.pointerId!==g.id)return;
- const d=g.dy,triggered=g.triggered,duration=performance.now()-g.start;
- cancel();if(triggered)return;
- if(d>88&&duration>230){multitask();return}
- if(d>25){clearTimeout(homePending);homePending=0;goHome();return}
- if(d<9&&e.target.closest('#caua-home-gesture')){
-   const now=performance.now();
-   if(now-tapTime<290){tapTime=0;clearTimeout(homePending);homePending=0;multitask()}
-   else{tapTime=now;clearTimeout(homePending);homePending=setTimeout(()=>{homePending=0;goHome()},300)}
- }
+  if(!g||g.id!==e.pointerId||settling)return;
+  const dy=Math.max(g.dy,g.startY-e.clientY),elapsed=performance.now()-g.started;
+  const speed=g.speed;
+  if(dy>=88&&elapsed>=370&&speed<.33){endWith('switcher-now');return}
+  if(dy>=45||(dy>=22&&speed>.33)){endWith('home-now');return}
+  if(dy<12){
+    const now=performance.now();
+    // Only tap fallback waits briefly; genuine swipes never wait for a second tap.
+    if(now-lastTap<=300){
+      lastTap=0;clearTimeout(tapTimer);tapTimer=0;clearGesture();fire('switcher-now');
+    }else{
+      lastTap=now;clearGesture();
+      tapTimer=setTimeout(()=>{tapTimer=0;if(active)fire('home-now')},245);
+    }
+    return;
+  }
+  endWith(null);
 }
-button.addEventListener('click',()=>setMode(!active));
-screen.addEventListener('pointerdown',down,true);
-screen.addEventListener('pointermove',moved,true);
-screen.addEventListener('pointerup',up,true);
-screen.addEventListener('pointercancel',cancel,true);
-handle.addEventListener('click',e=>{e.preventDefault();e.stopPropagation()});
-handle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();goHome()}else if(e.key==='ArrowUp'){e.preventDefault();multitask()}});
-window.addEventListener('resize',fit,{passive:true});window.visualViewport?.addEventListener('resize',fit,{passive:true});
-fit();setMode(false);
+function cancel(e){if(!g||(e?.pointerId!==undefined&&e.pointerId!==g.id))return;endWith(null)}
+button.addEventListener('click',()=>mode(!active));
+edge.addEventListener('pointerdown',down,{passive:false});
+edge.addEventListener('pointermove',move,{passive:false});
+edge.addEventListener('pointerup',up,{passive:true});
+edge.addEventListener('pointercancel',cancel,{passive:true});
+edge.addEventListener('lostpointercapture',e=>{if(g&&!settling&&e.pointerId===g.id)cancel(e)});
+edge.addEventListener('click',e=>{e.preventDefault();e.stopPropagation()});
+edge.addEventListener('keydown',e=>{
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();fire('home-now')}
+  else if(e.key==='ArrowUp'){e.preventDefault();fire('switcher-now')}
+});
+window.addEventListener('resize',fit,{passive:true});
+window.visualViewport?.addEventListener('resize',fit,{passive:true});
+fit();mode(false);
 })();
 </script>
 </body>
