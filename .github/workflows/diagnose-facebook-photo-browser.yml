@@ -1,7 +1,7 @@
 name: Diagnose Facebook Photo Stacking in Browser
 on:
   push:
-    paths: ['.github/workflows/diagnose-facebook-photo-browser.yml']
+    paths: ['.github/workflows/diagnose-facebook-photo-browser.yml', 'assets/shared-photo-zoom.js', 'assets/facebook/facebook-lightbox.js', 'assets/facebook/facebook-lightbox.css']
   workflow_dispatch:
 permissions:
   contents: write
@@ -51,6 +51,18 @@ jobs:
               return {screen:prop(screen),screenHasPhotoClass:screen.classList.contains('fb15-photo-fullscreen'),bar:prop(bar),app:prop(app),photo:prop(photo),oldViewer:prop(other),nav:prop(nav),elementsAtTop:[5,25,55,95,120,150].map(y=>{const e=document.elementFromPoint(rr.left+100,rr.top+y);return {y,name:e?.id||e?.className||e?.tagName}}),displayStyles:[...document.styleSheets].filter(x=>x.href?.includes('facebook-lightbox')).map(x=>x.href)};
             });
             console.log('LAYERS',JSON.stringify(info,null,2));
+            const verify=await page.evaluate(()=>{
+              const screen=document.querySelector('#screen'),bar=document.querySelector('#statusBar'),lightbox=screen?.querySelector(':scope > .fb15-lightbox');
+              const r=screen.getBoundingClientRect();
+              const hits=[5,26,100,130].map(y=>document.elementFromPoint(r.left+Math.min(120,r.width/2),r.top+y)?.closest('.fb15-lightbox')===lightbox);
+              return {viewerAttachedToScreen:!!lightbox,onlyOneViewer:document.querySelectorAll('.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length===1,statusHidden:getComputedStyle(bar).visibility==='hidden',fullscreenClass:screen.classList.contains('fb15-photo-fullscreen'),viewerCoversEveryPoint:hits.every(Boolean),hits};
+            });
+            console.log('ASSERT_OPEN',JSON.stringify(verify));
+            if(Object.values(verify).some(v=>v===false))throw Error('Facebook fullscreen failed checks: '+JSON.stringify(verify));
+            await page.evaluate(()=>document.querySelector('#screen .fb15-lightbox [data-fb-photo-close]')?.click());
+            const afterClose=await page.evaluate(()=>({viewerCount:document.querySelectorAll('.fb15-lightbox,.caua-photo-overlay,.fb15-image-viewer').length,statusVisible:getComputedStyle(document.querySelector('#statusBar')).visibility==='visible',fullscreenClass:document.querySelector('#screen').classList.contains('fb15-photo-fullscreen')}));
+            console.log('ASSERT_CLOSE',JSON.stringify(afterClose));
+            if(afterClose.viewerCount!==0||!afterClose.statusVisible||afterClose.fullscreenClass)throw Error('Facebook photo cleanup failed');
             await page.screenshot({path:'/tmp/facebook-after-open.png'});
             await browser.close();
           })().catch(e=>{console.error('TEST_ERROR',e.stack||e);process.exit(1)});
