@@ -105,3 +105,4 @@ LAYERS {
     "http://127.0.0.1:8000/assets/facebook/facebook-lightbox.css?v=20261009d"
   ]
 }
+ASSERT_OPEN {"viewerAttachedToScreen":false,"onlyOneViewer":true,"statusHidden":false,"fullscreenClass":false,"viewerCoversEveryPoint":true,"hits":[true,true,true,true]}
