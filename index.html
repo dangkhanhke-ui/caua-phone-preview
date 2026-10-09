@@ -3343,7 +3343,8 @@ body.caua-immersive #caua-home-gesture{display:flex}
 body.caua-immersive #caua-home-gesture{width:132px;height:28px;padding-bottom:6px}
 body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
 #caua-home-gesture{user-select:none;-webkit-user-select:none}
-</style></head>
+</style><link rel="stylesheet" href="./assets/goodreader4/goodreader4.css" />
+</head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8 mockup">
     <div class="phone-wrap" id="phoneWrap">
@@ -3421,6 +3422,7 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
               <div class="app itau-launch" data-app="itau"><div class="icon image-icon"><img src="./assets/media/b8304cae6865ff99f4f10cef.png" alt="" /></div><span>Itaú</span></div>
               <div class="app itau-biz-launch" data-app="itau-biz"><div class="icon image-icon"><img src="./assets/media/ead9f6efcc82327a07570445.png" alt="" /></div><span>Itaú Doanh nghiệp</span></div>
               <div class="app whatsapp-launch" data-app="whatsapp"><div class="icon image-icon"><img src="./assets/media/2c0eb1b8cfa0778bce3ddea7.png" alt="" /></div><span>WhatsApp</span></div>
+              <div class="app goodreader-launch" data-app="goodreader"><div class="icon gr4-home-icon"><span class="gr4-logo-fallback">G</span><img id="gr4IconImage" src="./GR04_Icon.png" alt="" style="display:none" /></div><span>GoodReader</span></div>
             </div>
 
             <div class="page-dots single-page" aria-hidden="true"><i></i></div>
@@ -3442,6 +3444,15 @@ body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
 
 
           
+<section class="gr4-app" id="goodreaderApp" aria-label="GoodReader 4">
+  <div class="gr4-shell">
+    <header class="gr4-nav" id="gr4Nav"></header>
+    <main class="gr4-body" id="gr4Body"></main>
+    <footer class="gr4-bar" id="gr4Bar"></footer>
+    <div id="gr4Layer"></div>
+  </div>
+</section>
+
 <section class="voice-app" id="voiceApp" aria-label="Ghi âm">
   <div class="voice-shell">
     <div class="voice-nav">Ghi âm</div>
@@ -7525,7 +7536,8 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     itau: { id:'itauApp', name:'Itaú', screenClass:'itau-open' },
     'itau-biz': { id:'itauBizApp', name:'Itaú Doanh nghiệp', screenClass:'itau-biz-open' },
     facebook: { id:'facebookApp', name:'Facebook', screenClass:'facebook-open' },
-    whatsapp: { id:'whatsappApp', name:'WhatsApp', screenClass:'whatsapp-open' }
+    whatsapp: { id:'whatsappApp', name:'WhatsApp', screenClass:'whatsapp-open' },
+    goodreader: { id:'goodreaderApp', name:'GoodReader', screenClass:'goodreader-open' }
   };
   const RECENT_CONTACTS = [
     ['Rafaela','RL'], ['Luísa','LM'], ['Diego','DV'], ['Helena','HP'], ['Dudu','D']
@@ -8435,6 +8447,18 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
 })();
 </script>
 
+
+<script src="./assets/goodreader4/goodreader4.js"></script>
+<script id="gr4-icon-loader">
+(function(){
+const img=document.getElementById('gr4IconImage');
+if(!img)return;
+const options=['./GR04_Icon.png','./GR04_Icon.png.png','./GR04_Icon.jpg','./GR04_Icon.webp'];
+let n=0;
+img.onload=()=>{img.style.display='block'};
+img.onerror=()=>{n++;if(n<options.length)img.src=options[n];else img.style.display='none'};
+})();
+</script>
 
 </body>
 </html>
