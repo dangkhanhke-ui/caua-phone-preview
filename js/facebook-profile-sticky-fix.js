@@ -8,7 +8,7 @@
  const clone=document.createElement('div');
  clone.className='fb15-profile-tabs fb15-profile-tabs-overlay';
  clone.setAttribute('aria-hidden','true');
- Object.assign(clone.style,{position:'absolute',display:'none',zIndex:'70',background:'#fff',overflow:'hidden',boxShadow:'0 1px 0 #cfd2d8'});
+ Object.assign(clone.style,{position:'absolute',display:'none',zIndex:'2147483000',background:'#fff',overflow:'hidden',boxShadow:'0 1px 0 #cfd2d8'});
  app.appendChild(clone);
  let original=null;
  const sync=()=>{
@@ -29,7 +29,7 @@
    const cr=content.getBoundingClientRect();
    const ar=app.getBoundingClientRect();
    const nr=nav.getBoundingClientRect();
-   const show=nr.top<=cr.top+1 && nr.bottom>cr.top && cr.width>0;
+   const show=nr.top<=cr.top+2 && cr.width>0 && cr.height>0;
    clone.style.display=show?'grid':'none';
    if(!show)return;
    clone.style.top=(cr.top-ar.top)+'px';
