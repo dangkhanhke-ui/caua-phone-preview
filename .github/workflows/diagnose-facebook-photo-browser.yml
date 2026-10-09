@@ -7,6 +7,7 @@ on:
       - 'js/facebook-photo-viewer.js'
       - 'css/facebook-photo-viewer.css'
       - 'assets/shared-photo-zoom.js'
+      - 'js/facebook-profile-sticky-fix.js'
   workflow_dispatch:
 permissions:
   contents: read
