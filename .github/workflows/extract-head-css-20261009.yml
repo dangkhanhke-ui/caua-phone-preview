@@ -1,0 +1,85 @@
+name: Extract head CSS safely
+on:
+  push:
+    paths:
+      - '.github/workflows/extract-head-css-20261009.yml'
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract existing head styles without changing cascade order
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, hashlib
+          path=Path('index.html')
+          original=path.read_text(encoding='utf-8')
+          if '</head>' not in original:
+              raise SystemExit('Missing </head>; refusing migration')
+          head,tail=original.split('</head>',1)
+          pattern=re.compile(r'<style\b([^>]*)>(.*?)</style\s*>',re.I|re.S)
+          matches=list(pattern.finditer(head))
+          if len(matches)<5:
+              raise SystemExit(f'Unexpected style count: {len(matches)}')
+          cssdir=Path('css')
+          cssdir.mkdir(exist_ok=True)
+          files=[]
+          seen=set()
+          def extract(match):
+              attrs=match.group(1)
+              body=match.group(2)
+              label_match=re.search(r'\bid\s*=\s*["\']([^"\']+)["\']',attrs,re.I)
+              label=label_match.group(1) if label_match else 'base'
+              label=re.sub(r'[^a-zA-Z0-9_-]','-',label)
+              index=len(files)+1
+              filename=f'head-{index:02d}-{label}.css'
+              if filename in seen:raise SystemExit('Collision')
+              seen.add(filename)
+              # Relative CSS url() references resolve differently after moving directories.
+              # Abort safely rather than silently breaking image URLs.
+              for raw in re.findall(r'url\(\s*([^)]*?)\s*\)',body,re.I):
+                  url=raw.strip().strip('"\'')
+                  if url and not (url.startswith(('/', '#', 'data:', 'http:', 'https:', '//'))):
+                      raise SystemExit(f'Relative CSS url requires manual migration: {url}')
+              cssdir.joinpath(filename).write_text(body,encoding='utf-8')
+              files.append((filename,body,attrs))
+              # Preserve the original id in case JavaScript looks it up.
+              idattr=f' id="{label_match.group(1)}"' if label_match else ''
+              return f'<link rel="stylesheet"{idattr} href="css/{filename}">'
+          newhead=pattern.sub(extract,head)
+          reconstructed=newhead
+          for filename,body,attrs in files:
+              label_match=re.search(r'\bid\s*=\s*["\']([^"\']+)["\']',attrs,re.I)
+              idattr=f' id="{label_match.group(1)}"' if label_match else ''
+              reconstructed=reconstructed.replace(f'<link rel="stylesheet"{idattr} href="css/{filename}">',f'<style{attrs}>{body}</style>',1)
+          if reconstructed!=head:
+              raise SystemExit('Round-trip verification failed')
+          changed=newhead+'</head>'+tail
+          path.write_text(changed,encoding='utf-8')
+          print('extracted_style_blocks:',len(files))
+          print('extracted_css_bytes:',sum(len(b.encode('utf-8')) for _,b,_ in files))
+          print('old_html_bytes:',len(original.encode('utf-8')))
+          print('new_html_bytes:',len(changed.encode('utf-8')))
+          PY
+      - name: Validate extraction
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          refs=re.findall(r'<link rel="stylesheet"[^>]+href="(css/[^"]+)"',s)
+          assert len(refs)>=5,refs
+          assert all(Path(p).exists() for p in refs)
+          print('verified_stylesheets:',len(refs))
+          PY
+      - name: Commit only CSS extraction
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add index.html css/
+          git commit -m "Extract head CSS into ordered standalone stylesheets"
+          git pull --rebase origin main
+          git push
