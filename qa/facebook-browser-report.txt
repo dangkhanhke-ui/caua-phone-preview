@@ -1,13 +1,15 @@
-STARTUP {"launch":"<div class=\"app facebook-launch\" data-app=\"facebook\"><div class=\"icon image-icon\"><img src=\"./assets/media/ded9c1162a09f194d6bd1cc0.png\" alt=\"\"></div><span>Facebook</span></div>","app":true,"lightboxSrc":["http://127.0.0.1:8000/assets/facebook/facebook-lightbox.js?v=20261009e"],"css":["http://127.0.0.1:8000/assets/facebook/facebook-lightbox.css?v=20261009e"]}
+STARTUP {"launch":"<div class=\"app facebook-launch\" data-app=\"facebook\"><div class=\"icon image-icon\"><img src=\"./assets/media/ded9c1162a09f194d6bd1cc0.png\" alt=\"\"></div><span>Facebook</span></div>","app":true,"lightboxSrc":[],"css":[]}
 CONSOLE_ERROR Failed to load resource: the server responded with a status of 404 (File not found)
 CONSOLE_ERROR Failed to load resource: the server responded with a status of 404 (File not found)
 APP {"opened":true,"photos":3,"photoGrid":0}
 OPEN <img src="./assets/facebook/fyp01_img.jpg" alt="" decoding="async">
+CONSOLE_ERROR Failed to load resource: the server responded with a status of 404 (File not found)
+CONSOLE_ERROR Failed to load resource: the server responded with a status of 404 (File not found)
 LAYERS {
   "screen": {
     "parent": "iphone",
     "tag": "DIV",
-    "cls": "screen facebook-open fb15-photo-fullscreen",
+    "cls": "screen facebook-open fb-photo-clean-open",
     "display": "block",
     "visibility": "visible",
     "opacity": "1",
@@ -19,9 +21,9 @@ LAYERS {
       "bottom": 725.350700378418,
       "right": 423.5479049682617
     },
-    "html": "<div class=\"screen facebook-open fb15-photo-fullscreen\" id=\"screen\">\n          <div class=\"wallpaper\" aria-hidden=\"true\"></div>\n\n          <div class=\"status-bar\" id=\"statusBar\" ar"
+    "html": "<div class=\"screen facebook-open fb-photo-clean-open\" id=\"screen\">\n          <div class=\"wallpaper\" aria-hidden=\"true\"></div>\n\n          <div class=\"status-bar\" id=\"statusBar\" aria"
   },
-  "screenHasPhotoClass": true,
+  "screenHasPhotoClass": false,
   "bar": {
     "parent": "screen",
     "tag": "DIV",
@@ -37,15 +39,15 @@ LAYERS {
       "bottom": 136.4698944091797,
       "right": 423.5479049682617
     },
-    "html": "<div class=\"status-bar\" id=\"statusBar\" aria-hidden=\"true\" style=\"visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;\">\n            <div class=\"st"
+    "html": "<div class=\"status-bar\" id=\"statusBar\" aria-hidden=\"true\">\n            <div class=\"status-left\">\n              <span class=\"signal-dots\"><i></i><i></i><i></i><i></i><i class=\"off\">"
   },
   "app": {
     "parent": "screen",
     "tag": "SECTION",
     "cls": "fb15-app open",
     "display": "block",
-    "visibility": "visible",
-    "opacity": "1",
+    "visibility": "hidden",
+    "opacity": "0",
     "zIndex": "39",
     "position": "absolute",
     "bounds": {
@@ -56,30 +58,14 @@ LAYERS {
     },
     "html": "<section class=\"fb15-app open\" id=\"facebookApp\" aria-label=\"Facebook\" style=\"--caua-fb-icon: url(&quot;http://127.0.0.1:8000/assets/media/ded9c1162a09f194d6bd1cc0.png&quot;);\">\n  <"
   },
-  "photo": {
-    "parent": "screen",
-    "tag": "DIV",
-    "cls": "fb15-lightbox",
-    "display": "flex",
-    "visibility": "visible",
-    "opacity": "1",
-    "zIndex": "2147483600",
-    "position": "absolute",
-    "bounds": {
-      "top": 114.97789764404297,
-      "left": 79.67589569091797,
-      "bottom": 725.350700378418,
-      "right": 423.5479049682617
-    },
-    "html": "<div class=\"fb15-lightbox\"><div class=\"fb15-lightbox-toolbar\"><button type=\"button\" data-fb-photo-close=\"1\" aria-label=\"Đóng ảnh\">‹ Quay lại</button><strong>Ảnh</strong><button typ"
-  },
+  "photo": null,
   "oldViewer": null,
   "nav": {
     "parent": "facebookApp",
     "tag": "DIV",
     "cls": "fb15-profile-tabs fb15-profile-tabs-overlay",
     "display": "none",
-    "visibility": "visible",
+    "visibility": "hidden",
     "opacity": "1",
     "zIndex": "2147483000",
     "position": "absolute",
@@ -94,32 +80,29 @@ LAYERS {
   "elementsAtTop": [
     {
       "y": 5,
-      "name": "fb15-lightbox-toolbar"
+      "name": "fb-photo-clean-header"
     },
     {
       "y": 25,
-      "name": "fb15-lightbox-toolbar"
+      "name": "fb-photo-clean-header"
     },
     {
       "y": 55,
-      "name": "fb15-lightbox-stage"
+      "name": "fb-photo-clean-stage"
     },
     {
       "y": 95,
-      "name": "fb15-lightbox-stage"
+      "name": "fb-photo-clean-stage"
     },
     {
       "y": 120,
-      "name": "fb15-lightbox-stage"
+      "name": "fb-photo-clean-stage"
     },
     {
       "y": 150,
-      "name": "fb15-lightbox-stage"
+      "name": "fb-photo-clean-stage"
     }
   ],
-  "displayStyles": [
-    "http://127.0.0.1:8000/assets/facebook/facebook-lightbox.css?v=20261009e"
-  ]
+  "displayStyles": []
 }
-ASSERT_OPEN {"viewerAttachedToScreen":true,"onlyOneViewer":true,"statusHidden":true,"fullscreenClass":true,"viewerCoversEveryPoint":true,"hits":[true,true,true,true]}
-ASSERT_CLOSE {"viewerCount":0,"statusVisible":true,"fullscreenClass":false}
+ASSERT_OPEN {"viewerAttachedToScreen":false,"onlyOneViewer":false,"statusHidden":true,"fullscreenClass":false,"viewerCoversEveryPoint":false,"hits":[true,true,true,true]}
