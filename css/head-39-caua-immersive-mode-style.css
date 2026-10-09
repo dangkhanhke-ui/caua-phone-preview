@@ -1,0 +1,14 @@
+
+/* Opt-in borderless display: retain the native 320 × 568 app coordinate system. */
+body.caua-immersive .phone-wrap{width:320px!important;height:568px!important;transform:scale(var(--immersive-scale,1))!important;transform-origin:center center!important}
+body.caua-immersive .iphone{width:320px!important;height:568px!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+body.caua-immersive .iphone::before{display:none!important}
+body.caua-immersive .iphone>.power-button,body.caua-immersive .iphone>.mute-switch,
+body.caua-immersive .iphone>.volume-button,body.caua-immersive .iphone>.top-hardware,
+body.caua-immersive #homeButton{display:none!important}
+body.caua-immersive #screen{left:0!important;top:0!important;box-shadow:none!important}
+#caua-immersive-toggle{position:fixed;z-index:2147483000;top:8px;right:8px;border:1px solid rgba(255,255,255,.38);background:rgba(16,19,25,.73);color:white;padding:7px 10px;border-radius:8px;font:12px/16px Arial,sans-serif;cursor:pointer;backdrop-filter:blur(5px)}
+body.caua-immersive #caua-immersive-toggle{top:6px;right:6px;opacity:.72}
+#caua-home-gesture{display:none;position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:96px;height:20px;z-index:12000;touch-action:none;cursor:pointer;align-items:flex-end;justify-content:center;padding-bottom:4px}
+#caua-home-gesture:after{content:"";width:70px;height:4px;background:rgba(190,193,201,.87);border-radius:20px;box-shadow:0 0 2px rgba(0,0,0,.25)}
+body.caua-immersive #caua-home-gesture{display:flex}

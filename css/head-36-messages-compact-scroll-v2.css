@@ -1,0 +1,35 @@
+
+/* Messages: iOS-width layout, no horizontal scrolling at any screen. */
+#messagesApp,#messagesApp .messages-shell,#messagesApp .messages-view,#messagesApp .msg-convo,
+#messagesApp .msg-list-body,#messagesApp .msg-convo-scroll,#messagesApp .msg-detail-scroll,
+#messagesApp .msg-new-body,#messagesApp .msg-recipient-results,#messagesApp .msg-threads{
+ box-sizing:border-box;max-width:100%;overflow-x:hidden!important;
+}
+#messagesApp .msg-list-body,#messagesApp .msg-convo-scroll,#messagesApp .msg-detail-scroll,
+#messagesApp .msg-recipient-results{overflow-y:auto;overscroll-behavior-x:none;}
+#messagesApp .messages-shell *,#messagesApp .messages-view *{box-sizing:border-box}
+#messagesApp .msg-nav{grid-template-columns:minmax(66px,82px) minmax(0,1fr) minmax(66px,82px);max-width:100%}
+#messagesApp .msg-convo .msg-nav{grid-template-columns:minmax(84px,95px) minmax(0,1fr) minmax(54px,68px)}
+#messagesApp .msg-nav>*,
+#messagesApp .msg-thread-main,#messagesApp .msg-thread-meta,#messagesApp .msg-convo-title,
+#messagesApp .msg-entry,#messagesApp .msg-entry input,#messagesApp .msg-to-input{min-width:0}
+#messagesApp .msg-nav-btn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#messagesApp .msg-thread-row{width:100%;max-width:100%;grid-template-columns:15px minmax(0,1fr) 50px}
+#messagesApp .msg-line{max-width:100%;min-width:0}
+#messagesApp .msg-bubble{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+#messagesApp .msg-convo-scroll{touch-action:pan-y!important}
+#messagesApp .msg-time-side{display:none!important}
+#messagesApp .msg-convo-scroll.reveal-times .msg-line{transform:none!important}
+/* Narrow, understated vertical scrollbar. */
+/* iOS-style: keep vertical scrolling functional but do not render chunky native scrollbars. */
+#messagesApp,#messagesApp *{scrollbar-width:none!important;-ms-overflow-style:none!important;}
+#messagesApp::-webkit-scrollbar,#messagesApp *::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;}
+#messagesApp .msg-list-body,#messagesApp .msg-convo-scroll,
+#messagesApp .msg-detail-scroll,#messagesApp .msg-recipient-results{
+  overflow-x:clip!important;overflow-y:auto!important;overscroll-behavior-x:none;
+}
+#messagesApp .messages-shell,#messagesApp .messages-view,#messagesApp .msg-new-body{
+  overflow-x:clip!important;
+}
+#messagesApp .msg-convo-scroll .msg-line{width:100%;}
+#messagesApp .msg-bubble{flex:0 1 auto;max-width:76%;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap;}

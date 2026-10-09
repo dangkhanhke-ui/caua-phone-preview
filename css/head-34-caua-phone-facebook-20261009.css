@@ -1,0 +1,19 @@
+
+/* Lift the end-call button nearer the lower call-control row. */
+.phone-hangup { bottom:64px!important; width:72px!important; height:72px!important; }
+.phone-hangup::before {
+  content:""!important; position:absolute!important; left:50%!important; top:50%!important;
+  width:35px!important; height:35px!important; border:0!important; border-radius:0!important;
+  background:#fff!important; background-image:none!important;
+  transform:translate(-50%,-50%)!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.57.94l-2.84 1.65c-.46.27-1.05.2-1.43-.18L.3 12.97c-.4-.4-.4-1.05.03-1.45C3.43 8.76 7.53 7 12 7s8.57 1.76 11.67 4.52c.42.4.43 1.05.02 1.45l-2.27 2.26c-.38.38-.96.45-1.43.18l-2.82-1.65c-.35-.2-.57-.57-.57-.98V9.72C15.15 9.25 13.6 9 12 9z'/%3E%3C/svg%3E") center/contain no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.57.94l-2.84 1.65c-.46.27-1.05.2-1.43-.18L.3 12.97c-.4-.4-.4-1.05.03-1.45C3.43 8.76 7.53 7 12 7s8.57 1.76 11.67 4.52c.42.4.43 1.05.02 1.45l-2.27 2.26c-.38.38-.96.45-1.43.18l-2.82-1.65c-.35-.2-.57-.57-.57-.98V9.72C15.15 9.25 13.6 9 12 9z'/%3E%3C/svg%3E") center/contain no-repeat!important;
+}
+#facebookApp.caua-fb-loading::before {
+  content:""; position:absolute; inset:0; z-index:999; background:#3b5998; pointer-events:auto;
+}
+#facebookApp.caua-fb-loading::after {
+  content:""; width:64px; height:64px; background-image:var(--caua-fb-icon); background-size:contain; background-position:center; background-repeat:no-repeat; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  z-index:1000; color:#fff; font-family:Arial,Helvetica,sans-serif;
+  font-weight:700; font-size:114px; line-height:1; pointer-events:auto;
+}

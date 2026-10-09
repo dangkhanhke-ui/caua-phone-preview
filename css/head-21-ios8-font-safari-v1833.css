@@ -1,0 +1,191 @@
+
+/* v1.8.33: iOS 8 system typography + Safari 8 chrome */
+body,
+.screen,
+.status-bar,
+.lock-screen,
+.passcode-screen,
+.home-screen,
+.app-page,
+.app-content,
+.messages-app,
+.mail-app,
+.notes-app,
+.phone-app,
+.calendar-app,
+.voice-app,
+.safari-app,
+.ios8-switcher,
+.itau-app {
+  font-family:"Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  -webkit-font-smoothing:antialiased;
+}
+/* Keep Facebook's app-specific typography independent from the iOS shell. */
+.fb15-app, .fb15-content { font-family:Arial, Helvetica, sans-serif; }
+
+/* Safari 8 top chrome: flat translucent bar and the characteristic gray omnibox. */
+.safari-app { background:#fff; }
+.screen.safari-open .status-bar {
+  background:#f7f7f7 !important;
+  border-bottom:0 !important;
+  color:#111 !important;
+}
+.safari-topbar {
+  top:20px !important;
+  height:44px !important;
+  padding:6px 7px 7px !important;
+  gap:8px !important;
+  display:flex !important;
+  align-items:center !important;
+  background:#f7f7f7 !important;
+  border-bottom:1px solid #c9c9c9 !important;
+  box-shadow:none !important;
+}
+.safari-topbar .safari-mini { display:none !important; }
+.safari-address {
+  height:31px !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  border:0 !important;
+  border-radius:7px !important;
+  padding:0 31px 0 10px !important;
+  gap:0 !important;
+  background:#e6e6e8 !important;
+  box-shadow:inset 0 1px 0 rgba(0,0,0,.025) !important;
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  transition:none !important;
+}
+.safari-address .lock { display:none !important; }
+.safari-address input {
+  width:100% !important;
+  height:31px !important;
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  background:transparent !important;
+  color:#222 !important;
+  font:400 15px/31px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  letter-spacing:-.01em !important;
+  text-align:center !important;
+}
+.safari-address input::placeholder { color:#777 !important; opacity:1 !important; }
+.safari-topbar.editing .safari-address input { text-align:left !important; }
+.safari-address-refresh,
+.safari-address-clear {
+  position:absolute;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  width:21px;
+  height:21px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#8d8d92;
+  font:400 20px/21px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-align:center;
+}
+.safari-address-clear {
+  display:none;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  color:#e6e6e8;
+  background:#aeb0b4;
+  font:500 15px/14px Arial,sans-serif;
+}
+.safari-topbar.editing .safari-address-refresh { display:none; }
+.safari-topbar.editing .safari-address-clear { display:block; }
+.safari-cancel {
+  display:none;
+  flex:0 0 auto;
+  height:31px;
+  padding:0 1px 0 2px;
+  border:0;
+  background:transparent;
+  color:#007aff;
+  font:400 16px/31px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  white-space:nowrap;
+}
+.safari-topbar.editing .safari-cancel { display:block; }
+.safari-page { top:64px !important; background:#fff !important; }
+
+/* New-tab / address-editing content styled after Safari 8 on iPhone 6. */
+.safari-search-home.ios8-start-page { padding:0 0 28px !important; background:#f4f4f4; min-height:100%; }
+.safari-start-actions { background:#f4f4f4; border-bottom:1px solid #cfcfcf; }
+.safari-start-action {
+  width:100%;
+  height:46px;
+  padding:0 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border:0;
+  border-bottom:1px solid #d8d8d8;
+  background:#f4f4f4;
+  color:#7d7d82;
+  text-align:left;
+  font:300 17px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.safari-start-action:last-child { border-bottom:0; }
+.safari-start-symbol { width:24px; display:inline-grid; place-items:center; color:#7e8084; font-size:22px; }
+.safari-start-symbol.desktop { font-size:19px; transform:scaleX(1.1); }
+.safari-fav-grid.ios8-favorites {
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:14px 9px !important;
+  padding:14px 14px 18px !important;
+  background:#f4f4f4;
+  border-bottom:1px solid #cfcfcf;
+}
+.safari-fav .ico,
+.safari-freq .ico {
+  width:50px !important;
+  height:50px !important;
+  margin:0 auto 5px !important;
+  border-radius:5px !important;
+  display:grid !important;
+  place-items:center !important;
+  color:#fff !important;
+  font:400 31px/1 Georgia, serif !important;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.03);
+}
+.safari-fav .lbl,
+.safari-freq .lbl {
+  color:#7c7c80 !important;
+  font:400 11px/12px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  text-align:center;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.safari-frequent-title {
+  margin:0 !important;
+  padding:9px 22px 7px !important;
+  background:#f4f4f4 !important;
+  color:#8c8c90 !important;
+  font:400 10px/12px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  letter-spacing:.02em;
+}
+.safari-freq-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px 14px;
+  padding:0 20px 20px;
+  background:#f4f4f4;
+}
+.safari-freq { min-width:0; text-align:center; }
+.safari-freq .ico { width:51px !important; height:51px !important; border-radius:4px !important; }
+
+/* Safari 8 toolbar: thin flat chrome, blue controls. */
+.safari-toolbar {
+  height:44px !important;
+  background:rgba(248,248,248,.98) !important;
+  border-top:1px solid #c8c8cc !important;
+  box-shadow:none !important;
+}
+.safari-toolbtn { color:#007aff !important; font-family:"Helvetica Neue",Helvetica,Arial,sans-serif !important; font-weight:300 !important; }
+.safari-toolbtn[disabled] { color:#c7c7cc !important; }
+#safariBack, #safariForward { font-size:30px !important; font-weight:200 !important; }

@@ -1,0 +1,3 @@
+
+.notes-note-body[contenteditable="true"]{outline:none;cursor:text;caret-color:#111;user-select:text;-webkit-user-select:text;-webkit-touch-callout:default;}
+.notes-note-body[contenteditable="true"]:focus{outline:none;}

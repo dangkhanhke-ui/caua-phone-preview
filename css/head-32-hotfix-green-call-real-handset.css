@@ -1,0 +1,12 @@
+
+.phone-call-btn::before{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;top:50%!important;
+  width:29px!important;height:29px!important;
+  border:0!important;border-radius:0!important;
+  background:transparent url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27white%27%20d%3D%27M6.62%2010.79a15.5%2015.5%200%200%200%206.59%206.59l2.2-2.2a1%201%200%200%201%201.02-.24c1.12.37%202.33.57%203.57.57a1%201%200%200%201%201%201V20a1%201%200%200%201-1%201C10.61%2021%203%2013.39%203%204a1%201%200%200%201%201-1h3.5a1%201%200%200%201%201%201c0%201.25.2%202.45.57%203.57a1%201%200%200%201-.25%201.02z%27%2F%3E%3C%2Fsvg%3E") center/29px 29px no-repeat!important;
+  transform:translate(-50%,-50%)!important;
+  box-shadow:none!important;
+}
+.phone-call-btn::after{content:none!important;}

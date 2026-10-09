@@ -1,0 +1,13 @@
+
+#facebookApp .fb15-tab .fb15-tab-svg{width:21px;height:21px;display:block;flex:0 0 21px;fill:none!important;stroke:currentColor!important;stroke-width:1.75!important;stroke-linecap:round;stroke-linejoin:round}
+#facebookApp .fb15-menu-row .mi{display:flex;align-items:center;justify-content:flex-start;flex:0 0 30px;width:30px;font-size:0!important}
+#facebookApp .fb15-menu-row .fb15-menu-svg{width:19px;height:19px;display:block;fill:none;stroke:#3b5998;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#facebookApp .fb15-menu-row .chev{font-size:18px;color:#b7bbc4}
+#facebookApp [data-npc-avatar="image"]{position:relative!important;overflow:hidden!important;background:#cbd4e2!important;background-image:var(--fb15-avatar-fallback,none)!important;background-size:500% 500%!important;background-position:var(--fb15-avatar-pos-x,center) var(--fb15-avatar-pos-y,center)!important;background-repeat:no-repeat!important;color:#536782!important;font-size:12px!important}
+#facebookApp .fb15-npc-photo{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center!important;image-rendering:auto!important;filter:none!important;z-index:2}
+#facebookApp .fb15-npc-fallback{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;color:#536782;font:600 12px/1 Arial,sans-serif;text-align:center}
+#facebookApp .fb15-friend-pic{position:relative!important;width:100%;height:auto;min-height:0;overflow:hidden!important}
+#facebookApp .fb15-friend-tile>span{display:block;color:#3b5998;font-size:9px;line-height:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#facebookApp .fb15-friend-pic>.fb15-npc-fallback{margin:0;font-size:19px;line-height:1}
+#facebookApp .fb15-person-avatar,#facebookApp .fb15-comment-avatar,#facebookApp .fb15-author-avatar{position:relative;overflow:hidden}
+#facebookApp .fb15-person-avatar>.fb15-npc-fallback,#facebookApp .fb15-comment-avatar>.fb15-npc-fallback,#facebookApp .fb15-author-avatar>.fb15-npc-fallback{font-size:13px}

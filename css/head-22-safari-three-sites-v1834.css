@@ -1,0 +1,78 @@
+
+/* v1.8.34 — three Safari pages: Radar Rio, Caderno Urbano, UFRJ Intranet */
+.safari-news15{background:#fff;color:#222;font-family:Arial,Helvetica,sans-serif;min-height:100%;}
+.safari-news15 *{box-sizing:border-box;}
+.safari-news15 .news-mast{padding:10px 12px 8px;border-bottom:1px solid #d4d4d4;background:#fff;}
+.safari-news15 .news-brand{font-size:24px;line-height:27px;font-weight:700;letter-spacing:-.7px;color:#202020;}
+.safari-news15 .news-nav{margin-top:7px;padding-top:6px;border-top:3px solid #193d67;font-size:9px;line-height:12px;font-weight:700;letter-spacing:.04em;color:#474747;white-space:nowrap;overflow:hidden;}
+.safari-news15 .news-nav span{margin-right:13px;}
+.safari-news15 .news-body{padding:14px 13px 34px;}
+.safari-news15 .news-kicker{font-size:10px;line-height:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#315a83;margin-bottom:7px;}
+.safari-news15 h1{font-family:Arial,Helvetica,sans-serif;margin:0 0 7px;font-size:24px;line-height:27px;letter-spacing:-.45px;font-weight:700;color:#171717;}
+.safari-news15 .news-dek{font-size:13px;line-height:18px;color:#595959;margin:0 0 10px;}
+.safari-news15 .news-meta{font-size:9px;line-height:13px;color:#888;margin:0 0 12px;border-bottom:1px solid #ececec;padding-bottom:9px;}
+.safari-news15 p{font-size:12px;line-height:18px;color:#2f2f2f;margin:10px 0;}
+.safari-news15 strong{font-weight:700;}
+.safari-news15 .news-photo-placeholder{position:relative;width:100%;aspect-ratio:16/9;background:#e8e8e8;border:1px solid #d1d1d1;margin:4px 0 13px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#8b8b8b;text-align:center;font-size:10px;line-height:14px;letter-spacing:.03em;}
+.safari-news15 .news-photo-placeholder:before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#d4d4d4;transform:rotate(29deg);transform-origin:center;}
+.safari-news15 .news-photo-placeholder:after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#d4d4d4;transform:rotate(-29deg);transform-origin:center;}
+.safari-news15 .news-photo-placeholder span{position:relative;z-index:1;background:rgba(232,232,232,.92);padding:4px 7px;}
+.safari-news15 .news-photo-real{width:100%;aspect-ratio:16/9;margin:4px 0 13px;border:1px solid #d1d1d1;background:#eaeaea;overflow:hidden;}
+.safari-news15 .news-photo-real img{display:block;width:100%;height:100%;object-fit:cover;}
+.safari-news15 .poll-list{margin:12px 0 15px;border-top:1px solid #dcdcdc;border-bottom:1px solid #dcdcdc;padding:7px 0;}
+.safari-news15 .poll-row{display:grid;grid-template-columns:minmax(0,1fr) 36px;gap:8px;align-items:start;padding:5px 1px;font-size:11px;line-height:15px;}
+.safari-news15 .poll-row strong{font-weight:700;}
+.safari-news15 .poll-row .pct{text-align:right;font-weight:700;white-space:nowrap;}
+.safari-news15 .poll-gap{height:5px;border-top:1px solid #ededed;margin-top:4px;}
+.safari-news15 .analysis-box{margin:17px 0 6px;padding:11px 11px 10px 12px;background:#f5f5f5;border-left:3px solid #9aa7b2;}
+.safari-news15 .analysis-box h2{font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:19px;margin:0 0 8px;color:#222;}
+.safari-news15 blockquote{margin:10px 0;padding:0 0 0 11px;border-left:2px solid #c7c7c7;color:#555;font-size:12px;line-height:18px;font-style:italic;}
+
+/* Radar Rio: compact, civic-news look with blue rule and restrained serif-free typography. */
+.radar-rio .news-brand{color:#173d64;letter-spacing:-1px;}
+.radar-rio .news-brand b{font-weight:800;}
+.radar-rio .news-brand em{font-style:normal;font-weight:300;color:#6c879f;}
+.radar-rio .news-nav{border-top-color:#173d64;}
+.radar-rio .news-kicker{color:#1a5c92;}
+
+/* Caderno Urbano: slightly more magazine/newspaper-like masthead, still plausible for 2015. */
+.caderno-urbano .news-mast{padding-bottom:9px;}
+.caderno-urbano .news-brand{font-family:Georgia,"Times New Roman",serif;font-size:22px;line-height:25px;letter-spacing:.2px;font-weight:700;color:#171717;}
+.caderno-urbano .news-nav{border-top-color:#464646;color:#555;}
+.caderno-urbano .news-kicker{color:#717171;}
+.caderno-urbano .section-cap{margin:20px 0 8px;padding-top:9px;border-top:3px solid #3d3d3d;font-size:11px;line-height:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#292929;}
+.caderno-urbano .past-item{border-top:1px solid #dedede;padding:10px 0 4px;}
+.caderno-urbano .past-item:first-of-type{border-top:0;padding-top:2px;}
+.caderno-urbano .past-when{font-size:9px;line-height:12px;color:#777;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.caderno-urbano .past-title{font-size:13px;line-height:17px;font-weight:700;color:#242424;margin-bottom:5px;}
+.caderno-urbano .company-response{padding:10px 11px;background:#f4f4f4;border-top:1px solid #dedede;border-bottom:1px solid #dedede;}
+
+/* UFRJ: intentionally old-school fixed-width university intranet. */
+.ufrj-oldpage{min-height:100%;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#202020;overflow:visible;}
+.ufrj-oldsite{width:520px;min-height:560px;background:#fff;border-right:1px solid #d8d8d8;}
+.ufrj-old-header{height:78px;padding:10px 16px 7px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #b9c4cf;background:#fff;}
+.ufrj-old-logo{width:69px;height:48px;border:0;display:block;flex:0 0 auto;}
+/* UFRJ_LOGO_2015 -- overlay the uploaded logo, but keep the 2015 SVG fallback. */
+.ufrj-logo-slot{position:relative;display:block;flex:0 0 69px;width:69px;height:48px}
+.ufrj-logo-slot .ufrj-old-logo{position:absolute;inset:0;width:100%;height:100%}
+.ufrj-logo-slot .ufrj-logo-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;z-index:1}
+.ufrj-old-headtext{min-width:0;}
+.ufrj-old-university{font:700 11px/14px Arial,Helvetica,sans-serif;color:#2b4661;letter-spacing:.015em;white-space:nowrap;}
+.ufrj-old-intranet{margin-top:4px;font:700 17px/20px Arial,Helvetica,sans-serif;color:#143b61;}
+.ufrj-oldbar{height:25px;background:#3e5f7d;border-top:1px solid #2d4d6b;border-bottom:1px solid #294761;color:#e9edf1;font-size:9px;line-height:24px;padding-left:16px;}
+.ufrj-old-main{display:grid;grid-template-columns:310px 170px;gap:14px;padding:25px 14px 30px;align-items:start;}
+.ufrj-login-panel{border:1px solid #aeb6bf;background:#f5f6f7;box-shadow:0 1px 0 #fff inset;}
+.ufrj-login-title{height:28px;padding:0 10px;background:#dce4eb;border-bottom:1px solid #b2bec9;color:#243f58;font:bold 11px/28px Arial,Helvetica,sans-serif;}
+.ufrj-login-inner{padding:12px 13px 13px;}
+.ufrj-label{display:block;font-size:10px;line-height:13px;color:#333;margin:0 0 4px;font-weight:700;}
+.ufrj-input{width:100%;height:25px;border:1px solid #a7a7a7;border-radius:0;background:#fff;padding:3px 5px;font:11px/17px Arial,Helvetica,sans-serif;color:#222;box-shadow:inset 0 1px 2px rgba(0,0,0,.08);margin-bottom:9px;}
+.ufrj-login-btn{height:27px;padding:0 13px;border:1px solid #244e72;border-radius:2px;background:linear-gradient(#52799b,#315b7e);color:#fff;text-shadow:0 -1px rgba(0,0,0,.25);font:bold 10px/25px Arial,Helvetica,sans-serif;}
+.ufrj-old-links{margin-top:10px;font-size:9px;line-height:15px;color:#245a86;}
+.ufrj-old-links span{display:block;text-decoration:underline;}
+.ufrj-help{margin-top:11px;font-size:9px;line-height:14px;color:#676767;}
+.ufrj-login-error{display:none;margin:10px 0 0;padding:7px 8px;border:1px solid #caa3a3;background:#fff1f1;color:#8b2525;font-size:9px;line-height:13px;}
+.ufrj-system-box{border:1px solid #c2c7cc;background:#fbfbfb;}
+.ufrj-system-head{height:27px;background:#eceff2;border-bottom:1px solid #d1d5d9;padding:0 9px;color:#425467;font:bold 9px/27px Arial,Helvetica,sans-serif;letter-spacing:.04em;}
+.ufrj-system-inner{padding:10px 9px 12px;font-size:9px;line-height:14px;color:#555;}
+.ufrj-system-inner strong{display:block;color:#234d72;font-size:13px;line-height:16px;margin-bottom:3px;}
+.ufrj-old-footer{margin:0 14px;padding:11px 0 22px;border-top:1px solid #d3d3d3;color:#888;font-size:8px;line-height:12px;width:480px;}

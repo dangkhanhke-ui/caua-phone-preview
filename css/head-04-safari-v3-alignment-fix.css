@@ -1,0 +1,86 @@
+
+  /* Safari iOS 8 alignment fix */
+  .safari-toolbar .safari-toolbtn {
+    height:44px;
+    padding:0;
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+  }
+
+  /* Replace the emoji book (whose font baseline sat too low) with a CSS-drawn iOS-style book. */
+  #safariBookmarks {
+    font-size:0 !important;
+    position:relative;
+  }
+  #safariBookmarks::before,
+  #safariBookmarks::after {
+    content:"";
+    position:absolute;
+    top:13px;
+    width:9px;
+    height:15px;
+    box-sizing:border-box;
+    border:1.5px solid #2c81f7;
+    background:transparent;
+  }
+  #safariBookmarks::before {
+    left:calc(50% - 9px);
+    border-radius:3px 0 1px 3px;
+    border-right-width:1px;
+    transform:skewY(3deg);
+    transform-origin:right center;
+  }
+  #safariBookmarks::after {
+    left:50%;
+    border-radius:0 3px 3px 1px;
+    border-left-width:1px;
+    transform:skewY(-3deg);
+    transform-origin:left center;
+  }
+
+  /* In tab overview, iOS replaces the normal browser toolbar with Private / + / Done. */
+  .safari-app.tabs-mode .safari-toolbar { display:none; }
+  .safari-app.tabs-mode .safari-page { bottom:0; }
+  .safari-app.tabs-mode .safari-tabs {
+    inset:64px 0 0;
+    padding:12px 0 44px;
+  }
+  .safari-tabs-bottom {
+    position:sticky !important;
+    bottom:0 !important;
+    height:44px;
+    min-height:44px;
+    padding:0 !important;
+    margin:0;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    align-items:center;
+    background:rgba(239,239,239,.98) !important;
+    border-top:1px solid rgba(0,0,0,.12);
+    box-shadow:none;
+    z-index:5;
+  }
+  .safari-tabs-bottom button {
+    height:44px;
+    padding:0 !important;
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#1677f2 !important;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:17px !important;
+    line-height:44px;
+    background:transparent;
+    border:0;
+  }
+  #safariNewTab {
+    font-size:31px !important;
+    font-weight:200;
+    line-height:42px;
+  }
+  #safariPrivateToggle { justify-content:flex-start; padding-left:16px !important; }
+  #safariTabsDone { justify-content:flex-end; padding-right:16px !important; }

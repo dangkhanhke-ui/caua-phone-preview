@@ -1,0 +1,11 @@
+
+#lockScreen:not(.active), #passcodeScreen:not(.active), #homeScreen:not(.active) {
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#lockScreen:not(.active) *, #passcodeScreen:not(.active) *, #homeScreen:not(.active) * {
+  pointer-events:none !important;
+}
+#lockScreen.active, #passcodeScreen.active, #homeScreen.active {
+  visibility:visible !important;
+}

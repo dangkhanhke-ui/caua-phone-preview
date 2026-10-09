@@ -1,0 +1,8 @@
+
+/* Rounded, subtly elevated multitasking cards, without modifying their content. */
+#ios8AppSwitcher .ios8-switcher-preview{border-radius:15px!important;overflow:hidden!important;box-shadow:0 10px 24px rgba(0,0,0,.4)!important}
+#ios8AppSwitcher .ios8-switcher-preview-inner{border-radius:inherit}
+#ios8AppSwitcher .ios8-switcher-card{border-radius:15px}
+body.caua-immersive #caua-home-gesture{width:132px;height:28px;padding-bottom:6px}
+body.caua-immersive #caua-home-gesture:after{width:74px;height:4px}
+#caua-home-gesture{user-select:none;-webkit-user-select:none}

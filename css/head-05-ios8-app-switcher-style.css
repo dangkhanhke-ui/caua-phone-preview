@@ -1,0 +1,147 @@
+
+  .ios8-switcher {
+    position:absolute;
+    top:20px;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:90;
+    display:none;
+    overflow:hidden;
+    background:
+      linear-gradient(rgba(31,34,40,.76),rgba(22,24,29,.82)),
+      radial-gradient(circle at 25% 18%, rgba(255,255,255,.18), transparent 32%),
+      linear-gradient(155deg,#9fb4c3 0%,#6d7f8e 42%,#313943 100%);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    color:#fff;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  .ios8-switcher.open { display:block; animation:ios8SwitcherIn .18s ease-out both; }
+  @keyframes ios8SwitcherIn { from { opacity:0; transform:scale(.985); } to { opacity:1; transform:scale(1); } }
+  .ios8-switcher-title {
+    position:absolute;
+    left:0; right:0; top:8px;
+    text-align:center;
+    font-size:10px;
+    color:rgba(255,255,255,.58);
+    pointer-events:none;
+  }
+  .ios8-switcher-track {
+    position:absolute;
+    inset:24px 0 0;
+    display:flex;
+    align-items:center;
+    gap:17px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:0 37px 14px;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .ios8-switcher-track::-webkit-scrollbar { display:none; }
+  .ios8-switcher-empty {
+    min-width:100%;
+    align-self:center;
+    text-align:center;
+    color:rgba(255,255,255,.72);
+    font-size:13px;
+    line-height:18px;
+    padding:0 35px;
+  }
+  .ios8-switcher-card {
+    flex:0 0 246px;
+    width:246px;
+    scroll-snap-align:center;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    position:relative;
+    padding-top:42px;
+  }
+  .ios8-switcher-apphead {
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.45);
+  }
+  .ios8-switcher-apphead img {
+    width:28px;
+    height:28px;
+    border-radius:6px;
+    object-fit:contain;
+    box-shadow:0 1px 2px rgba(0,0,0,.28);
+  }
+  .ios8-switcher-apphead span {
+    max-width:185px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    font-size:12px;
+    font-weight:500;
+  }
+  .ios8-switcher-preview {
+    position:relative;
+    width:246px;
+    height:437px;
+    overflow:hidden;
+    background:#fff;
+    border-radius:3px;
+    box-shadow:0 7px 22px rgba(0,0,0,.38);
+    border:1px solid rgba(255,255,255,.35);
+    transform-origin:center bottom;
+    transition:transform .14s ease-out, opacity .14s ease-out;
+  }
+  .ios8-switcher-card:active .ios8-switcher-preview { transform:scale(.985); opacity:.92; }
+  .ios8-switcher-preview-inner {
+    position:absolute;
+    left:0;
+    top:0;
+    width:320px;
+    height:568px;
+    transform:scale(.76875);
+    transform-origin:top left;
+    overflow:hidden;
+    background:#fff;
+    pointer-events:none;
+  }
+  .ios8-switcher-preview-status {
+    position:absolute;
+    left:0; top:0;
+    width:320px;
+    height:20px;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 7px;
+    box-sizing:border-box;
+    font-size:9px;
+    font-weight:500;
+    color:#292929;
+    background:rgba(249,249,249,.97);
+  }
+  .ios8-switcher-preview-status .center { position:absolute; left:0; right:0; text-align:center; pointer-events:none; }
+  .ios8-switcher-preview .calendar-app,
+  .ios8-switcher-preview .mail-app,
+  .ios8-switcher-preview .itau-app,
+  .ios8-switcher-preview .safari-app {
+    display:block !important;
+    visibility:visible !important;
+  }
+  .ios8-switcher-hint {
+    position:absolute;
+    left:0; right:0; bottom:6px;
+    text-align:center;
+    font-size:9px;
+    color:rgba(255,255,255,.45);
+    pointer-events:none;
+  }

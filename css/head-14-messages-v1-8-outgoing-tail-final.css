@@ -1,0 +1,65 @@
+
+/* Final outgoing bubble tail fix.
+   Root cause: the old tail extended into the horizontal overflow area and was clipped,
+   so only a thin vertical remnant was visible. Keep extra room on the right and use
+   the classic two-curve iMessage silhouette entirely outside the text box. */
+.msg-line.outgoing {
+  padding-right: 8px !important;
+  box-sizing: border-box !important;
+}
+.msg-line.outgoing .msg-bubble {
+  overflow: visible !important;
+  isolation: isolate;
+}
+.msg-line.outgoing .msg-bubble::before,
+.msg-line.outgoing .msg-bubble::after {
+  content: none !important;
+  position: absolute !important;
+  inset: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  transform: none !important;
+  pointer-events: none !important;
+}
+/* Colored curved lobe. */
+.msg-line.outgoing.imessage.group-last .msg-bubble::before,
+.msg-line.outgoing.imessage.group-single .msg-bubble::before,
+.msg-line.outgoing.sms.group-last .msg-bubble::before,
+.msg-line.outgoing.sms.group-single .msg-bubble::before {
+  content: "" !important;
+  z-index: -1 !important;
+  right: -7px !important;
+  bottom: -2px !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-right: 20px solid transparent !important;
+  border-bottom-left-radius: 16px 14px !important;
+  transform: translateY(-2px) !important;
+  box-sizing: border-box !important;
+}
+.msg-line.outgoing.imessage.group-last .msg-bubble::before,
+.msg-line.outgoing.imessage.group-single .msg-bubble::before {
+  border-right-color: #0b93f6 !important;
+}
+.msg-line.outgoing.sms.group-last .msg-bubble::before,
+.msg-line.outgoing.sms.group-single .msg-bubble::before {
+  border-right-color: #4cd964 !important;
+}
+/* White cutout is positioned from the bubble edge outward; it never enters the text box. */
+.msg-line.outgoing.group-last .msg-bubble::after,
+.msg-line.outgoing.group-single .msg-bubble::after {
+  content: "" !important;
+  z-index: 1 !important;
+  right: -56px !important;
+  bottom: -2px !important;
+  width: 26px !important;
+  height: 20px !important;
+  background: #fff !important;
+  border-bottom-left-radius: 10px !important;
+  transform: translate(-30px, -2px) !important;
+}

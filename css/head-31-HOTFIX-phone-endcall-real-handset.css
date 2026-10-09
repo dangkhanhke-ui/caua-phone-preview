@@ -1,0 +1,13 @@
+
+.phone-hangup::before{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;top:50%!important;
+  width:30px!important;height:30px!important;
+  background:transparent url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M22%2016.92v3a2%202%200%200%201-2.18%202%2019.79%2019.79%200%200%201-8.63-3.07%2019.5%2019.5%200%200%201-6-6A19.79%2019.79%200%200%201%202.12%204.18%202%202%200%200%201%204.11%202h3a2%202%200%200%201%202%201.72c.12.9.33%201.78.62%202.63a2%202%200%200%201-.45%202.11L8%209.73a16%2016%200%200%200%206%206l1.27-1.27a2%202%200%200%201%202.11-.45c.85.29%201.73.5%202.63.62A2%202%200%200%201%2022%2016.92z%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") center/30px 30px no-repeat!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  -webkit-mask:none!important;mask:none!important;
+  transform:translate(-50%,-50%) rotate(132deg)!important;
+  transform-origin:center center!important;
+}
+.phone-hangup::after{content:none!important;}

@@ -1,0 +1,21 @@
+
+/* v1.8.47: render call-control glyphs as literal inline SVG, not CSS masks. */
+#phoneApp .phone-call-control i.call-glyph{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  position:relative!important;background:rgba(255,255,255,.19)!important;
+  overflow:hidden!important;color:#fff!important;
+}
+#phoneApp .phone-call-control i.call-glyph::before,
+#phoneApp .phone-call-control i.call-glyph::after{
+  content:none!important;display:none!important;background:none!important;
+  -webkit-mask:none!important;mask:none!important;
+}
+#phoneApp .phone-call-control .call-inline-svg{
+  display:block!important;width:39px!important;height:39px!important;
+  max-width:56%!important;max-height:56%!important;overflow:visible!important;
+  pointer-events:none!important;flex:0 0 auto!important;
+}
+#phoneApp .phone-call-control .call-glyph.dialpad .call-inline-svg{width:37px!important;height:37px!important}
+#phoneApp .phone-call-control .call-glyph.addcall .call-inline-svg{width:35px!important;height:35px!important}
+#phoneApp .phone-call-control .call-glyph.facetime .call-inline-svg{width:39px!important;height:39px!important}
+#phoneApp .phone-call-control .call-glyph.contacts .call-inline-svg{width:40px!important;height:40px!important}

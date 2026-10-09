@@ -1,0 +1,16 @@
+
+/* v1.8.49: replace tiny/abstract end-call glyph with fuller handset icon */
+.phone-hangup::before {
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:32px!important;
+  height:20px!important;
+  background:center/contain no-repeat url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2036%2036%27%3E%3Cpath%20fill%3D%27white%27%20d%3D%27M12.8%2018.8c1.8-1.7%204.4-2.8%207.2-2.8s5.4%201%207.2%202.8l2.1%201.9c.7.6.8%201.7.2%202.4l-2.1%202.7c-.6.8-1.7%201-2.6.5l-4.1-2.2c-.6-.3-1.3-.2-1.8.2l-1.1.9c-.4.3-.9.3-1.3%200l-1.1-.9c-.5-.4-1.2-.5-1.8-.2l-4.1%202.2c-.9.5-2%20.3-2.6-.5L6.2%2023c-.6-.8-.5-1.8.2-2.4l2.1-1.9z%27%2F%3E%3C%2Fsvg%3E")!important;
+  border:0!important;
+  border-radius:0!important;
+  transform:translate(-50%,-50%)!important;
+  -webkit-mask:none!important;
+  mask:none!important;
+}
