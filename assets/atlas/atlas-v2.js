@@ -348,7 +348,7 @@ function viewerInit(){
  },{passive:true});
 }
 function markMeta(){state.meta=!state.meta;render();}
-function lockLogo(){return'<svg class="a10-emblem" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="27" stroke="#f5dce4" stroke-width="1.6"/><circle cx="40" cy="40" r="11" stroke="#f5dce4" stroke-width="1.2"/><path d="M19 23 46 14 64 37 49 64 19 23" stroke="#f5dce4" stroke-width="1.4"/><g fill="#f8edf0"><circle cx="19" cy="23" r="3"/><circle cx="46" cy="14" r="3"/><circle cx="64" cy="37" r="3"/><circle cx="49" cy="64" r="3"/><circle cx="40" cy="40" r="3"/></g></svg>';}
+function lockLogo(){return'<img class="a10-emblem a10-emblem-image" src="./assetsatlasAtlas_Icon.png.png" alt="Atlas" draggable="false">';}
 function dots(value){return'<div class="a10-pass-dots">'+[0,1,2,3].map(i=>'<i class="a10-pass-dot '+(i<value.length?'filled':'')+'"></i>').join('')+'</div>';}
 function keys(which){
  return'<div class="a10-pad">'+[1,2,3,4,5,6,7,8,9,'',0,'del'].map(x=>'<button type="button" class="a10-pad-key '+(x===''?'blank':x==='del'?'del':'')+'" data-atlas="'+which+'" data-key="'+x+'">'+(x==='del'?'⌫':x)+'</button>').join('')+'</div>';
