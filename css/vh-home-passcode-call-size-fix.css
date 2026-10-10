@@ -8,13 +8,7 @@
 #screen .home-screen .dock .app .icon svg{width:100%;height:100%}
 /* Raise common in-app glyphs gently without overriding the universal Back SVG. */
 #screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.wai-tab,.photos-nav-btn,.mail-nav-btn,.notes26-circle) svg:not(.vh-back-svg){scale:1.06;transform-origin:center}
-/* The passcode block is centered in the usable upper part, while bottom actions stay anchored. */
-#screen .passcode-screen{padding:0 0 60px!important;justify-content:center!important;align-items:center!important;box-sizing:border-box!important}
-#screen .passcode-screen .passcode-title{text-align:center!important;font-size:21.5px!important}
-#screen .passcode-screen .passcode-dots{justify-content:center!important}
-#screen .passcode-screen .keypad{margin-left:auto!important;margin-right:auto!important;justify-content:center!important}
-#screen .passcode-screen .key strong{font-size:30.5px!important}
-#screen .passcode-screen .key span{font-size:10.5px!important}
+/* Passcode geometry now has one canonical owner: caua-ios8-status-passcode-call.css. */
 /* Call screen: one center axis, compact gap to end-call button. */
 #screen .phone-call-overlay{text-align:center!important}
 #screen .phone-call-person{padding-top:clamp(35px,7vh,54px)!important;text-align:center!important}
