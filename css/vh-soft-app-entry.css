@@ -1,24 +1,27 @@
-/* Exactly Mail's existing OPENING values, reused for the other 13 apps.
-   Mail original: opacity 0->1 in .20s ease;
-   transform scale(.93)->scale(1) in .24s cubic-bezier(.2,.78,.2,1);
-   transform-origin 50% 55%. No blur, no animation on close. */
-@keyframes vh-mail-copy-opacity{from{opacity:0}to{opacity:1}}
-@keyframes vh-mail-copy-scale{from{transform:scale(.93)}to{transform:scale(1)}}
-#screen :is(
- #voiceApp,#calendarApp,#photosApp,#notesApp,#facebookApp,
- #itauApp,#itauBizApp,#whatsappApp,#goodreaderApp,#atlasApp,
- #phoneApp,#messagesApp,#safariApp
-).open{
+/* SAME rendering model as the original Mail screen:
+   keep app layers mounted, hidden with visibility/opacity rather than display:none,
+   so WebKit can interpolate opacity and transform when .open arrives.
+   Original Mail: opacity .20s ease; transform .24s cubic-bezier(.2,.78,.2,1);
+   initial scale(.93), origin 50% 55%. */
+#screen :is(#voiceApp,#calendarApp,#photosApp,#notesApp,#facebookApp,#itauApp,#itauBizApp,#whatsappApp,#goodreaderApp,#atlasApp,#phoneApp,#messagesApp,#safariApp){
+ display:block!important;
+ visibility:hidden!important;
+ opacity:0!important;
+ pointer-events:none!important;
+ transform:scale(.93)!important;
  transform-origin:50% 55%!important;
- animation-name:vh-mail-copy-opacity,vh-mail-copy-scale!important;
- animation-duration:.20s,.24s!important;
- animation-timing-function:ease,cubic-bezier(.2,.78,.2,1)!important;
- animation-fill-mode:both!important;
- animation-delay:0s!important;
- animation-iteration-count:1!important;
+ transition:opacity .20s ease,transform .24s cubic-bezier(.2,.78,.2,1),visibility 0s linear .24s!important;
+}
+#screen :is(#voiceApp,#calendarApp,#photosApp,#notesApp,#facebookApp,#itauApp,#itauBizApp,#whatsappApp,#goodreaderApp,#atlasApp,#phoneApp,#messagesApp,#safariApp).open{
+ display:block!important;
+ visibility:visible!important;
+ opacity:1!important;
+ pointer-events:auto!important;
+ transform:scale(1)!important;
+ transition:opacity .20s ease,transform .24s cubic-bezier(.2,.78,.2,1),visibility 0s!important;
 }
 @media(prefers-reduced-motion:reduce){
- #screen :is(#voiceApp,#calendarApp,#photosApp,#notesApp,#facebookApp,#itauApp,#itauBizApp,#whatsappApp,#goodreaderApp,#atlasApp,#phoneApp,#messagesApp,#safariApp).open{
- animation:none!important;
+ #screen :is(#voiceApp,#calendarApp,#photosApp,#notesApp,#facebookApp,#itauApp,#itauBizApp,#whatsappApp,#goodreaderApp,#atlasApp,#phoneApp,#messagesApp,#safariApp){
+ transition:none!important;
  }
 }
