@@ -7,8 +7,39 @@ body.caua-immersive .iphone>.power-button,body.caua-immersive .iphone>.mute-swit
 body.caua-immersive .iphone>.volume-button,body.caua-immersive .iphone>.top-hardware,
 body.caua-immersive #homeButton{display:none!important}
 body.caua-immersive #screen{left:0!important;top:0!important;box-shadow:none!important}
-#caua-immersive-toggle{position:fixed;z-index:2147483000;top:8px;right:8px;border:1px solid rgba(255,255,255,.38);background:rgba(16,19,25,.73);color:white;padding:7px 10px;border-radius:8px;font:12px/16px Arial,sans-serif;cursor:pointer;backdrop-filter:blur(5px)}
-body.caua-immersive #caua-immersive-toggle{top:6px;right:6px;opacity:.72}
+/* Small floating icon control, outside the iPhone display in framed mode.
+   Keep a 42px tap target and use icons only (no label painted on the page). */
+#caua-immersive-toggle{
+  position:fixed;z-index:2147483000;top:8px;right:8px;
+  display:grid;place-items:center;box-sizing:border-box;
+  width:42px;height:42px;padding:0;
+  border:0;border-radius:50%;
+  background:rgba(17,19,23,.66);color:rgba(255,255,255,.96);
+  box-shadow:0 2px 9px rgba(0,0,0,.16);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  cursor:pointer;
+  transition:background-color 150ms ease,opacity 150ms ease,transform 150ms ease;
+}
+#caua-immersive-toggle .caua-zoom-icon{
+  grid-area:1/1;width:20px;height:20px;display:block;
+  fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+  pointer-events:none;
+  transition:opacity 150ms ease,transform 150ms ease;
+}
+#caua-immersive-toggle[aria-pressed="false"] .caua-zoom-enter,
+#caua-immersive-toggle[aria-pressed="true"] .caua-zoom-exit{opacity:1;transform:scale(1)}
+#caua-immersive-toggle[aria-pressed="false"] .caua-zoom-exit,
+#caua-immersive-toggle[aria-pressed="true"] .caua-zoom-enter{opacity:0;transform:scale(.84)}
+#caua-immersive-toggle:active{transform:scale(.94);background:rgba(39,42,48,.84)}
+#caua-immersive-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
+body.caua-immersive #caua-immersive-toggle{top:8px;right:8px;opacity:.78}
+body.caua-immersive #caua-immersive-toggle:focus-visible,
+body.caua-immersive #caua-immersive-toggle:active{opacity:1}
+@media(prefers-reduced-motion:reduce){
+  #caua-immersive-toggle,#caua-immersive-toggle .caua-zoom-icon{transition:none}
+}
 #caua-home-gesture{display:none;position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:96px;height:20px;z-index:12000;touch-action:none;cursor:pointer;align-items:flex-end;justify-content:center;padding-bottom:4px}
 #caua-home-gesture:after{content:"";width:70px;height:4px;background:rgba(190,193,201,.87);border-radius:20px;box-shadow:0 0 2px rgba(0,0,0,.25)}
 body.caua-immersive #caua-home-gesture{display:flex}
