@@ -3802,7 +3802,12 @@
     if (el) el.classList.remove('open');
     if (cfg) screen.classList.remove(cfg.screenClass);
   }
-  function goHomePreservingState() { hideSwitcher(); suspendApps(); }
+  function goHomePreservingState() {
+    hideSwitcher();
+    // Let the current app contract back to its Home icon before suspending its DOM.
+    // Existing app state is preserved; no fake blur or fade transition.
+    screen.dispatchEvent(new CustomEvent('caua:motion-close',{detail:{done:suspendApps}}));
+  }
   function lockedOrPasscode() { return lockScreen?.classList.contains('active') || passcodeScreen?.classList.contains('active'); }
   function handleLockedHome() {
     if (passcodeScreen?.classList.contains('active')) { passcodeBack?.click(); return; }
@@ -4607,5 +4612,6 @@ img.src=options[0];
 <script src="./assets/atlas/atlas-data.js?v=20261010a"></script>
 <script src="./assets/atlas/atlas-v2.js?v=20261010v3"></script>
 <script src="./js/ui-universal-back.js?v=20261010u1"></script>
+<script src="./js/caua-ios-app-motion.js?v=20261010m1"></script>
 </body>
 </html>
