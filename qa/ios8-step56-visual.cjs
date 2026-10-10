@@ -199,9 +199,11 @@ async function validateCall(page,prefix){
         if(key==='goodreader')assert(g && Math.abs(g.font-15)<.5,'GoodReader lazy navigation typography');
         if(key==='atlas'&&g)assert(Math.abs(g.width-22)<2,'Atlas lazy SVG dimension');
        }
+       // Use the application's immediate Home action here, not repeated hardware
+       // button clicks. Two hardware presses within 280 ms intentionally open
+       // the iOS multitasking switcher, which made this sequential smoke flaky.
        await page.evaluate(()=>{
-         const btn=document.getElementById('homeButton');
-         if(btn)btn.click();
+         document.getElementById('screen').dispatchEvent(new CustomEvent('caua:home-now'));
        });
        await page.waitForTimeout(80);
        total++;
