@@ -672,7 +672,11 @@
     const width=stablePhoneWidth;
     const safe=width<600?0:4;
     const scale=Math.min((width-safe*2)/375,(stablePhoneHeight-safe*2)/791);
-    document.documentElement.style.setProperty('--phone-scale',Math.max(.2,scale).toFixed(4));
+    // On real mobile screens, never upscale the framed phone's 320px UI.
+    // Full-bleed mode renders that same UI at 1 CSS px per CSS px.
+    // Preserve desktop preview scaling, where the hardware frame benefits from enlargement.
+    const alignedScale=window.matchMedia('(max-width: 600px) and (pointer: coarse)').matches ? Math.min(1,scale) : scale;
+    document.documentElement.style.setProperty('--phone-scale',Math.max(.2,alignedScale).toFixed(4));
   }
 
   function setActive(view) {
