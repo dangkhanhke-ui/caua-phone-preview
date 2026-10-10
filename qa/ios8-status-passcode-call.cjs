@@ -80,9 +80,9 @@ const within=(val,lower,upper)=>val>=lower&&val<=upper;
        const grid=box(document.querySelector('.phone-call-controls'));
        const controls=[...document.querySelectorAll('.phone-call-control i')].map(box);
        const labels=[...document.querySelectorAll('.phone-call-control span')].map(box);
-       const red=box(document.getElementById('phoneHangup'));
+       const red=box(document.getElementById('phoneHangup')); const redCircle=box(document.querySelector('#phoneHangup > i'));
        const cs=getComputedStyle(document.getElementById('phoneHangup'));
-       return {screen,overlay,stack,caller,grid,controls,labels,red,position:cs.position,styleBottom:cs.bottom};
+       return {screen,overlay,stack,caller,grid,controls,labels,red,redCircle,position:cs.position,styleBottom:cs.bottom};
      });
      assert(near(call.stack.cx,call.screen.cx,3),'Call stack not centered horizontally');
      assert(near(call.red.cx,call.screen.cx,3),'Red hangup not centered');
@@ -90,13 +90,16 @@ const within=(val,lower,upper)=>val>=lower&&val<=upper;
      assert(call.controls.length===6,'Must keep all six call actions');
      assert(near(call.controls[0].y,call.controls[1].y,2),'Call grid first row misaligned');
      assert(near(call.controls[3].y,call.controls[4].y,2),'Call grid second row misaligned');
-     assert(call.red.top>call.controls[3].bottom+5,'Red button overlaps grid');
-     assert(call.red.top-call.labels[5].bottom<95,'Red button is detached too far below six controls');
-     assert(call.red.bottom<call.screen.bottom-10,'Red button clipped at bottom');
-     assert(near(call.stack.cy,call.screen.cy,call.screen.h*.14),'In-call group not vertically centered');
-     assert(call.position==='relative','Red button still absolute-anchored');
+     assert(near(call.redCircle.cx,call.controls[4].cx,2),'Red call control not centered in second column');
+     assert(near(call.redCircle.cy,call.controls[3].cy,2),'Red call control not in second row');
+     assert(near(call.redCircle.w,call.controls[3].w,3),'Call control circles are inconsistent');
+     assert(near(call.controls[0].cx,call.controls[3].cx,2),'Left column misaligned');
+     assert(near(call.controls[1].cx,call.controls[4].cx,2),'Middle column misaligned');
+     assert(near(call.controls[2].cx,call.controls[5].cx,2),'Right column misaligned');
+     assert(call.grid.bottom<call.screen.bottom-20,'Call controls are clipped');
+     assert(call.position==='relative','End call must be a grid button');
      assert(!errors.length,errors.join('\n'));
-     console.log('IOS8_STEP34_PASS',browserType.name(),t.mode,JSON.stringify({statusHeight:+pass.status.h.toFixed(1),timeCenter:+(pass.clock.cx-pass.screen.cx).toFixed(2),keypadCenter:+(pass.pad.cx-pass.screen.cx).toFixed(2),callCenter:+(call.stack.cy-call.screen.cy).toFixed(1),redGap:+(call.red.top-call.labels[5].bottom).toFixed(1)}));
+     console.log('IOS8_STEP34_PASS',browserType.name(),t.mode,JSON.stringify({statusHeight:+pass.status.h.toFixed(1),timeCenter:+(pass.clock.cx-pass.screen.cx).toFixed(2),keypadCenter:+(pass.pad.cx-pass.screen.cx).toFixed(2),callCenter:+(call.stack.cy-call.screen.cy).toFixed(1),redAlignment:+(call.redCircle.cy-call.controls[3].cy).toFixed(1)}));
     }finally{await page.close();}
    }
   }finally{await browser.close();}
