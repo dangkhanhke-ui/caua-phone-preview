@@ -44,7 +44,7 @@ function portrait(p){
   const i=p.sprite-1,grp=i>=25?2:1,cell=i%25,col=cell%5,row=Math.floor(cell/5);
   h='<span class="atlas-sprite" style="background-image:url(./assets/facebook/avatars/batch'+grp+'-sprite.jpg);background-size:500% 500%;background-position:'+(col*25)+'% '+(row*25)+'%"></span>';
  }
- return '<span class="atlas-person-photo">'+h+'<span class="atlas-initials" style="position:absolute;inset:0;z-index:-1">'+esc((p.short||p.name||'?').slice(0,1))+'</span></span>';
+ return '<span class="atlas-person-photo"><span class="atlas-initials" style="position:absolute;inset:0;z-index:0">'+esc((p.short||p.name||'?').slice(0,1))+'</span>'+h+'</span>';
 }
 function visibleRecords(id){return allEntries.filter(e=>e.p===id&&(state.secondaryUnlocked||!e.locked));}
 function allRecords(id){return allEntries.filter(e=>e.p===id);}
