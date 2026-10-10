@@ -28,7 +28,42 @@ const dateBR=iso=>iso.slice(8,10)+'/'+iso.slice(5,7)+'/'+iso.slice(0,4);
 const fromDate=(d)=>new Date(d+'T12:00:00');
 function subDays(d,n){const x=fromDate(d);x.setDate(x.getDate()-n);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;}
 function periodMonths(start,end){const m=[];let y=+start.slice(0,4),k=+start.slice(5,7);const last=+end.slice(0,4)*12+(+end.slice(5,7));while(y*12+k<=last){m.push(`${y}-${String(k).padStart(2,'0')}`);if(++k>12){k=1;y++;}}return m;}
-function setTop(name,child=false){title.textContent=name;back.textContent=child?'‹ Quay lại':'';back.style.visibility=child?'visible':'hidden';topAction.textContent='';topAction.style.visibility='hidden';bottom.style.display=child?'none':'grid';content.classList.toggle('child',child);}
+
+/* Flat, consistent 2014–2015 banking pictograms. Inline paths, no emoji or icon font. */
+const ICON_PATHS=Object.freeze({
+ home:'<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
+ statement:'<rect x="5" y="2.5" width="14" height="19" rx="1"/><path d="M8 7h8M8 11h8M8 15h5M8 18h8"/>',
+ payments:'<path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/>',
+ services:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 0 1 5.2 1c0 2-2.7 2.2-2.7 4.3"/><circle cx="12" cy="18" r=".8" fill="currentColor" stroke="none"/>',
+ bills:'<path d="M5 3h14v18l-3-2-4 2-4-2-3 2z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+ transfers:'<path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/>',
+ payroll:'<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 9h18"/><circle cx="9" cy="14" r="2"/><path d="M14 13h4m-4 3h3"/>',
+ tax:'<path d="M5 20V6l7-3 7 3v14H5z"/><path d="M9 10h6m-6 4h6m-6 4h6"/>',
+ internal:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20v-3a5.5 5.5 0 0 1 11 0v3M15 15a4.5 4.5 0 0 1 6.5 4v1"/>',
+ suppliers:'<path d="M3 9h18v12H3zM3 9l4-5h10l4 5"/><path d="M9 21v-7h6v7M3 12h18"/>',
+ rede:'<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
+ debts:'<path d="M4 3h16v18H4zM7 7h10M7 11h7M7 16l2 2 4-4"/>',
+ pending:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
+ scheduled:'<rect x="3" y="5" width="18" height="16" rx="1"/><path d="M7 3v5M17 3v5M3 10h18M8 15h3m2 0h3"/>',
+ rejected:'<circle cx="12" cy="12" r="9"/><path d="m8 8 8 8m0-8-8 8"/>',
+ receipts:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+ 'account-info':'<path d="M4 20V6l8-3 8 3v14zM8 10h8M8 14h8M10 20v-3h4v3"/>',
+ device:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 14h4M16 13v4"/>',
+ users:'<circle cx="9" cy="8" r="3"/><path d="M2 20v-2a7 7 0 0 1 14 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 4a5 5 0 0 1 4 5"/>',
+ security:'<path d="m12 2 8 3v6c0 5.2-3.5 8.6-8 11-4.5-2.4-8-5.8-8-11V5z"/><path d="m9 12 2 2 4-4"/>',
+ bank:'<path d="m2 8 10-5 10 5M3 9h18M5 10v9m5-9v9m4-9v9m5-9v9M2 20h20"/>'
+});
+function iconSvg(name,size='menu'){
+ const shape=ICON_PATHS[name]||ICON_PATHS.services;
+ return '<svg class="biz-svg-icon biz-svg-'+esc(size)+'" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">'+shape+'</svg>';
+}
+bottom.querySelectorAll('[data-biz-tab]').forEach(tab=>{
+ const target=tab.querySelector('.biz-tab-icon');
+ if(target)target.innerHTML=iconSvg(tab.dataset.bizTab,'nav');
+});
+
+function setTop(name,child=false){title.textContent=name;back.textContent=child?'‹ Quay lại':'';back.style.visibility=child?'visible':'hidden';topAction.textContent='';topAction.style.visibility='hidden';bottom.style.display='grid';content.classList.toggle('child',child);}
 function setTab(name){state.tab=name;bottom.querySelectorAll('[data-biz-tab]').forEach(b=>b.classList.toggle('active',b.dataset.bizTab===name));}
 function showToast(txt){toast.textContent=txt;toast.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove('show'),2200);}
 function errorView(err){content.innerHTML='<div class="itau-empty"><strong>Không có kết nối</strong><span>Không tải được dữ liệu sao kê. Thử mở lại ứng dụng.</span></div>';console.warn('Itaú canon ledger load error:',err);}
@@ -65,10 +100,13 @@ async function balanceAt(day){
 function infoRow(k,v){return '<div class="itau-kv"><label>'+esc(k)+'</label><div>'+esc(v)+'</div></div>';}
 function infoBox(k,v){return '<div class="biz-payroll-box"><strong>'+esc(k)+'</strong><p>'+esc(v)+'</p></div>';}
 
-function companyHeader(){const a=manifest.account;return '<div class="biz-company-head"><div class="biz-company-name">'+esc(a.company)+'</div><div class="biz-company-line">Itaú · chi nhánh '+esc(a.branch)+' · tài khoản '+esc(a.number)+'</div></div>';}
+function companyHeader(){
+ const a=manifest.account;
+ return '<div class="biz-company-head"><span class="biz-company-mark" aria-hidden="true">'+iconSvg('bank','brand')+'</span><div class="biz-company-copy"><div class="biz-company-name">'+esc(a.company)+'</div><div class="biz-company-line">Agência '+esc(a.branch)+' · Conta '+esc(a.number)+'</div></div></div>';
+}
 function rowHTML(t){return `<div class="itau-row" data-biz-tx="${esc(t.id)}" role="button" tabindex="0"><div class="itau-row-date">${esc(t.date.slice(8,10)+'/'+t.date.slice(5,7))}<span class="biz-time">${esc(t.time)}</span></div><div class="itau-row-main"><div class="itau-row-name">${esc(t.counterparty)}</div><div class="itau-row-desc">${esc(t.description)}</div></div><div class="itau-row-amount ${t.amount>=0?'in':'out'}">${money(t.amount,true)} <span class="itau-row-arrow">›</span></div></div>`;}
 function busyThen(task){const token=++requestSeq;waiting();Promise.resolve().then(task).catch(e=>{if(token===requestSeq)errorView(e);});return token;}
-async function drawHome(){const token=busyThen(async()=>{await init();const balance=await balanceAt(TODAY);const tx=ordered(await fetchMonth('2015-08'));if(token!==requestSeq)return;setTab('home');setTop('Itaú Doanh nghiệp');state.view='home';statementData=tx;content.innerHTML=companyHeader()+`<div class="itau-balance"><div class="itau-balance-label">Số dư tài khoản · ${dateBR(TODAY)}</div><div class="itau-balance-value">${money(balance)}</div><button class="itau-link-btn" data-go="statement">Xem sao kê</button></div><div class="itau-section-title">Giao dịch gần đây</div><div id="bizRecent">${tx.slice(0,5).map(rowHTML).join('')}</div><button class="itau-more" data-go="statement">Xem tất cả giao dịch</button>`;content.scrollTop=0;});}
+async function drawHome(){const token=busyThen(async()=>{await init();const balance=await balanceAt(TODAY);const tx=ordered(await fetchMonth('2015-08'));if(token!==requestSeq)return;setTab('home');setTop('Itaú Doanh nghiệp');state.view='home';statementData=tx;content.innerHTML=companyHeader()+`<div class="biz-home-section">Conta corrente <span>29/08/2015</span></div><div class="itau-balance"><div class="itau-balance-label">Số dư tài khoản · ${dateBR(TODAY)}</div><div class="itau-balance-value">${money(balance)}</div><button class="itau-link-btn" data-go="statement">Xem sao kê</button></div><div class="biz-home-shortcuts"><button type="button" data-go="statement">${iconSvg('statement')}<span>Consultar sao kê</span><b>›</b></button><button type="button" data-go="payments">${iconSvg('payments')}<span>Giao dịch</span><b>›</b></button></div><div class="itau-section-title">Últimos lançamentos · Giao dịch gần đây</div><div id="bizRecent">${tx.slice(0,5).map(rowHTML).join('')}</div><button class="itau-more" data-go="statement">Xem tất cả giao dịch</button>`;content.scrollTop=0;});}
 function bounds(period){if(period==='7-days')return [subDays(TODAY,6),TODAY];if(period==='30-days')return [subDays(TODAY,29),TODAY];if(period==='90-days')return [subDays(TODAY,89),TODAY];if(period==='custom')return [state.start,state.end];if(/^\d{4}-\d{2}$/.test(period))return [period+'-01',period+'-31'];if(/^\d{4}$/.test(period))return [period+'-01-01',period+'-12-31'];return ['2013-03-01',TODAY];}
 function options(){const dates=manifest.monthly.map(x=>x[0]).reverse();const years=[...new Set(dates.map(d=>d.slice(0,4)))];const fmt=d=>d.slice(5,7)+'/'+d.slice(0,4);const entries=[['7-days','7 ngày'],['30-days','30 ngày'],['90-days','90 ngày'],...dates.map(d=>[d,fmt(d)]),...years.map(y=>[y,'Năm '+y]),['custom','Khoảng tùy chọn']];return entries.map(([v,l])=>`<option value="${v}" ${state.period===v?'selected':''}>${l}</option>`).join('');}
 let statementData=[];
@@ -274,7 +312,14 @@ function drawCurrent(){
  }
 }
 function doBack(){if(!state.stack.length)return drawHome();const prev=state.stack.pop();Object.assign(state,prev);state.loaded=20;drawCurrent();}
-function navTab(tab){state.stack=[];state.tab=tab;state.view=tab;state.loaded=20;state.search='';if(tab==='home')drawHome();else if(tab==='statement')drawStatement(true);else if(tab==='payments')drawPayments();else drawServices();}
+function navTab(tab){
+ state.stack=[];state.tab=tab;state.view=tab;state.loaded=20;state.search='';
+ if(tab==='home')return drawHome();
+ if(tab==='statement')return drawStatement(true);
+ if(tab==='payments')return drawPayments();
+ if(tab==='services')return drawServices();
+ if(tab==='help'){drawStatic('help');setTop('Trợ giúp');setTab('help');}
+}
 async function openApp(){document.getElementById('mailApp')?.classList.remove('open');screen?.classList.remove('mail-open');document.getElementById('itauApp')?.classList.remove('open');screen?.classList.remove('itau-open');app.classList.add('open');screen?.classList.add('itau-biz-open');state={...DEFAULTS,stack:[]};const icon=launcher.querySelector('img');if(icon)splashLogo.src=icon.src;splash.classList.remove('hide');drawHome();setTimeout(()=>splash.classList.add('hide'),500);}
 function closeApp(){app.classList.remove('open');screen?.classList.remove('itau-biz-open');++requestSeq;}
 launcher.addEventListener('click',openApp);
