@@ -1,0 +1,34 @@
+name: iOS 8 Step 5+6 Visual QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'css/caua-ios8-app-type-icon-rhythm.css'
+      - 'qa/ios8-step56-visual.cjs'
+      - '.github/workflows/qa-ios8-step56.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios8-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare browsers
+        run: |
+          node --check qa/ios8-step56-visual.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Screenshot and measure framed/fullscreen Home, passcode, call and apps
+        run: |
+          python3 -m http.server 8000 >/tmp/ios8-step56-server.log 2>&1 &
+          node qa/ios8-step56-visual.cjs
+      - name: Store screenshots and measured geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios8-step56-screenshots
+          path: /tmp/caua-ios8-step56-shots/
+          retention-days: 14
