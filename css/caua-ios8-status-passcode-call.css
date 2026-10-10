@@ -466,3 +466,9 @@ body.caua-immersive #caua-immersive-toggle{
 }
 #screen #phoneCallOverlay .phone-call-more-panel button:last-child{border-bottom:0;}
 /* No immersive overrides: the original 320x568 canvas gets scaled as ONE unit. */
+/* A hidden subpanel must stay hidden even if its visible layout uses
+   display:flex!important. Specificity beats the two-ID display rule. */
+#screen #phoneCallOverlay .phone-in-call-keypad[hidden],
+#screen #phoneCallOverlay .phone-call-more-panel[hidden]{
+  display:none!important;
+}
