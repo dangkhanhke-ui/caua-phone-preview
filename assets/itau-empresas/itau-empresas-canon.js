@@ -102,11 +102,11 @@ function infoBox(k,v){return '<div class="biz-payroll-box"><strong>'+esc(k)+'</s
 
 function companyHeader(){
  const a=manifest.account;
- return '<div class="biz-company-head"><span class="biz-company-mark" aria-hidden="true">'+iconSvg('bank','brand')+'</span><div class="biz-company-copy"><div class="biz-company-name">'+esc(a.company)+'</div><div class="biz-company-line">Agência '+esc(a.branch)+' · Conta '+esc(a.number)+'</div></div></div>';
+ return '<div class="biz-company-head"><span class="biz-company-mark" aria-hidden="true">'+iconSvg('bank','brand')+'</span><div class="biz-company-copy"><div class="biz-company-name">'+esc(a.company)+'</div><div class="biz-company-line">Chi nhánh '+esc(a.branch)+' · Tài khoản '+esc(a.number)+'</div></div></div>';
 }
 function rowHTML(t){return `<div class="itau-row" data-biz-tx="${esc(t.id)}" role="button" tabindex="0"><div class="itau-row-date">${esc(t.date.slice(8,10)+'/'+t.date.slice(5,7))}<span class="biz-time">${esc(t.time)}</span></div><div class="itau-row-main"><div class="itau-row-name">${esc(t.counterparty)}</div><div class="itau-row-desc">${esc(t.description)}</div></div><div class="itau-row-amount ${t.amount>=0?'in':'out'}">${money(t.amount,true)} <span class="itau-row-arrow">›</span></div></div>`;}
 function busyThen(task){const token=++requestSeq;waiting();Promise.resolve().then(task).catch(e=>{if(token===requestSeq)errorView(e);});return token;}
-async function drawHome(){const token=busyThen(async()=>{await init();const balance=await balanceAt(TODAY);const tx=ordered(await fetchMonth('2015-08'));if(token!==requestSeq)return;setTab('home');setTop('Itaú Doanh nghiệp');state.view='home';statementData=tx;content.innerHTML=companyHeader()+`<div class="biz-home-section">Conta corrente <span>29/08/2015</span></div><div class="itau-balance"><div class="itau-balance-label">Số dư tài khoản · ${dateBR(TODAY)}</div><div class="itau-balance-value">${money(balance)}</div><button class="itau-link-btn" data-go="statement">Xem sao kê</button></div><div class="biz-home-shortcuts"><button type="button" data-go="statement">${iconSvg('statement')}<span>Consultar sao kê</span><b>›</b></button><button type="button" data-go="payments">${iconSvg('payments')}<span>Giao dịch</span><b>›</b></button></div><div class="itau-section-title">Últimos lançamentos · Giao dịch gần đây</div><div id="bizRecent">${tx.slice(0,5).map(rowHTML).join('')}</div><button class="itau-more" data-go="statement">Xem tất cả giao dịch</button>`;content.scrollTop=0;});}
+async function drawHome(){const token=busyThen(async()=>{await init();const balance=await balanceAt(TODAY);const tx=ordered(await fetchMonth('2015-08'));if(token!==requestSeq)return;setTab('home');setTop('Itaú Doanh nghiệp');state.view='home';statementData=tx;content.innerHTML=companyHeader()+`<div class="biz-home-section">Tài khoản thanh toán <span>29/08/2015</span></div><div class="itau-balance"><div class="itau-balance-label">Số dư tài khoản · ${dateBR(TODAY)}</div><div class="itau-balance-value">${money(balance)}</div><button class="itau-link-btn" data-go="statement">Xem sao kê</button></div><div class="biz-home-shortcuts"><button type="button" data-go="statement">${iconSvg('statement')}<span>Consultar sao kê</span><b>›</b></button><button type="button" data-go="payments">${iconSvg('payments')}<span>Giao dịch</span><b>›</b></button></div><div class="itau-section-title">Giao dịch gần đây</div><div id="bizRecent">${tx.slice(0,5).map(rowHTML).join('')}</div><button class="itau-more" data-go="statement">Xem tất cả giao dịch</button>`;content.scrollTop=0;});}
 function bounds(period){if(period==='7-days')return [subDays(TODAY,6),TODAY];if(period==='30-days')return [subDays(TODAY,29),TODAY];if(period==='90-days')return [subDays(TODAY,89),TODAY];if(period==='custom')return [state.start,state.end];if(/^\d{4}-\d{2}$/.test(period))return [period+'-01',period+'-31'];if(/^\d{4}$/.test(period))return [period+'-01-01',period+'-12-31'];return ['2013-03-01',TODAY];}
 function options(){const dates=manifest.monthly.map(x=>x[0]).reverse();const years=[...new Set(dates.map(d=>d.slice(0,4)))];const fmt=d=>d.slice(5,7)+'/'+d.slice(0,4);const entries=[['7-days','7 ngày'],['30-days','30 ngày'],['90-days','90 ngày'],...dates.map(d=>[d,fmt(d)]),...years.map(y=>[y,'Năm '+y]),['custom','Khoảng tùy chọn']];return entries.map(([v,l])=>`<option value="${v}" ${state.period===v?'selected':''}>${l}</option>`).join('');}
 let statementData=[];
@@ -187,7 +187,7 @@ async function drawPayroll(){
    +'<div class="itau-info-block">'+infoRow('Kỳ lương',period.slice(5,7)+'/'+period.slice(0,4))
    +infoRow('Ngày trả',payDates)+infoRow('Tổng đã trả',money(total))+infoRow('Số dòng',String(rows.length))+'</div>'
    +'<div class="itau-section-title">Các khoản đã hạch toán</div>'+rows.map(rowHTML).join('')
-   +infoBox('Nhân sự thời vụ','Khoản nhân sự thời vụ là một khoản trả gộp, không phải một nhân viên riêng.');
+   +infoBox('Nhân sự thời vụ','Lương nhân sự thời vụ được chi theo bảng tổng hợp.');
   content.scrollTop=0;
  });
 }
@@ -243,7 +243,7 @@ async function drawDevices(){
    +infoRow('Thẻ ghi nợ',String(debit.length))
    +infoRow('Thẻ tín dụng',String(credit.length))
    +infoRow('Tiền ghi có tháng 08',money(thisMonth.reduce((s,t)=>s+t.amount,0)))
-   +'</div>'+infoBox('Tiền đã thực nhận','Khoản ghi có không đồng nghĩa tổng doanh số bán hàng. Ngày bán hàng gốc và phí xử lý không có trong chi tiết sao kê.')
+   +'</div>'+infoBox('Tiền đã thực nhận','Các khoản đã ghi có từ giao dịch thẻ.')
    +'<button class="itau-more" type="button" data-biz-payment="rede">Xem lịch sử Rede</button>';
   content.scrollTop=0;
  });
@@ -269,7 +269,7 @@ async function drawDebts(){
    const rows=creditorRows(all,item[0]),paid=rows.reduce((s,t)=>s-t.amount,0);
    return '<div class="itau-menu-row biz-creditor-row" data-biz-creditor="'+item[0]+'" role="button" tabindex="0"><span class="name">'+esc(item[1])+'<small>'+rows.length+' khoản đã trả · '+money(paid)+'</small></span><span class="arrow">›</span></div>';
   }).join('');
-  content.innerHTML=companyHeader()+infoBox('Lịch sử thanh toán','Đây là các khoản đã thanh toán qua tài khoản, không phải số dư nợ còn lại.')
+  content.innerHTML=companyHeader()+infoBox('Lịch sử thanh toán','Các khoản đã hạch toán qua tài khoản.')
    +'<div class="itau-list-menu">'+cards+'</div>';content.scrollTop=0;
  });
 }
@@ -293,7 +293,7 @@ function drawPending(){
 }
 function drawUsers(){
  ++requestSeq;state.view='users';setTop('Người sử dụng',true);
- content.innerHTML='<div class="itau-empty"><strong>Không có thông tin người dùng</strong><span>Danh sách người dùng và quyền truy cập chưa được cung cấp.</span></div>';
+ content.innerHTML='<div class="itau-empty"><strong>Không có thông tin người dùng</strong><span>Không có thông tin để hiển thị.</span></div>';
  content.scrollTop=0;
 }
 
