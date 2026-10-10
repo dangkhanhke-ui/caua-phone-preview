@@ -190,7 +190,7 @@ const rules=[
 {p:'luisa',names:['Thiết bị ngoại tuyến']}
 ];
 window.AtlasData2015=Object.freeze({
-config:{firstCode:'2408',secondCode:'1105',sync:'24/08/2015 · 08:54',now:'29/08/2015 · 08:52'},
+config:{firstCode:'1111',secondCode:'1111',sync:'24/08/2015 · 08:54',now:'29/08/2015 · 08:52'},
 profiles,deleted,entries,activity,rules,sources,
 avatar(p){return p.portrait?base+p.portrait:null;}
 });
