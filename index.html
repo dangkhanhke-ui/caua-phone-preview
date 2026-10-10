@@ -108,7 +108,7 @@
 <link rel="stylesheet" id="ios-universal-scroll-indicator" href="css/head-37-ios-universal-scroll-indicator.css">
 
 <link rel="stylesheet" id="fb15-icons-hd-fix" href="css/head-38-fb15-icons-hd-fix.css">
-<link rel="stylesheet" id="caua-immersive-mode-style" href="css/head-39-caua-immersive-mode-style.css?v=20261010-icon-only-1">
+<link rel="stylesheet" id="caua-immersive-mode-style" href="css/head-39-caua-immersive-mode-style.css?v=20261010-zoom-pin-2">
 <link rel="stylesheet" id="caua-immersive-gesture-switcher-polish" href="css/head-40-caua-immersive-gesture-switcher-polish.css"><link rel="stylesheet" href="./assets/goodreader4/goodreader4.css" />
 
 
@@ -4635,13 +4635,32 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     const scale=Math.max(.15,Math.min(availableWidth/320,availableHeight/568));
     document.documentElement.style.setProperty('--immersive-scale',scale.toFixed(5));
   }
+  // iOS Safari can shift fixed controls while switching display layouts.
+  // Preserve the actual on-screen rectangle across the transition.
+  let zoomPinFrame=0;
+  function preserveZoomPosition(target){
+    const now=toggle.getBoundingClientRect();
+    const top=parseFloat(toggle.style.top)||8;
+    const right=parseFloat(toggle.style.right)||8;
+    const dy=target.top-now.top;
+    const dx=now.right-target.right;
+    if(Math.abs(dy)>.5)toggle.style.top=(top+dy)+'px';
+    if(Math.abs(dx)>.5)toggle.style.right=(right+dx)+'px';
+  }
   function mode(on){
+    const pinned=toggle.getBoundingClientRect();
     active=!!on;
     lastTap=0;
     document.body.classList.toggle('caua-immersive',active);
     toggle.setAttribute('aria-label',active?'Thu nhỏ iPhone':'Phóng to iPhone');
     toggle.setAttribute('aria-pressed',String(active));
     fit();
+    cancelAnimationFrame(zoomPinFrame);
+    preserveZoomPosition(pinned);
+    zoomPinFrame=requestAnimationFrame(()=>{
+      preserveZoomPosition(pinned);
+      zoomPinFrame=requestAnimationFrame(()=>preserveZoomPosition(pinned));
+    });
   }
   function action(name){
     if(!active)return;
