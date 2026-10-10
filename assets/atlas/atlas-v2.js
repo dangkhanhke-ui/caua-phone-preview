@@ -242,6 +242,7 @@ function upload(){
  '<label for="a10UploadInput">Chọn tệp</label><input id="a10UploadInput" type="file" accept="image/*,audio/*,video/*,.pdf,.txt,.doc,.docx" />'+
  '<label for="a10UploadPerson">Hồ sơ</label><select id="a10UploadPerson">'+data.profiles.map(p=>'<option value="'+esc(p.id)+'" '+(state.profile===p.id?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
  '<label for="a10UploadSource">Nguồn</label><select id="a10UploadSource">'+['Nhập từ máy tính','Thiết bị','Camera','Tin nhắn','VH Archive','Facebook','Đã lưu từ web'].map(src=>'<option>'+src+'</option>').join('')+'</select>'+
+ '<label for="a10UploadDate">Ngày ghi nhận</label><input id="a10UploadDate" type="datetime-local" value="2015-08-29T08:54" />'+
  '<label for="a10UploadPlace">Địa điểm (không bắt buộc)</label><input id="a10UploadPlace" maxlength="100" placeholder="Tên địa điểm" />'+
  '<button type="button" class="a10-primary" data-atlas="submit-upload">Lưu vào hồ sơ</button></div>';
 }
@@ -451,7 +452,8 @@ async function submitUpload(){
  const type=file.type;
  const kind=type.startsWith('image/')?'photo':type.startsWith('audio/')?'audio':type.startsWith('video/')?'video':type==='application/pdf'?'document':'document';
  const id='user-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
- const d=new Date(),z=n=>String(n).padStart(2,'0'),date=d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+' '+z(d.getHours())+':'+z(d.getMinutes());
+ const selectedDate=document.getElementById('a10UploadDate')?.value||'2015-08-29T08:54';
+ const date=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(selectedDate)?selectedDate.replace('T',' '):'2015-08-29 08:54';
  const entry={id,p,date,saved:date,source,kind,title:file.name.slice(0,150),location:place,device:'',locked:false,pinned:false,local:true,mime:file.type||'',size:file.size,deleted:false};
  try{
   await saveBlob(id,file);
