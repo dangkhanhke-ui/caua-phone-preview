@@ -168,7 +168,7 @@ function drawPayments(){
  ['◷','Lệnh chờ duyệt','pending'],['▧','Thanh toán đã lên lịch','scheduled'],
  ['⊘','Lệnh bị từ chối','rejected']
  ];
- content.innerHTML=companyHeader()+'<div class="itau-list-menu">'+entries.map(x=>'<div class="itau-menu-row" data-biz-payment="'+x[2]+'" role="button" tabindex="0"><span class="ico">'+x[0]+'</span><span class="name">'+x[1]+'</span><span class="arrow">›</span></div>').join('')+'</div>';
+ content.innerHTML=companyHeader()+'<div class="itau-list-menu">'+entries.map(x=>'<div class="itau-menu-row" data-biz-payment="'+x[2]+'" role="button" tabindex="0"><span class="ico">'+iconSvg(x[2])+'</span><span class="name">'+x[1]+'</span><span class="arrow">›</span></div>').join('')+'</div>';
  content.scrollTop=0;
 }
 async function drawPayroll(){
@@ -197,7 +197,7 @@ function drawServices(){
  ['▥','Bảng lương','payroll'],['▦','Thanh toán thẻ Rede','device'],
  ['◫','Công nợ đã thanh toán','debts'],['♙','Người sử dụng','users'],
  ['◆','Bảo mật','security'],['?','Trợ giúp','help']];
- content.innerHTML='<div class="itau-list-menu">'+items.map(x=>'<div class="itau-menu-row" data-biz-service="'+x[2]+'" role="button" tabindex="0"><span class="ico">'+x[0]+'</span><span class="name">'+x[1]+'</span><span class="arrow">›</span></div>').join('')+'</div>';
+ content.innerHTML='<div class="itau-list-menu">'+items.map(x=>'<div class="itau-menu-row" data-biz-service="'+x[2]+'" role="button" tabindex="0"><span class="ico">'+iconSvg(x[2])+'</span><span class="name">'+x[1]+'</span><span class="arrow">›</span></div>').join('')+'</div>';
  content.scrollTop=0;
 }
 async function drawReceipts(){
@@ -305,7 +305,7 @@ function drawCurrent(){
  case 'payroll':return drawPayroll();case 'services':return drawServices();
  case 'receipts':return drawReceipts();case 'account-info':return drawAccount();
  case 'service-device':return drawDevices();case 'service-security':return drawStatic('security');
- case 'service-help':return drawStatic('help');case 'users':return drawUsers();
+ case 'service-help':return drawStatic('help');case 'help':drawStatic('help');setTop('Trợ giúp');return setTab('help');case 'users':return drawUsers();
  case 'debts':return drawDebts();case 'debt-detail':return drawDebtDetail();
  case 'pending':case 'scheduled':case 'rejected':return drawPending();
  case 'custom':return drawCustom();case 'detail':return drawDetail();default:return drawHome();
