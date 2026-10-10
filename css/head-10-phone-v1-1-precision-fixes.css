@@ -52,36 +52,7 @@
 .phone-tab-icon.voicemail::before,.phone-tab-icon.voicemail::after { top:7px !important; width:10px !important; height:10px !important; }
 .phone-tab-icon.voicemail i { top:17px !important; }
 
-/* ===== Call screen: iOS-sized 3×2 controls and clean CSS glyphs ===== */
-.phone-call-person { padding-top:50px !important; }
-.phone-call-controls {
-  width:276px !important;
-  margin:62px auto 0 !important;
-  grid-template-columns:repeat(3,1fr) !important;
-  gap:21px 12px !important;
-}
-.phone-call-control {
-  color:#fff !important;
-  font-size:11px !important;
-  line-height:13px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  min-width:0 !important;
-}
-.phone-call-control > span { display:block !important; white-space:nowrap !important; }
-.phone-call-control i.call-glyph {
-  width:60px !important;
-  height:60px !important;
-  margin:0 auto 6px !important;
-  border-radius:50% !important;
-  background:rgba(255,255,255,.19) !important;
-  display:block !important;
-  position:relative !important;
-  font-style:normal !important;
-  color:#fff !important;
-}
+/* In-call layout uses the canonical 3x2 grid in caua-ios8-status-passcode-call.css. */
 /* muted microphone */
 .call-glyph.mute::before {
   content:""; position:absolute; left:25px; top:14px; width:10px; height:20px;
@@ -124,4 +95,3 @@
   content:""; position:absolute; left:16px; top:30px; width:28px; height:15px;
   border:2px solid #fff; border-bottom:0; border-radius:18px 18px 0 0; box-sizing:border-box;
 }
-.phone-hangup { width:66px !important; height:66px !important; bottom:34px !important; }
