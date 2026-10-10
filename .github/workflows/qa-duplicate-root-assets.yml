@@ -1,0 +1,27 @@
+name: Duplicate Assets Safety Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'qa/audit-duplicate-root-assets.py'
+      - '.github/workflows/qa-duplicate-root-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find identical uploads and verify path references
+        run: python3 qa/audit-duplicate-root-assets.py
+      - name: Publish safe-delete report
+        uses: actions/upload-artifact@v4
+        with:
+          name: duplicate-asset-safety-report
+          path: /tmp/caua-asset-dedupe-report.json
+          retention-days: 14
