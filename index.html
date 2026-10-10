@@ -128,6 +128,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="./css/caua-immersive-fullbleed.css?v=20261010f1">
 <link rel="stylesheet" href="./css/vh-soft-app-entry.css?v=20261010-mailmounted3">
+<link rel="stylesheet" href="./css/vh-framed-ratio-align.css?v=20261010ratio2">
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8">
@@ -677,6 +678,11 @@
     // Preserve desktop preview scaling, where the hardware frame benefits from enlargement.
     const alignedScale=window.matchMedia('(max-width: 600px) and (pointer: coarse)').matches ? Math.min(1,scale) : scale;
     document.documentElement.style.setProperty('--phone-scale',Math.max(.2,alignedScale).toFixed(4));
+    // Keep the same relative text/icon size as the full-bleed mode. On a
+    // 390px-wide Safari viewport, the 320px framed content uses 320/390 zoom.
+    // Layout width grows by the inverse factor, avoiding tiny 320px reflow.
+    const contentZoom=Math.max(.74,Math.min(1,320/Math.max(320,width)));
+    document.documentElement.style.setProperty('--vh-framed-content-zoom',contentZoom.toFixed(5));
   }
 
   function setActive(view) {
