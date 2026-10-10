@@ -1,0 +1,27 @@
+name: iPhone 6 Layout Foundation QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'css/caua-ios6-layout-foundation.css'
+      - 'qa/ios6-layout-foundation.cjs'
+      - '.github/workflows/qa-ios6-layout.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios6-layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browsers
+        run: |
+          node --check qa/ios6-layout-foundation.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Verify mobile Home and Dock geometry
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-ios6-test.log 2>&1 &
+          node qa/ios6-layout-foundation.cjs
