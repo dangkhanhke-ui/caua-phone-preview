@@ -21,7 +21,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check complete source-upload batch
+        id: source_gate
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          names=['vertice1','lapa1','lapa2','lapa3','santa1','santa2','santa3','subsolo1','subsolo2','subsolo3','radar_rio','caderno_braga','phone_screen']
+          roots=[Path(".")]
+          ok=lambda name:any(p.is_file() and p.suffix.lower() in {'.jpg','.jpeg','.png','.webp',' .mp4'} for folder in roots for p in folder.glob(name+'.*'))
+          complete=all(ok(name) for name in names)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('ready='+('true' if complete else 'false')+'\n')
+          print('Installer '+('ready' if complete else 'skipped: source upload batch was already moved into assets/'))
+          PY
       - name: Install all twelve Safari assets and phone wallpaper
+        if: steps.source_gate.outputs.ready == 'true'
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -75,6 +89,7 @@ jobs:
           print('Installed phone wallpaper:',url)
           PY
       - name: Commit and deploy
+        if: steps.source_gate.outputs.ready == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
