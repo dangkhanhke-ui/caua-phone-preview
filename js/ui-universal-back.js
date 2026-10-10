@@ -13,7 +13,7 @@ const ids=new Set([
 ]);
 const selectors=[
 '.a10-nav-back','.gr4-has-back','.voice-detail-back','[data-voice-back]',
-'.wai-back','.wai-nav-back','.wa-thread-back',
+'.wai-back','.wai-nav-back','.wai-header .wai-nav-btn.left[data-act="back"]','.wa-thread-back',
 '.notes26-back','.viewer-back',
 '.photos-nav-btn.left','.mail-nav-btn.left','.msg-nav-btn.left',
 '.fb15-back','.itau-top-btn.left',
