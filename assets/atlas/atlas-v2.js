@@ -97,7 +97,7 @@ function feature(id){
  const p=person(id);if(!p)return'';
  const rec=records(p.id),show=rec.slice(0,3);
  return'<button type="button" class="a10-feature" data-atlas="profile" data-id="'+esc(p.id)+'">'+
- '<span class="a10-feature-top">'+avatar(p)+'<span class="a10-person-text"><span class="a10-person-name">'+esc(p.name)+'</span><span class="a10-person-info">'+esc(p.code)+' · '+(p.last.includes('/')?'Lần cuối '+esc(p.last):'Ghi nhận '+esc(p.last))+'</span></span><span class="a10-feature-arrow">'+icon('chevron',15)+'</span></span>'+
+ '<span class="a10-feature-top">'+avatar(p)+'<span class="a10-person-text"><span class="a10-person-name">'+esc(p.name)+'</span><span class="a10-person-info">'+esc(p.code)+'</span><span class="a10-person-info">'+(p.last.includes('/')?'Hoạt động cuối: '+esc(p.last):'Ghi nhận '+esc(p.last))+'</span></span><span class="a10-feature-arrow">'+icon('chevron',15)+'</span></span>'+
  '<span class="a10-preview-triplet">'+(show.length?show.map(preview).join(''):'<span class="a10-preview paper"></span>').repeat(show.length?1:3)+'</span>'+
  '<span class="a10-compact-footer"><span>'+new Set(rec.map(e=>e.source)).size+' nguồn lưu trữ</span><span class="a10-accent-count">'+rec.length+' mục</span></span></button>';
 }
@@ -228,7 +228,7 @@ function deleted(){
  const dead=data.deleted;
  const removed=imports.filter(e=>e.deleted);
  return section('Hồ sơ đã xóa','<small>'+dead.length+' hồ sơ</small>')+
- '<div class="a10-list">'+dead.map(p=>'<button class="a10-person-row" data-atlas="profile" data-id="'+p.id+'">'+avatar(p,'small')+'<span class="a10-person-text"><span class="a10-person-name">'+esc(p.name)+'</span><span class="a10-person-info">Xóa '+esc(p.deletedAt)+' · '+storedCount(p.id)+' mảnh còn lưu</span></span><span class="a10-chevron">›</span></button>').join('')+'</div>'+
+ '<div class="a10-list">'+dead.map(p=>'<button class="a10-person-row a10-deleted-row" data-atlas="profile" data-id="'+p.id+'">'+avatar(p,'small')+'<span class="a10-person-text"><span class="a10-person-name">'+esc(p.name.replace(/\.+$/g,''))+'</span><span class="a10-person-info">Xóa '+esc(p.deletedAt)+'</span></span><span class="a10-deleted-count">'+storedCount(p.id)+' tài liệu</span><span class="a10-chevron">›</span></button>').join('')+'</div>'+
  section('Tệp đã xóa từ thiết bị','<small>'+removed.length+' mục</small>')+
  (removed.length?'<div class="a10-block">'+removed.map(e=>smallRow(e.title,'Đã xóa · '+e.source,'trash','restore',e.id)).join('')+'</div>':'<p class="a10-muted">Không có tệp cá nhân đã xóa.</p>');
 }
