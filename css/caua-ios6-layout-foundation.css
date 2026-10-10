@@ -123,3 +123,41 @@
     font-size:10.5px!important;line-height:12.5px!important;
   }
 }
+
+
+/* Laptop fullscreen must stay FULL-BLEED, but the iOS layout must not
+   treat a landscape viewport's 1600+ CSS-pixel width as 375 iPhone points.
+   Keep the four columns spanning the window as before, while limiting
+   icon/label/row/dock dimensions by viewport HEIGHT rather than width.
+   The phone's portrait fullscreen and normal hardware frame are unchanged. */
+@media (min-width:700px) and (pointer:fine) {
+  body.caua-immersive #screen #homeScreen .icon-grid {
+    padding:clamp(14px,2.8dvh,25px) 10px 0!important;
+    grid-auto-rows:clamp(82px,12dvh,105px)!important;
+  }
+  body.caua-immersive #screen #homeScreen .icon-grid .app > .icon,
+  body.caua-immersive #screen #homeScreen .dock .app > .icon {
+    width:clamp(50px,8.6dvh,70px)!important;
+    height:clamp(50px,8.6dvh,70px)!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:70px!important;
+    max-height:70px!important;
+    flex:0 0 clamp(50px,8.6dvh,70px)!important;
+    border-radius:clamp(11px,1.85dvh,15px)!important;
+  }
+  body.caua-immersive #screen #homeScreen .icon-grid .app > span,
+  body.caua-immersive #screen #homeScreen .dock .app > span {
+    font-size:clamp(11px,1.65dvh,13px)!important;
+    line-height:clamp(13px,1.9dvh,16px)!important;
+    margin-top:4px!important;
+    max-width:110px!important;
+  }
+  body.caua-immersive #screen #homeScreen .dock {
+    height:clamp(94px,15dvh,120px)!important;
+    padding:clamp(8px,1.5dvh,13px) 10px 6px!important;
+  }
+  body.caua-immersive #screen #homeScreen .page-dots {
+    bottom:clamp(94px,15dvh,120px)!important;
+  }
+}
