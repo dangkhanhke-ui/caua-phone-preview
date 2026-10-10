@@ -1,50 +1,30 @@
-# atlas · app nội bộ (bối cảnh 2015)
+# Atlas v2 — UI và gameplay prototype
 
-atlas là app hư cấu nằm trong iphone của cauã; **không** có kết nối tới thiết bị, camera, tài khoản hay vị trí người thật. các mục ghi nhận và thông báo đều là dữ liệu kịch bản.
+Atlas là kho hồ sơ riêng của Cauã. Bản dựng sử dụng cảm hứng iOS 10 với header burgundy, avatar nhỏ, carousel vuốt ngang bằng native CSS scroll-snap, tìm kiếm cố định và chi tiết hồ sơ theo ba chế độ.
 
-## tách file
+## File tách riêng
+- `atlas-data.js`: 38 hồ sơ, hồ sơ đã xóa và các mục lưu trữ mẫu.
+- `atlas-v2.css`: giao diện Atlas v2, mọi selector được giới hạn trong `#atlasApp`.
+- `atlas-v2.js`: màn khóa độc lập, hồ sơ, kho lưu trữ, tìm kiếm, viewer, tài khoản, cài đặt và nhập tệp trên thiết bị.
+- `qa/atlas-browser.cjs`: QA tương tác Chromium được chạy bởi `.github/workflows/qa-atlas-2015.yml`.
 
-- `atlas-data.js`: nội dung 38 hồ sơ chính, 6 hồ sơ đã xóa, hiện vật, metadata nguồn, quy tắc và feed mẫu.
-- `atlas.css`: ui độc lập với các app còn lại, theo ngôn ngữ ios 8 / 2015.
-- `atlas.js`: mở khóa, màn lưới, chi tiết hồ sơ, trực tiếp, lưu trữ theo tháng, viewer, timeline, search, hai tầng khóa, thông báo.
-- `../../qa/atlas-browser.cjs`: bài test chromium cho các thao tác chính.
+Hai file `atlas.css` và `atlas.js` là v1 để tham khảo, không còn được load bởi `index.html`.
 
-html chỉ chứa icon atlas, khung `#atlasApp`, stylesheet/script và khai báo atlas trong switcher. tránh sửa phần app khác khi thêm hồ sơ.
+## Cách thử
+- Mật mã chính: **1111**
+- Mã phụ cho “Dữ liệu đầy đủ”: **1111**
+- Chưa nhập đúng mã, Atlas chỉ hiển thị logo và bàn phím; không hiển thị tab hay hồ sơ.
+- Sau khi mở, thử vuốt ngang các thẻ trong “Hồ sơ gần đây”, tìm tên “Vanessa”, “Camera”, “A Casa”, “VH Archive”, mở hồ sơ Leandro rồi vào Dòng thời gian.
 
-## mã tạm để test (chưa khóa canon)
+## Tệp thật
+Trong **Thêm → Nhập tệp**, người dùng chọn file từ máy (ảnh/PDF/video/audio), chọn hồ sơ, nguồn và địa điểm. File được lưu dưới dạng Blob trong **IndexedDB**, metadata lưu vào localStorage. Mở file vừa nhập để xem/phát; có thể đưa vào Đã xóa và khôi phục. Dữ liệu thuộc riêng trình duyệt hiện tại; không upload lên server và không đồng bộ giữa máy. Tối đa 48 MB/tệp thử nghiệm, tùy quota trình duyệt.
 
-- mã mở atlas: **2408**
-- mã phụ mở “dữ liệu đầy đủ”: **1105**
+Các media canon chưa được cung cấp chỉ có thumbnail và bản xem trước mô phỏng; **không phải tệp gốc**. Khi tác giả bổ sung asset thật, thay từng bản mẫu bằng URL tới asset đó.
 
-đổi trong `AtlasData2015.config` của `atlas-data.js`. đây chỉ là cổng gameplay bằng javascript chạy trên máy người xem, **không phải mã hóa hay cơ chế bảo mật dữ liệu thật**.
+## Offline
+Không có realtime feed, timer sinh sự kiện, push notification hay kết nối thiết bị thật. “Hoạt động cuối” là timestamp lịch sử. Không có luồng thu thập thông tin từ người thật.
 
-## nội dung & ảnh
+## Cài đặt
+“Lưới hồ sơ”, “Danh sách thu gọn”, “Biểu tượng nguồn”, và “Sắp xếp A–Z” có tác động thật đến giao diện và được lưu trên trình duyệt. “Khóa lại Atlas” trở về màn mật mã. Quyền xem đầy đủ cần mã phụ.
 
-avatar các main cast đang dùng lại ảnh gốc `MC01`–`MC09`, còn npc có trong facebook dùng chính xác chỉ số sprite theo `assets/facebook/npc-avatar-registry.json`. các nhân vật chưa có ảnh canon (như enzo, leandro, vanessa, sérgio, guilherme, otávio) hiện có ô chữ cái trung tính: thay bằng ảnh do tác giả cung cấp khi đã chốt nhân dạng.
-
-mọi mục có thể mở, xem preview và đọc metadata. hiện **các tệp media trong atlas là mock preview**, chưa có ảnh, video, pdf hoặc bản âm thanh canon đi kèm. không dựng file giả rồi tuyên bố đó là tài liệu thật. khi có ảnh/file chính thức nên mở rộng item bằng trường `media` và dùng viewer thật cho đúng loại. dữ liệu giả lập tự sinh chỉ làm đầy phần mật độ timeline; các mẩu gợi ý quan trọng nằm trong danh sách curated ở `atlas-data.js`.
-
-vh archive **không phải chung database với atlas**: vật phẩm từ archive chỉ có nhãn nguồn, mã gốc và thời điểm cauã sao chép vào atlas. khi archive thật được bổ sung thì mới làm liên kết read-only có đối chiếu.
-
-## sự kiện kịch bản
-
-có thể gửi sự kiện từ chapter script qua:
-
-```js
-window.dispatchEvent(new CustomEvent('caua:atlas-event', {
-  detail: {
-    p: 'dudu',
-    type: 'location', // device | location | camera | sync
-    text: 'Eduardo Santos vừa tới A Casa.',
-    time: '09:01'
-  }
-}));
-```
-
-hoặc `window.Atlas2015.pushEvent({p:'breno',type:'device',text:'Có hoạt động mới từ Breno.'})`. sự kiện mới sẽ được thêm vào feed; khi atlas đang mở và đã unlock, app hiện notification ngắn. có lịch trình mô phỏng chậm để feed không chết cứng trong lúc player đang đọc. sự kiện không chạm bất kỳ api giám sát nào của máy thật.
-
-## qa
-
-workflow `.github/workflows/qa-atlas-2015.yml` kiểm tra cú pháp và chạy trình duyệt chromium theo chuỗi: khóa sai/đúng → 38 người → archive → item metadata → mã phụ → tìm kiếm → cảnh báo/feed → mở app khác.
-
-về sau có thể thay mã tạm, ảnh, và item curated mà không cần động vào cách hoạt động của home screen hoặc switcher.
+Phần dữ liệu seed chỉ để kiểm tra mật độ nội dung và thao tác. Các sự kiện và hình ảnh canon phải được kiểm tra với tác giả trước khi chuyển sang bản hoàn chỉnh.
