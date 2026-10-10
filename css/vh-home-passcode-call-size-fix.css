@@ -7,7 +7,7 @@
 #screen .home-screen .icon-grid .app .icon svg,
 #screen .home-screen .dock .app .icon svg{width:100%;height:100%}
 /* Raise common in-app glyphs gently without overriding the universal Back SVG. */
-#screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.wai-tab,.photos-nav-btn,.mail-nav-btn,.notes26-circle) svg:not(.vh-back-svg){width:calc(1em + 1.5px);height:calc(1em + 1.5px)}
+#screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.wai-tab,.photos-nav-btn,.mail-nav-btn,.notes26-circle) svg:not(.vh-back-svg){scale:1.06;transform-origin:center}
 /* The passcode block is centered in the usable upper part, while bottom actions stay anchored. */
 #screen .passcode-screen{padding:0 0 60px!important;justify-content:center!important;align-items:center!important;box-sizing:border-box!important}
 #screen .passcode-screen .passcode-title{text-align:center!important;font-size:21.5px!important}
