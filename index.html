@@ -126,7 +126,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="./css/caua-immersive-fullbleed.css?v=20261010f1">
+<link rel="stylesheet" href="./css/caua-immersive-fullbleed.css?v=20261010-desktop-scaled-v4">
 <link rel="stylesheet" href="./css/vh-soft-app-entry.css?v=20261010-mailmounted3">
 
 <link rel="stylesheet" href="./css/vh-home-passcode-call-size-fix.css?v=20261010fix1">
@@ -4542,7 +4542,9 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     // Set the screen container height directly instead of adding letterbox margins.
     const available=Math.max(280,Math.round(window.visualViewport?.height||window.innerHeight));
     document.documentElement.style.setProperty('--caua-full-h',available+'px');
-    document.documentElement.style.setProperty('--immersive-scale','1');
+    const desktop=window.matchMedia('(min-width:700px) and (pointer:fine)').matches;
+    const scale=desktop?Math.min(window.innerWidth/320,available/568):1;
+    document.documentElement.style.setProperty('--immersive-scale',String(scale));
   }
   function mode(on){
     active=!!on;
