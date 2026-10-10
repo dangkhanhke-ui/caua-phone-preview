@@ -1,0 +1,40 @@
+/* FULL-BLEED ONLY: enlarge authentic iOS controls without zooming whole screen.
+   The framed 320x568 phone remains untouched. */
+body.caua-immersive #screen .status-bar{height:24px!important;padding:0 8px!important;font-size:12px!important;gap:2px!important}
+body.caua-immersive #screen .status-time{font-size:13px!important}
+body.caua-immersive #screen .carrier,
+body.caua-immersive #screen .battery-percent{font-size:12px!important}
+body.caua-immersive #screen .signal-dots{gap:2px!important}
+body.caua-immersive #screen .signal-dots i{width:6px!important;height:6px!important}
+body.caua-immersive #screen .wifi{transform:scale(1.15);transform-origin:left center;margin-right:3px}
+body.caua-immersive #screen .battery{width:24px!important;height:10px!important}
+body.caua-immersive #screen .battery::after{top:3px!important}
+body.caua-immersive #screen .bluetooth{font-size:12px!important}
+body.caua-immersive #screen .home-screen .icon-grid .app .icon,
+body.caua-immersive #screen .home-screen .dock .app .icon{width:61px!important;height:61px!important}
+body.caua-immersive #screen .home-screen .app>span{font-size:15px!important;line-height:17px!important;max-width:90px!important}
+body.caua-immersive #screen .home-screen .icon-grid{grid-auto-rows:94px!important}
+body.caua-immersive #screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.wai-tab,.photos-nav-btn,.mail-nav-btn,.notes26-circle) svg:not(.vh-back-svg){scale:1.12!important}
+/* Center the password cluster within the real fullscreen viewport, rather than
+   centering the old 568px coordinate system at the top of a taller viewport. */
+body.caua-immersive #screen .passcode-screen{width:100%!important;height:100%!important;min-height:0!important;padding:35px 0 55px!important;justify-content:center!important;align-items:center!important}
+body.caua-immersive #screen .passcode-title{font-size:23px!important}
+body.caua-immersive #screen .passcode-dots{gap:18px!important;margin-top:20px!important}
+body.caua-immersive #screen .passcode-dots i{width:15px!important;height:15px!important}
+body.caua-immersive #screen .keypad{grid-template-columns:repeat(3,69px)!important;grid-auto-rows:69px!important;gap:14px 23px!important;width:253px!important;margin:26px auto 0!important}
+body.caua-immersive #screen .key,body.caua-immersive #screen .key-spacer{width:69px!important;height:69px!important}
+body.caua-immersive #screen .key strong{font-size:32px!important}
+body.caua-immersive #screen .key span{font-size:11px!important}
+body.caua-immersive #screen .passcode-back,
+body.caua-immersive #screen .emergency{font-size:14px!important;bottom:max(13px,env(safe-area-inset-bottom))!important}
+/* In-call layout: center the control grid, then put End Call beneath it with
+   a comfortable consistent gap (never anchored to a distant screen bottom). */
+body.caua-immersive #screen .phone-call-overlay{width:100%!important;height:100%!important;min-height:0!important}
+body.caua-immersive #screen .phone-call-person{padding:clamp(60px,11vh,105px) 12px 0!important;text-align:center!important}
+body.caua-immersive #screen .phone-call-name{font-size:30px!important;line-height:36px!important}
+body.caua-immersive #screen .phone-call-state{font-size:16px!important}
+body.caua-immersive #screen .phone-call-controls{width:min(270px,86%)!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:24px 12px!important;margin:clamp(38px,7vh,75px) auto 0!important}
+body.caua-immersive #screen .phone-call-control{font-size:13px!important}
+body.caua-immersive #screen .phone-call-control i{width:58px!important;height:58px!important;font-size:21px!important}
+body.caua-immersive #screen .phone-hangup{position:absolute!important;left:50%!important;bottom:clamp(95px,19%,170px)!important;width:69px!important;height:69px!important;transform:translateX(-50%)!important}
+body.caua-immersive #screen .phone-hangup::before{left:19px!important;top:23px!important}
