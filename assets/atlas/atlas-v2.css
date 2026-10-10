@@ -181,3 +181,15 @@
 #atlasApp .a10-pass-caption{display:none}
 #atlasApp .a10-split-space{height:8px}
 @media(max-height:650px){#atlasApp .a10-pad{row-gap:5px}#atlasApp .a10-pad-key{height:48px;width:48px}#atlasApp .a10-emblem{width:43px;height:43px;margin-bottom:9px}#atlasApp .a10-pass-dots{margin:12px 0 15px}}
+
+/* Atlas v2 polish: balanced profile tabs, readable carousel metadata and deleted records */
+#atlasApp .a10-prof-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
+#atlasApp .a10-prof-tab{width:100%;min-width:0;flex-shrink:1;text-align:center;padding:13px 2px 11px;white-space:nowrap;font-size:10.5px}
+#atlasApp .a10-person-text{min-width:0;display:flex;flex-direction:column;align-items:stretch}
+#atlasApp .a10-person-name,#atlasApp .a10-person-info{display:block;min-width:0}
+#atlasApp .a10-feature .a10-person-name{font-size:12px}
+#atlasApp .a10-feature .a10-person-info{font-size:9.5px;line-height:14px}
+#atlasApp .a10-feature-top{align-items:center}
+#atlasApp .a10-deleted-count{flex:0 0 auto;font-size:10px;color:#86334c;background:#f7edf0;border-radius:12px;padding:5px 7px;white-space:nowrap}
+#atlasApp .a10-deleted-row .a10-person-text{overflow:hidden}
+#atlasApp .a10-deleted-row .a10-chevron{font-size:18px}
