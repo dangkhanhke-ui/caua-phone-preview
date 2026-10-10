@@ -70,6 +70,24 @@ jobs:
           test -s assets/goodreader4/docs/Dat_rieng_26-08.pdf
           test -s assets/goodreader4/docs/N09_declaracao_2012.pdf
           python -c "from pypdf import PdfReader; plain=PdfReader('assets/goodreader4/docs/Dat_rieng_26-08.pdf'); locked=PdfReader('assets/goodreader4/docs/N09_declaracao_2012.pdf'); assert not plain.is_encrypted; assert locked.is_encrypted; assert locked.decrypt('1111'); assert len(plain.pages)>=1 and len(locked.pages)>=2"
+      # Do not publish UI changes unless real browser screenshots and
+      # geometry assertions succeed in both Chromium and WebKit.
+      - name: Install iOS 8 visual QA browsers
+        run: |
+          node --check qa/ios8-step56-visual.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Verify framed and fullscreen typography, icons and touch layouts
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-pages-visual-qa.log 2>&1 &
+          node qa/ios8-step56-visual.cjs
+      - name: Retain pre-deploy screenshots and measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios8-predeploy-screenshots
+          path: /tmp/caua-ios8-step56-shots/
+          retention-days: 14
       - name: Upload static website
         uses: actions/upload-pages-artifact@v3
         with:
