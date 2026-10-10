@@ -1,0 +1,31 @@
+name: Atlas 2015 Browser QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'assets/atlas/**'
+      - 'qa/atlas-browser.cjs'
+      - '.github/workflows/qa-atlas-2015.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  atlas-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate scripts
+        run: |
+          node --check assets/atlas/atlas-data.js
+          node --check assets/atlas/atlas.js
+          node --check qa/atlas-browser.cjs
+      - name: Install headless Chromium
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Exercise Atlas in a browser
+        run: |
+          python3 -m http.server 8000 >/tmp/atlas-http.log 2>&1 &
+          node qa/atlas-browser.cjs
