@@ -42,14 +42,17 @@ const close=(a,b,t=1.1)=>Math.abs(a-b)<=t;
                 font:parseFloat(getComputedStyle(key.querySelector('strong')).fontSize),
                 titleFont:parseFloat(getComputedStyle(title).fontSize),
                 dotWidth:parseFloat(getComputedStyle(q('#passcodeDots i')).width),
+                border:parseFloat(getComputedStyle(key).borderTopWidth),
+                weight:getComputedStyle(key.querySelector('strong')).fontWeight,
                 offset:(r(grid).left+r(grid).width/2)-(r(q('#screen')).left+r(q('#screen')).width/2),
                 fit:r(grid).bottom<r(q('#screen')).bottom-20
               };
             });
-            assert(close(pass.diameter,46)&&close(pass.height,46),'PIN circle is wrong: '+JSON.stringify(pass));
-            assert(close(pass.font,23)&&close(pass.dotWidth,11),'PIN typography is wrong');
+            assert(close(pass.diameter,60)&&close(pass.height,60),'PIN circle is wrong: '+JSON.stringify(pass));
+            assert(close(pass.font,25)&&close(pass.dotWidth,11),'PIN typography is wrong');
+            assert(pass.border<1.1&&Number(pass.weight)<=300,'PIN stroke/numeral weight too thick: '+JSON.stringify(pass));
             assert(Math.abs(pass.offset)<3&&pass.fit,'PIN grid off-center or cropped');
-            assert(pass.renderedRatio<.155&&pass.renderedRatio>.13,'PIN still looks oversized relative to screenshot: '+JSON.stringify(pass));
+            assert(pass.renderedRatio<.205&&pass.renderedRatio>.17,'PIN still looks oversized relative to screenshot: '+JSON.stringify(pass));
             await page.screenshot({path:'/tmp/caua-compact-pad-shots/'+engine.name()+'-'+config.name+'-'+(immersive?'zoom':'framed')+'-pin.png'});
 
             // Open Phone from its launcher and use the actual Keypad tab & digits.
@@ -72,13 +75,21 @@ const close=(a,b,t=1.1)=>Math.abs(a-b)<=t;
                 green:parseFloat(getComputedStyle(call).width),
                 offset:r(grid).left+r(grid).width/2-(r(screen).left+r(screen).width/2),
                 callVisible:r(call).bottom<=r(screen).bottom+1,
-                count:q('#phoneApp .phone-keypad').querySelectorAll('.phone-key').length
+                count:q('#phoneApp .phone-keypad').querySelectorAll('.phone-key').length,
+                tabs:[...q('#phoneTabbar').querySelectorAll('[data-phone-tab]')].map(e=>{let b=r(e);return {center:b.left+b.width/2,width:b.width}}),
+                tabbar:{left:r(q('#phoneTabbar')).left,width:r(q('#phoneTabbar')).width}
               };
             });
-            assert(phone&&phone.count===12&&close(phone.diameter,47),'Phone dial circles wrong: '+JSON.stringify(phone));
-            assert(close(phone.font,23)&&close(phone.green,54),'Dial glyph/call circle wrong');
+            assert(phone&&phone.count===12&&close(phone.diameter,60),'Phone dial circles wrong: '+JSON.stringify(phone));
+            assert(close(phone.font,26)&&close(phone.green,60),'Dial glyph/call circle wrong');
             assert(Math.abs(phone.offset)<3&&phone.callVisible,'Dial grid not centered / call button clipped');
-            assert(phone.renderedRatio<.155&&phone.renderedRatio>.13,'Dial circles still visually too large: '+JSON.stringify(phone));
+            assert(phone.tabs.length===5,'Phone tabbar must contain five visible tabs');
+            for(let i=0;i<5;i++){
+              const expected=phone.tabbar.left+phone.tabbar.width*(i+.5)/5;
+              assert(Math.abs(phone.tabs[i].center-expected)<2.5,'Phone tab '+i+' is not in its equal-width lane: '+JSON.stringify(phone.tabs));
+              assert(Math.abs(phone.tabs[i].width-phone.tabbar.width/5)<2.5,'Phone tab width differs: '+i);
+            }
+            assert(phone.renderedRatio<.205&&phone.renderedRatio>.16,'Dial circles still visually too large: '+JSON.stringify(phone));
             // Dial state intentionally persists when switching display modes.
             // Verify incremental input instead of assuming every tab opens empty.
             const prior=await page.locator('#phoneDialNumber').innerText();
