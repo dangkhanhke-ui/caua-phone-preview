@@ -1,0 +1,314 @@
+/*
+ * CAUA 2015 iOS 8 — status bar + passcode + in-call geometry (steps 3 and 4)
+ * Layout rules replace contradictory late overrides without zooming #screen.
+ * Retains the original 2015 SVG glyph paths / JS contrast switching.
+ */
+
+/* STEP 3: 20pt iOS 8 status bar, one shared icon geometry and exact center time. */
+#screen #statusBar.ios8-svg-status{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+  width:100%!important;
+  height:20px!important;
+  padding:0 6px!important;
+  align-items:center!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  pointer-events:none!important;
+}
+#screen #statusBar.ios8-svg-status .status-left,
+#screen #statusBar.ios8-svg-status .status-right{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  white-space:nowrap!important;
+  gap:3px!important;
+  min-width:0!important;
+  height:100%!important;
+}
+#screen #statusBar.ios8-svg-status .status-left{justify-content:flex-start!important}
+#screen #statusBar.ios8-svg-status .status-right{justify-content:flex-end!important}
+#screen #statusBar.ios8-svg-status .status-time{
+  justify-self:center!important;
+  align-self:center!important;
+  font-size:12px!important;
+  line-height:1!important;
+  letter-spacing:-.13px!important;
+  font-weight:600!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#screen #statusBar.ios8-svg-status .carrier{
+  font-size:11px!important;
+  line-height:1!important;
+  font-weight:400!important;
+  letter-spacing:-.15px!important;
+}
+#screen #statusBar.ios8-svg-status .battery-percent{
+  font-size:10.5px!important;
+  line-height:1!important;
+  font-weight:400!important;
+}
+#screen #statusBar.ios8-svg-status .signal-dots{
+  width:29px!important;height:5.118px!important;
+  min-width:29px!important;flex:0 0 29px!important;
+}
+#screen #statusBar.ios8-svg-status .wifi{
+  width:12px!important;height:9px!important;
+  min-width:12px!important;flex:0 0 12px!important;
+  transform:none!important;margin:0!important;
+}
+#screen #statusBar.ios8-svg-status .bluetooth{
+  width:7px!important;height:11.393px!important;
+  min-width:7px!important;flex:0 0 7px!important;
+  transform:none!important;
+}
+#screen #statusBar.ios8-svg-status .battery{
+  width:25px!important;height:9.615px!important;
+  min-width:25px!important;flex:0 0 25px!important;
+  transform:none!important;
+}
+#screen #statusBar.ios8-svg-status .status-svg.ios8-sketch-svg{
+  width:100%!important;height:100%!important;
+  max-width:none!important;
+  display:block!important;
+  transform:none!important;
+}
+/* iPhone 6 @2x fullscreen still uses the iOS8 20pt rhythm,
+   responsive to screen width rather than importing a modern notch layout. */
+body.caua-immersive #screen #statusBar.ios8-svg-status{
+  height:clamp(20px,5.333vw,23px)!important;
+  padding:0 clamp(6px,1.6vw,8px)!important;
+}
+body.caua-immersive #screen #statusBar.ios8-svg-status .status-time{
+  font-size:clamp(11px,3.2vw,13px)!important;
+}
+body.caua-immersive #screen #statusBar.ios8-svg-status .carrier{
+  font-size:clamp(10px,2.933vw,12px)!important;
+}
+body.caua-immersive #screen #statusBar.ios8-svg-status .battery-percent{
+  font-size:clamp(10px,2.8vw,11.5px)!important;
+}
+body.caua-immersive #screen #statusBar.ios8-svg-status .signal-dots{
+  width:clamp(27px,7.733vw,32px)!important;
+  min-width:clamp(27px,7.733vw,32px)!important;
+  height:clamp(4.765px,1.365vw,5.65px)!important;
+  flex:0 0 clamp(27px,7.733vw,32px)!important;
+}
+body.caua-immersive #screen #statusBar.ios8-svg-status .wifi{
+  width:clamp(11px,3.2vw,13px)!important;
+  min-width:clamp(11px,3.2vw,13px)!important;
+  height:clamp(8.25px,2.4vw,9.75px)!important;
+  flex:0 0 clamp(11px,3.2vw,13px)!important;
+}
+body.caua-immersive #screen #statusBar.ios8-svg-status .bluetooth{
+  width:clamp(7px,1.867vw,8px)!important;
+  min-width:clamp(7px,1.867vw,8px)!important;
+  height:clamp(11.39px,3.038vw,13.02px)!important;
+  flex:0 0 clamp(7px,1.867vw,8px)!important;
+}
+body.caua-immersive #screen #statusBar.ios8-svg-status .battery{
+  width:clamp(24px,6.667vw,27px)!important;
+  min-width:clamp(24px,6.667vw,27px)!important;
+  height:clamp(9.23px,2.564vw,10.39px)!important;
+  flex:0 0 clamp(24px,6.667vw,27px)!important;
+}
+/* Do not let the website-only zoom toggle obscure the iOS battery. */
+body.caua-immersive #caua-immersive-toggle{
+  top:max(29px,env(safe-area-inset-top))!important;
+  right:max(7px,env(safe-area-inset-right))!important;
+}
+
+/* STEP 4a: passcode is a centered CONTENT STACK, not disparate top margins. */
+#screen #passcodeScreen{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  padding:32px 0 46px!important;
+  min-height:0!important;
+}
+#screen #passcodeScreen .caua-passcode-stack{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  width:max-content;
+  max-width:95%;
+  margin:0 auto!important;
+  text-align:center!important;
+}
+#screen #passcodeScreen .passcode-title{
+  margin:0!important;
+  text-align:center!important;
+  font-size:21.5px!important;
+  line-height:1.18!important;
+}
+#screen #passcodeScreen .passcode-dots{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  margin:18px 0 0!important;
+  gap:17px!important;
+}
+#screen #passcodeScreen .passcode-dots i{
+  width:13px!important;height:13px!important;
+  flex:0 0 13px!important;
+}
+#screen #passcodeScreen .keypad{
+  --caua-key:64px;
+  display:grid!important;
+  grid-template-columns:repeat(3,var(--caua-key))!important;
+  grid-auto-rows:var(--caua-key)!important;
+  gap:12px 23px!important;
+  width:max-content!important;
+  max-width:none!important;
+  margin:25px auto 0!important;
+  justify-items:center!important;
+  align-items:center!important;
+}
+#screen #passcodeScreen .keypad .key,
+#screen #passcodeScreen .keypad .key-spacer,
+#screen #passcodeScreen .keypad .delete-key{
+  box-sizing:border-box!important;
+  width:var(--caua-key)!important;
+  height:var(--caua-key)!important;
+  min-width:0!important;
+  min-height:0!important;
+}
+#screen #passcodeScreen .keypad .delete-key{
+  font-size:12px!important;
+}
+#screen #passcodeScreen .key strong{
+  font-size:30px!important;
+}
+#screen #passcodeScreen .key span{
+  font-size:10px!important;
+}
+#screen #passcodeScreen .passcode-back,
+#screen #passcodeScreen .emergency{
+  bottom:max(11px,env(safe-area-inset-bottom))!important;
+}
+body.caua-immersive #screen #passcodeScreen{
+  padding:clamp(25px,5vh,50px) 0 clamp(48px,7vh,70px)!important;
+}
+body.caua-immersive #screen #passcodeScreen .passcode-title{
+  font-size:clamp(21.5px,5.85vw,24px)!important;
+}
+body.caua-immersive #screen #passcodeScreen .passcode-dots i{
+  width:15px!important;height:15px!important;flex-basis:15px!important;
+}
+body.caua-immersive #screen #passcodeScreen .keypad{
+  --caua-key:clamp(64px,18.4vw,72px);
+  gap:clamp(11px,2.9vw,14px) clamp(19px,5.7vw,24px)!important;
+}
+body.caua-immersive #screen #passcodeScreen .key strong{
+  font-size:32px!important;
+}
+body.caua-immersive #screen #passcodeScreen .key span{
+  font-size:11px!important;
+}
+
+/* STEP 4b: keep caller, six controls, and End Call in ONE CENTERED STACK.
+   No bottom:... anchoring, so End Call follows the grid at every height. */
+#screen #phoneCallOverlay.show{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+}
+#screen #phoneCallOverlay:not(.show){display:none!important}
+#screen #phoneCallOverlay .caua-call-stack{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  max-width:320px;
+  min-height:0;
+  max-height:100%;
+  margin:0 auto!important;
+  padding:22px 12px!important;
+  gap:clamp(20px,3.8vh,37px)!important;
+}
+#screen #phoneCallOverlay .caua-call-stack .phone-call-person{
+  margin:0 auto!important;
+  padding:0!important;
+  width:100%!important;
+  text-align:center!important;
+}
+#screen #phoneCallOverlay .caua-call-stack .phone-call-name{
+  font-size:27px!important;
+  line-height:1.2!important;
+  font-weight:300!important;
+  overflow-wrap:anywhere;
+}
+#screen #phoneCallOverlay .caua-call-stack .phone-call-state{
+  margin-top:5px!important;
+  font-size:13px!important;
+}
+#screen #phoneCallOverlay .caua-call-stack .phone-call-controls{
+  --caua-call-circle:52px;
+  width:min(100%,260px)!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:18px 12px!important;
+  justify-content:center!important;
+  margin:0 auto!important;
+}
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  font-size:11px!important;
+  min-width:0!important;
+}
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control i{
+  width:var(--caua-call-circle)!important;
+  height:var(--caua-call-circle)!important;
+  flex:0 0 var(--caua-call-circle)!important;
+  margin:0 auto 6px!important;
+  border-radius:50%!important;
+}
+#screen #phoneCallOverlay .caua-call-stack .phone-hangup{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  display:block!important;
+  flex:0 0 auto!important;
+  width:66px!important;
+  height:66px!important;
+  margin:0 auto!important;
+  border-radius:50%!important;
+  padding:0!important;
+}
+body.caua-immersive #screen #phoneCallOverlay .caua-call-stack{
+  max-width:375px!important;
+  gap:clamp(24px,4.5vh,42px)!important;
+}
+body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-name{
+  font-size:clamp(27px,7.467vw,30px)!important;
+}
+body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-state{
+  font-size:15px!important;
+}
+body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-controls{
+  --caua-call-circle:clamp(55px,15.3vw,62px);
+  width:min(82%,286px)!important;
+  gap:clamp(19px,3vh,26px) 13px!important;
+}
+body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-control{
+  font-size:13px!important;
+}
+body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-hangup{
+  width:clamp(66px,18.4vw,74px)!important;
+  height:clamp(66px,18.4vw,74px)!important;
+}
