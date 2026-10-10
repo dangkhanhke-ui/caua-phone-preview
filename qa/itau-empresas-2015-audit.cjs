@@ -33,7 +33,9 @@ async function suite(browserType,name){
    await click('#bizRecent [data-biz-tx]');
    assert((await page.locator('#itauBizTitle').innerText()).includes('Chi tiết'));
    await click('#itauBizBack');
-   assert((await page.locator('#itauBizContent').innerText()).includes('Giao dịch gần đây'));
+   const afterBack=await page.locator('#itauBizContent').innerText();
+   console.log('BIZ_HOME_BACK_TRACE',name,JSON.stringify({title:await page.locator('#itauBizTitle').innerText(),content:afterBack.slice(0,400),isOpen:await page.locator('#itauBizApp').evaluate(x=>x.classList.contains('open'))}));
+   assert(afterBack.includes('Giao dịch gần đây'));
   });
   await test('statement-search-rede-clear',async({page,tab,click})=>{
    await tab('statement');
@@ -151,5 +153,7 @@ async function suite(browserType,name){
   if(failures.length)throw Error(name+' FAILED:\n'+failures.join('\n\n'));
  }finally{await browser.close();}
 }
-(async()=>{await suite(chromium,'chromium');await suite(webkit,'webkit')})()
- .catch(e=>{console.error('BIZ_SUITE_FAILED',e.stack||e);process.exitCode=1;});
+(async()=>{
+ const outcomes=await Promise.allSettled([suite(chromium,'chromium'),suite(webkit,'webkit')]);
+ for(const result of outcomes)if(result.status==='rejected'){console.error('BIZ_SUITE_FAILED',result.reason?.stack||result.reason);process.exitCode=1;}
+})();
