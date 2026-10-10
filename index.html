@@ -123,6 +123,10 @@
 <link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009h">
 <link rel="stylesheet" href="./assets/atlas/atlas-v2.css?v=20261010v3">
 <link rel="stylesheet" href="./css/ui-universal-back.css?v=20261010u2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="./css/caua-immersive-fullbleed.css?v=20261010f1">
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8">
@@ -4519,7 +4523,11 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     if(!immersiveWidth||Math.abs(immersiveWidth-w)>40){immersiveWidth=w;immersiveHeight=window.innerHeight;}
     else if(!typing)immersiveHeight=Math.max(immersiveHeight,window.innerHeight);
     if(typing)return;
-    document.documentElement.style.setProperty('--immersive-scale',Math.max(.15,Math.min(w/320,immersiveHeight/568)).toFixed(5));
+    // Safari's visible page area can change when its bottom toolbar collapses.
+    // Set the screen container height directly instead of adding letterbox margins.
+    const available=Math.max(280,Math.round(window.visualViewport?.height||window.innerHeight));
+    document.documentElement.style.setProperty('--caua-full-h',available+'px');
+    document.documentElement.style.setProperty('--immersive-scale','1');
   }
   function mode(on){
     active=!!on;
