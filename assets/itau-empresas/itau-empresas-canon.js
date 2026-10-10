@@ -132,10 +132,6 @@ async function drawDetail(){
  content.scrollTop=0;
 }
 
-const PRIORITY_REFS=['CAP-20130315','ACQ-2013-04-IGOR-01','ACQ-2013-04-REB-ANT','ACQ-2013-04-FAB-ANT','ACQ-2013-04-CAR-ANT',
-'DIST-2014-06-MARCELO','DIST-2014-06-CAUA','DIST-2014-12-MARCELO','DIST-2014-12-CAUA',
-'DIST-2015-04-MARCELO','DIST-2015-04-CAUA','DIST-2015-08-MARCELO','DIST-2015-08-CAUA',
-'FOLHA-2015-07-13','POS-D-2015-08-19'];
 
 
 const CREDITORS=[
@@ -203,9 +199,7 @@ function drawServices(){
 async function drawReceipts(){
  const token=busyThen(async()=>{
   const all=ordered(await fetchAll());if(token!==requestSeq)return;
-  const order=new Map(PRIORITY_REFS.map((ref,i)=>[ref,i]));
-  const weight=t=>order.has(t.reference)?order.get(t.reference):100000;
-  statementData=all.slice().sort((a,b)=>weight(a)-weight(b)||b.date.localeCompare(a.date)||(b.time||'').localeCompare(a.time||''));
+  statementData=all;
   state.view='receipts';setTop('Tra cứu giao dịch',true);
   content.innerHTML='<div class="itau-search-box"><input id="bizReceiptSearch" type="search" placeholder="Tên hoặc mã tham chiếu" value="'+esc(state.receiptSearch)+'"></div>'
    +'<div id="bizReceiptInfo" class="itau-result-info"></div><div id="bizRefList"></div>'
