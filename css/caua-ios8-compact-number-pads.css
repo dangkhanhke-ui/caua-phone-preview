@@ -1,0 +1,93 @@
+/*
+ * iOS 8 / 2015 compact circular number pads (2026-10-10).
+ * The original 320x568 canvas is zoomed as ONE unit by the phone wrapper.
+ * Never size these circles in vw/cqw; they must stay proportional in BOTH modes.
+ * Only passcode keys and the Phone app dialer are affected.
+ */
+
+/* Lockscreen 4-digit PIN: slightly smaller concentric keypad. */
+#screen #passcodeScreen .passcode-title{
+  font-size:20px!important;
+}
+#screen #passcodeScreen .passcode-dots i{
+  width:12px!important;
+  height:12px!important;
+  flex:0 0 12px!important;
+}
+#screen #passcodeScreen .keypad{
+  --caua-key:57px;
+  grid-template-columns:repeat(3,var(--caua-key))!important;
+  grid-auto-rows:var(--caua-key)!important;
+  gap:13px 23px!important;
+  width:max-content!important;
+  margin:24px auto 0!important;
+}
+#screen #passcodeScreen .keypad .key,
+#screen #passcodeScreen .keypad .key-spacer,
+#screen #passcodeScreen .keypad .delete-key{
+  width:var(--caua-key)!important;
+  height:var(--caua-key)!important;
+}
+#screen #passcodeScreen .keypad .key strong{
+  font-size:27px!important;
+  line-height:27px!important;
+}
+#screen #passcodeScreen .keypad .key span{
+  font-size:9px!important;
+  line-height:9px!important;
+}
+
+/* Prior fullscreen-only rules used viewport width, making the PIN pad larger
+   or even asymmetric. Explicitly keep identical geometry when zoomed. */
+body.caua-immersive #screen #passcodeScreen .passcode-title{
+  font-size:20px!important;
+}
+body.caua-immersive #screen #passcodeScreen .passcode-dots i{
+  width:12px!important;
+  height:12px!important;
+  flex:0 0 12px!important;
+}
+body.caua-immersive #screen #passcodeScreen .keypad{
+  --caua-key:57px;
+  gap:13px 23px!important;
+}
+body.caua-immersive #screen #passcodeScreen .keypad .key strong{
+  font-size:27px!important;
+}
+body.caua-immersive #screen #passcodeScreen .keypad .key span{
+  font-size:9px!important;
+}
+
+/* Phone > Keypad: 12 digits + separate green call button.
+   Keep the real dial handlers, delete key and nav tabs untouched. */
+#screen #phoneApp .phone-keypad{
+  grid-template-columns:repeat(3,58px)!important;
+  grid-auto-rows:58px!important;
+  gap:11px 23px!important;
+  margin-top:3px;
+}
+#screen #phoneApp .phone-key{
+  box-sizing:border-box!important;
+  width:58px!important;
+  height:58px!important;
+}
+#screen #phoneApp .phone-key strong{
+  font-size:27px!important;
+  line-height:26px!important;
+}
+#screen #phoneApp .phone-key span{
+  font-size:9px!important;
+  line-height:9px!important;
+}
+#screen #phoneApp .phone-call-row{
+  width:220px!important;
+  height:62px!important;
+  grid-template-columns:1fr 62px 1fr!important;
+  margin-top:10px!important;
+}
+#screen #phoneApp .phone-call-row .phone-call-btn{
+  width:58px!important;
+  height:58px!important;
+  justify-self:center;
+}
+/* The 2015 white handset art remains centered by the existing SVG CSS. */
