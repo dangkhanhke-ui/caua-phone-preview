@@ -49,8 +49,9 @@ try{
  });
  await verify('CAROUSEL_SWIPES_NATIVELY',async()=>{
    const value=await page.locator('.a10-carousel').evaluate(el=>{
-     el.scrollLeft=120;return {position:el.scrollLeft,snap:getComputedStyle(el).scrollSnapType};
+     el.scrollLeft=260;return {position:el.scrollLeft,snap:getComputedStyle(el).scrollSnapType,width:el.clientWidth,total:el.scrollWidth};
    });
+   assert(value.total>value.width,"Carousel must overflow horizontally");
    assert(value.position>0);
    assert(value.snap.includes('mandatory'));
  });
