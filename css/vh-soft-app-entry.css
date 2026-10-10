@@ -1,0 +1,19 @@
+/* App-entry micro-transition: Mail-like softness without GPU-heavy blur.
+   No closing animation; no delayed click handling; no icon-origin zoom. */
+@keyframes vh-soft-app-enter{
+ from{opacity:.88;transform:scale(.985)}
+ to{opacity:1;transform:scale(1)}
+}
+#screen .vh-soft-entering{
+ animation:vh-soft-app-enter 140ms cubic-bezier(.22,.72,.27,1) both!important;
+ transform-origin:50% 50%!important;
+}
+#screen .mail-app{
+ transform:scale(.985)!important;
+ transition:opacity 140ms ease-out,transform 140ms cubic-bezier(.22,.72,.27,1)!important;
+}
+#screen .mail-app.open{transform:scale(1)!important}
+@media(prefers-reduced-motion:reduce){
+ #screen .vh-soft-entering{animation:none!important}
+ #screen .mail-app{transition:none!important}
+}
