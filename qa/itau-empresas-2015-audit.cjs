@@ -35,7 +35,7 @@ async function suite(browserType,name){
    await click('#itauBizBack');
    const afterBack=await page.locator('#itauBizContent').innerText();
    console.log('BIZ_HOME_BACK_TRACE',name,JSON.stringify({title:await page.locator('#itauBizTitle').innerText(),content:afterBack.slice(0,400),isOpen:await page.locator('#itauBizApp').evaluate(x=>x.classList.contains('open'))}));
-   assert(afterBack.includes('Giao dịch gần đây'));
+   assert(afterBack.toLocaleLowerCase('vi').includes('giao dịch gần đây'));
   });
   await test('statement-search-rede-clear',async({page,tab,click})=>{
    await tab('statement');
