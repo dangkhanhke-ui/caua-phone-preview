@@ -58,7 +58,7 @@ try{
  await verify('PROFILE_MONTH_VIEWER_AND_SOURCE',async()=>{
    await page.locator('#atlasApp [data-atlas="profile"][data-id="leandro"]').first().click();
    assert((await page.locator('#a10Content').innerText()).includes('18/06/2012'));
-   await page.locator('[data-atlas="person-tab"][data-id="files"]').click();
+   await page.locator('.a10-prof-tabs [data-atlas="person-tab"][data-id="files"]').click();
    await page.locator('#a10Content [data-atlas="album"][data-year="2012"][data-month="6"]').first().click();
    assert(await page.locator('#a10Content [data-atlas="item"]').count()>3);
    await page.locator('#a10Content [data-atlas="item"]').first().click();
