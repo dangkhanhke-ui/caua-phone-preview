@@ -9,6 +9,14 @@ lucas:'MC05_Lucas_Andrade.png.png',brenda:'MC06_Brenda_Santos.png.png',
 joao:'MC07_Joao_Cardoso.png.png',jessica:'MC08_Jessica_Ferreira.png.png',
 henrique:'MC09_Henrique_Lima.png.png'
 };
+const npcSprite={
+diego:8,helena:18,camila:5,natalia:29,tiago:32,paulo:34,beatriz:37,
+marcela:12,romulo:4,gabriel:2,fernanda:7,thiago:6,marina:16,
+carolina:9,matheus:13,andre:17,aline:3,igor:15,juliana:39,
+bruno:10,amanda:20,renan:49,pedro:43
+};
+// Keep portrait identity consistent with the Facebook NPC avatar registry.
+// Canon characters without supplied portraits use a neutral initial tile.
 const profiles=[
 ['luisa','Luísa Montenegro','Luísa','N02','08:34','Subsolo','VIVO_3G',14,0],
 ['dudu','Eduardo Santos','Dudu','N05','08:41','A Casa','CASA_2G',25,0],
@@ -51,7 +59,7 @@ const profiles=[
 ].map((row,i)=>({
 id:row[0],name:row[1],short:row[2],code:row[3],last:row[4],place:row[5],network:row[6],
 quota:row[7],removed:false,portrait:main[row[0]]||null,
-sprite:main[row[0]]?null:((i*7+12)%50)+1,
+sprite:main[row[0]]?null:(npcSprite[row[0]]||null),
 offline:!row[6]||row[4].includes('/'),sync:'08:'+String(12+(i*7)%44).padStart(2,'0'),
 camera:row[5]==='A Casa'?'Lối vào phía nam':row[5]==='Subsolo'?'Hành lang tầng 1':'Camera 03'
 }));
