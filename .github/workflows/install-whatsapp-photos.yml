@@ -17,7 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check complete source-upload batch
+        id: source_gate
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          names=['wa_avatar_mother','wa_avatar_camila','wa_avatar_livia','wa_camila_01','wa_livia_01','wa_livia_02','wa_livia_03','wa_livia_04','wa_livia_05']
+          roots=[Path(".")]
+          ok=lambda name:any(p.is_file() and p.suffix.lower() in {'.jpg','.jpeg','.png','.webp'} for folder in roots for p in folder.glob(name+'.*'))
+          complete=all(ok(name) for name in names)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('ready='+('true' if complete else 'false')+'\n')
+          print('Installer '+('ready' if complete else 'skipped: source upload batch was already moved into assets/'))
+          PY
       - name: Install originals and wire chat
+        if: steps.source_gate.outputs.ready == 'true'
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -82,6 +96,7 @@ jobs:
           print('Installed',len(paths),'WhatsApp original photos and avatars')
           PY
       - name: Commit updated site
+        if: steps.source_gate.outputs.ready == 'true'
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
