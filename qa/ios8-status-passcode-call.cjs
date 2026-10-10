@@ -57,7 +57,7 @@ const within=(val,lower,upper)=>val>=lower&&val<=upper;
      assert(pass.battery.w>=21,'Battery glyph is too tiny');
      assert(pass.svgCount===4,'Original 2015 SVGs missing');
      assert(pass.logo==='aubrey-sketch-2015-iphone5','Status glyphs were replaced');
-     assert(near(pass.status.h,t.fullscreen?Math.min(23,Math.max(20,t.w*20/375)):20,2),'Status height differs from 20pt rhythm');
+     assert(within(pass.status.h/(pass.screen.w/320),19,24),'Status height differs from 20pt rhythm in intrinsic iPhone points');
      assert(near(pass.label.cx,pass.screen.cx,4),'Passcode title not centered');
      assert(near(pass.dots.cx,pass.screen.cx,4),'Passcode dots not centered');
      assert(near(pass.pad.cx,pass.screen.cx,4),'Passcode keypad not centered');
