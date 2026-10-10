@@ -1,28 +1,606 @@
-/* Canonical August 2015 ledger presentation; only within Itaú Empresas. */
-#itauBizApp .itau-more[hidden]{display:none!important}
-#itauBizApp .itau-result-info{padding:8px 12px;color:#767676;font-size:10px;background:#f1f1f1;border-bottom:1px solid #dedede}
-#itauBizApp .itau-detail .itau-kv>div{overflow-wrap:anywhere;word-break:normal}
-#itauBizApp .itau-row{min-width:0}
-#itauBizApp .itau-row-amount{font-variant-numeric:tabular-nums}
-#itauBizApp .itau-row:focus-visible{outline:2px solid #ef7200;outline-offset:-2px}
-#itauBizApp .itau-menu-row:focus-visible{outline:2px solid #ef7200;outline-offset:-2px}
-#itauBizApp .itau-balance-value{font-variant-numeric:tabular-nums}
-#itauBizApp .itau-empty{padding:35px 18px;text-align:center;line-height:1.5}
-#itauBizApp .itau-empty strong{display:block;font-size:14px;margin-bottom:8px}
-#itauBizApp .itau-empty span{font-size:11px;color:#888}
+/* Itaú Empresas | Subsolo · August 2015.
+   Period-inspired business mobile interface, not a pixel-perfect historic screenshot.
+   Scope EVERY selector to the PJ app. All transaction logic remains in canon.js. */
 
-/* 2015 company-account supplements — scoped to Itaú Empresas only. */
-#itauBizApp .biz-company-name{font-size:13px;line-height:17px;font-weight:600;overflow-wrap:break-word}
-#itauBizApp .biz-company-line{line-height:15px}
-#itauBizApp .biz-field-picker{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-bottom:1px solid #dedede}
-#itauBizApp .biz-field-picker label{font-size:11px;color:#737373;white-space:nowrap}
-#itauBizApp .biz-field-picker select{width:auto;min-width:125px;max-width:180px;flex:1}
-#itauBizApp .biz-creditor-row{min-height:60px;padding-block:7px}
-#itauBizApp .biz-creditor-row .name{min-width:0;line-height:17px;padding-right:5px;overflow-wrap:anywhere}
-#itauBizApp .biz-creditor-row .name small{display:block;color:#7e7e7e;font-size:10px;line-height:14px;margin-top:3px}
-#itauBizApp .biz-creditor-row:active{background:#f4f4f4}
-#itauBizApp .itau-menu-row:focus-visible,#itauBizApp .biz-creditor-row:focus-visible{outline:2px solid #ec7000;outline-offset:-2px}
-#itauBizApp .itau-info-block .itau-kv{grid-template-columns:112px minmax(0,1fr);align-items:start;gap:6px}
-#itauBizApp .itau-info-block .itau-kv>div{overflow-wrap:anywhere;text-align:right}
-#itauBizApp .itau-result-info{line-height:15px}
-#itauBizApp .itau-empty{min-height:190px}
+#itauBizApp{
+ --biz-blue:#07517d;
+ --biz-dark:#063e69;
+ --biz-ink:#263b49;
+ --biz-orange:#ed8218;
+ --biz-border:#dcdada;
+ --biz-soft:#f1efed;
+ --biz-link:#0871a8;
+ background:var(--biz-soft);
+ color:var(--biz-ink);
+ font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+ -webkit-font-smoothing:antialiased;
+ font-size:12px;
+}
+#screen.itau-biz-open>.status-bar{
+ background:#fff;
+ color:#26394a;
+ border-bottom:0;
+ text-shadow:none;
+}
+#itauBizApp .itau-frame{background:var(--biz-soft)}
+#itauBizApp .itau-splash{background:#ed8218}
+#itauBizApp .itau-topbar{
+ height:44px;
+ background:#fff;
+ color:var(--biz-dark);
+ border-bottom:1px solid #dbdfe1;
+ display:grid;
+ grid-template-columns:75px minmax(0,1fr) 75px;
+ box-shadow:none;
+}
+#itauBizApp .itau-topbar-title{
+ font-size:14px;
+ line-height:20px;
+ font-weight:600;
+ letter-spacing:-.18px;
+ overflow:hidden;
+ white-space:nowrap;
+ text-overflow:ellipsis;
+}
+#itauBizApp .itau-top-btn{
+ color:var(--biz-link);
+ background:transparent;
+ padding:0 9px;
+ font-size:11px;
+ font-weight:400;
+ white-space:nowrap;
+}
+#itauBizApp .itau-top-btn:active{opacity:.56}
+#itauBizApp .itau-content{
+ background:var(--biz-soft);
+ top:44px;
+ bottom:51px;
+ overflow-x:hidden;
+ overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;
+}
+#itauBizApp .itau-content.child{bottom:51px}
+#itauBizApp .itau-bottom{
+ display:grid!important;
+ grid-template-columns:repeat(5,minmax(0,1fr));
+ height:51px;
+ background:var(--biz-dark);
+ border-top:1px solid #083351;
+ box-shadow:0 -1px 2px rgba(0,0,0,.09);
+}
+#itauBizApp .itau-tab{
+ min-width:0;
+ height:50px;
+ padding:4px 0 3px;
+ border:0;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:1px;
+ color:#cadce8;
+ background:transparent;
+ font-size:8.2px;
+ line-height:11px;
+ font-weight:400;
+ letter-spacing:0;
+ white-space:nowrap;
+ -webkit-tap-highlight-color:transparent;
+}
+#itauBizApp .itau-tab .biz-tab-icon{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ width:28px;
+ height:27px;
+ flex:0 0 27px;
+ border-radius:2px;
+}
+#itauBizApp .itau-tab.active{color:#fff;font-weight:500}
+#itauBizApp .itau-tab.active .biz-tab-icon{
+ background:#f2f7f9;
+ color:var(--biz-dark);
+}
+#itauBizApp .itau-tab:active{background:rgba(255,255,255,.13)}
+#itauBizApp .itau-tab:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+#itauBizApp .itau-tab i{display:none}
+#itauBizApp .biz-svg-icon{
+ display:block;
+ width:21px;
+ height:21px;
+ flex:0 0 auto;
+ stroke:currentColor;
+ fill:none;
+ shape-rendering:geometricPrecision;
+ vector-effect:non-scaling-stroke;
+}
+#itauBizApp .biz-svg-nav{width:19px;height:19px}
+#itauBizApp .biz-svg-menu{width:20px;height:20px}
+#itauBizApp .biz-svg-brand{width:19px;height:19px}
+#itauBizApp .biz-company-head{
+ display:flex;
+ align-items:center;
+ gap:9px;
+ min-height:61px;
+ margin:0;
+ padding:9px 12px;
+ background:#fff;
+ border-bottom:1px solid #dfdfe0;
+}
+#itauBizApp .biz-company-mark{
+ width:31px;
+ height:31px;
+ flex:0 0 31px;
+ border-radius:4px;
+ background:var(--biz-blue);
+ color:#fff;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+#itauBizApp .biz-company-copy{flex:1;min-width:0}
+#itauBizApp .biz-company-name{
+ margin:0 0 4px;
+ color:#3d444a;
+ font-size:12px;
+ line-height:15px;
+ font-weight:500;
+ letter-spacing:0;
+ overflow-wrap:normal;
+}
+#itauBizApp .biz-company-line{
+ font-size:10px;
+ line-height:13px;
+ color:#7f878b;
+ letter-spacing:.05px;
+}
+#itauBizApp .biz-home-section{
+ margin:0;
+ background:#f2efec;
+ padding:12px 11px 5px;
+ color:#666d72;
+ font-size:11px;
+ font-weight:500;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+#itauBizApp .biz-home-section span{font-size:10px;color:#93979a;font-weight:400}
+#itauBizApp .itau-balance{
+ margin:5px 9px 0;
+ padding:14px 14px 11px;
+ border:1px solid #dededf;
+ background:#fff;
+ box-shadow:0 1px 1px rgba(47,48,49,.035);
+}
+#itauBizApp .itau-balance-label{
+ font-size:11.5px;
+ font-weight:400;
+ color:#737b80;
+ line-height:16px;
+}
+#itauBizApp .itau-balance-value{
+ margin:5px 0 2px;
+ color:#353b40;
+ font-size:26px;
+ line-height:31px;
+ font-weight:300;
+ font-variant-numeric:tabular-nums;
+ letter-spacing:-.55px;
+ white-space:nowrap;
+}
+#itauBizApp .itau-link-btn{
+ color:var(--biz-link);
+ background:transparent;
+ padding:8px 0 0;
+ font-size:11.5px;
+ font-weight:500;
+}
+#itauBizApp .itau-link-btn::after{
+ content:"›";
+ font-size:16px;
+ font-weight:300;
+ vertical-align:-1px;
+ margin-left:5px;
+}
+#itauBizApp .biz-home-shortcuts{
+ margin:9px 9px 0;
+ background:#fff;
+ border:1px solid #dfe0e0;
+}
+#itauBizApp .biz-home-shortcuts button{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ width:100%;
+ height:43px;
+ border:0;
+ padding:0 11px;
+ text-align:left;
+ background:#fff;
+ color:#46515a;
+ font-size:12px;
+ cursor:pointer;
+}
+#itauBizApp .biz-home-shortcuts button+button{border-top:1px solid #e8e8e8}
+#itauBizApp .biz-home-shortcuts button .biz-svg-icon{color:var(--biz-orange)}
+#itauBizApp .biz-home-shortcuts button span{flex:1}
+#itauBizApp .biz-home-shortcuts button b{color:#a9b6be;font-size:20px;font-weight:300}
+#itauBizApp .biz-home-shortcuts button:active{background:#f4f6f7}
+#itauBizApp .itau-section-title{
+ padding:12px 11px 7px;
+ font-weight:500;
+ font-size:10px;
+ line-height:14px;
+ letter-spacing:.12px;
+ text-transform:none;
+ background:var(--biz-soft);
+ color:#73787d;
+ border-bottom:0;
+}
+#itauBizApp .itau-row{
+ display:grid;
+ grid-template-columns:39px minmax(0,1fr) auto;
+ column-gap:7px;
+ min-height:62px;
+ padding:9px 10px;
+ background:#fff;
+ border-bottom:1px solid #e5e6e6;
+ color:var(--biz-ink);
+ align-items:center;
+ -webkit-tap-highlight-color:transparent;
+}
+#itauBizApp .itau-row:active{background:#ecf2f5}
+#itauBizApp .itau-row:focus-visible{
+ outline:2px solid var(--biz-link);
+ outline-offset:-2px;
+}
+#itauBizApp .itau-row-date{
+ color:#737a7f;
+ font-size:10.5px;
+ line-height:14px;
+ font-variant-numeric:tabular-nums;
+ white-space:nowrap;
+ align-self:center;
+}
+#itauBizApp .biz-time{
+ display:block;
+ margin:1px 0 0;
+ color:#9fa7a9;
+ font-size:9px;
+ line-height:12px;
+}
+#itauBizApp .itau-row-main{min-width:0}
+#itauBizApp .itau-row-name{
+ font-size:11.5px;
+ font-weight:500;
+ line-height:14px;
+ color:#333d46;
+ white-space:normal;
+ overflow:hidden;
+ display:-webkit-box;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:2;
+}
+#itauBizApp .itau-row-desc{
+ margin-top:3px;
+ font-size:9.7px;
+ line-height:12px;
+ font-weight:400;
+ color:#8b9397;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+#itauBizApp .itau-row-amount{
+ display:flex;
+ align-items:center;
+ justify-content:flex-end;
+ gap:3px;
+ color:#43484e;
+ white-space:nowrap;
+ font-size:11px;
+ line-height:15px;
+ font-weight:500;
+ font-variant-numeric:tabular-nums;
+ text-align:right;
+ letter-spacing:-.12px;
+}
+#itauBizApp .itau-row-amount.in{color:#28725a}
+#itauBizApp .itau-row-amount.out{color:#41454b}
+#itauBizApp .itau-row-arrow{
+ display:inline-block;
+ width:5px;
+ height:5px;
+ flex:0 0 5px;
+ margin:0 0 0 1px;
+ border-right:1px solid #a2abb1;
+ border-top:1px solid #a2abb1;
+ transform:rotate(45deg);
+ font-size:0;
+ color:transparent;
+}
+#itauBizApp .itau-more{
+ border-top:0;
+ border-bottom:1px solid #e0e2e3;
+ background:#fff;
+ min-height:43px;
+ padding:11px 12px;
+ color:var(--biz-link);
+ font-size:11.5px;
+ font-weight:500;
+ cursor:pointer;
+}
+#itauBizApp .itau-more[hidden]{display:none!important}
+#itauBizApp .itau-more:active{background:#f3f7f9}
+#itauBizApp .itau-search-box{
+ padding:9px;
+ background:#eeeae7;
+ border-bottom:1px solid #ddd8d5;
+}
+#itauBizApp .itau-search-box input{
+ width:100%;
+ height:31px;
+ font-size:11.5px;
+ border:1px solid #cfd2d5;
+ border-radius:4px;
+ padding-left:10px;
+ color:#263b49;
+ background:#fff;
+}
+#itauBizApp .itau-filterbar{
+ padding:8px 9px;
+ background:#fff;
+ border-bottom:1px solid #e6e6e6;
+}
+#itauBizApp .itau-select{
+ height:30px;
+ padding:0 8px;
+ border:1px solid #d3d5d7;
+ border-radius:3px;
+ background:#fff;
+ color:#4a535b;
+ font-size:11.5px;
+}
+#itauBizApp .itau-pills{
+ padding:8px 9px;
+ background:#fff;
+ border-bottom:1px solid #dfdfdf;
+}
+#itauBizApp .itau-pill{
+ height:29px;
+ font-size:11px;
+ background:#fff;
+ color:#6e7a82;
+ border-color:#bac7ce;
+}
+#itauBizApp .itau-pill.active{
+ background:var(--biz-blue);
+ border-color:var(--biz-blue);
+ color:#fff;
+}
+#itauBizApp .itau-result-info{
+ padding:7px 11px;
+ min-height:28px;
+ display:flex;
+ align-items:center;
+ background:var(--biz-soft);
+ color:#7a8186;
+ font-size:10px;
+ line-height:14px;
+ border-bottom:1px solid #e2e2e2;
+}
+#itauBizApp .biz-balance-footer{
+ background:#fff;
+ padding:13px 11px;
+ font-size:11px;
+ border-color:#e2e2e2;
+ color:#6e7880;
+}
+#itauBizApp .biz-balance-footer b{
+ font-size:14px;
+ font-weight:500;
+ color:#253b49;
+ font-variant-numeric:tabular-nums;
+}
+#itauBizApp .itau-list-menu{
+ background:#fff;
+ border-top:1px solid #e6e6e6;
+}
+#itauBizApp .itau-menu-row{
+ min-height:52px;
+ display:flex;
+ align-items:center;
+ gap:4px;
+ padding:8px 12px 8px 10px;
+ border-bottom:1px solid #e5e6e6;
+ background:#fff;
+ font-size:12px;
+ font-weight:400;
+ line-height:17px;
+ color:#414b52;
+ -webkit-tap-highlight-color:transparent;
+}
+#itauBizApp .itau-menu-row:active{background:#edf3f6}
+#itauBizApp .itau-menu-row:focus-visible{
+ outline:2px solid var(--biz-link);
+ outline-offset:-2px;
+}
+#itauBizApp .itau-menu-row .ico{
+ width:33px;
+ flex:0 0 33px;
+ display:flex;
+ align-items:center;
+ justify-content:flex-start;
+ font-size:0;
+ color:var(--biz-orange);
+}
+#itauBizApp .itau-menu-row .name{min-width:0;flex:1}
+#itauBizApp .itau-menu-row .arrow{
+ width:6px;
+ height:6px;
+ border-right:1px solid #a3abb1;
+ border-top:1px solid #a3abb1;
+ transform:rotate(45deg);
+ font-size:0;
+ color:transparent;
+ margin:0 2px;
+}
+#itauBizApp .biz-creditor-row{min-height:61px}
+#itauBizApp .biz-creditor-row .name{
+ font-size:11.5px;
+ line-height:15px;
+ font-weight:500;
+ overflow-wrap:anywhere;
+}
+#itauBizApp .biz-creditor-row .name small{
+ display:block;
+ margin-top:4px;
+ color:#899299;
+ font-size:10px;
+ line-height:13px;
+ font-weight:400;
+}
+#itauBizApp .itau-info-block{
+ background:#fff;
+ border-bottom:1px solid #ddd;
+}
+#itauBizApp .itau-info-block .itau-kv,
+#itauBizApp .itau-detail .itau-kv{
+ display:grid;
+ grid-template-columns:108px minmax(0,1fr);
+ gap:8px;
+ min-height:43px;
+ align-items:center;
+ padding:9px 12px;
+ font-size:11px;
+ line-height:15px;
+ border-bottom:1px solid #ececec;
+}
+#itauBizApp .itau-kv label{
+ color:#778189;
+ font-size:10.5px;
+ font-weight:400;
+ line-height:14px;
+ overflow-wrap:anywhere;
+}
+#itauBizApp .itau-kv>div{
+ font-size:11px;
+ line-height:15px;
+ font-weight:500;
+ color:#35434c;
+ text-align:right;
+ overflow-wrap:anywhere;
+ word-break:normal;
+}
+#itauBizApp .itau-detail{
+ background:#fff;
+ min-height:100%;
+}
+#itauBizApp .itau-detail-amount{
+ padding:23px 13px 19px;
+ background:#fff;
+ border-bottom:5px solid var(--biz-soft);
+}
+#itauBizApp .itau-detail-amount .name{
+ font-size:12px;
+ line-height:17px;
+ color:#67727a;
+ margin:0 0 6px;
+}
+#itauBizApp .itau-detail-amount .value{
+ font-size:25px;
+ line-height:31px;
+ font-weight:300;
+ letter-spacing:-.25px;
+ color:#283e4c;
+ font-variant-numeric:tabular-nums;
+}
+#itauBizApp .biz-payroll-box{
+ margin:9px 9px 0;
+ padding:12px;
+ background:#fff;
+ border:1px solid #e0e0e0;
+ box-shadow:0 1px 1px rgba(0,0,0,.02);
+}
+#itauBizApp .biz-payroll-box strong{
+ display:block;
+ font-size:12px;
+ line-height:16px;
+ color:#46535c;
+ font-weight:500;
+}
+#itauBizApp .biz-payroll-box p{
+ margin:5px 0 0;
+ font-size:10.5px;
+ line-height:15px;
+ color:#798189;
+}
+#itauBizApp .biz-field-picker{
+ display:flex;
+ gap:8px;
+ align-items:center;
+ background:#fff;
+ border-bottom:1px solid #e4e4e4;
+ padding:10px 11px;
+}
+#itauBizApp .biz-field-picker label{
+ flex:0 0 auto;
+ color:#748089;
+ font-size:11px;
+}
+#itauBizApp .biz-field-picker .itau-select{flex:1;min-width:0}
+#itauBizApp .itau-empty{
+ background:transparent;
+ padding:25px 15px;
+ min-height:175px;
+ text-align:center;
+ color:#7e8992;
+ line-height:1.6;
+}
+#itauBizApp .itau-empty strong{
+ display:block;
+ font-size:12.5px;
+ font-weight:500;
+ color:#566874;
+}
+#itauBizApp .itau-empty span{
+ display:block;
+ font-size:10.5px;
+ line-height:16px;
+ color:#909aa1;
+}
+#itauBizApp .biz-empty-icon{
+ display:flex!important;
+ align-items:center;
+ justify-content:center;
+ margin:0 auto 13px;
+ width:43px;
+ height:43px;
+ border-radius:50%;
+ background:#e2ebef;
+ color:#8ca5b4!important;
+}
+#itauBizApp .biz-empty-icon .biz-svg-icon{width:22px;height:22px}
+#itauBizApp .itau-custom{
+ padding:13px 11px;
+ background:#fff;
+ border-bottom:1px solid #ddd;
+}
+#itauBizApp .itau-custom label{
+ font-size:11px;
+ color:#77828a;
+}
+#itauBizApp .itau-custom input{
+ max-width:100%;
+ font-size:12px;
+ border-color:#d1d4d6;
+}
+#itauBizApp .itau-custom-actions .primary{
+ background:var(--biz-blue);
+ color:#fff;
+}
+#itauBizApp button{touch-action:manipulation}
+@media (prefers-reduced-motion:reduce){
+ #itauBizApp *{scroll-behavior:auto!important}
+}
