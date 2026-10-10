@@ -64,6 +64,8 @@ async function run(engine,label){
       assert.equal(design.radius,'50%','zoom control should be circular');
       assert.equal(await btn.getAttribute('aria-label'),'Phóng to iPhone');
       const positionBefore=await btn.boundingBox();
+      assert(positionBefore.y<=4,'zoom button is not flush with the top of the viewport: '+positionBefore.y);
+      assert(Math.abs((await p.evaluate(()=>window.innerWidth))-(positionBefore.x+positionBefore.width)-2)<3,'zoom button not anchored to right edge');
       await btn.click();
       await p.waitForTimeout(100);
       const positionZoomed=await btn.boundingBox();
