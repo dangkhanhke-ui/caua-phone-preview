@@ -158,7 +158,7 @@ function album(){
  (records.length?'<div class="atlas-album-grid">'+records.map(thumbnail).join('')+'</div>':'<div class="atlas-empty">Không có mục nào trong giai đoạn này.</div>');
 }
 function preview(e){
- if(e.kind==='document')return'<div class="atlas-preview-paper"><div class="paper-top">'+(e.source==='VH Archive'?'VH ARCHIVE':'DOCUMENTO · ARQUIVO')+'</div><div class="paper-name">'+esc(e.title)+'</div><div class="paper-line"/><div class="paper-line short"/><div class="paper-line"/><div class="paper-line"/><div class="paper-line short"/><div class="paper-sign">/ /</div></div>';
+ if(e.kind==='document')return'<div class="atlas-preview-paper"><div class="paper-top">'+(e.source==='VH Archive'?'VH ARCHIVE':'DOCUMENTO · ARQUIVO')+'</div><div class="paper-name">'+esc(e.title)+'</div><div class="paper-line"></div><div class="paper-line short"></div><div class="paper-line"></div><div class="paper-line"></div><div class="paper-line short"></div><div class="paper-sign">/ /</div></div>';
  if(e.kind==='message'||e.kind==='mail')return'<div class="atlas-preview-message"><div class="msg-head">'+(e.kind==='mail'?'Correio · '+esc(e.title):'Conversa · '+esc(e.date.slice(0,10)))+'</div><div class="bubble">Mensagem arquivada.</div><div class="bubble right">Registro salvo.</div><div class="bubble">'+esc(e.title)+'</div></div>';
  if(e.kind==='map')return'<div class="atlas-preview-map"><span>'+esc(e.location||'Centro')+'</span></div>';
  if(e.kind==='audio')return'<div class="atlas-preview-audio">'+icon('audio')+'<div class="audio-wave"></div><p>Registro de áudio<br>Não há conexão com o arquivo original.</p></div>';
@@ -418,7 +418,7 @@ authRender();render();
 window.Atlas2015=Object.freeze({
  open:launch,
  pushEvent:noteEvent,
- showProfile:id=>{if(!profileBy(id))return false;launch();state.unlocked=true;authRender();navTo('profile',{profileId:id,subtab:'live'});return true;},
+ showProfile:id=>{if(!profileBy(id)||!state.unlocked)return false;launch();navTo('profile',{profileId:id,subtab:'live'});return true;},
  getStatus:()=>({profiles:D.profiles.length,files:allEntries.length,locked:!state.unlocked,secondaryUnlocked:state.secondaryUnlocked})
 });
 })();
