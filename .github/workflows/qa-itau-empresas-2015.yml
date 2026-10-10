@@ -1,0 +1,26 @@
+name: Itaú Empresas 2015 Functional Audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'qa/itau-empresas-2015-audit.cjs'
+      - '.github/workflows/qa-itau-empresas-2015.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare audit browser engines
+        run: |
+          node --check qa/itau-empresas-2015-audit.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Exercise all business bank flows
+        run: |
+          python3 -m http.server 8000 >/tmp/itau-empresas-audit.log 2>&1 &
+          node qa/itau-empresas-2015-audit.cjs
