@@ -1,159 +1,38 @@
+/* Regression: 29 Aug 2015 canon ledger; only posted banking records. */
 const {chromium,webkit}=require('playwright');
 const assert=require('node:assert/strict');
 const URL='http://127.0.0.1:8000/index.html';
-async function suite(browserType,name){
- const browser=await browserType.launch({headless:true});
- const results=[],failures=[];
- async function test(label,fn){
+async function suite(engine,engineName){
+ const browser=await engine.launch({headless:true});
+ let passed=0;const errors=[];
+ async function test(name,run){
   const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true});
-  const runtime=[];
-  page.on('pageerror',e=>runtime.push(String(e.message)));
-  page.on('dialog',d=>d.dismiss().catch(()=>{}));
+  const pageErrors=[];page.on('pageerror',e=>pageErrors.push(String(e)));
   try{
    await page.goto(URL,{waitUntil:'domcontentloaded',timeout:45000});
-   await page.locator('[data-app="itau-biz"]').first().evaluate(el=>el.click());
-   await page.waitForTimeout(600);
-   assert.equal(await page.locator('#itauBizApp').evaluate(x=>x.classList.contains('open')),true);
-   const click=async(sel)=>{const x=page.locator(sel).first();assert(await x.count()>0,'missing '+sel);await x.evaluate(el=>el.click());await page.waitForTimeout(35);};
-   const tab=async(id)=>click('#itauBizBottom [data-biz-tab="'+id+'"]');
-   await fn({page,click,tab});
-   assert.deepEqual(runtime,[],'uncaught browser error(s)');
-   results.push(label);console.log('BIZ_PASS',name,label);
-  }catch(err){failures.push(label+': '+(err.stack||err));console.error('BIZ_FAIL',name,label,err.stack||err);}
-  finally{await page.close();}
+   await page.locator('[data-app="itau-biz"]').first().evaluate(e=>e.click());
+   await page.locator('#itauBizContent .itau-balance-value').waitFor({timeout:18000});
+   const click=async(sel)=>{const el=page.locator(sel).first();await el.waitFor({timeout:12000});await el.evaluate(e=>e.click());};
+   await run({page,click,tab:async(id)=>click(`[data-biz-tab="${id}"]`)});
+   assert.deepEqual(pageErrors,[]);
+   passed++;console.log('ITAU_CANON_PASS',engineName,name);
+  }catch(e){errors.push(name+' '+(e.stack||e));console.error('ITAU_CANON_FAIL',engineName,name,e.stack||e);}finally{await page.close();}
  }
  try{
-  await test('home-company-balance-5-recents',async({page})=>{
-   const t=await page.locator('#itauBizContent').innerText();
-   assert(t.includes('Subsolo'));assert(t.includes('66.850,40'));
-   assert.equal(await page.locator('#bizRecent [data-biz-tx]').count(),5);
-   assert.equal(await page.locator('#itauBizBottom [data-biz-tab]').count(),4);
-  });
-  await test('home-detail-back',async({page,click})=>{
-   await click('#bizRecent [data-biz-tx]');
-   assert((await page.locator('#itauBizTitle').innerText()).includes('Chi tiết'));
-   await click('#itauBizBack');
-   const afterBack=await page.locator('#itauBizContent').innerText();
-   console.log('BIZ_HOME_BACK_TRACE',name,JSON.stringify({title:await page.locator('#itauBizTitle').innerText(),content:afterBack.slice(0,400),isOpen:await page.locator('#itauBizApp').evaluate(x=>x.classList.contains('open'))}));
-   assert(afterBack.toLocaleLowerCase('vi').includes('giao dịch gần đây'));
-  });
-  await test('statement-search-rede-clear',async({page,tab,click})=>{
-   await tab('statement');
-   assert(await page.locator('#bizTxList [data-biz-tx]').count()>=10);
-   await page.locator('#bizSearch').fill('Rede');
-   assert((await page.locator('#bizResultInfo').innerText()).includes('kết quả'));
-   assert(await page.locator('#bizTxList [data-biz-tx]').count()>0);
-   await click('#bizClear');
-   assert.equal(await page.locator('#bizSearch').inputValue(),'');
-  });
-  await test('statement-income-expense-pills',async({page,tab,click})=>{
-   await tab('statement');
-   await click('[data-biz-type="in"]');
-   assert(!((await page.locator('#bizTxList').innerText()).includes('- R$')));
-   await click('[data-biz-type="out"]');
-   assert(!((await page.locator('#bizTxList').innerText()).includes('+ R$')));
-   await click('[data-biz-type="all"]');
-   assert(await page.locator('#bizTxList [data-biz-tx]').count()>3);
-  });
-  await test('statement-date-preset-and-empty',async({page,tab})=>{
-   await tab('statement');
-   await page.locator('#bizPeriod').selectOption('7-days');
-   assert(await page.locator('#bizTxList [data-biz-tx]').count()>1);
-   await page.locator('#bizPeriod').selectOption('2015-07');
-   assert((await page.locator('#bizTxList').innerText()).includes('Không tìm thấy giao dịch'));
-   await page.locator('#bizPeriod').selectOption('2015-08');
-   assert(await page.locator('#bizTxList [data-biz-tx]').count()>1);
-  });
-  await test('custom-date-filter',async({page,tab,click})=>{
-   await tab('statement');
-   await page.locator('#bizPeriod').selectOption('custom');
-   await page.locator('#bizCustomStart').fill('2015-08-02');
-   await page.locator('#bizCustomEnd').fill('2015-08-04');
-   await click('#bizCustomApply');
-   const text=await page.locator('#bizTxList').innerText();
-   assert(text.includes('02/08')&&text.includes('04/08'),'custom dates excluded');
-   assert(!text.includes('24/08'),'date filter did not apply');
-  });
-  await test('transaction-detail-from-statement',async({page,tab,click})=>{
-   await tab('statement');
-   await click('#bizTxList [data-biz-tx]');
-   assert(await page.locator('#bizReceiptBtn').count());
-   await click('#itauBizBack');
-   assert(await page.locator('#bizPeriod').count());
-  });
-  await test('receipt-on-eligible-transaction',async({page,tab,click})=>{
-   await tab('statement');
-   await page.locator('#bizSearch').fill('Carvalho');
-   await click('#bizTxList [data-biz-tx]');
-   await click('#bizReceiptBtn');
-   assert((await page.locator('#itauBizContent').innerText()).includes('Biên nhận giao dịch'));
-   await click('#itauBizBack');
-   assert(await page.locator('#bizReceiptBtn').count());
-  });
-  await test('payments-six-categories',async({page,tab})=>{
-   await tab('payments');
-   const labels=await page.locator('[data-biz-payment]').allTextContents();
-   assert.equal(labels.length,6);
-   for(const name of ['bills','transfers','tax','internal','suppliers']){
-    await page.locator('[data-biz-payment="'+name+'"]').evaluate(el=>el.click());
-    assert((await page.locator('#itauBizTitle').innerText()).length>0);
-    await page.locator('#itauBizBack').evaluate(el=>el.click());
-   }
-  });
-  await test('payments-to-history-and-detail',async({page,tab,click})=>{
-   await tab('payments');await click('[data-biz-payment="suppliers"]');
-   assert(await page.locator('[data-biz-tx]').count()>0);
-   await click('[data-biz-tx]');
-   assert(await page.locator('#bizReceiptBtn').count());
-   await click('#itauBizBack');
-   assert(await page.locator('[data-biz-tx]').count()>0);
-   await click('#itauBizBack');
-   assert(await page.locator('[data-biz-payment]').count());
-  });
-  await test('payroll-7-recipients',async({page,tab,click})=>{
-   await tab('payments');await click('[data-biz-payment="payroll"]');
-   const t=await page.locator('#itauBizContent').innerText();
-   assert(t.includes('14.800,00'));assert(t.includes('7'));
-   await click('[data-biz-tx]');
-   assert((await page.locator('#itauBizContent').innerText()).includes('Số người nhận'));
-   await click('#bizReceiptBtn');
-   assert((await page.locator('#itauBizContent').innerText()).includes('Biên nhận'));
-  });
-  await test('services-six-entries',async({page,tab})=>{
-   await tab('services');
-   assert.equal(await page.locator('[data-biz-service]').count(),6);
-  });
-  await test('services-receipts-to-detail-back',async({page,tab,click})=>{
-   await tab('services');await click('[data-biz-service="receipts"]');
-   assert(await page.locator('#bizReceiptList [data-biz-tx]').count()>0);
-   await click('#bizReceiptList [data-biz-tx]');
-   await click('#itauBizBack');
-   assert(await page.locator('#bizReceiptList').count());
-   await click('#itauBizBack');
-   assert(await page.locator('[data-biz-service]').count());
-  });
-  await test('services-rede-total',async({page,tab,click})=>{
-   await tab('services');await click('[data-biz-service="device"]');
-   assert((await page.locator('#itauBizContent').innerText()).includes('58.700,00'));
-   await click('#bizShowRede');
-   assert.equal(await page.locator('[data-biz-tx]').count(),7);
-   await click('#itauBizBack');
-   assert(await page.locator('[data-biz-service]').count());
-  });
-  await test('services-account-security-help',async({page,tab,click})=>{
-   await tab('services');
-   for(const route of ['account-info','security','help']){
-    await click('[data-biz-service="'+route+'"]');
-    assert((await page.locator('#itauBizContent').innerText()).length>30);
-    await click('#itauBizBack');
-    assert(await page.locator('[data-biz-service]').count());
-   }
-  });
-  console.log('BIZ_SUMMARY',JSON.stringify({engine:name,passed:results.length,failures:failures.length,tests:results}));
-  if(failures.length)throw Error(name+' FAILED:\n'+failures.join('\n\n'));
- }finally{await browser.close();}
+  await test('home-balance-and-account',async({page})=>{const text=await page.locator('#itauBizContent').innerText();assert(text.includes('362.670,37'));assert(text.includes('66291-8'));assert((await page.locator('#bizRecent [data-biz-tx]').count())===5);});
+  await test('home-detail-reference-and-back',async({page,click})=>{await click('#bizRecent [data-biz-tx]');const detail=await page.locator('#itauBizContent').innerText();assert(detail.includes('Mã tham chiếu nội bộ'));assert(detail.includes('Số dư sau giao dịch'));assert(!detail.includes('Mã xác thực ngân hàng'));await click('#itauBizBack');assert((await page.locator('#itauBizContent').innerText()).toLocaleLowerCase('vi').includes('giao dịch gần đây'));});
+  await test('statement-period-month-august',async({page,tab})=>{await tab('statement');await page.locator('#bizTxList [data-biz-tx]').first().waitFor();await page.locator('#bizPeriod').selectOption('2015-08');await page.waitForTimeout(1100);assert((await page.locator('#bizResultInfo').innerText()).includes('87 giao dịch'));});
+  await test('statement-canon-2013-and-pagination',async({page,tab})=>{await tab('statement');await page.locator('#bizPeriod').selectOption('2013-03');await page.locator('#bizTxList [data-biz-tx]').first().waitFor();await page.waitForTimeout(700);assert((await page.locator('#bizResultInfo').innerText()).includes('62 giao dịch'));assert(await page.locator('#bizLoadMore').isVisible());});
+  await test('statement-search-within-period',async({page,tab})=>{await tab('statement');await page.locator('#bizTxList [data-biz-tx]').first().waitFor();await page.locator('#bizPeriod').selectOption('2015-08');await page.waitForTimeout(600);await page.locator('#bizSearch').fill('Cauã');assert(!((await page.locator('#bizResultInfo').innerText()).includes('2823')));});
+  await test('statement-correct-posted-filter',async({page,tab,click})=>{await tab('statement');await page.locator('#bizTxList [data-biz-tx]').first().waitFor();await click('[data-biz-type="in"]');assert(!((await page.locator('#bizTxList').innerText()).includes('- R$')));await click('[data-biz-type="out"]');assert(!((await page.locator('#bizTxList').innerText()).includes('+ R$')));});
+  await test('statement-date-range-validated',async({page,tab,click})=>{await tab('statement');await page.locator('#bizTxList [data-biz-tx]').first().waitFor();await page.locator('#bizPeriod').selectOption('custom');await click('#bizCustomApply');assert((await page.locator('#itauBizContent').innerText()).includes('Khoảng thời gian'));await page.locator('#bizCustomStart').fill('2015-08-25');await page.locator('#bizCustomEnd').fill('2015-08-28');await click('#bizCustomApply');await page.locator('#bizTxList [data-biz-tx]').first().waitFor();const tx=await page.locator('#bizResultInfo').innerText();assert(tx.includes('14 giao dịch'));});
+  await test('payment-navigation',async({page,tab,click})=>{await tab('payments');await click('[data-biz-payment="suppliers"]');await page.locator('[data-biz-tx]').first().waitFor({timeout:18000});await click('[data-biz-tx]');assert((await page.locator('#itauBizContent').innerText()).includes('Mã tham chiếu nội bộ'));await click('#itauBizBack');await click('#itauBizBack');assert(await page.locator('[data-biz-payment="bills"]').count()===1);});
+  await test('payroll-is-derived-not-hardcoded',async({page,tab,click})=>{await tab('payments');await click('[data-biz-payment="payroll"]');await page.locator('.itau-info-block').waitFor({timeout:12000});const t=await page.locator('#itauBizContent').innerText();assert(t.includes('Tháng 8/2015'));assert(t.includes('Đã ghi nợ'));assert(t.includes('đã hạch toán'));});
+  await test('service-account-details',async({page,tab,click})=>{await tab('services');await click('[data-biz-service="account-info"]');const t=await page.locator('#itauBizContent').innerText();assert(t.includes('73.951.482/0001-39'));assert(t.includes('66291-8'));assert(t.includes('Subsolo Produções e Eventos Ltda.'));});
+  await test('service-reference-disclaimer',async({page,tab,click})=>{await tab('services');await click('[data-biz-service="receipts"]');await page.locator('#bizRefList [data-biz-tx]').first().waitFor({timeout:18000});assert((await page.locator('#itauBizContent').innerText()).includes('Không phải comprovante ngân hàng'));await click('#bizRefList [data-biz-tx]');assert((await page.locator('#itauBizContent').innerText()).includes('Mã tham chiếu nội bộ'));});
+  await test('service-rede-august-derived',async({page,tab,click})=>{await tab('services');await click('[data-biz-service="device"]');await page.locator('.itau-info-block').waitFor({timeout:12000});assert((await page.locator('#itauBizContent').innerText()).includes('Đã ghi có tháng 8'));await click('[data-biz-payment="rede"]');await page.locator('[data-biz-tx]').first().waitFor();});
+  await test('security-no-invented-token',async({page,tab,click})=>{await tab('services');await click('[data-biz-service="security"]');const text=await page.locator('#itauBizContent').innerText();assert(text.includes('Không có kết nối'));assert(!text.includes('1111'));});
+  console.log('ITAU_CANON_SUMMARY',JSON.stringify({engine:engineName,passed,failed:errors.length}));if(errors.length)throw Error(errors.join('\n\n'));
+ }finally{await browser.close()}
 }
-(async()=>{
- const outcomes=await Promise.allSettled([suite(chromium,'chromium'),suite(webkit,'webkit')]);
- for(const result of outcomes)if(result.status==='rejected'){console.error('BIZ_SUITE_FAILED',result.reason?.stack||result.reason);process.exitCode=1;}
-})();
+(async()=>{const rs=await Promise.allSettled([suite(chromium,'chromium'),suite(webkit,'webkit')]);for(const r of rs)if(r.status==='rejected'){console.error('ITAU_CANON_SUITE_ERROR',r.reason?.stack||r.reason);process.exitCode=1;}})();

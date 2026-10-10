@@ -1,0 +1,12 @@
+/* Canonical August 2015 ledger presentation; only within Itaú Empresas. */
+#itauBizApp .itau-more[hidden]{display:none!important}
+#itauBizApp .itau-result-info{padding:8px 12px;color:#767676;font-size:10px;background:#f1f1f1;border-bottom:1px solid #dedede}
+#itauBizApp .itau-detail .itau-kv>div{overflow-wrap:anywhere;word-break:normal}
+#itauBizApp .itau-row{min-width:0}
+#itauBizApp .itau-row-amount{font-variant-numeric:tabular-nums}
+#itauBizApp .itau-row:focus-visible{outline:2px solid #ef7200;outline-offset:-2px}
+#itauBizApp .itau-menu-row:focus-visible{outline:2px solid #ef7200;outline-offset:-2px}
+#itauBizApp .itau-balance-value{font-variant-numeric:tabular-nums}
+#itauBizApp .itau-empty{padding:35px 18px;text-align:center;line-height:1.5}
+#itauBizApp .itau-empty strong{display:block;font-size:14px;margin-bottom:8px}
+#itauBizApp .itau-empty span{font-size:11px;color:#888}
