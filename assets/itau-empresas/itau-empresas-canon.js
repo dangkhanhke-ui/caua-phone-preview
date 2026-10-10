@@ -19,7 +19,7 @@ const ROOT='./assets/itau-empresas/';
 let manifest=null,bootPromise=null,requestSeq=0;
 const monthCache=new Map();
 const TODAY='2015-08-29';
-const DEFAULTS={tab:'home',view:'home',search:'',period:'30-days',typeFilter:'all',start:'2015-08-01',end:TODAY,loaded:20,selected:null,group:'',stack:[],statementScroll:0,payrollPeriod:'2015-07'};
+const DEFAULTS={tab:'home',view:'home',search:'',period:'30-days',typeFilter:'all',start:'2015-08-01',end:TODAY,loaded:20,selected:null,group:'',stack:[],statementScroll:0,payrollPeriod:'2015-07',receiptSearch:''};
 let state={...DEFAULTS,stack:[]};
 const esc=(x)=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=(x)=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('vi');
@@ -93,12 +93,18 @@ async function drawDetail(){
  +infoRow('Tài khoản đối ứng','Không có dữ liệu')+'</div>';
  content.scrollTop=0;
 }
+
+const PRIORITY_REFS=['CAP-20130315','ACQ-2013-04-IGOR-01','ACQ-2013-04-REB-ANT','ACQ-2013-04-FAB-ANT','ACQ-2013-04-CAR-ANT',
+'DIST-2014-06-MARCELO','DIST-2014-06-CAUA','DIST-2014-12-MARCELO','DIST-2014-12-CAUA',
+'DIST-2015-04-MARCELO','DIST-2015-04-CAUA','DIST-2015-08-MARCELO','DIST-2015-08-CAUA',
+'FOLHA-2015-07-13','POS-D-2015-08-19'];
+
 const groups={
  bills:{title:'Thanh toán hóa đơn',predicate:t=>/hóa đơn|trích nợ/i.test(t.type)},
  transfers:{title:'Chuyển khoản',predicate:t=>/TED|chuyển khoản/i.test(t.type)},
  payroll:{title:'Bảng lương',predicate:t=>/lương/i.test(t.type)},
  tax:{title:'Thuế',predicate:t=>/thuế/i.test(t.type)},
- internal:{title:'Chuyển giữa các tài khoản',predicate:t=>/Cauã Henrique Valença de Oliveira|Marcelo Henrique Paes Barreto/.test(t.counterparty)},
+ internal:{title:'Giao dịch liên quan thành viên',predicate:t=>/Cauã Henrique Valença de Oliveira|Marcelo Henrique Paes Barreto/.test(t.counterparty)},
  suppliers:{title:'Nhà cung cấp và vận hành',predicate:t=>t.amount<0&&!/lương|thuế/i.test(t.type)},
  rede:{title:'Giao dịch Rede',predicate:t=>/Rede|Redecard/i.test(t.counterparty)}
 };
@@ -125,9 +131,54 @@ async function drawPayroll(){
  });
 }
 function drawServices(){++requestSeq;state.view='services';setTab('services');setTop('Dịch vụ');const data=[['▤','Tra cứu tham chiếu giao dịch','receipts'],['ℹ','Thông tin tài khoản','account-info'],['▥','Bảng lương','payroll'],['▦','Thanh toán thẻ Rede','device'],['◆','Bảo mật','security'],['?','Trợ giúp','help']];content.innerHTML='<div class="itau-list-menu">'+data.map(([i,n,k])=>`<div class="itau-menu-row" data-biz-service="${k}" role="button" tabindex="0"><span class="ico">${i}</span><span class="name">${n}</span><span class="arrow">›</span></div>`).join('')+'</div>';content.scrollTop=0;}
-async function drawReceipts(){const token=busyThen(async()=>{const all=ordered(await fetchAll());if(token!==requestSeq)return;state.view='receipts';setTop('Tham chiếu giao dịch',true);statementData=all;content.innerHTML=`<div class="biz-payroll-box"><strong>Không phải comprovante ngân hàng</strong><p>File canon chỉ có mã tham chiếu nội bộ; không có mã xác thực ngân hàng hay bản gốc biên nhận.</p></div><div class="itau-result-info">${all.length} giao dịch</div><div id="bizRefList">${all.slice(0,state.loaded).map(rowHTML).join('')}</div><button id="bizRefMore" class="itau-more" ${all.length<=state.loaded?'hidden':''}>Tải thêm</button>`;content.scrollTop=0;});}
-function drawAccount(){++requestSeq;state.view='account-info';setTop('Thông tin tài khoản',true);const a=manifest.account;content.innerHTML=`<div class="itau-info-block">${[['Ngân hàng',a.bank],['Doanh nghiệp',a.company],['CNPJ',a.cnpj],['Chi nhánh',a.branch],['Tài khoản',a.number],['Loại',a.type],['Trạng thái',a.status],['Số dư đến',dateBR(TODAY)]].map(([k,v])=>`<div class="itau-kv"><label>${esc(k)}</label><div>${esc(v)}</div></div>`).join('')}</div>`;content.scrollTop=0;}
-async function drawDevices(){const token=busyThen(async()=>{const rows=ordered((await fetchMonth('2015-08')).filter(groups.rede.predicate));if(token!==requestSeq)return;state.view='service-device';setTop('Thanh toán thẻ Rede',true);const sum=rows.reduce((s,t)=>s+t.amount,0);content.innerHTML=`<div class="itau-info-block"><div class="itau-kv"><label>Nhà cung cấp</label><div>Rede / Redecard</div></div><div class="itau-kv"><label>Đã ghi có tháng 8</label><div>${money(sum)}</div></div><div class="itau-kv"><label>Số dòng thanh toán</label><div>${rows.length}</div></div></div><div class="biz-payroll-box"><strong>Đối soát</strong><p>Đây là khoản ghi có trong sao kê, không phải doanh số thẻ gộp trước phí. Workbook không có đủ dữ liệu để tính MDR hoặc giao dịch chưa được thanh toán.</p></div><button class="itau-more" data-biz-payment="rede">Xem lịch sử Rede</button>`;content.scrollTop=0;});}
+async function drawReceipts(){
+ const token=busyThen(async()=>{
+  const all=ordered(await fetchAll());if(token!==requestSeq)return;
+  const order=new Map(PRIORITY_REFS.map((ref,i)=>[ref,i]));
+  const weight=t=>order.has(t.reference)?order.get(t.reference):100000;
+  statementData=all.slice().sort((a,b)=>weight(a)-weight(b)||b.date.localeCompare(a.date)||(b.time||'').localeCompare(a.time||''));
+  state.view='receipts';setTop('Tra cứu giao dịch',true);
+  content.innerHTML='<div class="itau-search-box"><input id="bizReceiptSearch" type="search" placeholder="Tên hoặc mã tham chiếu" value="'+esc(state.receiptSearch)+'"></div>'
+   +'<div id="bizReceiptInfo" class="itau-result-info"></div><div id="bizRefList"></div>'
+   +'<button class="itau-more" id="bizRefMore" type="button">Tải thêm</button>';
+  paintReceipts();content.scrollTop=0;
+ });
+}
+function paintReceipts(){
+ const q=norm(state.receiptSearch.trim());
+ const items=statementData.filter(t=>!q||norm([t.reference,t.counterparty,t.description,t.type,dateBR(t.date)].join(' ')).includes(q));
+ const list=content.querySelector('#bizRefList');if(!list)return;
+ list.innerHTML=items.slice(0,state.loaded).map(rowHTML).join('')||'<div class="itau-empty"><strong>Không tìm thấy giao dịch</strong></div>';
+ const info=content.querySelector('#bizReceiptInfo');if(info)info.textContent=items.length+' giao dịch đã hạch toán';
+ const more=content.querySelector('#bizRefMore');if(more)more.hidden=items.length<=state.loaded;
+}
+function drawAccount(){
+ ++requestSeq;state.view='account-info';setTop('Thông tin tài khoản',true);
+ const a=manifest.account;
+ content.innerHTML='<div class="itau-info-block">'+[
+ ['Ngân hàng',a.bank],['Chủ tài khoản',a.company],['CNPJ',a.cnpj],
+ ['Chi nhánh',a.branch],['Tài khoản',a.number],['Loại tài khoản',a.type],
+ ['Ngày mở','01/03/2013'],['Tình trạng',a.status],['Số dư tính đến',dateBR(TODAY)]
+ ].map(x=>infoRow(x[0],x[1])).join('')+'</div>';content.scrollTop=0;
+}
+async function drawDevices(){
+ const token=busyThen(async()=>{
+  const all=(await fetchAll()).filter(groups.rede.predicate);if(token!==requestSeq)return;
+  const debit=all.filter(t=>/ghi nợ/i.test(t.type)),credit=all.filter(t=>/tín dụng/i.test(t.type));
+  const total=all.reduce((s,t)=>s+t.amount,0),thisMonth=all.filter(t=>t.date.startsWith('2015-08'));
+  state.view='service-device';setTop('Thanh toán thẻ Rede',true);
+  content.innerHTML='<div class="itau-info-block">'
+   +infoRow('Đơn vị','Redecard / Rede')
+   +infoRow('Tổng tiền đã ghi có',money(total))
+   +infoRow('Số dòng ghi có',String(all.length))
+   +infoRow('Thẻ ghi nợ',String(debit.length))
+   +infoRow('Thẻ tín dụng',String(credit.length))
+   +infoRow('Tiền ghi có tháng 08',money(thisMonth.reduce((s,t)=>s+t.amount,0)))
+   +'</div>'+infoBox('Tiền đã thực nhận','Khoản ghi có không đồng nghĩa tổng doanh số bán hàng. Ngày bán hàng gốc và phí xử lý không có trong chi tiết sao kê.')
+   +'<button class="itau-more" type="button" data-biz-payment="rede">Xem lịch sử Rede</button>';
+  content.scrollTop=0;
+ });
+}
 function drawStatic(view){++requestSeq;state.view=view;setTop(view==='security'?'Mã bảo mật':'Trợ giúp',true);content.innerHTML='<div class="itau-info-block"><div class="itau-kv"><label>Trạng thái</label><div>Không có kết nối</div></div></div><div class="biz-payroll-box"><strong>Chưa có dữ liệu xác thực</strong><p>Không tự tạo iToken, mã ngân hàng hay chi tiết bảo mật không được cung cấp trong bộ canon.</p></div>';content.scrollTop=0;}
 function drawCustom(){++requestSeq;state.view='custom';setTop('Khoảng thời gian',true);content.innerHTML=`<div class="itau-custom"><label>Từ ngày</label><input id="bizCustomStart" type="date" max="${TODAY}" value="${esc(state.start)}"><label>Đến ngày</label><input id="bizCustomEnd" type="date" max="${TODAY}" value="${esc(state.end)}"><div class="itau-custom-actions"><button id="bizCustomCancel">Hủy</button><button class="primary" id="bizCustomApply">Áp dụng</button></div></div>`;content.scrollTop=0;}
 function drawCurrent(){switch(state.view){case 'home':return drawHome();case 'statement':return drawStatement();case 'payments':return drawPayments();case 'payment-list':return drawGroup();case 'payroll':return drawPayroll();case 'services':return drawServices();case 'receipts':return drawReceipts();case 'account-info':return drawAccount();case 'service-device':return drawDevices();case 'service-security':return drawStatic('security');case 'service-help':return drawStatic('help');case 'custom':return drawCustom();case 'detail':return drawDetail();default:return drawHome();}}
@@ -139,7 +190,7 @@ launcher.addEventListener('click',openApp);
 homeButton?.addEventListener('click',closeApp);
 bottom.addEventListener('click',e=>{const node=e.target.closest('[data-biz-tab]');if(node)navTab(node.dataset.bizTab);});
 back.addEventListener('click',doBack);
-content.addEventListener('input',e=>{if(e.target.id==='bizSearch'){state.search=e.target.value;state.loaded=20;paintStatement();content.querySelector('#bizClear')?.classList.toggle('show',!!state.search);}});
+content.addEventListener('input',e=>{if(e.target.id==='bizSearch'){state.search=e.target.value;state.loaded=20;paintStatement();content.querySelector('#bizClear')?.classList.toggle('show',!!state.search);}else if(e.target.id==='bizReceiptSearch'){state.receiptSearch=e.target.value;state.loaded=20;paintReceipts();}});
 content.addEventListener('change',e=>{if(e.target.id==='bizPeriod'){state.period=e.target.value;state.loaded=20;if(state.period==='custom')go('custom');else drawStatement(true);}else if(e.target.id==='bizPayrollPeriod'){state.payrollPeriod=e.target.value;drawPayroll();}});
 content.addEventListener('click',e=>{
  const r=e.target.closest('[data-biz-tx]');if(r){const t=statementData.find(x=>x.id===r.dataset.bizTx);if(t){selectedTx=t;push('detail');drawDetail();}else{fetchMonth('2015-08').then(rows=>{const tx=rows.find(x=>x.id===r.dataset.bizTx);if(tx){selectedTx=tx;push('detail');drawDetail();}});}return;}
@@ -152,7 +203,7 @@ content.addEventListener('click',e=>{
  if(e.target.closest('#bizCustomApply')){const a=content.querySelector('#bizCustomStart').value,b=content.querySelector('#bizCustomEnd').value;if(!a||!b||a>b||a>TODAY||b>TODAY){showToast('Khoảng ngày không hợp lệ');return;}state.start=a;state.end=b;state.period='custom';state.stack.pop();drawStatement(true);return;}
  if(e.target.closest('#bizLoadMore')){state.loaded+=20;paintStatement();return;}
  if(e.target.closest('#bizGroupMore')){state.loaded+=20;const out=statementData.slice(0,state.loaded);content.querySelector('#bizGroupMore')?.previousElementSibling?.replaceChildren();const node=content.querySelector('#bizGroupMore')?.previousElementSibling;if(node)node.innerHTML=out.map(rowHTML).join('');content.querySelector('#bizGroupMore').hidden=out.length>=statementData.length;return;}
- if(e.target.closest('#bizRefMore')){state.loaded+=20;content.querySelector('#bizRefList').innerHTML=statementData.slice(0,state.loaded).map(rowHTML).join('');content.querySelector('#bizRefMore').hidden=state.loaded>=statementData.length;return;}
+ if(e.target.closest('#bizRefMore')){state.loaded+=20;paintReceipts();return;}
  });
 content.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-biz-tx],[data-biz-payment],[data-biz-service]')){e.preventDefault();e.target.click();}});
 content.addEventListener('scroll',()=>{if(state.view==='statement'&&content.scrollTop+content.clientHeight>=content.scrollHeight-110){const btn=content.querySelector('#bizLoadMore');if(btn&&!btn.hidden)btn.click();}},{passive:true});
