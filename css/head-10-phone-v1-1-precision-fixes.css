@@ -1,34 +1,6 @@
 
-/* ===== Phone tab bar: lift the whole row and center every glyph/label ===== */
-.phone-main { bottom:55px !important; }
-.phone-tabbar {
-  height:55px !important;
-  padding:3px 0 4px !important;
-  align-items:start !important;
-  overflow:visible !important;
-}
-.phone-tab {
-  height:47px !important;
-  padding:0 !important;
-  justify-content:flex-start !important;
-  gap:0 !important;
-  font-size:9.5px !important;
-  line-height:11px !important;
-  overflow:visible !important;
-}
-.phone-tab > span:last-child {
-  display:block !important;
-  height:12px !important;
-  line-height:11px !important;
-  margin-top:0 !important;
-  white-space:nowrap !important;
-}
-.phone-tab-icon {
-  width:28px !important;
-  height:29px !important;
-  flex:0 0 29px !important;
-  margin:0 auto !important;
-}
+/* The 5-column Phone tab layout is owned by head-09-phone-app-style.css.
+   Keep the original clock/contact glyph artwork rules below. */
 .phone-tab-icon.favorites::before { inset:0 !important; font-size:27px !important; line-height:28px !important; }
 .phone-tab.active .phone-tab-icon.favorites::before { font-size:24px !important; top:2px !important; }
 
