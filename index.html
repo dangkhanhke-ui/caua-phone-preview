@@ -421,15 +421,47 @@
               <div class="phone-call-overlay" id="phoneCallOverlay">
                 <div class="caua-call-stack">
                 <div class="phone-call-person"><div class="phone-call-name" id="phoneCallName"></div><div class="phone-call-state" id="phoneCallState">Đang gọi…</div></div>
-                <div class="phone-call-controls">
-                  <div class="phone-call-control"><i class="call-glyph mute"><svg class="call-inline-svg" viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="7" width="12" height="23" rx="6"/><path d="M13 25v1c0 6.1 4.9 11 11 11s11-4.9 11-11v-1M24 37v5M18 42h12M9 9l30 30"/></g></svg></i><span>Tắt tiếng</span></div>
-                  <div class="phone-call-control"><i class="call-glyph dialpad"><svg class="call-inline-svg" viewBox="0 0 47 47" aria-hidden="true"><g fill="none" stroke="white" stroke-width="2"><circle cx="6.5" cy="6.5" r="5.5"/><circle cx="23.5" cy="6.5" r="5.5"/><circle cx="40.5" cy="6.5" r="5.5"/><circle cx="6.5" cy="23.5" r="5.5"/><circle cx="23.5" cy="23.5" r="5.5"/><circle cx="40.5" cy="23.5" r="5.5"/><circle cx="6.5" cy="40.5" r="5.5"/><circle cx="23.5" cy="40.5" r="5.5"/><circle cx="40.5" cy="40.5" r="5.5"/></g></svg></i><span>Bàn phím</span></div>
-                  <div class="phone-call-control"><i class="call-glyph speaker"><svg class="call-inline-svg" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 20h8l10-8v24L16 28H8z" fill="white"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M31 18c3.3 3.3 3.3 8.7 0 12"/><path d="M35 14c5.5 5.5 5.5 14.5 0 20"/></g></svg></i><span>Loa</span></div>
-                  <div class="phone-call-control"><i class="call-glyph addcall"><svg class="call-inline-svg" viewBox="0 0 35 35" aria-hidden="true"><path d="M16 0h3v16h16v3H19v16h-3V19H0v-3h16z" fill="white"/></svg></i><span>Thêm cuộc gọi</span></div>
-                  <div class="phone-call-control"><i class="call-glyph facetime"><svg class="call-inline-svg" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="14" width="27" height="20" rx="3" fill="none" stroke="white" stroke-width="2.5"/><path d="M34 20l8-6v20l-8-6z" fill="white"/></svg></i><span>FaceTime</span></div>
-                  <div class="phone-call-control"><i class="call-glyph contacts"><svg class="call-inline-svg" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17" fill="none" stroke="white" stroke-width="2.4"/><circle cx="24" cy="19" r="6" fill="white"/><path d="M13 37c1-7 5.5-10.5 11-10.5S34 30 35 37" fill="white"/></svg></i><span>Danh bạ</span></div>
+                <div class="phone-call-controls" role="group" aria-label="Điều khiển cuộc gọi">
+                  <button class="phone-call-control" type="button" data-call-action="speaker" aria-pressed="false">
+                    <i class="call-glyph speaker" aria-hidden="true"><svg class="call-inline-svg" viewBox="0 0 48 48"><path d="M8 20h9L27 11v26L17 28H8z" fill="white"/><g fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round"><path d="M32 18c3.7 3.7 3.7 8.3 0 12"/><path d="M36 14c5.5 5.5 5.5 14.5 0 20"/></g></svg></i>
+                    <span>Loa</span>
+                  </button>
+                  <button class="phone-call-control" type="button" data-call-action="facetime">
+                    <i class="call-glyph facetime" aria-hidden="true"><svg class="call-inline-svg" viewBox="0 0 48 48"><rect x="6" y="14" width="28" height="21" rx="3" fill="white"/><path d="M34 21l10-7v21l-10-7z" fill="white"/><text x="20" y="29" font-size="19" text-anchor="middle" font-weight="600" fill="#626568">?</text></svg></i>
+                    <span>FaceTime</span>
+                  </button>
+                  <button class="phone-call-control" type="button" data-call-action="mute" aria-pressed="false">
+                    <i class="call-glyph mute" aria-hidden="true"><svg class="call-inline-svg" viewBox="0 0 48 48"><g fill="none" stroke="white" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="6" width="12" height="24" rx="6"/><path d="M13 25v1c0 6.1 4.9 11 11 11s11-4.9 11-11v-1M24 37v6M18 43h12M9 9l30 30"/></g></svg></i>
+                    <span>Tắt tiếng</span>
+                  </button>
+                  <button class="phone-call-control" type="button" data-call-action="more">
+                    <i class="call-glyph more" aria-hidden="true"><svg class="call-inline-svg" viewBox="0 0 48 48"><g fill="white"><circle cx="12" cy="24" r="3.6"/><circle cx="24" cy="24" r="3.6"/><circle cx="36" cy="24" r="3.6"/></g></svg></i>
+                    <span>Thêm</span>
+                  </button>
+                  <button class="phone-call-control phone-hangup" id="phoneHangup" type="button" aria-label="Kết thúc cuộc gọi">
+                    <i class="call-glyph hangup-icon" aria-hidden="true"><svg class="call-inline-svg" viewBox="0 0 48 48"><path fill="#fff" d="M6.4 24.8c3.7-3.6 10.4-5.7 17.6-5.7s13.9 2.1 17.6 5.7c1.2 1.2 1.4 2.9.4 4.1l-2.9 3.7c-.7.9-2 1.2-3 .7l-6.8-3.1c-1.1-.5-1.5-1.5-1.5-2.4v-1.4a32 32 0 0 0-7.6 0v1.4c0 1-.5 1.9-1.5 2.4l-6.8 3.1c-1 .5-2.3.2-3-.7L6 28.9c-1-1.2-.8-2.9.4-4.1z"/></svg></i>
+                    <span>Kết thúc</span>
+                  </button>
+                  <button class="phone-call-control" type="button" data-call-action="keypad" aria-expanded="false">
+                    <i class="call-glyph dialpad" aria-hidden="true"><svg class="call-inline-svg" viewBox="0 0 48 48"><g fill="#fff"><circle cx="10" cy="10" r="4"/><circle cx="24" cy="10" r="4"/><circle cx="38" cy="10" r="4"/><circle cx="10" cy="24" r="4"/><circle cx="24" cy="24" r="4"/><circle cx="38" cy="24" r="4"/><circle cx="10" cy="38" r="4"/><circle cx="24" cy="38" r="4"/><circle cx="38" cy="38" r="4"/></g></svg></i>
+                    <span>Bàn phím</span>
+                  </button>
                 </div>
-                <button class="phone-hangup" id="phoneHangup" type="button" aria-label="Kết thúc"></button>
+                <div class="phone-in-call-keypad" id="phoneInCallKeypad" hidden>
+                  <div class="phone-in-call-digits" id="phoneInCallDigits" aria-live="polite"></div>
+                  <div class="phone-in-call-keys" role="group" aria-label="Bàn phím khi gọi">
+                    <button type="button" data-call-digit="1">1</button><button type="button" data-call-digit="2">2</button><button type="button" data-call-digit="3">3</button>
+                    <button type="button" data-call-digit="4">4</button><button type="button" data-call-digit="5">5</button><button type="button" data-call-digit="6">6</button>
+                    <button type="button" data-call-digit="7">7</button><button type="button" data-call-digit="8">8</button><button type="button" data-call-digit="9">9</button>
+                    <button type="button" data-call-digit="*">*</button><button type="button" data-call-digit="0">0</button><button type="button" data-call-digit="#">#</button>
+                  </div>
+                  <button class="phone-in-call-back" id="phoneInCallBack" type="button">‹ Quay lại cuộc gọi</button>
+                </div>
+                <div class="phone-call-more-panel" id="phoneCallMorePanel" hidden>
+                  <button type="button" data-call-extra="add">Thêm cuộc gọi</button>
+                  <button type="button" data-call-extra="contacts">Danh bạ</button>
+                  <button type="button" data-call-extra="cancel">Hủy</button>
+                </div>
                 </div><!-- end caua-call-stack -->
               </div>
             </div>
@@ -2307,9 +2339,64 @@
 
   function startCall(c,raw){
     const label=c?.displayName||raw||'Số không xác định';callName.textContent=label;callState.textContent='Đang gọi…';callOverlay.classList.add('show');
+    closeCallSubpanels();
+    callOverlay.querySelectorAll('[data-call-action="speaker"],[data-call-action="mute"]').forEach(btn=>{
+      btn.classList.remove('selected');btn.setAttribute('aria-pressed','false');
+    });
     if(state.callTimer)clearTimeout(state.callTimer);state.callTimer=setTimeout(()=>{callState.textContent='Không thể thực hiện cuộc gọi';showAlert('Không thể thực hiện cuộc gọi','Không có kết nối.');},1900);
   }
-  document.getElementById('phoneHangup').addEventListener('click',()=>{if(state.callTimer)clearTimeout(state.callTimer);state.callTimer=null;callOverlay.classList.remove('show');callState.textContent='Đang gọi…';});
+  const callStack=callOverlay.querySelector('.caua-call-stack');
+  const callInPad=document.getElementById('phoneInCallKeypad');
+  const callMore=document.getElementById('phoneCallMorePanel');
+  const callDigits=document.getElementById('phoneInCallDigits');
+  const callPadTrigger=callOverlay.querySelector('[data-call-action="keypad"]');
+  function closeCallSubpanels(){
+    callInPad.hidden=true;callMore.hidden=true;
+    callStack.classList.remove('keypad-open','more-open');
+    callPadTrigger.setAttribute('aria-expanded','false');
+  }
+  callOverlay.querySelectorAll('[data-call-action]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      switch(btn.dataset.callAction){
+        case 'speaker':
+        case 'mute':{
+          const isOn=btn.getAttribute('aria-pressed')==='true';
+          btn.setAttribute('aria-pressed',String(!isOn));
+          btn.classList.toggle('selected',!isOn);
+          break;
+        }
+        case 'facetime':
+          showAlert('Không có kết nối','FaceTime không khả dụng trong cuộc gọi này.');
+          break;
+        case 'keypad':
+          closeCallSubpanels();
+          callDigits.textContent='';
+          callInPad.hidden=false;callStack.classList.add('keypad-open');
+          btn.setAttribute('aria-expanded','true');
+          break;
+        case 'more':
+          closeCallSubpanels();
+          callMore.hidden=false;callStack.classList.add('more-open');
+          break;
+      }
+    });
+  });
+  callInPad.querySelectorAll('[data-call-digit]').forEach(btn=>btn.addEventListener('click',()=>{
+    callDigits.textContent=(callDigits.textContent+btn.dataset.callDigit).slice(-20);
+  }));
+  document.getElementById('phoneInCallBack').addEventListener('click',closeCallSubpanels);
+  callMore.querySelectorAll('[data-call-extra]').forEach(btn=>btn.addEventListener('click',()=>{
+    const action=btn.dataset.callExtra;
+    closeCallSubpanels();
+    if(action==='add')showAlert('Không có kết nối','Không thể thêm cuộc gọi khác.');
+    if(action==='contacts')showAlert('Không có kết nối','Không thể mở Danh bạ trong cuộc gọi này.');
+  }));
+  document.getElementById('phoneHangup').addEventListener('click',()=>{
+    if(state.callTimer)clearTimeout(state.callTimer);
+    state.callTimer=null;
+    callOverlay.classList.remove('show');callState.textContent='Đang gọi…';
+    closeCallSubpanels();
+  });
 })();
 </script>
 
