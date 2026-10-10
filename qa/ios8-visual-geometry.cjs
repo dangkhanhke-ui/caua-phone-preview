@@ -57,7 +57,7 @@ async function measure(page,name){
    const refs={messages:'.msg-nav-title',mail:'.mail-nav-title',photos:'.photos-nav-title',calendar:'.calendar-nav-title',phone:'.phone-nav-title'};
    const title=document.querySelector(refs[name]||'.msg-nav-title');
    return {
-      name,screen:r(screen),bar,clock,battery,icon,img,labelFont:fs(label),labelRect:r(label),
+      name,screen:r(screen),bar,clock,battery,icon,img,labelFont:fs(label),iconCssW:parseFloat(getComputedStyle(document.querySelector('#homeScreen .icon-grid [data-app="voice"] .icon')).width),labelRect:r(label),
       pass,pad,stack,red,controls,
       titleFont:fs(title),titleText:title?.textContent?.trim()||'',
       colors:{status:getComputedStyle(document.getElementById('statusBar')).color,button:getComputedStyle(document.getElementById('phoneHangup')).backgroundColor},
@@ -93,7 +93,7 @@ async function measure(page,name){
         assert(approx(m.screen.w,size.width,3),'Fullscreen does not fill visual viewport');
        }
        if(name==='home'){
-        assert(approx(m.labelFont/m.icon.w,.2,.025),'Home name/icon ratio differs from iOS 8 design');
+        assert(approx(m.labelFont/m.iconCssW,.2,.025),'Home name/icon CSS ratio differs from iOS 8 design');
        }
        if(name==='passcode'){
         assert(approx(m.pass.cx,m.screen.cx,3),'Password UI group off-center');
