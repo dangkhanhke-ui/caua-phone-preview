@@ -78,7 +78,7 @@ console.log('ATLAS_STATIC_PASS',checkedInline.length);
   });
   await check('ALERTS_ACTIVITY_DELETED_AND_EVENT',async()=>{
    for(const [id,term] of [['alerts','Quy tắc'],['deleted','Rafael'],['activity','08:52']]){
-    await page.locator('#atlasApp [data-do="tab"][data-id="'+id+'"]').click();
+    await page.locator('#atlasTabs [data-do="tab"][data-id="'+id+'"]').click();
     assert((await page.locator('#atlasMain').innerText()).includes(term));
    }
    await page.evaluate(()=>window.Atlas2015.pushEvent({p:'breno',type:'device',text:'Có hoạt động mới từ Breno.'}));
