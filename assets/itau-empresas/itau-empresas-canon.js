@@ -19,7 +19,7 @@ const ROOT='./assets/itau-empresas/';
 let manifest=null,bootPromise=null,requestSeq=0;
 const monthCache=new Map();
 const TODAY='2015-08-29';
-const DEFAULTS={tab:'home',view:'home',search:'',period:'30-days',typeFilter:'all',start:'2015-08-01',end:TODAY,loaded:20,selected:null,group:'',stack:[],statementScroll:0,payrollPeriod:'2015-07',receiptSearch:''};
+const DEFAULTS={tab:'home',view:'home',search:'',period:'30-days',typeFilter:'all',start:'2015-08-01',end:TODAY,loaded:20,selected:null,group:'',stack:[],statementScroll:0,payrollPeriod:'2015-07',receiptSearch:'',debtParty:''};
 let state={...DEFAULTS,stack:[]};
 const esc=(x)=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=(x)=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('vi');
@@ -99,6 +99,17 @@ const PRIORITY_REFS=['CAP-20130315','ACQ-2013-04-IGOR-01','ACQ-2013-04-REB-ANT',
 'DIST-2015-04-MARCELO','DIST-2015-04-CAUA','DIST-2015-08-MARCELO','DIST-2015-08-CAUA',
 'FOLHA-2015-07-13','POS-D-2015-08-19'];
 
+
+const CREDITORS=[
+ ['igor','Igor Alexandre Caires Monteiro'],['raul','Raul Mendonça de Carvalho'],
+ ['rebeca','Nhà phân phối của gia đình Rebeca Mendes'],['fabiano','Fabiano de Lima e Silva'],
+ ['carolina','Carolina Fontana de Quadros']
+];
+function creditorRows(all,id){
+ const item=CREDITORS.find(x=>x[0]===id);
+ return item?ordered(all.filter(t=>t.amount<0&&t.counterparty===item[1])):[];
+}
+
 const groups={
  bills:{title:'Thanh toán hóa đơn',predicate:t=>/hóa đơn|trích nợ/i.test(t.type)},
  transfers:{title:'Chuyển khoản',predicate:t=>/TED|chuyển khoản/i.test(t.type)},
@@ -109,7 +120,19 @@ const groups={
  rede:{title:'Giao dịch Rede',predicate:t=>/Rede|Redecard/i.test(t.counterparty)}
 };
 async function drawGroup(){const token=busyThen(async()=>{const key=state.group,grp=groups[key];if(!grp)return drawPayments();const data=ordered((await fetchAll()).filter(grp.predicate));if(token!==requestSeq)return;state.view='payment-list';setTop(grp.title,true);content.innerHTML=companyHeader()+`<div class="itau-result-info">${data.length} giao dịch đã hạch toán, đến ${dateBR(TODAY)}</div><div>${data.slice(0,state.loaded).map(rowHTML).join('')}</div><button class="itau-more" id="bizGroupMore" ${data.length<=state.loaded?'hidden':''}>Tải thêm</button>`;statementData=data;content.scrollTop=0;});}
-function drawPayments(){++requestSeq;state.view='payments';setTab('payments');setTop('Thanh toán');const entries=[['▤','Hóa đơn đã thanh toán','bills'],['↗','Chuyển khoản đã hạch toán','transfers'],['▥','Bảng lương','payroll'],['§','Thuế','tax'],['⇄','Chuyển khoản liên quan thành viên','internal'],['◫','Nhà cung cấp','suppliers']];content.innerHTML=`${companyHeader()}<div class="biz-company-head"><div class="biz-company-name">Lịch sử thanh toán</div><div class="biz-company-line">Chỉ xem giao dịch đã hạch toán · Không có kết nối để tạo lệnh mới</div></div><div class="itau-list-menu">${entries.map(([i,t,k])=>`<div class="itau-menu-row" data-biz-payment="${k}" role="button" tabindex="0"><span class="ico">${i}</span><span class="name">${t}</span><span class="arrow">›</span></div>`).join('')}</div>`;content.scrollTop=0;}
+function drawPayments(){
+ ++requestSeq;state.view='payments';setTab('payments');setTop('Thanh toán');
+ const entries=[
+ ['▤','Hóa đơn đã thanh toán','bills'],['↗','Chuyển khoản đã hạch toán','transfers'],
+ ['▥','Bảng lương','payroll'],['§','Thuế','tax'],
+ ['⇄','Giao dịch liên quan thành viên','internal'],['◫','Nhà cung cấp và vận hành','suppliers'],
+ ['◉','Tiền thẻ Rede','rede'],['▦','Các khoản đã trả theo đối tác','debts'],
+ ['◷','Lệnh chờ duyệt','pending'],['▧','Thanh toán đã lên lịch','scheduled'],
+ ['⊘','Lệnh bị từ chối','rejected']
+ ];
+ content.innerHTML=companyHeader()+'<div class="itau-list-menu">'+entries.map(x=>'<div class="itau-menu-row" data-biz-payment="'+x[2]+'" role="button" tabindex="0"><span class="ico">'+x[0]+'</span><span class="name">'+x[1]+'</span><span class="arrow">›</span></div>').join('')+'</div>';
+ content.scrollTop=0;
+}
 async function drawPayroll(){
  const token=busyThen(async()=>{
   const all=await fetchAll();if(token!==requestSeq)return;
@@ -130,7 +153,15 @@ async function drawPayroll(){
   content.scrollTop=0;
  });
 }
-function drawServices(){++requestSeq;state.view='services';setTab('services');setTop('Dịch vụ');const data=[['▤','Tra cứu tham chiếu giao dịch','receipts'],['ℹ','Thông tin tài khoản','account-info'],['▥','Bảng lương','payroll'],['▦','Thanh toán thẻ Rede','device'],['◆','Bảo mật','security'],['?','Trợ giúp','help']];content.innerHTML='<div class="itau-list-menu">'+data.map(([i,n,k])=>`<div class="itau-menu-row" data-biz-service="${k}" role="button" tabindex="0"><span class="ico">${i}</span><span class="name">${n}</span><span class="arrow">›</span></div>`).join('')+'</div>';content.scrollTop=0;}
+function drawServices(){
+ ++requestSeq;state.view='services';setTab('services');setTop('Dịch vụ');
+ const items=[['▤','Tra cứu mã tham chiếu','receipts'],['ℹ','Thông tin tài khoản','account-info'],
+ ['▥','Bảng lương','payroll'],['▦','Thanh toán thẻ Rede','device'],
+ ['◫','Công nợ đã thanh toán','debts'],['♙','Người sử dụng','users'],
+ ['◆','Bảo mật','security'],['?','Trợ giúp','help']];
+ content.innerHTML='<div class="itau-list-menu">'+items.map(x=>'<div class="itau-menu-row" data-biz-service="'+x[2]+'" role="button" tabindex="0"><span class="ico">'+x[0]+'</span><span class="name">'+x[1]+'</span><span class="arrow">›</span></div>').join('')+'</div>';
+ content.scrollTop=0;
+}
 async function drawReceipts(){
  const token=busyThen(async()=>{
   const all=ordered(await fetchAll());if(token!==requestSeq)return;
@@ -179,9 +210,69 @@ async function drawDevices(){
   content.scrollTop=0;
  });
 }
-function drawStatic(view){++requestSeq;state.view=view;setTop(view==='security'?'Mã bảo mật':'Trợ giúp',true);content.innerHTML='<div class="itau-info-block"><div class="itau-kv"><label>Trạng thái</label><div>Không có kết nối</div></div></div><div class="biz-payroll-box"><strong>Chưa có dữ liệu xác thực</strong><p>Không tự tạo iToken, mã ngân hàng hay chi tiết bảo mật không được cung cấp trong bộ canon.</p></div>';content.scrollTop=0;}
+function drawStatic(view){
+ ++requestSeq;state.view=view;setTop(view==='security'?'Bảo mật':'Trợ giúp',true);
+ if(view==='security'){
+  content.innerHTML='<div class="itau-info-block">'+infoRow('Chế độ truy cập','Tra cứu')
+   +infoRow('Quyền gửi lệnh','Không khả dụng')+'</div>'
+   +infoBox('Quyền thực hiện giao dịch','Chức năng chuẩn bị, phê duyệt và gửi lệnh không khả dụng trong phiên này.');
+ }else{
+  content.innerHTML=infoBox('Tra cứu sao kê','Chọn kỳ sao kê, tìm tên đối tác hoặc mã tham chiếu để xem chi tiết khoản đã hạch toán.')
+   +infoBox('Chi tiết giao dịch','Chỉ hiển thị thông tin đã ghi sổ. Mã xác thực ngân hàng và thông tin tài khoản đối ứng không có dữ liệu.');
+ }
+ content.scrollTop=0;
+}
+
+async function drawDebts(){
+ const token=busyThen(async()=>{
+  const all=await fetchAll();if(token!==requestSeq)return;
+  state.view='debts';setTop('Thanh toán đối tác',true);
+  const cards=CREDITORS.map(item=>{
+   const rows=creditorRows(all,item[0]),paid=rows.reduce((s,t)=>s-t.amount,0);
+   return '<div class="itau-menu-row biz-creditor-row" data-biz-creditor="'+item[0]+'" role="button" tabindex="0"><span class="name">'+esc(item[1])+'<small>'+rows.length+' khoản đã trả · '+money(paid)+'</small></span><span class="arrow">›</span></div>';
+  }).join('');
+  content.innerHTML=companyHeader()+infoBox('Lịch sử thanh toán','Đây là các khoản đã thanh toán qua tài khoản, không phải số dư nợ còn lại.')
+   +'<div class="itau-list-menu">'+cards+'</div>';content.scrollTop=0;
+ });
+}
+async function drawDebtDetail(){
+ const token=busyThen(async()=>{
+  const all=await fetchAll();if(token!==requestSeq)return;
+  const person=CREDITORS.find(x=>x[0]===state.debtParty);if(!person)return drawDebts();
+  const rows=creditorRows(all,state.debtParty);statementData=rows;
+  state.view='debt-detail';setTop('Lịch sử thanh toán',true);
+  content.innerHTML=infoBox(person[1],rows.length+' khoản đã trả · '+money(rows.reduce((s,t)=>s-t.amount,0)))
+   +'<div id="bizDebtRows">'+rows.slice(0,state.loaded).map(rowHTML).join('')+'</div>'
+   +'<button id="bizDebtMore" class="itau-more" type="button" '+(rows.length<=state.loaded?'hidden':'')+'>Tải thêm</button>';
+  content.scrollTop=0;
+ });
+}
+function drawPending(){
+ ++requestSeq;
+ const labels={pending:['Lệnh chờ duyệt','Không có lệnh chờ duyệt'],scheduled:['Thanh toán đã lên lịch','Không có lệnh thanh toán đã lên lịch'],rejected:['Lệnh bị từ chối','Không có lệnh bị từ chối']};
+ const item=labels[state.view]||labels.pending;setTop(item[0],true);
+ content.innerHTML='<div class="itau-empty"><strong>'+item[1]+'</strong></div>';content.scrollTop=0;
+}
+function drawUsers(){
+ ++requestSeq;state.view='users';setTop('Người sử dụng',true);
+ content.innerHTML='<div class="itau-empty"><strong>Không có thông tin người dùng</strong><span>Danh sách người dùng và quyền truy cập chưa được cung cấp.</span></div>';
+ content.scrollTop=0;
+}
+
 function drawCustom(){++requestSeq;state.view='custom';setTop('Khoảng thời gian',true);content.innerHTML=`<div class="itau-custom"><label>Từ ngày</label><input id="bizCustomStart" type="date" max="${TODAY}" value="${esc(state.start)}"><label>Đến ngày</label><input id="bizCustomEnd" type="date" max="${TODAY}" value="${esc(state.end)}"><div class="itau-custom-actions"><button id="bizCustomCancel">Hủy</button><button class="primary" id="bizCustomApply">Áp dụng</button></div></div>`;content.scrollTop=0;}
-function drawCurrent(){switch(state.view){case 'home':return drawHome();case 'statement':return drawStatement();case 'payments':return drawPayments();case 'payment-list':return drawGroup();case 'payroll':return drawPayroll();case 'services':return drawServices();case 'receipts':return drawReceipts();case 'account-info':return drawAccount();case 'service-device':return drawDevices();case 'service-security':return drawStatic('security');case 'service-help':return drawStatic('help');case 'custom':return drawCustom();case 'detail':return drawDetail();default:return drawHome();}}
+function drawCurrent(){
+ switch(state.view){
+ case 'home':return drawHome();case 'statement':return drawStatement();
+ case 'payments':return drawPayments();case 'payment-list':return drawGroup();
+ case 'payroll':return drawPayroll();case 'services':return drawServices();
+ case 'receipts':return drawReceipts();case 'account-info':return drawAccount();
+ case 'service-device':return drawDevices();case 'service-security':return drawStatic('security');
+ case 'service-help':return drawStatic('help');case 'users':return drawUsers();
+ case 'debts':return drawDebts();case 'debt-detail':return drawDebtDetail();
+ case 'pending':case 'scheduled':case 'rejected':return drawPending();
+ case 'custom':return drawCustom();case 'detail':return drawDetail();default:return drawHome();
+ }
+}
 function doBack(){if(!state.stack.length)return drawHome();const prev=state.stack.pop();Object.assign(state,prev);state.loaded=20;drawCurrent();}
 function navTab(tab){state.stack=[];state.tab=tab;state.view=tab;state.loaded=20;state.search='';if(tab==='home')drawHome();else if(tab==='statement')drawStatement(true);else if(tab==='payments')drawPayments();else drawServices();}
 async function openApp(){document.getElementById('mailApp')?.classList.remove('open');screen?.classList.remove('mail-open');document.getElementById('itauApp')?.classList.remove('open');screen?.classList.remove('itau-open');app.classList.add('open');screen?.classList.add('itau-biz-open');state={...DEFAULTS,stack:[]};const icon=launcher.querySelector('img');if(icon)splashLogo.src=icon.src;splash.classList.remove('hide');drawHome();setTimeout(()=>splash.classList.add('hide'),500);}
@@ -195,8 +286,9 @@ content.addEventListener('change',e=>{if(e.target.id==='bizPeriod'){state.period
 content.addEventListener('click',e=>{
  const r=e.target.closest('[data-biz-tx]');if(r){const t=statementData.find(x=>x.id===r.dataset.bizTx);if(t){selectedTx=t;push('detail');drawDetail();}else{fetchMonth('2015-08').then(rows=>{const tx=rows.find(x=>x.id===r.dataset.bizTx);if(tx){selectedTx=tx;push('detail');drawDetail();}});}return;}
  const g=e.target.closest('[data-go]');if(g){navTab(g.dataset.go);return;}
- const payment=e.target.closest('[data-biz-payment]');if(payment){const id=payment.dataset.bizPayment;if(id==='payroll'){state.group='payroll';go('payroll');}else{state.group=id;state.loaded=20;go('payment-list');}return;}
- const svc=e.target.closest('[data-biz-service]');if(svc){const id=svc.dataset.bizService;state.loaded=20;const map={'account-info':'account-info','receipts':'receipts','payroll':'payroll','device':'service-device','security':'service-security','help':'service-help'};go(map[id]||'services');return;}
+ const payment=e.target.closest('[data-biz-payment]');if(payment){const id=payment.dataset.bizPayment;if(id==='debts'){state.loaded=20;go('debts');}else if(['pending','scheduled','rejected'].includes(id)){go(id);}else if(id==='payroll'){state.group='payroll';go('payroll');}else{state.group=id;state.loaded=20;go('payment-list');}return;}
+ const svc=e.target.closest('[data-biz-service]');if(svc){const id=svc.dataset.bizService;state.loaded=20;const map={'account-info':'account-info','receipts':'receipts','payroll':'payroll','device':'service-device','security':'service-security','help':'service-help','debts':'debts','users':'users'};go(map[id]||'services');return;}
+ const creditor=e.target.closest('[data-biz-creditor]');if(creditor){state.debtParty=creditor.dataset.bizCreditor;state.loaded=20;go('debt-detail');return;}
  const t=e.target.closest('[data-biz-type]');if(t){state.typeFilter=t.dataset.bizType;state.loaded=20;content.querySelectorAll('[data-biz-type]').forEach(x=>x.classList.toggle('active',x===t));paintStatement();return;}
  if(e.target.closest('#bizClear')){state.search='';state.loaded=20;content.querySelector('#bizSearch').value='';content.querySelector('#bizClear').classList.remove('show');paintStatement();return;}
  if(e.target.closest('#bizCustomCancel')){if(state.stack.length)state.stack.pop();state.period='30-days';state.view='statement';drawStatement(true);return;}
@@ -204,7 +296,8 @@ content.addEventListener('click',e=>{
  if(e.target.closest('#bizLoadMore')){state.loaded+=20;paintStatement();return;}
  if(e.target.closest('#bizGroupMore')){state.loaded+=20;const out=statementData.slice(0,state.loaded);content.querySelector('#bizGroupMore')?.previousElementSibling?.replaceChildren();const node=content.querySelector('#bizGroupMore')?.previousElementSibling;if(node)node.innerHTML=out.map(rowHTML).join('');content.querySelector('#bizGroupMore').hidden=out.length>=statementData.length;return;}
  if(e.target.closest('#bizRefMore')){state.loaded+=20;paintReceipts();return;}
+ if(e.target.closest('#bizDebtMore')){state.loaded+=20;const list=content.querySelector('#bizDebtRows');if(list)list.innerHTML=statementData.slice(0,state.loaded).map(rowHTML).join('');const more=content.querySelector('#bizDebtMore');if(more)more.hidden=state.loaded>=statementData.length;return;}
  });
-content.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-biz-tx],[data-biz-payment],[data-biz-service]')){e.preventDefault();e.target.click();}});
+content.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-biz-tx],[data-biz-payment],[data-biz-service],[data-biz-creditor]')){e.preventDefault();e.target.click();}});
 content.addEventListener('scroll',()=>{if(state.view==='statement'&&content.scrollTop+content.clientHeight>=content.scrollHeight-110){const btn=content.querySelector('#bizLoadMore');if(btn&&!btn.hidden)btn.click();}},{passive:true});
 })();
