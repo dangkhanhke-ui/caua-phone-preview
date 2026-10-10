@@ -1,0 +1,34 @@
+name: iOS 8 Compact PIN and Phone Dialer QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'css/caua-ios8-compact-number-pads.css'
+      - 'qa/ios8-compact-number-pads.cjs'
+      - '.github/workflows/qa-compact-number-pads.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium and WebKit
+        run: |
+          node --check qa/ios8-compact-number-pads.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Measure, tap and screenshot both number pads
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-compact-pad-http.log 2>&1 &
+          node qa/ios8-compact-number-pads.cjs
+      - name: Preserve before/after screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compact-number-pad-screenshots
+          path: /tmp/caua-compact-pad-shots/
+          retention-days: 14
