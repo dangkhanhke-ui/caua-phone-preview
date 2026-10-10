@@ -126,7 +126,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="./css/caua-immersive-fullbleed.css?v=20261010-desktop-scaled-v4">
+<!-- restored 2015 zoom mode: no full-viewport layout stylesheet -->
 <link rel="stylesheet" href="./css/vh-soft-app-entry.css?v=20261010-mailmounted3">
 
 <link rel="stylesheet" href="./css/vh-home-passcode-call-size-fix.css?v=20261010fix1">
@@ -4530,21 +4530,17 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
   screen.appendChild(homeBar);
 
   let active=false,lastTap=0;
-  let immersiveWidth=0,immersiveHeight=0;
+  // Preserve the old 320x568 portrait design and scale it as one image-sized UI.
+  // The browser viewport (including Safari's own toolbars) is the available area.
   function fit(){
-    const w=window.innerWidth;
     const field=document.activeElement;
     const typing=!!(field&&field.closest&&field.closest('#phoneWrap')&&field.matches('input:not([type=hidden]),textarea,select,[contenteditable],[role=textbox]'));
-    if(!immersiveWidth||Math.abs(immersiveWidth-w)>40){immersiveWidth=w;immersiveHeight=window.innerHeight;}
-    else if(!typing)immersiveHeight=Math.max(immersiveHeight,window.innerHeight);
     if(typing)return;
-    // Safari's visible page area can change when its bottom toolbar collapses.
-    // Set the screen container height directly instead of adding letterbox margins.
-    const available=Math.max(280,Math.round(window.visualViewport?.height||window.innerHeight));
-    document.documentElement.style.setProperty('--caua-full-h',available+'px');
-    const desktop=window.matchMedia('(min-width:700px) and (pointer:fine)').matches;
-    const scale=desktop?Math.min(window.innerWidth/320,available/568):1;
-    document.documentElement.style.setProperty('--immersive-scale',String(scale));
+    const viewport=window.visualViewport;
+    const availableWidth=Math.max(1,Math.min(window.innerWidth,viewport?.width||window.innerWidth));
+    const availableHeight=Math.max(1,Math.min(window.innerHeight,viewport?.height||window.innerHeight));
+    const scale=Math.max(.15,Math.min(availableWidth/320,availableHeight/568));
+    document.documentElement.style.setProperty('--immersive-scale',scale.toFixed(5));
   }
   function mode(on){
     active=!!on;
@@ -4567,22 +4563,8 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     if(now-lastTap<330){lastTap=0;action('switcher-now')}
     else{lastTap=now;action('home-now')}
   }
-  // A browser can hide its own chrome only when it supports Fullscreen API.
-  // The call must happen in the original user gesture, not in a timer/promise.
-  toggle.addEventListener('click',()=>{
-    if(active){
-      if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
-      mode(false);
-      return;
-    }
-    if(!window.navigator.standalone&&screen.requestFullscreen){
-      try{const p=screen.requestFullscreen({navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{});}catch(e){}
-    }
-    mode(true);
-  });
-  document.addEventListener('fullscreenchange',()=>{
-    if(!document.fullscreenElement&&active)fit();
-  });
+  // This button zooms the iPhone UI only; do not request browser fullscreen.
+  toggle.addEventListener('click',()=>mode(!active));
   homeBar.addEventListener('click',tapped);
   homeBar.addEventListener('keydown',event=>{
     if(event.key==='Enter'||event.key===' '){event.preventDefault();tapped(event)}
