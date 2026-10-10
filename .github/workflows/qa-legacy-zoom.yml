@@ -1,0 +1,35 @@
+name: Preserve legacy iPhone zoom (desktop and mobile)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'css/head-39-caua-immersive-mode-style.css'
+      - 'css/caua-immersive-fullbleed.css'
+      - 'qa/legacy-zoom-regression.cjs'
+      - '.github/workflows/qa-legacy-zoom.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  zoom-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium and WebKit
+        run: |
+          node --check qa/legacy-zoom-regression.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Test actual zoom button and preserved aspect ratio
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-legacy-zoom.log 2>&1 &
+          node qa/legacy-zoom-regression.cjs
+      - name: Upload desktop and mobile screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-zoom-screenshots
+          path: /tmp/caua-legacy-zoom-shots/
+          retention-days: 14
