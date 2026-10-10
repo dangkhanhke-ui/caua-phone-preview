@@ -10,7 +10,7 @@ body.caua-immersive #screen{left:0!important;top:0!important;box-shadow:none!imp
 /* Small floating icon control, outside the iPhone display in framed mode.
    Keep a 42px tap target and use icons only (no label painted on the page). */
 #caua-immersive-toggle{
-  position:fixed;z-index:2147483000;top:8px;right:8px;
+  position:fixed;z-index:2147483000;top:2px;right:2px;left:auto;bottom:auto;
   display:grid;place-items:center;box-sizing:border-box;
   width:42px;height:42px;padding:0;
   border:0;border-radius:50%;
