@@ -21,10 +21,66 @@ const html=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'
 const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 let ledger=[],started=null,revision=0,selected=null;
 const state={view:'home',tab:'home',stack:[],month:'2015-08',filter:'all',search:'',cardMonth:'2015-09',shown:25,list:[]};
+
+/* 2014 iPhone Itaú personal navigation: flat, thin one-family pictograms. */
+const PATHS={
+ home:'<path d="m3 11 9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/>',
+ statement:'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h6"/>',
+ transfer:'<path d="M4 7h16l-4-4M20 7l-4 4M20 17H4l4-4M4 17l4 4"/>',
+ services:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+ menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+ back:'<path d="m15 4-8 8 8 8"/>',
+ card:'<rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="M3 10h18M7 15h5"/>',
+ bill:'<path d="M5 3h14v18l-3-2-4 2-4-2-3 2z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+ atm:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 8h12M6 12h12M12 15v4m-3-3 3-2 3 2"/>',
+ itoken:'<path d="M12 2 20 5v6c0 5-3 8.5-8 11-5-2.5-8-6-8-11V5z"/><path d="m9 12 2 2 4-4"/>',
+ account:'<circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4.8 1c0 2-2.3 2-2.3 4"/><circle cx="12" cy="18" r=".7" fill="currentColor" stroke="none"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
+ history:'<path d="M4 6v5h5"/><path d="M5.5 11a7 7 0 1 1 2 6"/><path d="M12 8v5l3 2"/>',
+ pay:'<path d="M3 8h18v12H3zM3 8l4-5h10l4 5"/><path d="M7 13h10M7 17h5"/>',
+ search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/>'
+};
+function ico(k,klass=''){
+ return '<svg class="personal-ico '+html(klass)+'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+(PATHS[k]||PATHS.services)+'</svg>';
+}
+bottom.querySelectorAll('[data-itau-tab]').forEach(t=>{
+ const glyph=t.querySelector('i');
+ if(glyph)glyph.innerHTML=ico(t.dataset.itauTab,'personal-ico-nav');
+});
+const drawer=document.createElement('div');
+drawer.className='personal-drawer-shell';
+drawer.innerHTML='<div class="personal-drawer-shade" data-drawer-close></div>'
+ +'<aside class="personal-drawer-panel" aria-label="Menu Itaú" aria-hidden="true">'
+ +'<header class="personal-drawer-header"><span class="personal-drawer-brand">itaú</span><small>Itaú 30 Horas</small></header>'
+ +'<div class="personal-drawer-person"><strong>Cauã Henrique Valença de Oliveira</strong><span>Agência 0917 · Conta 43972-1</span></div>'
+ +'<div class="personal-drawer-links">'
+ +[['home','Trang chủ','home'],['statement','Sao kê','statement'],['transfers','Chuyển khoản','transfer'],
+ ['card','Cartão Visa Gold','card'],['services','Serviços','services'],['account','Dados da conta','account'],
+ ['itoken','iToken','itoken'],['help','Ajuda','help']]
+ .map(x=>'<button type="button" data-drawer-go="'+x[0]+'">'+ico(x[2])+'<span>'+x[1]+'</span><b>›</b></button>').join('')
+ +'</div></aside>';
+app.querySelector('.itau-frame').appendChild(drawer);
+function drawerOpen(value){
+ drawer.classList.toggle('open',!!value);
+ const pane=drawer.querySelector('.personal-drawer-panel');pane.setAttribute('aria-hidden',value?'false':'true');
+}
+drawer.addEventListener('click',e=>{
+ if(e.target.closest('[data-drawer-close]'))return drawerOpen(false);
+ const item=e.target.closest('[data-drawer-go]');if(!item)return;
+ drawerOpen(false);
+ const view=item.dataset.drawerGo;
+ if(['home','statement','transfers','services'].includes(view))return nav(view==='transfers'?'transfer':view);
+ openView(view);
+});
+function menuLine(label,view,iconName){
+ return '<div class="itau-menu-row" data-personal-go="'+html(view)+'" role="button" tabindex="0"><span class="ico">'+ico(iconName)+'</span><span class="name">'+html(label)+'</span><span class="arrow">›</span></div>';
+}
+
 function notice(txt){toast.textContent=txt;toast.classList.add('show');clearTimeout(notice.timer);notice.timer=setTimeout(()=>toast.classList.remove('show'),1800);}
 function top(name,child=false){
- title.textContent=name;back.textContent=child?'‹ Quay lại':'';
- back.style.visibility=child?'visible':'hidden';
+ title.textContent=name;back.innerHTML=ico(child?'back':'menu')+'<span>'+(child?'Quay lại':'Menu')+'</span>';
+ back.style.visibility='visible';drawerOpen(false);
  action.textContent='';action.style.visibility='hidden';
  bottom.style.display=child?'none':'grid';
  content.classList.toggle('child',child);
@@ -32,7 +88,7 @@ function top(name,child=false){
  accountMenu?.classList.remove('open');
 }
 function box(k,v){return '<div class="itau-kv"><label>'+html(k)+'</label><div>'+html(v)+'</div></div>';}
-function cardHead(){return '<div class="itau-account-head"><div class="itau-hello">Cauã Henrique Valença de Oliveira</div><div class="itau-account-line">Agência 0917 · Conta 43972-1</div></div>';}
+function cardHead(){return '<div class="itau-account-head"><div class="personal-account-mark">'+ico('account')+'</div><div class="personal-account-copy"><div class="itau-hello">Cauã Henrique Valença de Oliveira</div><div class="itau-account-line">Agência 0917 · Conta 43972-1</div></div></div>';}
 function sorted(rows){return rows.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time)||b.id.localeCompare(a.id));}
 function balanceAt(date){
  const transactions=ledger.filter(t=>t.date<=date);return transactions.length?transactions[transactions.length-1].balanceCents:1843000;
@@ -62,20 +118,28 @@ function nav(tab){
  state.tab=tab;state.view=tab;state.stack=[];state.shown=25;state.search='';
  if(tab==='transfer')state.view='transfers';render();
 }
+
 function renderHome(){
  state.view='home';state.tab='home';top('Itaú');
  const tx=sorted(ledger.filter(t=>t.date<=AS_OF));
  content.innerHTML=cardHead()
- +'<div class="itau-balance"><div class="itau-balance-label">Số dư tài khoản · '+fmt(AS_OF)+'</div>'
+ +'<div class="personal-home-head"><span>Conta corrente</span><span>'+fmt(AS_OF)+'</span></div>'
+ +'<div class="itau-balance"><div class="itau-balance-label">Saldo da conta · Số dư tài khoản</div>'
  +'<div class="itau-balance-value">'+money(balanceAt(AS_OF))+'</div>'
- +'<button type="button" class="itau-link-btn" data-personal-go="statement">Xem sao kê</button></div>'
- +'<div class="itau-list-menu itau-personal-shortcuts">'
- +'<div class="itau-menu-row" data-personal-go="card" role="button" tabindex="0"><span class="ico">▣</span><span class="name">Visa Gold •••• 4836</span><span class="arrow">›</span></div>'
- +'<div class="itau-menu-row" data-personal-go="transfers" role="button" tabindex="0"><span class="ico">⇄</span><span class="name">Chuyển khoản đã ghi sổ</span><span class="arrow">›</span></div></div>'
+ +'<button type="button" class="itau-link-btn" data-personal-go="statement">Xem sao kê <span aria-hidden="true">›</span></button></div>'
+ +'<div class="personal-action-grid">'
+ +'<button type="button" data-personal-go="transfers-list">'+ico('transfer')+'<span>Chuyển khoản</span></button>'
+ +'<button type="button" data-personal-go="bills-list">'+ico('pay')+'<span>Thanh toán</span></button>'
+ +'<button type="button" data-personal-go="card">'+ico('card')+'<span>Thẻ tín dụng</span></button>'
+ +'<button type="button" data-personal-go="itoken">'+ico('itoken')+'<span>iToken</span></button></div>'
+ +'<div class="personal-credit-overview" data-personal-go="card" role="button" tabindex="0">'
+ +'<span class="personal-credit-sign">'+ico('card')+'</span><div><strong>Visa Gold ···· 4836</strong><small>Kỳ 09/2015 · đang phát sinh</small></div>'
+ +'<b>'+money(card.currentCents)+'</b><span class="itau-row-arrow">›</span></div>'
  +'<div class="itau-section-title">Giao dịch gần đây</div>'+tx.slice(0,6).map(bankRow).join('')
- +'<button class="itau-more" type="button" data-personal-go="statement">Xem thêm giao dịch</button>';
+ +'<button class="itau-more" type="button" data-personal-go="statement">Xem tất cả giao dịch</button>';
  content.scrollTop=0;
 }
+
 function listPane(rows,heading,withFilter=false){
  const display=rows.slice(0,state.shown);
  return '<div class="itau-result-info">'+rows.length+' giao dịch '+html(heading)+'</div>'
@@ -126,12 +190,18 @@ function renderBankDetail(){
  +'</div>';
  content.scrollTop=0;
 }
+
 function renderTransfers(){
  state.view='transfers';state.tab='transfer';top('Giao dịch');
- const menus=[['Chuyển khoản','transfers-list'],['Thanh toán hóa đơn','bills-list'],['Rút tiền ATM','cash-list'],['Lịch sử trả hóa đơn thẻ','card-payments'],['Thẻ tín dụng Visa Gold','card']];
- content.innerHTML=cardHead()+'<div class="itau-list-menu">'+menus.map(m=>'<div class="itau-menu-row" data-personal-go="'+m[1]+'" role="button" tabindex="0"><span class="ico">›</span><span class="name">'+m[0]+'</span><span class="arrow">›</span></div>').join('')+'</div>';
+ content.innerHTML=cardHead()+'<div class="personal-section-heading">Tra cứu giao dịch</div><div class="itau-list-menu">'
+ +menuLine('Chuyển khoản đã ghi sổ','transfers-list','transfer')
+ +menuLine('Thanh toán hóa đơn','bills-list','bill')
+ +menuLine('Rút tiền ATM','cash-list','atm')
+ +menuLine('Lịch sử trả hóa đơn thẻ','card-payments','history')
+ +menuLine('Thẻ tín dụng Visa Gold','card','card')+'</div>';
  content.scrollTop=0;
 }
+
 function renderGroup(){
  const map={
  'transfers-list':{title:'Chuyển khoản',test:t=>/chuyển khoản|thu nhập dịch vụ|phân phối lợi nhuận|dịch vụ pháp lý/i.test(t.type)},
@@ -189,13 +259,18 @@ function renderPurchase(){
  +box('Trạng thái',bill.status==='paid'?'Đã thanh toán':'Chưa đến hạn')
  +'</div>';content.scrollTop=0;
 }
+
 function renderServices(){
  state.view='services';state.tab='services';top('Dịch vụ');
- content.innerHTML=cardHead()+'<div class="itau-list-menu">'
- +[['Thẻ tín dụng Visa Gold','card'],['Thông tin tài khoản','account'],['iToken','itoken'],['Khoản đang chờ','pending'],['Trợ giúp','help']]
-  .map(x=>'<div class="itau-menu-row" data-personal-go="'+x[1]+'" role="button" tabindex="0"><span class="ico">›</span><span class="name">'+x[0]+'</span><span class="arrow">›</span></div>').join('')
+ content.innerHTML=cardHead()+'<div class="personal-section-heading">Tài khoản & dịch vụ</div><div class="itau-list-menu">'
+ +menuLine('Thẻ tín dụng Visa Gold','card','card')
+ +menuLine('Thông tin tài khoản','account','account')
+ +menuLine('iToken','itoken','itoken')
+ +menuLine('Khoản đang chờ','pending','clock')
+ +menuLine('Trợ giúp','help','help')
  +'</div>';content.scrollTop=0;
 }
+
 function renderAccount(){
  top('Thông tin tài khoản',true);
  content.innerHTML='<div class="itau-info-block">'+box('Ngân hàng','Itaú')
@@ -234,7 +309,7 @@ function openView(name){
 async function openApp(){
  document.getElementById('itauBizApp')?.classList.remove('open');screen?.classList.remove('itau-biz-open');
  document.getElementById('mailApp')?.classList.remove('open');screen?.classList.remove('mail-open');
- app.classList.add('open');screen?.classList.add('itau-open');
+ app.classList.add('open');drawerOpen(false);screen?.classList.add('itau-open');
  const icon=launcher.querySelector('img');if(icon)splashLogo.src=icon.src;
  splash.classList.remove('hide');
  content.innerHTML='<div class="itau-empty"><strong>Đang tải dữ liệu tài khoản</strong></div>';
@@ -254,14 +329,14 @@ async function openApp(){
   content.innerHTML='<div class="itau-empty"><strong>Không tải được sao kê</strong><span>Vui lòng mở lại ứng dụng.</span></div>';
  }finally{if(token===revision)splash.classList.add('hide');}
 }
-function closeApp(){++revision;app.classList.remove('open');screen?.classList.remove('itau-open');accountMenu?.classList.remove('open');}
+function closeApp(){drawerOpen(false);++revision;app.classList.remove('open');screen?.classList.remove('itau-open');accountMenu?.classList.remove('open');}
 launcher.addEventListener('click',openApp);
 homeButton?.addEventListener('click',closeApp);
 bottom.addEventListener('click',e=>{
  const hit=e.target.closest('[data-itau-tab]');
  if(hit)nav(hit.dataset.itauTab);
 });
-back.addEventListener('click',goBack);
+back.addEventListener('click',()=>{if(state.stack.length)return goBack();if(state.view!=='home'&&state.view!=='statement'&&state.view!=='transfers'&&state.view!=='services')return goBack();drawerOpen(!drawer.classList.contains('open'));});
 content.addEventListener('input',e=>{
  if(e.target.id==='personalSearch'){state.search=e.target.value;state.shown=25;paintStatement();}
 });
