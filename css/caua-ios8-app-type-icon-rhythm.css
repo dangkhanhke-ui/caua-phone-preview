@@ -1,0 +1,127 @@
+/*
+ * STEP 5: 2015 iOS 8 typography / toolbar glyph coherence.
+ * Base rhythm: 44pt navigation, ~17pt navigation title,
+ * 16pt actions, 49pt native tabs and ~10pt tab labels.
+ *
+ * Only nav/tab chrome is normalized. Each app owns its own color and
+ * branded header treatment. Photos, files, content, badges, and logos
+ * are never globally resized.
+ */
+#screen {
+  --vh-ios8-nav-title:17px;
+  --vh-ios8-nav-action:16px;
+  --vh-ios8-tab-label:10px;
+  --vh-ios8-native-glyph:24px;
+  --vh-ios8-glyph-stroke:1.65;
+}
+#screen :is(
+  .mail-nav-title,.msg-nav-title,.phone-nav-title,
+  .notes-nav-title,.calendar-nav-title,.cal-overlay-title,
+  .photos-nav-title,.voice-detail-nav-title
+){
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  font-size:var(--vh-ios8-nav-title)!important;
+  font-weight:600!important;
+  line-height:20px!important;
+  letter-spacing:-.25px!important;
+  min-width:0;
+  text-overflow:ellipsis;
+}
+#screen :is(
+  .mail-nav-btn,.msg-nav-btn,.phone-nav-btn,
+  .notes-nav button,.notes-detail-nav button,
+  .calendar-nav button,.cal-overlay-nav button,
+  .photos-nav-btn
+):not(.vh-back-unified){
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  font-size:var(--vh-ios8-nav-action)!important;
+  font-weight:400!important;
+}
+/* Keep the shared back glyph from step 0 in charge of its own path. */
+#screen :is(
+  .mail-nav-btn,.msg-nav-btn,.phone-nav-btn,
+  .notes-nav button,.notes-detail-nav button,
+  .calendar-nav button,.cal-overlay-nav button,
+  .photos-nav-btn
+).vh-back-unified{
+  font-size:0!important;
+}
+#screen .photos-tabbar .photos-tab,
+#screen .phone-tabbar .phone-tab{
+  font-size:var(--vh-ios8-tab-label)!important;
+  line-height:12px!important;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+#screen .photos-tabbar .photos-tab svg{
+  width:var(--vh-ios8-native-glyph)!important;
+  height:var(--vh-ios8-native-glyph)!important;
+  display:block;
+  flex:none;
+  transform:none;
+}
+#screen .phone-tabbar .phone-tab-icon{
+  width:25px!important;
+  height:25px!important;
+  flex:0 0 25px!important;
+  transform:none;
+}
+#screen .mail-toolbar .mail-toolbar-btn .ios8-tool-svg,
+#screen .photos-viewer-toolbar .photos-viewer-tool .ios8-tool-svg{
+  width:24px!important;
+  height:24px!important;
+  flex:0 0 24px!important;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+/* Non-system apps: only chrome rhythm, never impose Helvetica over their
+ * original brand font. The 2015 layouts remain intentionally distinct. */
+#waIos15 .wai-tab-label{
+  font-size:10px!important;
+  line-height:12px!important;
+}
+#waIos15 .wai-tab .wai-icon{
+  width:24px!important;
+  height:24px!important;
+  flex:0 0 24px!important;
+}
+#facebookApp .fb15-tabbar .fb15-tab{
+  font-size:9.5px!important;
+  line-height:11px!important;
+}
+#facebookApp .fb15-tabbar .fb15-tab svg{
+  width:21px!important;
+  height:21px!important;
+  flex:0 0 21px!important;
+}
+#atlasApp .a10-tabbar .a10-tab{
+  font-size:10px!important;
+  line-height:12px!important;
+}
+#atlasApp .a10-tabbar .a10-tab svg{
+  width:22px!important;
+  height:22px!important;
+  flex:0 0 22px!important;
+}
+#goodreaderApp .gr4-nav strong{
+  font-size:15px!important;
+  line-height:19px!important;
+}
+#goodreaderApp .gr4-bar button{
+  font-size:10px!important;
+  line-height:12px!important;
+}
+#goodreaderApp .gr4-bar button > span:first-child{
+  font-size:21px!important;
+  line-height:23px!important;
+}
+/* Itaú apps retain bank-orange and bank typography, but titles are aligned
+ * with the native 44pt navbar baseline. */
+#screen :is(#itauApp,#itauBizApp) .itau-topbar-title{
+  font-size:17px!important;
+  line-height:21px!important;
+}
+/* Avoid generic scaling on icon-sized SVG inside selected tab/navigation
+ * components. These are already given their intended sizes above. */
+#screen :is(.phone-tab,.photos-tab,.fb15-tab,.wai-tab,.a10-tab) svg{
+  transform-origin:center;
+}
