@@ -63,7 +63,7 @@ async function collect(page){
    brandFacebook:get('#facebookApp .fb15-navbar','background-color'),
    brandAtlas:get('#atlasApp .a10-navbar','background-color')
   };
-  return {screen,home,icon,png,dockIcon,nameFont:parseFloat(getComputedStyle(name).fontSize),
+  return {screen,home,icon,png,dockIcon,iconCSS:parseFloat(getComputedStyle(query('#homeScreen [data-app="voice"] .icon')).width),nameFont:parseFloat(getComputedStyle(name).fontSize),
    dockFont:parseFloat(getComputedStyle(dockName).fontSize),status,clock,batt,
    appCount:document.querySelectorAll('#homeScreen [data-app]').length,
    rawScreenWidth:query('#screen').clientWidth,
@@ -144,7 +144,7 @@ async function validateCall(page,prefix){
       assertClose(data.png.w,data.icon.w,1,'Image must fully fill icon');
       assertClose(data.dockIcon.w,data.icon.w,1,'Dock and Home icon size');
       assertClose(data.dockFont,data.nameFont,.35,'Dock and Home font');
-      assertClose(data.nameFont/data.icon.w,.2,.025,'Home icon/text proportions');
+      assertClose(data.nameFont/data.iconCSS,.2,.025,'Home icon/text proportions (CSS layout units)');
       assertClose(data.clock.cx,data.screen.cx,3,'Status time must be centered');
       assert(data.batt.w>=21,'Status battery too small');
       let headersChecked=0;
