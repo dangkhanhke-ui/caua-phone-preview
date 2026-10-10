@@ -18,14 +18,4 @@ body.caua-immersive #screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.wai-tab,.
 /* Center the password cluster within the real fullscreen viewport, rather than
    centering the old 568px coordinate system at the top of a taller viewport. */
 /* PIN keypad no longer depends on vw/fullscreen; see canonical 2015 passcode styles. */
-/* In-call layout: center the control grid, then put End Call beneath it with
-   a comfortable consistent gap (never anchored to a distant screen bottom). */
-body.caua-immersive #screen .phone-call-overlay{width:100%!important;height:100%!important;min-height:0!important}
-body.caua-immersive #screen .phone-call-person{padding:clamp(60px,11vh,105px) 12px 0!important;text-align:center!important}
-body.caua-immersive #screen .phone-call-name{font-size:30px!important;line-height:36px!important}
-body.caua-immersive #screen .phone-call-state{font-size:16px!important}
-body.caua-immersive #screen .phone-call-controls{width:min(270px,86%)!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:24px 12px!important;margin:clamp(38px,7vh,75px) auto 0!important}
-body.caua-immersive #screen .phone-call-control{font-size:13px!important}
-body.caua-immersive #screen .phone-call-control i{width:58px!important;height:58px!important;font-size:21px!important}
-body.caua-immersive #screen .phone-hangup{position:absolute!important;left:50%!important;bottom:clamp(95px,19%,170px)!important;width:69px!important;height:69px!important;transform:translateX(-50%)!important}
-body.caua-immersive #screen .phone-hangup::before{left:19px!important;top:23px!important}
+/* Do not apply viewport-dependent in-call layout. The full canvas is scaled. */
