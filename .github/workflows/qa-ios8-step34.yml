@@ -1,0 +1,27 @@
+name: iOS 8 Status + Passcode + Call QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'css/caua-ios8-status-passcode-call.css'
+      - 'qa/ios8-status-passcode-call.cjs'
+      - '.github/workflows/qa-ios8-step34.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios8-step34:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium and WebKit
+        run: |
+          node --check qa/ios8-status-passcode-call.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Audit status and fullscreen component centering
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-ios8-step34.log 2>&1 &
+          node qa/ios8-status-passcode-call.cjs
