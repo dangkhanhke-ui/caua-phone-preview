@@ -193,3 +193,46 @@
 #atlasApp .a10-deleted-count{flex:0 0 auto;font-size:10px;color:#86334c;background:#f7edf0;border-radius:12px;padding:5px 7px;white-space:nowrap}
 #atlasApp .a10-deleted-row .a10-person-text{overflow:hidden}
 #atlasApp .a10-deleted-row .a10-chevron{font-size:18px}
+
+/* iPhone Safari typography/layout hardening: Account rows and native form controls */
+#atlasApp .a10-row-text{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;overflow:hidden}
+#atlasApp .a10-row-title,#atlasApp .a10-row-sub{display:block;width:100%;margin:0;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#atlasApp .a10-row-title{font-size:12px;font-weight:600}
+#atlasApp .a10-row-sub{font-size:10.5px;color:#97949e}
+#atlasApp .a10-form{font-size:12px}
+#atlasApp .a10-form input,#atlasApp .a10-form select{
+  display:block;width:100%;max-width:100%;min-width:0;
+  height:39px;min-height:39px;padding:7px 10px;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif!important;
+  font-size:12px!important;line-height:20px!important;font-weight:400!important;
+  letter-spacing:0!important;color:#303039!important;
+  background:#fff!important;border:1px solid #d9d5d9;border-radius:8px;
+  box-shadow:none!important;-webkit-text-size-adjust:100%;text-size-adjust:100%;
+}
+#atlasApp .a10-form select{padding-right:25px}
+#atlasApp .a10-form input[type="datetime-local"]{
+  -webkit-appearance:none;appearance:none;
+  font-size:12px!important;text-align:left!important;
+}
+#atlasApp .a10-form input[type="datetime-local"]::-webkit-datetime-edit{
+  font-size:12px!important;line-height:20px!important;color:#303039!important;padding:0;
+}
+#atlasApp .a10-form input[type="datetime-local"]::-webkit-date-and-time-value{text-align:left!important;min-height:20px}
+#atlasApp .a10-form input[type="datetime-local"]::-webkit-calendar-picker-indicator{width:15px;height:15px;opacity:.65;margin:0}
+#atlasApp .a10-form input[type="file"]{
+  padding:5px 7px;height:auto;min-height:39px;
+  font-size:11px!important;line-height:24px!important;
+  overflow:hidden;text-overflow:ellipsis;
+}
+#atlasApp .a10-form input[type="file"]::file-selector-button{
+  font-family:inherit!important;font-size:11px!important;line-height:20px!important;
+  color:#6c3047;border:0;border-radius:7px;background:#f2eaed;
+  padding:5px 9px;margin:0 9px 0 0;
+}
+#atlasApp .a10-form input[type="file"]::-webkit-file-upload-button{
+  font-family:inherit!important;font-size:11px!important;
+  color:#6c3047;border:0;border-radius:7px;background:#f2eaed;
+  padding:5px 9px;margin:0 9px 0 0;
+}
+#atlasApp .a10-form input::placeholder{font-size:12px;color:#aaa6ad;opacity:1}
+#atlasApp .a10-form label{font-size:11px;line-height:16px}
