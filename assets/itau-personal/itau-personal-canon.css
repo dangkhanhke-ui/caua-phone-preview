@@ -1,0 +1,32 @@
+/* Itaú individual checking + Visa Gold; functional pass only.
+   Final 2014–2015 UI study and pixel layout will follow separately. */
+#itauApp .itau-hello{font-size:13px;line-height:18px;overflow-wrap:anywhere;white-space:normal}
+#itauApp .itau-account-line{font-size:11px;line-height:15px}
+#itauApp .itau-row{grid-template-columns:47px minmax(0,1fr) auto;gap:6px}
+#itauApp .itau-row-main{min-width:0}
+#itauApp .itau-row-name{font-size:12px;line-height:15px}
+#itauApp .itau-row-desc{font-size:10px}
+#itauApp .itau-row-amount{font-size:11px;font-variant-numeric:tabular-nums}
+#itauApp .biz-time{display:block;color:#999;font-size:9px;margin-top:2px}
+#itauApp .itau-more[hidden]{display:none!important}
+#itauApp .itau-result-info{font-size:10px;padding:8px 12px}
+#itauApp .itau-info-block .itau-kv{grid-template-columns:108px minmax(0,1fr)}
+#itauApp .itau-kv>div{overflow-wrap:anywhere;text-align:right}
+#itauApp .itau-personal-shortcuts{margin-top:8px}
+#itauApp .itau-personal-shortcuts .itau-menu-row{min-height:46px}
+#itauApp .itau-card-bill{min-height:58px;gap:8px}
+#itauApp .itau-card-bill .name{min-width:0}
+#itauApp .itau-card-bill .name strong{display:block;font-weight:500;font-size:12px}
+#itauApp .itau-card-bill .name span{display:block;color:#8b8b8b;font-size:10px;line-height:14px;margin-top:3px}
+#itauApp .itau-card-bill b{font-size:12px;font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums}
+#itauApp .itau-personal-visa{
+ display:flex;flex-direction:column;justify-content:space-between;
+ min-height:153px;margin:12px 15px;border-radius:12px;padding:15px 18px;
+ color:#fff;background:linear-gradient(135deg,#d57b10,#b35d06 62%,#8b4b10);
+ box-shadow:0 2px 6px rgba(0,0,0,.14);
+}
+#itauApp .itau-personal-visa>div{font-size:12px;font-weight:500}
+#itauApp .itau-personal-visa>div b{float:right;font-size:14px}
+#itauApp .itau-personal-visa strong{font-size:20px;font-weight:300;letter-spacing:1px;white-space:nowrap}
+#itauApp .itau-personal-visa small{font-size:10px;letter-spacing:.1px}
+#itauApp .itau-row:focus-visible,#itauApp .itau-menu-row:focus-visible{outline:2px solid #eb7500;outline-offset:-2px}
