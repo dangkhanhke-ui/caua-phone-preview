@@ -129,6 +129,24 @@ async function validateCall(page,prefix){
  assert(p.red.b<p.screen.b-20,'End-call button clipped');
  assert(p.position==='relative','End-call should be a normal grid item');
  await shot(page,prefix+'-call');
+ // Exercise all live call controls, not merely their shapes.
+ await page.locator('[data-call-action="speaker"]').click();
+ assert((await page.locator('[data-call-action="speaker"]').getAttribute('aria-pressed'))==='true','Speaker button does not toggle');
+ await page.locator('[data-call-action="mute"]').click();
+ assert((await page.locator('[data-call-action="mute"]').getAttribute('aria-pressed'))==='true','Mute button does not toggle');
+ await page.locator('[data-call-action="keypad"]').click();
+ assert(await page.locator('#phoneInCallKeypad').isVisible(),'In-call keypad does not open');
+ await page.locator('[data-call-digit="5"]').click();
+ await page.locator('[data-call-digit="2"]').click();
+ assert((await page.locator('#phoneInCallDigits').innerText())==='52','In-call digits do not register');
+ await page.locator('#phoneInCallBack').click();
+ assert(!(await page.locator('#phoneInCallKeypad').isVisible()),'In-call keypad failed to close');
+ await page.locator('[data-call-action="more"]').click();
+ assert(await page.locator('#phoneCallMorePanel').isVisible(),'More menu does not open');
+ await page.locator('[data-call-extra="cancel"]').click();
+ assert(!(await page.locator('#phoneCallMorePanel').isVisible()),'More menu failed to close');
+ await page.locator('#phoneHangup').click();
+ assert(!(await page.locator('#phoneCallOverlay').isVisible()),'End Call did not close the call');
 }
 
 (async()=>{
