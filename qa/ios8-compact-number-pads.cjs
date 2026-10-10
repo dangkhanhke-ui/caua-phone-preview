@@ -73,11 +73,14 @@ const close=(a,b,t=1.1)=>Math.abs(a-b)<=t;
             assert(phone&&phone.count===12&&close(phone.diameter,58),'Phone dial circles wrong: '+JSON.stringify(phone));
             assert(close(phone.font,27)&&close(phone.green,58),'Dial glyph/call circle wrong');
             assert(Math.abs(phone.offset)<3&&phone.callVisible,'Dial grid not centered / call button clipped');
+            // Dial state intentionally persists when switching display modes.
+            // Verify incremental input instead of assuming every tab opens empty.
+            const prior=await page.locator('#phoneDialNumber').innerText();
             await page.locator('#phoneApp [data-dial-key="5"]').evaluate(e=>e.click());
             await page.locator('#phoneApp [data-dial-key="2"]').evaluate(e=>e.click());
-            assert.equal(await page.locator('#phoneDialNumber').innerText(),'52','Dial keys did not enter number');
+            assert.equal(await page.locator('#phoneDialNumber').innerText(),prior+'52','Dial keys did not enter number');
             await page.locator('#phoneDeleteDigit').evaluate(e=>e.click());
-            assert.equal(await page.locator('#phoneDialNumber').innerText(),'5','Delete digit broken');
+            assert.equal(await page.locator('#phoneDialNumber').innerText(),prior+'5','Delete digit broken');
             await page.screenshot({path:'/tmp/caua-compact-pad-shots/'+engine.name()+'-'+config.name+'-'+(immersive?'zoom':'framed')+'-phone.png'});
             console.log('COMPACT_PAD_PASS',engine.name(),config.name,immersive?'zoom':'framed',JSON.stringify({pass,phone}));
             await page.evaluate(()=>{
