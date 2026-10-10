@@ -49,6 +49,29 @@ async function run(engine,label){
         await p.waitForTimeout(60);
       }
     });
+    await probe('ZOOM_ICON_ONLY_AND_TOGGLE_STATE',async p=>{
+      const btn=p.locator('#caua-immersive-toggle');
+      assert(await btn.count(),'zoom control missing');
+      assert.equal((await btn.innerText()).trim(),'','zoom button should contain no visible words');
+      assert.equal(await btn.locator('svg.caua-zoom-icon').count(),2,'expand/shrink icons missing');
+      const design=await btn.evaluate(el=>{
+        const cs=getComputedStyle(el);
+        return {width:parseFloat(cs.width),height:parseFloat(cs.height),border:parseFloat(cs.borderTopWidth),radius:cs.borderRadius};
+      });
+      assert.equal(design.width,42,'zoom control width');
+      assert.equal(design.height,42,'zoom control height');
+      assert.equal(design.border,0,'zoom control should have no visible border');
+      assert.equal(design.radius,'50%','zoom control should be circular');
+      assert.equal(await btn.getAttribute('aria-label'),'Phóng to iPhone');
+      await btn.click();
+      assert.equal(await btn.getAttribute('aria-pressed'),'true');
+      assert.equal(await btn.getAttribute('aria-label'),'Thu nhỏ iPhone');
+      assert(await p.locator('body.caua-immersive').count(),'zoom-on mode missing');
+      await btn.click();
+      assert.equal(await btn.getAttribute('aria-pressed'),'false');
+      assert.equal(await btn.getAttribute('aria-label'),'Phóng to iPhone');
+      assert.equal(await p.locator('body.caua-immersive').count(),0,'zoom did not revert');
+    });
     await probe('MAIL_OPEN_READ_AND_NO_FAKE_SEND',async p=>{
       await open(p,'mail');
       assert(await p.locator('#mailBody .mail-row[data-mail-id]').count()>0);
