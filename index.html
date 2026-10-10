@@ -4550,7 +4550,22 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     if(now-lastTap<330){lastTap=0;action('switcher-now')}
     else{lastTap=now;action('home-now')}
   }
-  toggle.addEventListener('click',()=>mode(!active));
+  // A browser can hide its own chrome only when it supports Fullscreen API.
+  // The call must happen in the original user gesture, not in a timer/promise.
+  toggle.addEventListener('click',()=>{
+    if(active){
+      if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+      mode(false);
+      return;
+    }
+    if(!window.navigator.standalone&&screen.requestFullscreen){
+      try{const p=screen.requestFullscreen({navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{});}catch(e){}
+    }
+    mode(true);
+  });
+  document.addEventListener('fullscreenchange',()=>{
+    if(!document.fullscreenElement&&active)fit();
+  });
   homeBar.addEventListener('click',tapped);
   homeBar.addEventListener('keydown',event=>{
     if(event.key==='Enter'||event.key===' '){event.preventDefault();tapped(event)}
