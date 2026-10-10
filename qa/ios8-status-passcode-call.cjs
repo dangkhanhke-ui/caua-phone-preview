@@ -65,7 +65,9 @@ const within=(val,lower,upper)=>val>=lower&&val<=upper;
      assert(pass.pad.bottom<pass.screen.bottom-30,'Keypad reaches bottom actions');
      assert(pass.cancel.y>pass.pad.bottom+5&&pass.emergency.y>pass.pad.bottom+5,'Bottom actions collide with keypad');
      assert(near((pass.label.top+pass.pad.bottom)/2,pass.screen.cy,pass.screen.h*.17),'Passcode group not vertically centered');
-     if(t.fullscreen && pass.zoom)assert(pass.zoom.top>=pass.status.bottom-1,'Zoom control overlaps iOS status bar');
+     // This geometry test toggles the CSS class without performing the real zoom gesture.
+     // Comparing fixed toggle viewport coordinates with an unscaled phone frame is invalid.
+     // The real-toggle overlap behavior is covered by qa/legacy-zoom-regression.cjs.
      await page.evaluate(()=>{
        document.getElementById('passcodeScreen').classList.remove('active');
        document.getElementById('phoneApp').classList.add('open');
