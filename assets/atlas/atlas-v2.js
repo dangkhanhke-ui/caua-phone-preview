@@ -239,10 +239,10 @@ function localFiles(){
 }
 function upload(){
  return'<div class="a10-form"><p style="font-size:12px;color:#78747b;line-height:18px">Tệp được lưu trong trình duyệt này và gắn vào hồ sơ đã chọn.</p>'+
- '<label for="a10UploadInput">Chọn tệp</label><input id="a10UploadInput" type="file" accept="image/*,audio/*,video/*,.pdf,.txt,.doc,.docx" />'+
+ '<label for="a10UploadInput">Chọn tệp</label><label class="a10-file-picker" for="a10UploadInput"><span class="a10-file-picker-button">Chọn tệp</span><span class="a10-file-picker-name" id="a10FileName">Chưa chọn tệp</span></label><input id="a10UploadInput" class="a10-hidden-file-input" type="file" accept="image/*,audio/*,video/*,.pdf,.txt,.doc,.docx" />'+
  '<label for="a10UploadPerson">Hồ sơ</label><select id="a10UploadPerson">'+data.profiles.map(p=>'<option value="'+esc(p.id)+'" '+(state.profile===p.id?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
  '<label for="a10UploadSource">Nguồn</label><select id="a10UploadSource">'+['Nhập từ máy tính','Thiết bị','Camera','Tin nhắn','VH Archive','Facebook','Đã lưu từ web'].map(src=>'<option>'+src+'</option>').join('')+'</select>'+
- '<label for="a10UploadDate">Ngày ghi nhận</label><input id="a10UploadDate" type="datetime-local" value="2015-08-29T08:54" />'+
+ '<label for="a10UploadDate">Ngày ghi nhận</label><input id="a10UploadDate" type="text" inputmode="numeric" value="29/08/2015 08:54" placeholder="DD/MM/YYYY HH:MM" />'+
  '<label for="a10UploadPlace">Địa điểm (không bắt buộc)</label><input id="a10UploadPlace" maxlength="100" placeholder="Tên địa điểm" />'+
  '<button type="button" class="a10-primary" data-atlas="submit-upload">Lưu vào hồ sơ</button></div>';
 }
@@ -452,8 +452,10 @@ async function submitUpload(){
  const type=file.type;
  const kind=type.startsWith('image/')?'photo':type.startsWith('audio/')?'audio':type.startsWith('video/')?'video':type==='application/pdf'?'document':'document';
  const id='user-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
- const selectedDate=document.getElementById('a10UploadDate')?.value||'2015-08-29T08:54';
- const date=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(selectedDate)?selectedDate.replace('T',' '):'2015-08-29 08:54';
+ const selectedDate=(document.getElementById('a10UploadDate')?.value||'29/08/2015 08:54').trim();
+ const dm=selectedDate.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})$/);
+ if(!dm||Number(dm[1])<1||Number(dm[1])>31||Number(dm[2])<1||Number(dm[2])>12||Number(dm[4])>23||Number(dm[5])>59){toast('Ngày phải có dạng DD/MM/YYYY HH:MM.');return;}
+ const date=dm[3]+'-'+dm[2]+'-'+dm[1]+' '+dm[4]+':'+dm[5];
  const entry={id,p,date,saved:date,source,kind,title:file.name.slice(0,150),location:place,device:'',locked:false,pinned:false,local:true,mime:file.type||'',size:file.size,deleted:false};
  try{
   await saveBlob(id,file);
@@ -511,6 +513,12 @@ app.addEventListener('click',event=>{
   e.deleted=true;write(LOCAL,imports);back();toast('Đã chuyển tệp vào Đã xóa.');return;
  }
  if(action==='restore'){const e=imports.find(x=>x.id===id);if(e){e.deleted=false;write(LOCAL,imports);render();toast('Đã khôi phục tệp.');}return;}
+});
+app.addEventListener('change',event=>{
+ if(event.target.id==='a10UploadInput'){
+  const node=document.getElementById('a10FileName');
+  if(node)node.textContent=event.target.files?.[0]?.name||'Chưa chọn tệp';
+ }
 });
 app.addEventListener('input',event=>{
  if(event.target.id!=='a10Search')return;
