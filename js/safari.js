@@ -389,21 +389,18 @@ const SAFARI_HISTORY = [
           stack.scrollTop=Math.max(0,target);
         }
       }
-      if(!opts.instant)stack.classList.add('safari-ios8-animate');
+      // Tab overview appears immediately, without entrance animation.
     };
     requestAnimationFrame(reveal);
 
     const selectTab=card=>{
       if(!card || tabsView.dataset.busy==='1')return;
       tabsView.dataset.busy='1';
-      if(!reduceMotion)card.classList.add('safari-tab-opening');
-      window.setTimeout(()=>{
-        saveScroll();
-        state.currentTabId=card.dataset.tabid;
-        hideSafariTabOverview();
-        renderCurrent(true);
-        tabsView.dataset.busy='';
-      },reduceMotion?0:155);
+      saveScroll();
+      state.currentTabId=card.dataset.tabid;
+      hideSafariTabOverview();
+      renderCurrent(true);
+      tabsView.dataset.busy='';
     };
     stack.querySelectorAll('.safari-tab-card').forEach(card=>{
       card.addEventListener('click',ev=>{
@@ -423,14 +420,11 @@ const SAFARI_HISTORY = [
       tabsView.dataset.busy='1';
       const sc=stack.scrollTop;
       const id=btn.dataset.closeTab;
-      if(!reduceMotion)btn.closest('.safari-tab-card')?.classList.add('safari-tab-dismissing');
-      window.setTimeout(()=>{
-        state.tabs=state.tabs.filter(t=>t.id!==id);
-        if(state.currentTabId===id)state.currentTabId=state.tabs[0].id;
-        tabsView.dataset.busy='';
-        showTabs({scroll:sc,instant:true});
-        renderCurrent(true);
-      },reduceMotion?0:160);
+      state.tabs=state.tabs.filter(t=>t.id!==id);
+      if(state.currentTabId===id)state.currentTabId=state.tabs[0].id;
+      tabsView.dataset.busy='';
+      showTabs({scroll:sc,instant:true});
+      renderCurrent(true);
     }));
 
     tabsView.querySelector('#safariNewTab').addEventListener('click',()=>{
