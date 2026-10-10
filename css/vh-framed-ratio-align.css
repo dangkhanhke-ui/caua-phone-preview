@@ -1,0 +1,13 @@
+/* Align framed app typography to fullscreen's CSS-pixel density.
+   Zoom applies to the SCREEN LAYOUT (not the outer iPhone hardware), so
+   text and icons scale together and the layout gains the matching virtual width.
+   Fullscreen always uses native 1:1 pixels. */
+@media (max-width:600px) and (pointer:coarse){
+  body:not(.caua-immersive) #screen{
+    zoom:var(--vh-framed-content-zoom,1)!important;
+    width:calc(320px / var(--vh-framed-content-zoom,1))!important;
+    height:calc(568px / var(--vh-framed-content-zoom,1))!important;
+    /* zoom is layout-aware: compensate geometry only if the browser implements zoom */
+  }
+  body.caua-immersive #screen{zoom:1!important}
+}
