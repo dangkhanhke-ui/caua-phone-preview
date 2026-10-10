@@ -1,10 +1,14 @@
-name: iOS 8 Compact PIN and Phone Dialer QA
+name: iOS 8 Native PIN and Phone Dialer QA
 on:
   push:
     branches: [main]
     paths:
       - 'index.html'
-      - 'css/caua-ios8-compact-number-pads.css'
+      - 'css/caua-ios8-status-passcode-call.css'
+      - 'css/head-09-phone-app-style.css'
+      - 'css/head-10-phone-v1-1-precision-fixes.css'
+      - 'css/vh-fullscreen-ui-proportions.css'
+      - 'css/vh-home-passcode-call-size-fix.css'
       - 'qa/ios8-compact-number-pads.cjs'
       - '.github/workflows/qa-compact-number-pads.yml'
   workflow_dispatch:
