@@ -220,103 +220,249 @@ body.caua-immersive #caua-immersive-toggle{
 /* Deliberately no .caua-immersive PIN overrides: zoom scales the full 320pt
    screen, rather than changing the keypad's own measurements. */
 
-/* STEP 4b: keep caller, six controls, and End Call in ONE CENTERED STACK.
-   No bottom:... anchoring, so End Call follows the grid at every height. */
+/* STEP 4b: 2015-style IN-CALL screen rebuilt as a real 3 x 2 grid.
+   Reference order: Speaker / FaceTime / Mute, then More / End / Keypad.
+   Each circle and caption belongs to ONE grid cell. All positions are
+   relative to the fixed 320x568 iPhone canvas; never use viewport vw/vh. */
+#screen #phoneCallOverlay{
+  background:radial-gradient(ellipse at 48% 20%,rgba(120,122,102,.36),transparent 60%),
+    linear-gradient(155deg,#565a4c 0%,#34372f 45%,#171a19 100%)!important;
+  color:#fff;
+}
 #screen #phoneCallOverlay.show{
   display:flex!important;
-  align-items:center!important;
+  align-items:stretch!important;
   justify-content:center!important;
+  width:100%!important;height:100%!important;
   padding:0!important;
 }
-#screen #phoneCallOverlay:not(.show){display:none!important}
+#screen #phoneCallOverlay:not(.show){display:none!important;}
 #screen #phoneCallOverlay .caua-call-stack{
+  position:relative!important;
   box-sizing:border-box!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:center!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
   width:100%!important;
-  max-width:320px;
-  min-height:0;
-  max-height:100%;
+  max-width:320px!important;
+  height:100%!important;
+  max-height:100%!important;
+  min-height:0!important;
+  padding:72px 8px 24px!important;
   margin:0 auto!important;
-  padding:22px 12px!important;
-  gap:clamp(20px,3.8vh,37px)!important;
+  gap:53px!important;
 }
 #screen #phoneCallOverlay .caua-call-stack .phone-call-person{
-  margin:0 auto!important;
+  box-sizing:border-box!important;
+  flex:0 0 auto!important;
+  margin:0!important;
   padding:0!important;
   width:100%!important;
   text-align:center!important;
 }
 #screen #phoneCallOverlay .caua-call-stack .phone-call-name{
-  font-size:27px!important;
-  line-height:1.2!important;
-  font-weight:300!important;
-  overflow-wrap:anywhere;
+  font:300 28px/34px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+  letter-spacing:-.35px!important;
 }
 #screen #phoneCallOverlay .caua-call-stack .phone-call-state{
-  margin-top:5px!important;
-  font-size:13px!important;
+  margin:4px 0 0!important;
+  color:rgba(255,255,255,.8)!important;
+  font:300 14px/19px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
 }
 #screen #phoneCallOverlay .caua-call-stack .phone-call-controls{
-  --caua-call-circle:52px;
-  width:min(100%,260px)!important;
+  --caua-call-circle:64px;
+  box-sizing:border-box!important;
   display:grid!important;
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:18px 12px!important;
+  grid-template-rows:repeat(2,95px)!important;
+  column-gap:5px!important;
+  row-gap:27px!important;
+  align-items:start!important;
+  justify-items:stretch!important;
   justify-content:center!important;
+  width:100%!important;
+  max-width:310px!important;
+  min-width:0!important;
   margin:0 auto!important;
+  padding:0!important;
+  flex:0 0 auto!important;
 }
 #screen #phoneCallOverlay .caua-call-stack .phone-call-control{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  position:relative!important;
+  box-sizing:border-box!important;
   display:flex!important;
   flex-direction:column!important;
-  justify-content:flex-start!important;
   align-items:center!important;
-  font-size:11px!important;
+  justify-content:flex-start!important;
+  width:100%!important;
   min-width:0!important;
+  max-width:100%!important;
+  height:95px!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  gap:7px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:white!important;
+  transform:none!important;
+  cursor:pointer;
+  text-align:center!important;
+  font:300 12px/16px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
 }
-#screen #phoneCallOverlay .caua-call-stack .phone-call-control i{
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control > i.call-glyph{
+  position:relative!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
   width:var(--caua-call-circle)!important;
   height:var(--caua-call-circle)!important;
+  min-width:var(--caua-call-circle)!important;
+  min-height:var(--caua-call-circle)!important;
+  max-width:var(--caua-call-circle)!important;
+  max-height:var(--caua-call-circle)!important;
   flex:0 0 var(--caua-call-circle)!important;
-  margin:0 auto 6px!important;
-  border-radius:50%!important;
-}
-#screen #phoneCallOverlay .caua-call-stack .phone-hangup{
-  position:relative!important;
-  left:auto!important;
-  top:auto!important;
-  right:auto!important;
-  bottom:auto!important;
-  transform:none!important;
-  display:block!important;
-  flex:0 0 auto!important;
-  width:66px!important;
-  height:66px!important;
-  margin:0 auto!important;
-  border-radius:50%!important;
+  margin:0!important;
   padding:0!important;
+  border:.7px solid rgba(255,255,255,.46)!important;
+  border-radius:50%!important;
+  background:rgba(230,230,226,.12)!important;
+  color:white!important;
+  box-shadow:inset 0 0 12px rgba(255,255,255,.035)!important;
+  overflow:hidden!important;
+  font-style:normal!important;
 }
-body.caua-immersive #screen #phoneCallOverlay .caua-call-stack{
-  max-width:375px!important;
-  gap:clamp(24px,4.5vh,42px)!important;
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control > span{
+  display:block!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  width:100%!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+  font:300 12px/16px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.15px!important;
+  overflow:visible!important;
 }
-body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-name{
-  font-size:clamp(27px,7.467vw,30px)!important;
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control svg.call-inline-svg{
+  display:block!important;
+  position:static!important;
+  transform:none!important;
+  width:33px!important;
+  height:33px!important;
+  min-width:0!important;
+  max-width:60%!important;
+  max-height:60%!important;
+  flex:0 0 auto!important;
+  overflow:visible!important;
+  pointer-events:none!important;
 }
-body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-state{
-  font-size:15px!important;
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control .call-glyph.dialpad svg.call-inline-svg{
+  width:31px!important;height:31px!important;
 }
-body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-controls{
-  --caua-call-circle:clamp(55px,15.3vw,62px);
-  width:min(82%,286px)!important;
-  gap:clamp(19px,3vh,26px) 13px!important;
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control .call-glyph.more svg.call-inline-svg{
+  width:32px!important;height:32px!important;
 }
-body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-call-control{
-  font-size:13px!important;
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control.selected > i.call-glyph{
+  background:rgba(255,255,255,.42)!important;
 }
-body.caua-immersive #screen #phoneCallOverlay .caua-call-stack .phone-hangup{
-  width:clamp(66px,18.4vw,74px)!important;
-  height:clamp(66px,18.4vw,74px)!important;
+#screen #phoneCallOverlay .caua-call-stack .phone-call-control:active > i.call-glyph{
+  background:rgba(255,255,255,.3)!important;
 }
+/* End Call is the middle cell of row two, NOT a separate anchored circle. */
+#screen #phoneCallOverlay .caua-call-stack #phoneHangup{
+  position:relative!important;
+  display:flex!important;
+  grid-row:2!important;
+  grid-column:2!important;
+  left:auto!important;right:auto!important;
+  top:auto!important;bottom:auto!important;
+  width:100%!important;height:95px!important;
+  margin:0!important;padding:0!important;
+  transform:none!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#screen #phoneCallOverlay .caua-call-stack #phoneHangup > i.call-glyph{
+  background:#e60811!important;
+  border:1px solid rgba(255,255,255,.26)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.13)!important;
+}
+#screen #phoneCallOverlay .caua-call-stack #phoneHangup:active > i.call-glyph{
+  background:#c70711!important;
+}
+#screen #phoneCallOverlay .caua-call-stack #phoneHangup::before,
+#screen #phoneCallOverlay .caua-call-stack #phoneHangup::after{
+  content:none!important;display:none!important;
+}
+#screen #phoneCallOverlay .caua-call-stack #phoneHangup svg.call-inline-svg{
+  width:37px!important;height:37px!important;
+  max-width:66%!important;max-height:66%!important;
+}
+/* The integrated keypad and More sheet are small, reversible local actions. */
+#screen #phoneCallOverlay [hidden]{display:none!important;}
+#screen #phoneCallOverlay .caua-call-stack.keypad-open .phone-call-controls,
+#screen #phoneCallOverlay .caua-call-stack.more-open .phone-call-controls{
+  display:none!important;
+}
+#screen #phoneCallOverlay .phone-in-call-keypad{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  width:100%!important;
+  margin:-18px auto 0!important;
+}
+#screen #phoneCallOverlay .phone-in-call-digits{
+  height:29px!important;
+  width:100%!important;
+  overflow:hidden;
+  text-align:center;
+  font:300 22px/28px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+#screen #phoneCallOverlay .phone-in-call-keys{
+  display:grid!important;
+  grid-template-columns:repeat(3,54px)!important;
+  grid-auto-rows:49px!important;
+  gap:5px 21px!important;
+  justify-content:center!important;
+}
+#screen #phoneCallOverlay .phone-in-call-keys button{
+  display:grid;place-items:center;
+  width:54px;height:49px;
+  background:rgba(255,255,255,.13);
+  border:.7px solid rgba(255,255,255,.43);
+  color:white;border-radius:50%;
+  font:300 25px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+#screen #phoneCallOverlay .phone-in-call-back{
+  padding:8px 12px!important;
+  background:transparent!important;
+  border:0!important;color:white!important;
+  font:300 13px/18px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+#screen #phoneCallOverlay .phone-call-more-panel{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:225px!important;
+  margin:20px auto 0!important;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:10px;overflow:hidden;
+  background:rgba(35,38,34,.87);
+}
+#screen #phoneCallOverlay .phone-call-more-panel button{
+  height:42px;background:transparent;
+  color:white;border:0;border-bottom:1px solid rgba(255,255,255,.18);
+  font:300 14px/20px "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+#screen #phoneCallOverlay .phone-call-more-panel button:last-child{border-bottom:0;}
+/* No immersive overrides: the original 320x568 canvas gets scaled as ONE unit. */
