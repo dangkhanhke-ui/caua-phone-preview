@@ -108,7 +108,7 @@
 <link rel="stylesheet" id="ios-universal-scroll-indicator" href="css/head-37-ios-universal-scroll-indicator.css">
 
 <link rel="stylesheet" id="fb15-icons-hd-fix" href="css/head-38-fb15-icons-hd-fix.css">
-<link rel="stylesheet" id="caua-immersive-mode-style" href="css/head-39-caua-immersive-mode-style.css">
+<link rel="stylesheet" id="caua-immersive-mode-style" href="css/head-39-caua-immersive-mode-style.css?v=20261010-icon-only-1">
 <link rel="stylesheet" id="caua-immersive-gesture-switcher-polish" href="css/head-40-caua-immersive-gesture-switcher-polish.css"><link rel="stylesheet" href="./assets/goodreader4/goodreader4.css" />
 
 
@@ -4607,7 +4607,12 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
   const toggle=document.createElement('button');
   toggle.id='caua-immersive-toggle';
   toggle.type='button';
-  toggle.setAttribute('aria-label','Phóng to hoặc thu nhỏ màn hình iPhone');
+  toggle.setAttribute('aria-label','Phóng to iPhone');
+  toggle.setAttribute('aria-pressed','false');
+  toggle.innerHTML=[
+    '<svg class="caua-zoom-icon caua-zoom-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
+    '<svg class="caua-zoom-icon caua-zoom-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M20 4l-6 6M4 20l6-6"/></svg>'
+  ].join('');
   document.body.appendChild(toggle);
 
   const homeBar=document.createElement('div');
@@ -4634,7 +4639,7 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     active=!!on;
     lastTap=0;
     document.body.classList.toggle('caua-immersive',active);
-    toggle.textContent=active?'⤢ thu nhỏ':'⛶ phóng to';
+    toggle.setAttribute('aria-label',active?'Thu nhỏ iPhone':'Phóng to iPhone');
     toggle.setAttribute('aria-pressed',String(active));
     fit();
   }
