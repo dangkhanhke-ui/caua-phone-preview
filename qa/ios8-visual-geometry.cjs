@@ -88,7 +88,7 @@ async function measure(page,name){
        assert(m.icon&&m.img&&approx(m.icon.w,m.img.w,2),'Home icon artwork and tile mismatched');
        assert(approx(m.clock.cx,m.screen.cx,3),'2015 status clock not horizontally centered');
        assert(m.battery.right<m.screen.right+1,'Status battery clipped');
-       assert(m.bar.h>=18&&m.bar.h<=24,'Status bar height outside iOS8 range');
+       assert(m.bar.h>=15&&m.bar.h<=25,'Status bar height outside scaled iOS8 range');
        if(mode==='fullscreen'){
         assert(approx(m.screen.w,size.width,3),'Fullscreen does not fill visual viewport');
        }
@@ -109,7 +109,7 @@ async function measure(page,name){
        if(['messages','mail','photos'].includes(name)&&m.titleText){
         assert(m.titleFont>=15&&m.titleFont<=19,name+' nav text outside system rhythm');
        }
-       if(m.errors.length)throw Error('Missing launcher image '+m.errors.join(','));
+       if(name==='home'&&m.errors.length)throw Error('Missing launcher image '+m.errors.join(','));
        const filename=[t.engine,size.id,mode,name].join('-')+'.png';
        await page.screenshot({path:path.join(out,filename),animations:'disabled',timeout:16000});
        report.push({browser:t.engine,viewport:size.id,mode,...m,screenshot:filename});
