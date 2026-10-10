@@ -1,0 +1,37 @@
+name: iOS 8 Visual Geometry QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'css/caua-ios8-app-type-icon-rhythm.css'
+      - 'css/caua-ios6-layout-foundation.css'
+      - 'css/caua-ios8-status-passcode-call.css'
+      - 'qa/ios8-visual-geometry.cjs'
+      - '.github/workflows/qa-ios8-visual.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browsers
+        run: |
+          node --check qa/ios8-visual-geometry.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Capture 2015 iOS 8 layouts
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-visual-http.log 2>&1 &
+          node qa/ios8-visual-geometry.cjs
+      - name: Upload screenshots and geometry report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios8-visual-geometry
+          path: qa-artifacts/ios8-step56
+          if-no-files-found: warn
+          retention-days: 14
