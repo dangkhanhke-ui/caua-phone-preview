@@ -131,7 +131,9 @@ async function validateCall(page,prefix){
  await shot(page,prefix+'-call');
  // Exercise all live call controls, not merely their shapes.
  await page.locator('[data-call-action="speaker"]').click();
- assert((await page.locator('[data-call-action="speaker"]').getAttribute('aria-pressed'))==='true','Speaker button does not toggle');
+ const spValue=await page.locator('[data-call-action="speaker"]').getAttribute('aria-pressed');
+ console.log('SPEAKER_DIAG',spValue,await page.locator('[data-call-action="speaker"]').count());
+ assert(spValue==='true','Speaker button does not toggle');
  await page.locator('[data-call-action="mute"]').click();
  assert((await page.locator('[data-call-action="mute"]').getAttribute('aria-pressed'))==='true','Mute button does not toggle');
  await page.locator('[data-call-action="keypad"]').click();
@@ -192,6 +194,7 @@ async function validateCall(page,prefix){
       assert(glyphsChecked>=2,'Not enough initialized toolbar glyphs: '+glyphsChecked);
       await shot(page,prefix+'-home');
       await validatePasscode(page,prefix);
+      if(pageErrors.length)console.log('CALL_PAGEERRORS',engine.name(),config.name,immersive,pageErrors.slice(0,6));
       await validateCall(page,prefix);
       report.push({engine:engine.name(),viewport:config.name,mode:immersive?'fullscreen':'framed',
        screen:data.screen.w,icon:data.icon.w,photo:data.png.w,
