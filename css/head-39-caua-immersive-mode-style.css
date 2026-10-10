@@ -34,7 +34,8 @@ body.caua-immersive #screen{left:0!important;top:0!important;box-shadow:none!imp
 #caua-immersive-toggle[aria-pressed="true"] .caua-zoom-enter{opacity:0;transform:scale(.84)}
 #caua-immersive-toggle:active{transform:scale(.94);background:rgba(39,42,48,.84)}
 #caua-immersive-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
-body.caua-immersive #caua-immersive-toggle{top:8px;right:8px;opacity:.78}
+/* Keep the toggle in its original viewport position when zoomed. */
+body.caua-immersive #caua-immersive-toggle{opacity:.78}
 body.caua-immersive #caua-immersive-toggle:focus-visible,
 body.caua-immersive #caua-immersive-toggle:active{opacity:1}
 @media(prefers-reduced-motion:reduce){
