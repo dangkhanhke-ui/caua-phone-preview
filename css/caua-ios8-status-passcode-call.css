@@ -120,15 +120,17 @@ body.caua-immersive #caua-immersive-toggle{
   right:max(7px,env(safe-area-inset-right))!important;
 }
 
-/* STEP 4a: passcode is a centered CONTENT STACK, not disparate top margins. */
+/* STEP 4a: canonical 2015 PIN UI. ONE owner for both framed + zoom modes.
+   Ratios measured against real handset screenshots: circle ~19% of screen
+   width, column pitch 25% of screen width. Keep four passcode dots. */
 #screen #passcodeScreen{
   display:flex!important;
   flex-direction:column!important;
   align-items:center!important;
   justify-content:center!important;
-  box-sizing:border-box!important;
-  padding:32px 0 46px!important;
   min-height:0!important;
+  padding:28px 0 26px!important;
+  box-sizing:border-box!important;
 }
 #screen #passcodeScreen .caua-passcode-stack{
   display:flex!important;
@@ -137,80 +139,86 @@ body.caua-immersive #caua-immersive-toggle{
   justify-content:center!important;
   flex:0 0 auto!important;
   width:max-content;
-  max-width:95%;
+  max-width:100%;
   margin:0 auto!important;
   text-align:center!important;
 }
 #screen #passcodeScreen .passcode-title{
+  font:300 20px/1.22 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.28px!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.14);
   margin:0!important;
-  text-align:center!important;
-  font-size:21.5px!important;
-  line-height:1.18!important;
 }
 #screen #passcodeScreen .passcode-dots{
   display:flex!important;
-  justify-content:center!important;
   align-items:center!important;
-  margin:18px 0 0!important;
-  gap:17px!important;
+  justify-content:center!important;
+  gap:18px!important;
+  margin:17px 0 0!important;
 }
 #screen #passcodeScreen .passcode-dots i{
-  width:13px!important;height:13px!important;
-  flex:0 0 13px!important;
+  width:11px!important;height:11px!important;
+  flex:0 0 11px!important;
+  border:1px solid rgba(255,255,255,.88)!important;
+  border-radius:50%;
+  box-sizing:border-box;
 }
 #screen #passcodeScreen .keypad{
-  --caua-key:64px;
+  --caua-key:60px;
   display:grid!important;
   grid-template-columns:repeat(3,var(--caua-key))!important;
   grid-auto-rows:var(--caua-key)!important;
-  gap:12px 23px!important;
+  gap:16px 20px!important;
   width:max-content!important;
-  max-width:none!important;
+  max-width:100%!important;
   margin:25px auto 0!important;
-  justify-items:center!important;
+  padding:0!important;
+  justify-content:center!important;
   align-items:center!important;
+  justify-items:center!important;
 }
-#screen #passcodeScreen .keypad .key,
-#screen #passcodeScreen .keypad .key-spacer,
-#screen #passcodeScreen .keypad .delete-key{
+#screen #passcodeScreen .keypad :is(.key,.key-spacer,.delete-key){
   box-sizing:border-box!important;
   width:var(--caua-key)!important;
   height:var(--caua-key)!important;
   min-width:0!important;
   min-height:0!important;
 }
+#screen #passcodeScreen .keypad .key{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:.65px solid rgba(255,255,255,.56)!important;
+  border-radius:50%!important;
+  background:rgba(255,255,255,.105)!important;
+  color:#fff!important;
+  padding:0!important;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  -webkit-backdrop-filter:blur(4px);
+  backdrop-filter:blur(4px);
+}
+#screen #passcodeScreen .keypad .key:active,
+#screen #passcodeScreen .keypad .key.pressed{
+  background:rgba(255,255,255,.27)!important;
+}
+#screen #passcodeScreen .keypad .key strong{
+  font:200 25px/27px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:0!important;
+}
+#screen #passcodeScreen .keypad .key span{
+  margin-top:1px!important;
+  font:500 8px/9px "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:1.1px!important;
+}
 #screen #passcodeScreen .keypad .delete-key{
-  font-size:12px!important;
-}
-#screen #passcodeScreen .key strong{
-  font-size:30px!important;
-}
-#screen #passcodeScreen .key span{
-  font-size:10px!important;
-}
-#screen #passcodeScreen .passcode-back,
-#screen #passcodeScreen .emergency{
-  bottom:max(11px,env(safe-area-inset-bottom))!important;
-}
-body.caua-immersive #screen #passcodeScreen{
-  padding:clamp(25px,5vh,50px) 0 clamp(48px,7vh,70px)!important;
-}
-body.caua-immersive #screen #passcodeScreen .passcode-title{
-  font-size:clamp(21.5px,5.85vw,24px)!important;
-}
-body.caua-immersive #screen #passcodeScreen .passcode-dots i{
-  width:15px!important;height:15px!important;flex-basis:15px!important;
-}
-body.caua-immersive #screen #passcodeScreen .keypad{
-  --caua-key:clamp(64px,18.4vw,72px);
-  gap:clamp(11px,2.9vw,14px) clamp(19px,5.7vw,24px)!important;
-}
-body.caua-immersive #screen #passcodeScreen .key strong{
-  font-size:32px!important;
-}
-body.caua-immersive #screen #passcodeScreen .key span{
   font-size:11px!important;
 }
+#screen #passcodeScreen :is(.passcode-back,.emergency){
+  bottom:max(11px,env(safe-area-inset-bottom))!important;
+}
+/* Deliberately no .caua-immersive PIN overrides: zoom scales the full 320pt
+   screen, rather than changing the keypad's own measurements. */
 
 /* STEP 4b: keep caller, six controls, and End Call in ONE CENTERED STACK.
    No bottom:... anchoring, so End Call follows the grid at every height. */
