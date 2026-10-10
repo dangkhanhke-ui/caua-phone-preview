@@ -1,0 +1,25 @@
+/* 2026-10-10: restore native layout; targeted sizing only, no screen zoom. */
+#screen .home-screen .icon-grid .app .icon,
+#screen .home-screen .dock .app .icon{width:59px!important;height:59px!important}
+#screen .home-screen .icon-grid .app>span,
+#screen .home-screen .dock .app>span{font-size:13px!important;line-height:15px!important;max-width:82px!important}
+#screen .home-screen .icon-grid{grid-auto-rows:90px!important}
+#screen .home-screen .icon-grid .app .icon svg,
+#screen .home-screen .dock .app .icon svg{width:100%;height:100%}
+/* Raise common in-app glyphs gently without overriding the universal Back SVG. */
+#screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.wai-tab,.photos-nav-btn,.mail-nav-btn,.notes26-circle) svg:not(.vh-back-svg){width:calc(1em + 1.5px);height:calc(1em + 1.5px)}
+/* The passcode block is centered in the usable upper part, while bottom actions stay anchored. */
+#screen .passcode-screen{padding:0 0 60px!important;justify-content:center!important;align-items:center!important;box-sizing:border-box!important}
+#screen .passcode-screen .passcode-title{text-align:center!important;font-size:21.5px!important}
+#screen .passcode-screen .passcode-dots{justify-content:center!important}
+#screen .passcode-screen .keypad{margin-left:auto!important;margin-right:auto!important;justify-content:center!important}
+#screen .passcode-screen .key strong{font-size:30.5px!important}
+#screen .passcode-screen .key span{font-size:10.5px!important}
+/* Call screen: one center axis, compact gap to end-call button. */
+#screen .phone-call-overlay{text-align:center!important}
+#screen .phone-call-person{padding-top:clamp(35px,7vh,54px)!important;text-align:center!important}
+#screen .phone-call-controls{margin:clamp(35px,7vh,60px) auto 0!important;width:min(245px,90%)!important;justify-content:center!important}
+#screen .phone-call-name{font-size:28.5px!important}
+#screen .phone-call-state{font-size:14.5px!important}
+#screen .phone-call-control{font-size:11.5px!important}
+#screen .phone-hangup{left:50%!important;bottom:clamp(65px,15%,112px)!important;transform:translateX(-50%)!important}
