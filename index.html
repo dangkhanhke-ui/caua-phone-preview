@@ -108,7 +108,7 @@
 <link rel="stylesheet" id="ios-universal-scroll-indicator" href="css/head-37-ios-universal-scroll-indicator.css">
 
 <link rel="stylesheet" id="fb15-icons-hd-fix" href="css/head-38-fb15-icons-hd-fix.css">
-<link rel="stylesheet" id="caua-immersive-mode-style" href="css/head-39-caua-immersive-mode-style.css?v=20261010-zoom-pin-2">
+<link rel="stylesheet" id="caua-immersive-mode-style" href="css/head-39-caua-immersive-mode-style.css?v=20261010-zoom-corner-3">
 <link rel="stylesheet" id="caua-immersive-gesture-switcher-polish" href="css/head-40-caua-immersive-gesture-switcher-polish.css"><link rel="stylesheet" href="./assets/goodreader4/goodreader4.css" />
 
 
@@ -4635,32 +4635,24 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     const scale=Math.max(.15,Math.min(availableWidth/320,availableHeight/568));
     document.documentElement.style.setProperty('--immersive-scale',scale.toFixed(5));
   }
-  // iOS Safari can shift fixed controls while switching display layouts.
-  // Preserve the actual on-screen rectangle across the transition.
-  let zoomPinFrame=0;
-  function preserveZoomPosition(target){
-    const now=toggle.getBoundingClientRect();
-    const top=parseFloat(toggle.style.top)||8;
-    const right=parseFloat(toggle.style.right)||8;
-    const dy=target.top-now.top;
-    const dx=now.right-target.right;
-    if(Math.abs(dy)>.5)toggle.style.top=(top+dy)+'px';
-    if(Math.abs(dx)>.5)toggle.style.right=(right+dx)+'px';
+  // Always anchor to the top-right of the browser viewport, in BOTH modes.
+  // Do not inherit a previously drifted position from a mode transition.
+  const ZOOM_TOP=2;
+  const ZOOM_RIGHT=2;
+  function positionZoomToggle(){
+    toggle.style.setProperty('top',ZOOM_TOP+'px','important');
+    toggle.style.setProperty('right',ZOOM_RIGHT+'px','important');
+    toggle.style.setProperty('left','auto','important');
+    toggle.style.setProperty('bottom','auto','important');
   }
   function mode(on){
-    const pinned=toggle.getBoundingClientRect();
     active=!!on;
     lastTap=0;
     document.body.classList.toggle('caua-immersive',active);
     toggle.setAttribute('aria-label',active?'Thu nhỏ iPhone':'Phóng to iPhone');
     toggle.setAttribute('aria-pressed',String(active));
+    positionZoomToggle();
     fit();
-    cancelAnimationFrame(zoomPinFrame);
-    preserveZoomPosition(pinned);
-    zoomPinFrame=requestAnimationFrame(()=>{
-      preserveZoomPosition(pinned);
-      zoomPinFrame=requestAnimationFrame(()=>preserveZoomPosition(pinned));
-    });
   }
   function action(name){
     if(!active)return;
@@ -4682,9 +4674,9 @@ document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.class
     if(event.key==='Enter'||event.key===' '){event.preventDefault();tapped(event)}
     else if(event.key==='ArrowUp'){event.preventDefault();action('switcher-now')}
   });
-  window.addEventListener('resize',fit,{passive:true});
-  window.visualViewport?.addEventListener('resize',fit,{passive:true});
-  fit();mode(false);
+  window.addEventListener('resize',()=>{positionZoomToggle();fit();},{passive:true});
+  window.visualViewport?.addEventListener('resize',()=>{positionZoomToggle();fit();},{passive:true});
+  positionZoomToggle();fit();mode(false);
 })();
 </script>
 
