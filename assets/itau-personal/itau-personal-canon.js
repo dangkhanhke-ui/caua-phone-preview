@@ -56,8 +56,8 @@ drawer.innerHTML='<div class="personal-drawer-shade" data-drawer-close></div>'
  +'<div class="personal-drawer-person"><strong>Cauã Henrique Valença de Oliveira</strong><span>Agência 0917 · Conta 43972-1</span></div>'
  +'<div class="personal-drawer-links">'
  +[['home','Trang chủ','home'],['statement','Sao kê','statement'],['transfers','Chuyển khoản','transfer'],
- ['card','Cartão Visa Gold','card'],['services','Serviços','services'],['account','Dados da conta','account'],
- ['itoken','iToken','itoken'],['help','Ajuda','help']]
+ ['card','Thẻ tín dụng Visa Gold','card'],['services','Dịch vụ','services'],['account','Thông tin tài khoản','account'],
+ ['itoken','iToken','itoken'],['help','Trợ giúp','help']]
  .map(x=>'<button type="button" data-drawer-go="'+x[0]+'">'+ico(x[2])+'<span>'+x[1]+'</span><b>›</b></button>').join('')
  +'</div></aside>';
 app.querySelector('.itau-frame').appendChild(drawer);
@@ -123,8 +123,8 @@ function renderHome(){
  state.view='home';state.tab='home';top('Itaú');
  const tx=sorted(ledger.filter(t=>t.date<=AS_OF));
  content.innerHTML=cardHead()
- +'<div class="personal-home-head"><span>Conta corrente</span><span>'+fmt(AS_OF)+'</span></div>'
- +'<div class="itau-balance"><div class="itau-balance-label">Saldo da conta · Số dư tài khoản</div>'
+ +'<div class="personal-home-head"><span>Tài khoản thanh toán</span><span>'+fmt(AS_OF)+'</span></div>'
+ +'<div class="itau-balance"><div class="itau-balance-label">Số dư tài khoản</div>'
  +'<div class="itau-balance-value">'+money(balanceAt(AS_OF))+'</div>'
  +'<button type="button" class="itau-link-btn" data-personal-go="statement">Xem sao kê <span aria-hidden="true">›</span></button></div>'
  +'<div class="personal-action-grid">'
