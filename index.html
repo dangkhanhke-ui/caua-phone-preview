@@ -178,6 +178,7 @@
 
           <section class="passcode-screen view" id="passcodeScreen" aria-label="Nhập mật mã">
             <button class="passcode-back" id="passcodeBack" type="button">Hủy</button>
+            <div class="caua-passcode-stack">
             <div class="passcode-title">Nhập mật mã</div>
             <div class="passcode-dots" id="passcodeDots" aria-label="Mật mã bốn chữ số">
               <i></i><i></i><i></i><i></i>
@@ -196,6 +197,7 @@
               <button class="key" data-number="0" type="button"><strong>0</strong></button>
               <button class="delete-key" id="deleteKey" type="button">Xóa</button>
             </div>
+            </div><!-- end caua-passcode-stack -->
             <button class="emergency" type="button">Khẩn cấp</button>
           </section>
 
@@ -414,6 +416,7 @@
               </nav>
               <div class="phone-alert-layer" id="phoneAlertLayer"><div class="phone-alert"><div class="phone-alert-copy" id="phoneAlertCopy"></div><button id="phoneAlertOK" type="button">OK</button></div></div>
               <div class="phone-call-overlay" id="phoneCallOverlay">
+                <div class="caua-call-stack">
                 <div class="phone-call-person"><div class="phone-call-name" id="phoneCallName"></div><div class="phone-call-state" id="phoneCallState">Đang gọi…</div></div>
                 <div class="phone-call-controls">
                   <div class="phone-call-control"><i class="call-glyph mute"><svg class="call-inline-svg" viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="7" width="12" height="23" rx="6"/><path d="M13 25v1c0 6.1 4.9 11 11 11s11-4.9 11-11v-1M24 37v5M18 42h12M9 9l30 30"/></g></svg></i><span>Tắt tiếng</span></div>
@@ -424,6 +427,7 @@
                   <div class="phone-call-control"><i class="call-glyph contacts"><svg class="call-inline-svg" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17" fill="none" stroke="white" stroke-width="2.4"/><circle cx="24" cy="19" r="6" fill="white"/><path d="M13 37c1-7 5.5-10.5 11-10.5S34 30 35 37" fill="white"/></svg></i><span>Danh bạ</span></div>
                 </div>
                 <button class="phone-hangup" id="phoneHangup" type="button" aria-label="Kết thúc"></button>
+                </div><!-- end caua-call-stack -->
               </div>
             </div>
           </section>
