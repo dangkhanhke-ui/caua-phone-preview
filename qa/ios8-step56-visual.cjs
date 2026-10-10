@@ -111,18 +111,26 @@ async function validateCall(page,prefix){
    document.getElementById('phoneCallOverlay').classList.add('show');
  });
  const p=await page.evaluate(()=>{
-   const R=s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height,cx:r.left+r.width/2,b:r.bottom}};
-   const last=[...document.querySelectorAll('.phone-call-control span')].at(-1);
-   const red=document.getElementById('phoneHangup'),lr=last.getBoundingClientRect();
-   return {screen:R('#screen'),grid:R('.phone-call-controls'),red:R('#phoneHangup'),gap:red.getBoundingClientRect().top-lr.bottom,position:getComputedStyle(red).position};
+   const R=s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height,cx:r.left+r.width/2,cy:r.top+r.height/2,b:r.bottom}};
+   const buttons=[...document.querySelectorAll('.phone-call-controls > button')];
+   return {screen:R('#screen'),grid:R('.phone-call-controls'),
+     red:R('#phoneHangup > i'),controls:buttons.map(el=>{const r=el.querySelector('i').getBoundingClientRect();return {cx:r.left+r.width/2,cy:r.top+r.height/2,w:r.width}}),
+     actions:buttons.map(el=>el.dataset.callAction||el.id),
+     position:getComputedStyle(document.getElementById('phoneHangup')).position};
  });
  assertClose(p.screen.cx,p.grid.cx,3,'Call grid center');
- assertClose(p.screen.cx,p.red.cx,3,'End-call button center');
- assert(p.gap>=7&&p.gap<95,'End-call button too far from six controls');
- assert(p.red.b<p.screen.b-8,'End-call button clipped');
- assert(p.position==='relative','End-call should be in normal layout flow');
+ assertClose(p.screen.cx,p.red.cx,3,'End-call circle center');
+ assert(p.actions.join(',')==='speaker,facetime,mute,more,phoneHangup,keypad','In-call reference control order');
+ assert(p.controls.length===6,'Six call controls missing');
+ for(let col=0;col<3;col++)assertClose(p.controls[col].cx,p.controls[col+3].cx,2,'Misaligned call column '+col);
+ assertClose(p.controls[3].cy,p.controls[4].cy,2,'End Call is not inside second row');
+ assertClose(p.controls[4].cy,p.controls[5].cy,2,'Second-row controls misaligned');
+ assertClose(p.controls[4].w,p.controls[3].w,3,'End Call diameter differs from controls');
+ assert(p.red.b<p.screen.b-20,'End-call button clipped');
+ assert(p.position==='relative','End-call should be a normal grid item');
  await shot(page,prefix+'-call');
 }
+
 (async()=>{
  let total=0;
  const report=[];
