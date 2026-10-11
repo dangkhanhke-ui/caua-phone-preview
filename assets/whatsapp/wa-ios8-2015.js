@@ -10,12 +10,12 @@ function boot(){
  const images={'camila-img-1':P+'wa_camila_01.png','livia-img-1':P+'wa_livia_01.png','livia-img-2':P+'wa_livia_02.png','livia-img-3':P+'wa_livia_03.png','livia-img-4':P+'wa_livia_04.png','livia-img-5':P+'wa_livia_05.png'};
  const faces={mother:P+'wa_avatar_mother.png',camila:P+'wa_avatar_camila.png',livia:P+'wa_avatar_livia.png'};
  const phones={caua:'+55 (21) 90000-0101',mother:'+55 (21) 90000-0102',camila:'+55 (21) 90000-0103',livia:'+55 (21) 90000-0104'};
- const base={name:'Cauã Valença',status:'Có mặt',photo:'',favorite:['mother','camila','livia'],archived:[],muted:{},unread:[],hide:[],cleared:{},deleted:[],messages:{},groups:[],prefs:{alerts:true,preview:true,sounds:true,vibrate:true,saveMedia:true,lowData:false,backupVideos:false,autoImage:true},privacy:{seen:'Mọi người',photo:'Danh bạ',status:'Danh bạ',blocked:[]},wallpaper:'',calls:[],drafts:{},seq:0};
+ const base={name:'Cauã Valença',status:'Đang hoạt động',photo:'',favorite:['mother','camila','livia'],archived:[],muted:{},unread:[],hide:[],cleared:{},deleted:[],messages:{},groups:[],prefs:{alerts:true,preview:true,sounds:true,vibrate:true,saveMedia:true,lowData:false,backupVideos:false,autoImage:true},privacy:{seen:'Mọi người',photo:'Danh bạ',status:'Danh bạ',blocked:[]},wallpaper:'',calls:[],drafts:{},seq:0};
  let data;try{const v=JSON.parse(localStorage.getItem('caua-whatsapp-ios2015-v2'));data=v&&typeof v==='object'?Object.assign(structuredClone(base),v):structuredClone(base)}catch(e){data=JSON.parse(JSON.stringify(base))}
  for(const k of ['favorite','archived','unread','hide','deleted','groups','calls'])if(!Array.isArray(data[k]))data[k]=[];
  for(const k of ['messages','muted','prefs','privacy','drafts','cleared'])if(!data[k]||typeof data[k]!=='object')data[k]=JSON.parse(JSON.stringify(base[k]));
- const portugueseStatus={'Disponível':'Có mặt','Ocupado':'Đang bận','No trabalho':'Đang làm việc','Na escola':'Đang học','Bateria quase acabando':'Pin sắp hết','Não posso falar, só WhatsApp':'Không thể nói chuyện, chỉ nhắn WhatsApp'};
- const vnStatus=x=>{const v=String(portugueseStatus[x]||x||'Có mặt').trim();return v.charAt(0).toLocaleUpperCase('vi')+v.slice(1)};
+ const portugueseStatus={'Disponível':'Đang hoạt động','Có mặt':'Đang hoạt động','Ocupado':'Đang bận','No trabalho':'Đang làm việc','Na escola':'Đang học','Bateria quase acabando':'Pin sắp hết','Não posso falar, só WhatsApp':'Không thể nói chuyện, chỉ nhắn WhatsApp'};
+ const vnStatus=x=>{const v=String(portugueseStatus[x]||x||'Đang hoạt động').trim();return v.charAt(0).toLocaleUpperCase('vi')+v.slice(1)};
  data.status=vnStatus(data.status);
  const portuguesePrivacy={'Todos':'Mọi người','Meus contatos':'Danh bạ','Ninguém':'Không ai'};
  for(const key of ['seen','photo','status'])if(portuguesePrivacy[data.privacy[key]])data.privacy[key]=portuguesePrivacy[data.privacy[key]];
@@ -98,6 +98,7 @@ function boot(){
  const toggle=(title,key,sub='')=>'<button class="wai-cell" data-act="pref" data-id="'+key+'">'+line(title,sub)+'<span class="wai-switch '+(data.prefs[key]?'on':'')+'"></span></button>';
  const menuBtn=(symbol,title,id)=>'<span class="wai-cell-icon" style="background:'+symbol+'">'+icon(id||'settings')+'</span><span class="wai-cell-title">'+title+'</span><span class="wai-chevron">›</span>';
  function navigate(page,params={}){
+  if(ui.tab==='camera'&&ui.page==='main'&&page!=='main')stopCamera();
   ui.stack.push({page:ui.page,id:ui.id,sub:ui.sub,tab:ui.tab,query:ui.query,search:ui.search});
   ui.page=page;ui.id=params.id||ui.id;ui.sub=params.sub||'';ui.search='';ui.overlay=null;ui.viewer='';ui.edit=false;render();
  }
@@ -108,7 +109,7 @@ function boot(){
   if(prev)Object.assign(ui,prev);else ui.page='main';
   ui.overlay=null;render();
  }
- function tab(id){ui.tab=id;ui.page='main';ui.stack=[];ui.query='';ui.search='';ui.overlay=null;ui.edit=false;render()}
+ function tab(id){if(ui.tab==='camera'&&id!=='camera')stopCamera();ui.tab=id;ui.page='main';ui.stack=[];ui.query='';ui.search='';ui.overlay=null;ui.edit=false;render()}
  function selectContact(id){data.unread=data.unread.filter(x=>x!==id);data.deleted=data.deleted.filter(x=>x!==id);save();ui.scrollThread=true;ui.id=id;navigate('chat',{id});if(window.__waiCameraShareSrc){const src=window.__waiCameraShareSrc;window.__waiCameraShareSrc=null;makeMessage(contact(id),'image',{src});render();toast('Đã gửi ảnh')}}
  const contactRow=(t,actionName='open-contact')=>'<button class="wai-row" data-act="'+actionName+'" data-id="'+esc(t.id)+'">'+face(t.id)+'<span class="wai-row-info"><span class="wai-row-top"><b>'+esc(t.name)+'</b></span><small>'+esc(t.status||phones[t.id]||'WhatsApp')+'</small></span><span class="wai-chevron">›</span></button>';
  const chatRow=t=>{
@@ -156,7 +157,53 @@ function boot(){
  section('Trạng thái liên hệ')+threads.filter(t=>!t.members).slice(0,12).map(t=>contactRow(t,'open-contact')).join('');
  }
  function cameraTab(){
- return '<div class="wai-camera-panel"><div class="wai-camera-emblem">'+icon('camera')+'</div><strong>Camera</strong><p>Chọn ảnh để gửi cho một liên hệ.</p><button type="button" class="wai-camera-button" data-act="camera-library">'+icon('photo')+' Thư viện ảnh</button></div>';
+  return '<div class="wai-live-camera"><div class="wai-camera-stage"><video id="waiCameraVideo" autoplay muted playsinline aria-label="Hình ảnh trực tiếp từ camera"></video><div class="wai-camera-idle" id="waiCameraIdle">'+icon('camera')+'<span>Chạm “Mở camera” để chụp ảnh</span></div><div class="wai-camera-status" id="waiCameraStatus" role="status" aria-live="polite"></div><div class="wai-camera-focus"></div></div>'+
+  '<div class="wai-camera-controls"><div class="wai-camera-actions"><button type="button" class="wai-camera-textbtn" data-act="camera-library">'+icon('photo')+' Thư viện</button><button type="button" class="wai-camera-shutter" data-act="camera-shoot" aria-label="Chụp ảnh" disabled><span></span></button><button type="button" class="wai-camera-textbtn" data-act="camera-flip" aria-label="Đổi camera">'+icon('camera')+' Đổi chiều</button></div><button type="button" class="wai-camera-launch" data-act="camera-start">Mở camera</button></div></div>';
+ }
+ let cameraStream=null,cameraFacing='environment',cameraToken=0;
+ function stopCamera(){
+  cameraToken++;
+  if(cameraStream){cameraStream.getTracks().forEach(track=>track.stop());cameraStream=null}
+  const v=root.querySelector('#waiCameraVideo');if(v){v.pause();v.srcObject=null}
+ }
+ async function openCamera(){
+  if(!navigator.mediaDevices?.getUserMedia){cameraNotice('Trình duyệt không hỗ trợ camera. Hãy thử mở bằng Safari trên HTTPS.');return}
+  const token=++cameraToken;
+  if(cameraStream){cameraStream.getTracks().forEach(track=>track.stop());cameraStream=null}
+  cameraNotice('Đang kết nối camera…');
+  try{
+   const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}}});
+   if(token!==cameraToken||ui.tab!=='camera'||ui.page!=='main'||!app.classList.contains('open')){stream.getTracks().forEach(t=>t.stop());return}
+   cameraStream=stream;
+   const video=root.querySelector('#waiCameraVideo');
+   if(!video){stopCamera();return}
+   video.srcObject=stream;
+   await video.play();
+   cameraNotice('');
+   root.querySelector('.wai-live-camera')?.classList.add('is-live');
+   const shutter=root.querySelector('[data-act="camera-shoot"]');if(shutter)shutter.disabled=false;
+   const launch=root.querySelector('[data-act="camera-start"]');if(launch)launch.textContent='Camera đang bật';
+  }catch(err){
+   if(token!==cameraToken)return;
+   stopCamera();
+   cameraNotice(err?.name==='NotAllowedError'?'Chưa được cấp quyền camera. Hãy cho phép trong cài đặt Safari.':err?.name==='NotFoundError'?'Không tìm thấy camera trên thiết bị.':'Không thể mở camera. Hãy dùng Safari qua HTTPS hoặc chọn ảnh.');
+  }
+ }
+ function cameraNotice(message){
+  const el=root.querySelector('#waiCameraStatus');if(el)el.textContent=message;
+ }
+ function shootCamera(){
+  const v=root.querySelector('#waiCameraVideo');
+  if(!cameraStream||!v||v.readyState<2){cameraNotice('Đang chuẩn bị camera, thử lại sau một chút.');return}
+  try{
+   const canvas=document.createElement('canvas'),scale=Math.min(1,1000/Math.max(v.videoWidth,v.videoHeight));
+   canvas.width=Math.max(1,Math.round(v.videoWidth*scale));canvas.height=Math.max(1,Math.round(v.videoHeight*scale));
+   canvas.getContext('2d').drawImage(v,0,0,canvas.width,canvas.height);
+   const src=canvas.toDataURL('image/jpeg',.78);
+   stopCamera();
+   window.__waiCameraShareSrc=src;
+   ui.select=[];navigate('new-chat');toast('Đã chụp ảnh — chọn liên hệ để gửi');
+  }catch(err){cameraNotice('Không chụp được ảnh. Hãy thử lại.')}
  }
  function settings(){
   return section('Hồ sơ cá nhân')+
@@ -285,7 +332,7 @@ function boot(){
   else if(sub==='about-app'){title='Giới thiệu';body=group('WhatsApp')+wrap('<div class="wai-cell">WhatsApp Messenger · v2.12.5</div>')}
   else if(sub==='invite'){title='Mời bạn bè';body=desc('Mời bạn bè sử dụng WhatsApp.')}
   else if(sub==='custom-notify'){title='Thông báo tùy chỉnh';body=group('Thông báo của '+esc(contact(ui.id)?.name||''))+wrap(toggle('Bật tùy chỉnh','customAlert')+cell('Âm thông báo','notify-tone',data.notifyTone||'Mặc định'))}
-  else if(sub==='choose-status'){title='Trạng thái';body=group('Chọn trạng thái')+wrap(['Có mặt','Đang bận','Đang làm việc','Đang học','Pin sắp hết','Không thể nói chuyện, chỉ nhắn WhatsApp'].map(x=>cell(esc(x),'status-choose',data.status===x?'✓':'','data-value="'+esc(x)+'"')).join('')+cell('Tùy chỉnh…','status-edit'))}
+  else if(sub==='choose-status'){title='Trạng thái';body=group('Chọn trạng thái')+wrap(['Đang hoạt động','Đang bận','Đang làm việc','Đang học','Pin sắp hết','Không thể nói chuyện, chỉ nhắn WhatsApp'].map(x=>cell(esc(x),'status-choose',data.status===x?'✓':'','data-value="'+esc(x)+'"')).join('')+cell('Tùy chỉnh…','status-edit'))}
   else if(sub==='choose-fav'){title='Thêm vào yêu thích';body=threads.filter(t=>!t.members&&!data.favorite.includes(t.id)).map(t=>contactRow(t,'favorite-add')).join('')||info('Tất cả liên hệ đang nằm trong Yêu thích.')}
   else if(sub==='call-picker'){title='Cuộc gọi mới';body=threads.filter(t=>!t.members).map(t=>contactRow(t,'call')).join('')}
   else if(sub==='contact-picker'){title='Chia sẻ liên hệ';body=threads.filter(t=>!t.members).map(t=>contactRow(t,'contact-share')).join('')}
@@ -468,7 +515,10 @@ function boot(){
   if(a==='broadcasts'){ui.select=[];navigate('broadcast');return}
   if(a==='call-filter'){ui.callFilter=id;render();return}
   if(a==='new-call'){navigate('sub',{sub:'call-picker'});return}
-   if(a==='camera-library'){ui.photoPickerFor='camera';navigate('photo-picker');return}
+   if(a==='camera-start'){openCamera();return}
+  if(a==='camera-flip'){cameraFacing=cameraFacing==='environment'?'user':'environment';openCamera();return}
+  if(a==='camera-shoot'){shootCamera();return}
+  if(a==='camera-library'){stopCamera();ui.photoPickerFor='camera';navigate('photo-picker');return}
   if(a==='call'){ui.overlay=null;callStart(id);return}
   if(a==='end-call'){hangup();return}
   if(a==='profile'){navigate('profile');return}
@@ -587,6 +637,9 @@ function boot(){
  root.addEventListener('touchstart',e=>{const row=e.target.closest('.wai-chat-row');if(row)touch={x:e.touches[0].clientX,y:e.touches[0].clientY,id:row.dataset.thread}},{passive:true});
  root.addEventListener('touchend',e=>{if(!touch)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;const id=touch.id;touch=null;if(Math.abs(dx)>65&&Math.abs(dy)<50){e.preventDefault();handle('swipe-menu',{dataset:{id}})}},{passive:false});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&app.classList.contains('open'))back()});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera()});
+ const appObserver=new MutationObserver(()=>{if(!app.classList.contains('open')&&cameraStream)stopCamera()});
+ appObserver.observe(app,{attributes:true,attributeFilter:['class']});
  const fileInput=document.createElement('input');fileInput.id='waiFile';fileInput.type='file';fileInput.accept='image/*';fileInput.style.display='none';root.appendChild(fileInput);
  const draw=render;render=()=>{draw();if(!root.contains(fileInput))root.appendChild(fileInput)};
  render();
