@@ -1,24 +1,22 @@
-# App icons (14 files)
+# Current launcher icon files
 
-Upload optimized PNG files directly into this folder, preserving the **exact filenames** below:
+The 14 replacement icons were uploaded to the repository **root**, with doubled `.png.png` filenames. The actual launcher HTML and image cache are configured to use those existing files as-is; no rename or reupload is necessary.
 
-| File | App |
+| App | Current file (repository root) |
 | --- | --- |
-| `voice.png` | Ghi âm |
-| `calendar.png` | Lịch |
-| `photos.png` | Ảnh |
-| `notes.png` | Ghi chú |
-| `facebook.png` | Facebook |
-| `itau.png` | Itaú |
-| `itau-biz.png` | Itaú Doanh nghiệp |
-| `whatsapp.png` | WhatsApp |
-| `goodreader.png` | GoodReader |
-| `atlas.png` | Atlas |
-| `phone.png` | Điện thoại |
-| `messages.png` | Tin nhắn |
-| `mail.png` | Mail |
-| `safari.png` | Safari |
+| Ghi âm | `/voice.png.png` |
+| Lịch | `/calendar.png.png` |
+| Ảnh | `/photos.png.png` |
+| Ghi chú | `/notes.png.png` |
+| Facebook | `/facebook.png.png` |
+| Itaú | `/itau.png.png` |
+| Itaú Doanh nghiệp | `/itau-biz.png.png` |
+| WhatsApp | `/whatsapp.png.png` |
+| GoodReader | `/goodreader.png.png` |
+| Atlas | `/atlas.png.png` |
+| Điện thoại | `/phone.png.png` |
+| Tin nhắn | `/messages.png.png` |
+| Mail | `/mail.png.png` |
+| Safari | `/safari.png.png` |
 
-Recommended: same square canvas for all assets (e.g. 180 × 180 or 256 × 256 pixels), identical visual padding and rounded-corner treatment; export with transparent background and optimize/compress PNG losslessly. Only these paths are changed in the launcher; app behavior is unchanged.
-
-The launcher is already wired to `./assets/app-icons/<filename>`. If a file has not yet been uploaded, it falls back to its original image without showing a permanently missing icon. The legacy images have not been deleted.
+These files are intentionally **not** in `assets/app-icons/`. This folder contains only this reference document. If a future icon is replaced, upload it to the repository root with the exact filename above. Old original icons remain available for fallback when image requests fail.
