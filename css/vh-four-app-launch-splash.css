@@ -1,0 +1,17 @@
+/* Launch splash for WhatsApp, GoodReader, Atlas only. Itaú personal uses its own splash. */
+#whatsappApp .vh-app-launch-splash,#goodreaderApp .vh-app-launch-splash,#atlasApp .vh-app-launch-splash{
+ position:absolute;inset:0;z-index:20000;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:15px;pointer-events:auto;
+ opacity:0;visibility:hidden;transition:opacity 90ms ease,visibility 0s linear 90ms;
+ color:#fff;font-family:"Helvetica Neue",Arial,sans-serif;
+}
+#whatsappApp .vh-app-launch-splash{background:#159c62}
+#goodreaderApp .vh-app-launch-splash{background:#263a68}
+#atlasApp .vh-app-launch-splash{background:#222b37}
+#whatsappApp.open .vh-app-launch-splash.vh-show,
+#goodreaderApp.open .vh-app-launch-splash.vh-show,
+#atlasApp.open .vh-app-launch-splash.vh-show{
+ opacity:1;visibility:visible;transition:none;
+}
+.vh-app-launch-splash img{display:block;width:74px;height:74px;object-fit:contain;border-radius:16px}
+.vh-app-launch-splash small{font-size:12px;letter-spacing:.05px;opacity:.9;font-weight:400}
