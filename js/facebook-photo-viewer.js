@@ -7,6 +7,7 @@
 
   const photoTargets = [
     '.fb15-media.photo img',
+    '.fb15-mothers-day-photo.fb15-photo-loaded img',
     '.fb15-photo-grid img',
     '.fb15-link-thumb.photo img',
     '.fb15-ad-thumb.photo img',
