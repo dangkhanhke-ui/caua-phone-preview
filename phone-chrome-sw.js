@@ -26,7 +26,7 @@ self.addEventListener('install',event=>{
  event.waitUntil((async()=>{
   const cache=await caches.open(VERSION);
   // Each image is independent: an unavailable optional icon cannot break installation.
-  await Promise.allSettled(resolved.map(url=>cache.add(new Request(url,{cache:'reload'}))));
+  await Promise.allSettled(resolved.map(url=>cache.add(url)));
   await self.skipWaiting();
  })());
 });
