@@ -121,7 +121,7 @@
 
 
 
-<link rel="stylesheet" href="./assets/atlas/atlas-v2.css?v=20261011-no-avatars">
+<link rel="stylesheet" href="./assets/atlas/atlas-v2.css?v=20261011-no-white-clock">
 <link rel="stylesheet" href="./css/ui-universal-back.css?v=20261010u2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -137,7 +137,8 @@
 <!-- Removed competing number-pad patch: PIN and Phone now have canonical owners. -->
   <link rel="stylesheet" href="./assets/itau-personal/itau-personal-canon.css?v=20261011-visa-final1">
   <link rel="stylesheet" href="./assets/itau-empresas/itau-empresas-canon.css?v=20261010-ui2015-final2">
-<link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261009h">
+<link rel="stylesheet" href="./assets/whatsapp/wa-ios8-2015.css?v=20261011-icons2">
+<style id="caua-wa-launch-icon-2015">#screen .whatsapp-launch .icon.image-icon{overflow:hidden!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}#screen .whatsapp-launch .whatsapp-launch-svg{width:57px;height:57px;display:block;flex:0 0 57px;overflow:hidden;border-radius:12px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.14));vertical-align:top}</style>
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8">
@@ -217,7 +218,14 @@
 
               <div class="app itau-launch" data-app="itau"><div class="icon image-icon"><img src="./assets/media/b8304cae6865ff99f4f10cef.png" alt="" /></div><span>Itaú</span></div>
               <div class="app itau-biz-launch" data-app="itau-biz"><div class="icon image-icon"><img src="./assets/media/ead9f6efcc82327a07570445.png" alt="" /></div><span>Itaú Doanh nghiệp</span></div>
-              <div class="app whatsapp-launch" data-app="whatsapp"><div class="icon image-icon"><img src="./assets/media/2c0eb1b8cfa0778bce3ddea7.png" alt="" /></div><span>WhatsApp</span></div>
+              <div class="app whatsapp-launch" data-app="whatsapp"><div class="icon image-icon"><svg class="whatsapp-launch-svg" viewBox="0 0 60 60" role="img" aria-label="WhatsApp" focusable="false" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="caua-wa-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#65dd79"/><stop offset=".48" stop-color="#33cc57"/><stop offset="1" stop-color="#19aa3d"/></linearGradient></defs>
+<rect x=".5" y=".5" width="59" height="59" rx="13" fill="url(#caua-wa-green)"/>
+<path d="M30.4 9.3C18.8 9.3 9.4 18.4 9.4 29.8c0 3.7 1 7.2 2.7 10.2L9 51.6l12.1-3.2c2.9 1.5 6.1 2.2 9.4 2.2 11.6 0 21-9.2 21-20.6S42 9.3 30.4 9.3Z" fill="#fff"/>
+<path d="M30.4 12.8c-9.7 0-17.6 7.7-17.6 17.2 0 3.1.8 6.1 2.4 8.6l-1.6 7.2 7.5-2a17.8 17.8 0 0 0 9.3 2.7c9.8 0 17.6-7.6 17.6-17.1S40.2 12.8 30.4 12.8Z" fill="#24bc4a"/>
+<path d="M23.5 18.6c-1.2 0-2.2.5-3.1 1.7-1 1.4-1.5 3.1-1.3 5.2.6 5.8 7.1 13.7 14.8 16.5 3 1.2 5.2 1.2 7.1.3 1.2-.6 3.1-2.7 3.4-4 .2-.9 0-1.4-1-1.9l-6-2.8c-.6-.3-.9-.2-1.4.4l-2.1 2.4c-.4.5-.8.6-1.5.3-4-1.9-6.8-4.5-8.6-8.3-.3-.6-.2-1 .2-1.5l2.2-2.3c.4-.5.5-.9.2-1.6l-2.8-6.1c-.4-.9-.8-1.2-1.4-1.2Z" fill="#fff"/>
+<path d="M7 12C16 4 45 3 53 13" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
+</svg></div><span>WhatsApp</span></div>
               <div class="app goodreader-launch" data-app="goodreader"><div class="icon gr4-home-icon"><span class="gr4-logo-fallback">G</span><img id="gr4IconImage" src="./assets/goodreader4/GR04_Icon.png" alt="" style="display:none" /></div><span>GoodReader</span></div>
               <div class="app atlas-launch" data-app="atlas" aria-label="Atlas"><div class="icon atlas-home-icon"><img class="atlas-custom-icon" src="./assetsatlasAtlas_Icon.png.png" alt="" draggable="false" /></div><span>Atlas</span></div>
             </div>
@@ -3751,6 +3759,6 @@ img.src=options[0];
 <script src="./js/ui-universal-back.js?v=20261010u1"></script>
 
 
-<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261009h"></script>
+<script src="./assets/whatsapp/wa-ios8-2015.js?v=20261011-icons2"></script>
 </body>
 </html>
