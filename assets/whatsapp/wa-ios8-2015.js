@@ -25,8 +25,9 @@ function boot(){
  threads.forEach(t=>{if(typeof t.status==='string')t.status=vnStatus(t.status)});
  for(const g of data.groups)if(!threads.find(t=>t.id===g.id))threads.push({...g,events:[]});
  const owner={id:'caua',name:data.name,phone:phones.caua};
- const tabs=[['favorites','star','Yêu thích'],['recents','clock','Gần đây'],['contacts','users','Danh bạ'],['chats','chat','Trò chuyện'],['settings','settings','Cài đặt']];
+ const tabs=[['status','status','Trạng thái'],['calls','phone','Cuộc gọi'],['camera','camera','Camera'],['chats','chat','Trò chuyện'],['settings','settings','Cài đặt']];
  const icons=Object.freeze({
+  status:'<circle cx="12" cy="12" r="8.8"/><circle cx="12" cy="12" r="5.45"/><circle cx="12" cy="12" r="2.1"/>',
   star:'<path d="m12 2.3 3 6.3 6.9.9-5 4.9 1.2 6.9L12 18l-6.1 3.3 1.2-6.9-5-4.9 6.9-.9z"/>',
   clock:'<circle cx="12" cy="12" r="8.65"/><path d="M12 5.5V12l4.1 2.6"/>',
   users:'<path d="M10.2 11.6c-2.1 0-3.7-1.7-3.7-3.8S8.1 4 10.2 4s3.7 1.7 3.7 3.8-1.6 3.8-3.7 3.8Z"/><path d="M3.3 20v-2.2c0-3.2 2.9-5.2 6.9-5.2s6.8 2 6.8 5.2V20Z"/><path d="M16.4 5.1c1.9.3 3.2 1.7 3.2 3.5s-1.3 3.1-3 3.3M18.5 13.3c1.6.6 2.4 1.7 2.4 4.1V20"/>',
@@ -95,7 +96,7 @@ function boot(){
   ui.overlay=null;render();
  }
  function tab(id){ui.tab=id;ui.page='main';ui.stack=[];ui.query='';ui.search='';ui.overlay=null;ui.edit=false;render()}
- function selectContact(id){data.unread=data.unread.filter(x=>x!==id);data.deleted=data.deleted.filter(x=>x!==id);save();ui.scrollThread=true;ui.id=id;navigate('chat',{id})}
+ function selectContact(id){data.unread=data.unread.filter(x=>x!==id);data.deleted=data.deleted.filter(x=>x!==id);save();ui.scrollThread=true;ui.id=id;navigate('chat',{id});if(window.__waiCameraShareSrc){const src=window.__waiCameraShareSrc;window.__waiCameraShareSrc=null;makeMessage(contact(id),'image',{src});render();toast('Đã gửi ảnh')}}
  const contactRow=(t,actionName='open-contact')=>'<button class="wai-row" data-act="'+actionName+'" data-id="'+esc(t.id)+'">'+face(t.id)+'<span class="wai-row-info"><span class="wai-row-top"><b>'+esc(t.name)+'</b></span><small>'+esc(t.status||phones[t.id]||'WhatsApp')+'</small></span><span class="wai-chevron">›</span></button>';
  const chatRow=t=>{
   const unread=data.unread.includes(t.id),muted=!!data.muted[t.id];
@@ -135,6 +136,15 @@ function boot(){
     ['all','missed'].map(f=>'<button data-act="call-filter" data-id="'+f+'" style="flex:1;border:0;padding:6px;color:'+(ui.callFilter===f?'white':'#007aff')+';background:'+(ui.callFilter===f?'#007aff':'white')+'">'+(f==='all'?'Tất cả':'Nhỡ')+'</button>').join('')+'</div></div>'+
    (rows.map(e=>'<button class="wai-row" data-act="call" data-id="'+esc(e.contactId)+'"><span style="color:'+(e.result==='missed'?'#e45555':'#777')+';font-size:22px;width:38px;text-align:center">'+(e.direction==='incoming'?'↙':'↗')+'</span><span class="wai-row-info"><b style="color:'+(e.result==='missed'?'#de4848':'#222')+'">'+esc(contact(e.contactId)?.name||e.contactId)+'</b><small>'+dateLabel(e.date)+' · '+esc(e.time)+' · '+(e.result==='missed'?'Cuộc gọi nhỡ':'Cuộc gọi thoại')+'</small></span><span class="wai-blue">'+icon('info')+'</span></button>').join('')||info('Chưa có cuộc gọi nào.'));
  }
+ function statusTab(){
+ return '<div class="wai-underbar">Trạng thái của tôi</div>'+
+ '<button class="wai-owner" data-act="profile">'+face('caua')+'<span style="flex:1"><b>'+esc(data.name)+'</b><small>'+esc(data.status)+'</small></span><span class="wai-chevron">›</span></button>'+
+ section('Cập nhật trạng thái')+wrap(cell('Thay đổi trạng thái','edit-status')+cell('Chọn trạng thái có sẵn','status-presets'))+
+ section('Trạng thái liên hệ')+threads.filter(t=>!t.members).slice(0,12).map(t=>contactRow(t,'open-contact')).join('');
+ }
+ function cameraTab(){
+ return '<div class="wai-camera-panel"><div class="wai-camera-emblem">'+icon('camera')+'</div><strong>Camera</strong><p>Chọn ảnh để gửi cho một liên hệ.</p><button type="button" class="wai-camera-button" data-act="camera-library">'+icon('photo')+' Thư viện ảnh</button></div>';
+ }
  function settings(){
   return section('Hồ sơ cá nhân')+
    '<button class="wai-owner" data-act="profile">'+face('caua')+'<span style="flex:1"><b>'+esc(data.name)+'</b><small>'+esc(data.status)+'</small></span><span class="wai-chevron">›</span></button>'+
@@ -149,9 +159,9 @@ function boot(){
    '';
  }
  function main(){
-  let title={chats:'Trò chuyện',contacts:'Danh bạ',favorites:'Yêu thích',recents:'Gần đây',settings:'Cài đặt'}[ui.tab];
-  let r=ui.tab==='chats'?headButton('new-chat',icon('pencil')):ui.tab==='recents'?headButton('new-call',icon('phone')):ui.tab==='favorites'?headButton('choose-favorite',icon('plus')):ui.tab==='contacts'?headButton('new-chat',icon('plus')):'';
-  const content={chats,favorites,contacts,recents,settings}[ui.tab]();
+  let title={chats:'Trò chuyện',status:'Trạng thái',calls:'Cuộc gọi',camera:'Camera',settings:'Cài đặt'}[ui.tab];
+  let r=ui.tab==='chats'?headButton('new-chat',icon('pencil')):ui.tab==='calls'?headButton('new-call',icon('plus')):'';
+  const content={chats,status:statusTab,calls:recents,camera:cameraTab,settings}[ui.tab]();
   return nav(title,'',r)+'<main class="wai-screen '+(ui.tab==='settings'?'grouped':'')+'">'+content+'</main>'+navbar();
  }
  function prettyMsg(e){
@@ -445,6 +455,7 @@ function boot(){
   if(a==='broadcasts'){ui.select=[];navigate('broadcast');return}
   if(a==='call-filter'){ui.callFilter=id;render();return}
   if(a==='new-call'){navigate('sub',{sub:'call-picker'});return}
+   if(a==='camera-library'){ui.photoPickerFor='camera';navigate('photo-picker');return}
   if(a==='call'){ui.overlay=null;callStart(id);return}
   if(a==='end-call'){hangup();return}
   if(a==='profile'){navigate('profile');return}
@@ -468,7 +479,8 @@ function boot(){
     if(ui.photoPickerFor==='profile'){
       data.photo=src;save();ui.photoPickerFor='chat';back();toast('Đã đổi ảnh đại diện');return;
     }
-    if(!contact(ui.id)){toast('Không tìm thấy liên hệ');return}
+    if(ui.photoPickerFor==='camera'){ui.photoPickerFor='chat';window.__waiCameraShareSrc=src;ui.select=[];navigate('new-chat');toast('Chọn liên hệ để gửi ảnh');return}
+     if(!contact(ui.id)){toast('Không tìm thấy liên hệ');return}
     makeMessage(contact(ui.id),'image',{src});
     ui.scrollThread=true;back();toast('Đã gửi ảnh');return;
   }
