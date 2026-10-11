@@ -26,26 +26,26 @@ function boot(){
  for(const g of data.groups)if(!threads.find(t=>t.id===g.id))threads.push({...g,events:[]});
  const owner={id:'caua',name:data.name,phone:phones.caua};
  const tabs=[['favorites','star','Yêu thích'],['recents','clock','Gần đây'],['contacts','users','Danh bạ'],['chats','chat','Trò chuyện'],['settings','settings','Cài đặt']];
- const icons={
- star:'<polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9 12 2"/>',
- clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
- users:'<circle cx="9" cy="7" r="4"/><path d="M2 21v-2c0-5 14-5 14 0v2"/><path d="M18 3a4 4 0 0 1 0 8M18 15c3 0 4 3 4 6"/>',
- chat:'<path d="M3 4h18v14H9l-6 4z"/>',
- settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2l2 2 3-1 2 3-1 3 3 3-3 3 1 3-2 3-3-1-2 2-2-2-3 1-2-3 1-3-3-3 3-3-1-3 2-3 3 1z"/>',
- pencil:'<path d="M4 20l5-1L20 8l-4-4L5 15zM14 6l4 4"/>',
- phone:'<path fill="currentColor" stroke="none" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/>',
- photo:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2"/><path d="M3 18l6-7 4 4 3-3 5 6"/>',
- plus:'<path d="M12 3v18M3 12h18"/>',
- mic:'<rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/>',
- info:'<circle cx="12" cy="12" r="10"/><path d="M12 10v7M12 6v.3"/>',
- back:'<path d="M15 4l-8 8 8 8"/>',
- check:'<path d="M4 12l5 5L20 6"/>',
- camera:'<rect x="2" y="5" width="20" height="16" rx="3"/><path d="M7 5l2-3h6l2 3"/><circle cx="12" cy="13" r="4"/>',
- paperclip:'<path d="M8 12l7-7a4 4 0 0 1 6 6L10 22a6 6 0 0 1-8-8L13 3"/>',
- list:'<path d="M8 5h14M8 12h14M8 19h14M3 5h.5M3 12h.5M3 19h.5"/>',
- trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v7M14 11v7"/>'
- };
- const icon=(name)=>'<svg class="wai-icon" viewBox="0 0 24 24" aria-hidden="true">'+(icons[name]||icons.info)+'</svg>';
+ const icons=Object.freeze({
+  star:'<path d="m12 2.6 2.9 6.15 6.75.96-4.88 4.82 1.16 6.83L12 18.15l-5.93 3.21 1.16-6.83-4.88-4.82 6.75-.96z"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6.4v5.8l3.8 2.4"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M2.6 20v-1.5a6.4 6.4 0 0 1 12.8 0V20zM17 5.5a3.1 3.1 0 0 1 0 5.9m.9 2.9c2.1.8 3.5 2.5 3.5 4.8v.9"/>',
+  chat:'<path d="M20.4 11.6a8.4 8.4 0 0 1-8.7 8.1c-1.3 0-2.7-.3-3.8-.8l-4.5 1.5 1.4-4.3a8.3 8.3 0 0 1-1.2-4.5 8.4 8.4 0 0 1 16.8 0Z"/><path d="M7.8 11.4h8.4M8.8 14.3h6.4"/>',
+  settings:'<path d="m10 2.6-.6 2.1-2 .9-2-.9-2.4 2.5 1 2-.8 2L1 12l2.2 1 .8 2-1 2 2.4 2.4 2-.9 2 .9.6 2.1h4l.7-2.1 2-.9 2 .9 2.4-2.4-1-2 .9-2L23 12l-2.2-1-.8-2 1-2-2.4-2.4-2 .9-2-.9-.7-2.1z"/><circle cx="12" cy="12" r="3.2"/>',
+  pencil:'<path d="M4.2 19.8 8.9 19 20.5 7.4a2.2 2.2 0 0 0-3.1-3.1L5.8 15.9zM15.7 6.1l3.1 3.1"/><path d="M3.5 21h17"/>',
+  phone:'<path fill="currentColor" stroke="none" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/>',
+  photo:'<rect x="2.8" y="3.5" width="18.4" height="17" rx="2"/><circle cx="8.7" cy="9" r="1.75"/><path d="m3.6 17 5.1-4.6 3.8 3.2 3.6-3.7 4.4 4.5"/>',
+  plus:'<path d="M12 4v16M4 12h16"/>',
+  mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11.8a6.5 6.5 0 0 0 13 0M12 18.5V22m-3.6 0h7.2"/>',
+  info:'<circle cx="12" cy="12" r="9.1"/><path d="M12 10.7v5.4"/><circle cx="12" cy="7.5" r=".7" fill="currentColor" stroke="none"/>',
+  back:'<path d="m15 4.3-7.5 7.7 7.5 7.7"/>',
+  check:'<path d="m4.5 12.2 4.6 4.6 10.4-10.4"/>',
+  camera:'<rect x="2.5" y="6.7" width="19" height="14" rx="2.2"/><path d="m7.2 6.7 1.5-2.8h6.6l1.5 2.8"/><circle cx="12" cy="13.5" r="3.7"/>',
+  paperclip:'<path d="m8.7 12.3 6.5-6.5a3.6 3.6 0 1 1 5.1 5.1l-9.7 9.7a5.5 5.5 0 1 1-7.8-7.8L13 2.6"/>',
+  list:'<path d="M8.3 5.5H21M8.3 12H21M8.3 18.5H21"/><circle cx="4" cy="5.5" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18.5" r="1"/>',
+  trash:'<path d="M4 6.7h16M9 6.7V3.6h6v3.1M6.5 6.7l.8 13.5h9.4l.8-13.5M10 10.5v6.2m4-6.2v6.2"/>'
+ });
+ const icon=(name)=>'<svg class="wai-icon wai-icon-'+name+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+(icons[name]||icons.info)+'</svg>';
  const esc=(x)=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const save=()=>{try{localStorage.setItem('caua-whatsapp-ios2015-v2',JSON.stringify(data))}catch(e){toast('Bộ nhớ trình duyệt đầy, ảnh có thể chưa được lưu')}};
  const contact=id=>threads.find(x=>x.id===id);
