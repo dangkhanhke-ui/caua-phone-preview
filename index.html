@@ -2464,23 +2464,24 @@
     for(const k of swipePreload.keys())if(!keep.has(k))swipePreload.delete(k);
   }
   function updateViewerMeta(){const p=PHOTOS[state.currentIndex];if(!p)return;viewerTitle.textContent=p.locationShort||p.dateDisplay;viewerDate.textContent=p.dateDisplay;favBtn.classList.toggle('on',state.favorites.has(p.id));renderInfo(p);preloadAround(state.currentIndex);}
-  function renderViewer(){const p=PHOTOS[state.currentIndex];if(!p)return;resetZoom(false);viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)';viewerImg.src=p.src;stage.querySelectorAll('.photos-swipe-neighbor').forEach(n=>n.remove());updateViewerMeta();}
+  function renderViewer(){const p=PHOTOS[state.currentIndex];if(!p)return;cancelSwipeWork();resetZoom(false);viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)';viewerImg.src=p.src;stage.querySelectorAll('.photos-swipe-neighbor').forEach(n=>n.remove());updateViewerMeta();}
   function renderInfo(p){infoBody.innerHTML=`<div class="photos-info-row"><div class="label">Ngày & giờ</div><div class="value">${esc(p.dateTimeDisplay||p.dateDisplay)}</div></div><div class="photos-info-row"><div class="label">Tệp</div><div class="value">${esc(p.filename)} · JPEG · ${p.width} × ${p.height}</div></div><div class="photos-info-row"><div class="label">Vị trí</div><div class="value">${p.location?esc(p.location):'Không có dữ liệu vị trí'}</div></div>${p.location?'<div class="photos-info-map"><span class="photos-info-pin"></span></div>':''}`;}
   document.getElementById('photosViewerBack').addEventListener('click',()=>{
+    cancelSwipeWork();pointers.clear();gesture=null;pinch=null;clearSwipeNeighbor();
     resetZoom(false);viewer.classList.remove('active');info.classList.remove('open');
     const ret=state.viewerReturn||{view:state.lastView||'moments',scrollTop:state.scrolls[state.lastView]||0,photoId:null};
     showView(ret.view||'moments',false);
     const sc=views[ret.view]?.querySelector('.photos-scroll');
     if(sc){
       state.scrolls[ret.view]=ret.scrollTop||0;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
         sc.scrollTop=ret.scrollTop||0;
         if(Math.abs(sc.scrollTop-(ret.scrollTop||0))>4 && ret.photoId){
           const el=sc.querySelector(`[data-photo-id="${ret.photoId}"]`);
           el?.scrollIntoView({block:'center'});
           state.scrolls[ret.view]=sc.scrollTop;
         }
-      }));
+      });
     }
     state.viewerReturn=null;
   });
@@ -2536,6 +2537,13 @@
     if(next<=1.015){zoom.x=0;zoom.y=0;}
     applyZoom(animated);
   }
+  let swipeEpoch=0, swipeTimer=0, resetTimer=0;
+  function cancelSwipeWork(){
+    swipeEpoch++;
+    clearTimeout(swipeTimer);clearTimeout(resetTimer);
+    swipeTimer=0;resetTimer=0;
+    viewerImg.style.transition='none';
+  }
   function clearSwipeNeighbor(){stage.querySelectorAll('.photos-swipe-neighbor').forEach(n=>n.remove());}
   function makeSwipeNeighbor(index,side){
     const existing=stage.querySelector('.photos-swipe-neighbor');
@@ -2556,25 +2564,32 @@
     viewerImg.style.transition=`transform ${dur} cubic-bezier(.25,.8,.25,1)`;
     viewerImg.style.transform='translate3d(0,0,0) scale(1)';
     if(n){const side=Number(n.dataset.side||1);n.style.transition=`transform ${dur} cubic-bezier(.25,.8,.25,1)`;n.style.transform=`translate3d(${side*100}%,0,0)`;}
-    setTimeout(()=>{clearSwipeNeighbor();viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)'},animated?190:0);
+    clearTimeout(resetTimer);
+    const epoch=swipeEpoch;
+    resetTimer=setTimeout(()=>{if(epoch!==swipeEpoch||!viewer.classList.contains('active'))return;clearSwipeNeighbor();viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)'},animated?190:0);
   }
   function finishSwipe(nextIndex,dir,neighbor){
-    const duration=210;
-    resetZoom(false);
-    viewerImg.style.transition=`transform ${duration}ms cubic-bezier(.22,.72,.24,1)`;
-    neighbor.style.transition=`transform ${duration}ms cubic-bezier(.22,.72,.24,1)`;
-    // Animate transforms without forcing a synchronous WebKit layout.
+    cancelSwipeWork();
+    const epoch=swipeEpoch;
+    const duration=170;
+    // Commit selection immediately so another swipe or Back never sees stale state.
+    state.currentIndex=nextIndex;
+    viewerImg.style.transition='transform '+duration+'ms ease-out';
+    neighbor.style.transition='transform '+duration+'ms ease-out';
     requestAnimationFrame(()=>{
-      viewerImg.style.transform=`translate3d(${-dir*100}%,0,0) scale(1)`;
+      if(epoch!==swipeEpoch||!viewer.classList.contains('active'))return;
+      viewerImg.style.transform=`translate3d(${-dir*100}%,0,0)`;
       neighbor.style.transform='translate3d(0,0,0)';
     });
-    setTimeout(()=>{
-      state.currentIndex=nextIndex;
-      // Preserve the already visible decoded neighbor until the main image has painted.
-      viewerImg.src=PHOTOS[nextIndex].src;
-      viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)';
-      requestAnimationFrame(()=>{clearSwipeNeighbor();updateViewerMeta();});
-    },duration+12);
+    swipeTimer=setTimeout(()=>{
+      if(epoch!==swipeEpoch||!viewer.classList.contains('active'))return;
+      viewerImg.src=PHOTOS[state.currentIndex].src;
+      viewerImg.style.transition='none';
+      viewerImg.style.transform='translate3d(0,0,0) scale(1)';
+      clearSwipeNeighbor();
+      resetZoom(false);
+      updateViewerMeta();
+    },duration+16);
   }
   function beginPinch(){
     const pts=[...pointers.values()];
@@ -2605,6 +2620,7 @@
   }
 
   stage.addEventListener('pointerdown',e=>{
+    if(swipeTimer){cancelSwipeWork();viewerImg.src=PHOTOS[state.currentIndex].src;viewerImg.style.transform='translate3d(0,0,0) scale(1)';clearSwipeNeighbor();updateViewerMeta();}
     pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
     try{stage.setPointerCapture(e.pointerId)}catch(_){}
     if(pointers.size===2){beginPinch();return;}
