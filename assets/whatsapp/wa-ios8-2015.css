@@ -239,3 +239,17 @@
 }
 #waIos15 .wai-tab .wai-icon-settings{stroke-width:1.15}
 #waIos15 .wai-tab.active .wai-icon-settings{stroke-width:1.2}
+
+/* Fine-detail icon finishing: align with iOS 8 Phone's airy monochrome symbols. */
+#waIos15 .wai-tab .wai-icon{width:19px;height:19px;flex:0 0 19px;stroke-width:1.12;stroke-linecap:round;stroke-linejoin:round}
+#waIos15 .wai-tab.active .wai-icon{stroke-width:1.18}
+#waIos15 .wai-tab .wai-icon-settings{width:18px;height:18px;stroke-width:.91}
+#waIos15 .wai-tab.active .wai-icon-settings{stroke-width:.99}
+#waIos15 .wai-tab .wai-icon-users{width:19px;height:19px;stroke-width:1.05}
+#waIos15 .wai-tab .wai-icon-chat{width:20px;height:20px;stroke-width:1.14}
+#waIos15 .wai-tab.active .wai-icon-chat{fill:#007aff;stroke:#007aff;stroke-width:1.18}
+#waIos15 .wai-tab .wai-icon-star{width:19px;height:19px}
+#waIos15 .wai-tab .wai-icon-clock{width:19px;height:19px;stroke-width:1.06}
+#waIos15 .wai-tabs{height:50px}
+#waIos15 .wai-tab{height:49px;min-height:49px;gap:2px;padding:4px 1px 3px;justify-content:center}
+#waIos15 .wai-tab-label{font-size:9px;line-height:11px;font-weight:400;letter-spacing:0}
