@@ -2452,7 +2452,7 @@
   const swipePreload=new Map();
   function preloadAround(index){
     const keep=new Set();
-    for(const i of [index-2,index-1,index,index+1,index+2]){
+    for(const i of [index-1,index,index+1]){
       const p=PHOTOS[i];if(!p)continue;
       keep.add(p.src);
       if(!swipePreload.has(p.src)){
@@ -2538,10 +2538,14 @@
   }
   function clearSwipeNeighbor(){stage.querySelectorAll('.photos-swipe-neighbor').forEach(n=>n.remove());}
   function makeSwipeNeighbor(index,side){
+    const existing=stage.querySelector('.photos-swipe-neighbor');
+    if(index<0||index>=PHOTOS.length){clearSwipeNeighbor();return null;}
+    if(existing&&existing.dataset.photoIndex===String(index))return existing;
     clearSwipeNeighbor();
-    if(index<0||index>=PHOTOS.length)return null;
     const n=document.createElement('img');
-    n.className='photos-swipe-neighbor';n.alt='';n.decoding='async';n.src=PHOTOS[index].src;
+    n.className='photos-swipe-neighbor';n.alt='';n.decoding='async';n.dataset.photoIndex=String(index);
+    const cached=swipePreload.get(PHOTOS[index].src);
+    n.src=cached?.im?.src||PHOTOS[index].src;
     n.style.transition='none';n.style.transform=`translate3d(${side*100}%,0,0)`;
     stage.appendChild(n);return n;
   }
@@ -2559,12 +2563,11 @@
     resetZoom(false);
     viewerImg.style.transition=`transform ${duration}ms cubic-bezier(.22,.72,.24,1)`;
     neighbor.style.transition=`transform ${duration}ms cubic-bezier(.22,.72,.24,1)`;
-    // Force the starting state to be painted before requesting the transition.
-    void neighbor.offsetWidth;
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    // Animate transforms without forcing a synchronous WebKit layout.
+    requestAnimationFrame(()=>{
       viewerImg.style.transform=`translate3d(${-dir*100}%,0,0) scale(1)`;
       neighbor.style.transform='translate3d(0,0,0)';
-    }));
+    });
     setTimeout(()=>{
       state.currentIndex=nextIndex;
       // Preserve the already visible decoded neighbor until the main image has painted.
