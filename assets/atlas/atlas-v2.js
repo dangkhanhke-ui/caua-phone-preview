@@ -62,17 +62,6 @@ x:'<path d="M5 5l14 14M19 5 5 19"/>',
 arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>'
 };
 function icon(name,size=19){return'<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(icons[name]||icons.file)+'</svg>';}
-function initials(p){return String(p.short||p.name||'?').split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();}
-function avatar(p,cls=''){
- if(!p)return'<span class="a10-avatar '+cls+'">?</span>';
- let inner=esc(initials(p));
- if(p.portrait)inner+='<img loading="lazy" src="./'+esc(p.portrait)+'" alt="" />';
- else if(p.sprite){
- const i=p.sprite-1,group=i>=25?2:1,cell=i%25,c=cell%5,r=Math.floor(cell/5);
- inner+='<span class="a10-sprite" style="background-image:url(./assets/facebook/avatars/batch'+group+'-sprite.jpg);background-size:500% 500%;background-position:'+(c*25)+'% '+(r*25)+'%"></span>';
- }
- return'<span class="a10-avatar '+cls+'">'+inner+'</span>';
-}
 function kind(e){if(e.local&&e.kind==='photo')return'image';if(e.kind==='camera'||e.kind==='video')return'camera';if(e.kind==='message'||e.kind==='mail')return'chat';if(e.kind==='map')return'map';if(e.kind==='audio')return'audio';if(e.kind==='document')return'paper';return'image';}
 function iconKind(e){return({camera:'camera',chat:'chat',map:'map',audio:'audio',paper:'file',image:'image'})[kind(e)]||'file';}
 function preview(e){const k=kind(e);return'<span class="a10-preview '+k+'">'+(k==='paper'?'<span class="a10-evidence-file"></span>':'')+(e.local&&k==='image'?'<img class="a10-upload-image" data-atlas-thumb="'+esc(e.id)+'" alt=""/>':'')+'</span>';}
@@ -97,7 +86,7 @@ function feature(id){
  const p=person(id);if(!p)return'';
  const rec=records(p.id),show=rec.slice(0,3);
  return'<button type="button" class="a10-feature" data-atlas="profile" data-id="'+esc(p.id)+'">'+
- '<span class="a10-feature-top">'+avatar(p)+'<span class="a10-person-text"><span class="a10-person-name">'+esc(p.name)+'</span><span class="a10-person-info">'+esc(p.code)+'</span><span class="a10-person-info">'+(p.last.includes('/')?'Hoạt động cuối: '+esc(p.last):'Ghi nhận '+esc(p.last))+'</span></span><span class="a10-feature-arrow">'+icon('chevron',15)+'</span></span>'+
+ '<span class="a10-feature-top"><span class="a10-person-text"><span class="a10-person-name">'+esc(p.name)+'</span><span class="a10-person-info">'+esc(p.code)+'</span><span class="a10-person-info">'+(p.last.includes('/')?'Hoạt động cuối: '+esc(p.last):'Ghi nhận '+esc(p.last))+'</span></span><span class="a10-feature-arrow">'+icon('chevron',15)+'</span></span>'+
  '<span class="a10-preview-triplet">'+(show.length?show.map(preview).join(''):'<span class="a10-preview paper"></span>').repeat(show.length?1:3)+'</span>'+
  '<span class="a10-compact-footer"><span>'+new Set(rec.map(e=>e.source)).size+' nguồn lưu trữ</span><span class="a10-accent-count">'+rec.length+' mục</span></span></button>';
 }
@@ -110,11 +99,11 @@ function filterPeople(){
 }
 function row(p){
  const r=records(p.id),date=p.last.includes('/')?'Lần cuối '+p.last:'Lưu đến 29/08/2015 · '+p.last;
- return'<button type="button" class="a10-person-row" style="'+(prefs.compact?'min-height:45px;padding:6px 13px':'')+'" data-atlas="profile" data-id="'+esc(p.id)+'">'+avatar(p,'small')+
+ return'<button type="button" class="a10-person-row" style="'+(prefs.compact?'min-height:45px;padding:6px 13px':'')+'" data-atlas="profile" data-id="'+esc(p.id)+'">'+
  '<span class="a10-person-text"><span class="a10-person-name">'+esc(p.short)+'</span><span class="a10-person-info">'+esc(date)+'</span></span><span class="a10-row-count">'+r.length+' mục</span><span class="a10-chevron">›</span></button>';
 }
 function tilePerson(p){
- return'<button type="button" class="a10-grid-tile" data-atlas="profile" data-id="'+esc(p.id)+'">'+avatar(p)+'<span class="a10-name">'+esc(p.short)+'</span><small>'+records(p.id).length+' mục</small></button>';
+ return'<button type="button" class="a10-grid-tile" data-atlas="profile" data-id="'+esc(p.id)+'"><span class="a10-grid-kicker">'+esc(p.code)+'</span><span class="a10-name">'+esc(p.short)+'</span><small>'+records(p.id).length+' mục đã lưu</small></button>';
 }
 function home(){
  const set=filterPeople();const seen=recent.filter(id=>person(id)&&!person(id).removed).slice(0,5);
@@ -137,7 +126,7 @@ function mediaTiles(rec){
 function profile(){
  const p=person(state.profile);if(!p)return'<div class="a10-empty">Hồ sơ không tồn tại.</div>';
  const rr=records(p.id),full=rawRecords(p.id),count=sourceCounts(rr);
- let body='<div class="a10-profile-hero">'+avatar(p,'big')+'<div><h1>'+esc(p.name)+'</h1><div class="a10-person-info">'+esc(p.code)+'</div><div class="a10-profile-last">Hoạt động cuối: '+esc(p.last)+'</div></div></div>';
+ let body='<div class="a10-profile-hero"><div><div class="a10-profile-label">Hồ sơ đối tượng · '+esc(p.code)+'</div><h1>'+esc(p.name)+'</h1><div class="a10-person-info">'+esc(p.code)+'</div><div class="a10-profile-last">Hoạt động cuối: '+esc(p.last)+'</div></div></div>';
  body+='<div class="a10-prof-tabs">'+[['overview','Tổng quan'],['files','Lưu trữ'],['time','Dòng thời gian']].map(([id,t])=>'<button type="button" class="a10-prof-tab '+(state.personTab===id?'active':'')+'" data-atlas="person-tab" data-id="'+id+'">'+t+'</button>').join('')+'</div>';
  if(state.personTab==='overview'){
  body+='<div class="a10-stat-row"><div class="a10-stat"><b>'+rr.length+'</b><span>Mục đã lưu</span></div><div class="a10-stat"><b>'+Object.keys(count).length+'</b><span>Nguồn</span></div><div class="a10-stat"><b>'+Object.keys(byYear(rr)).length+'</b><span>Năm</span></div></div>';
@@ -196,7 +185,7 @@ function searchResults(){
  (!ps.length&&!rr.length?'<div class="a10-empty">Không tìm thấy dữ liệu phù hợp.</div>':'');
 }
 function account(){
- return'<div class="a10-personal">'+avatar({name:'Cauã',short:'Cauã'},'big')+'<div><div class="a10-personal-name">Cauã</div><div class="a10-personal-sub">Tài khoản cục bộ · A01</div></div></div>'+
+ return'<div class="a10-personal"><div><div class="a10-personal-name">Cauã</div><div class="a10-personal-sub">Tài khoản cục bộ · A01</div></div></div>'+
  section('Thư viện')+'<div class="a10-block">'+
  smallRow('Hồ sơ',data.profiles.length+' người','users','tab','home')+
  smallRow('Tệp đã lưu',data.entries.length+' mục gốc','archive','tab','archive')+
@@ -204,7 +193,7 @@ function account(){
  section('Thiết bị')+'<div class="a10-block">'+smallRow('iPhone','Atlas · Kho dữ liệu trên thiết bị','person','settings')+'</div>';
 }
 function more(){
- return'<div class="a10-personal">'+avatar({name:'Cauã',short:'Cauã'},'big')+'<div><div class="a10-personal-name">Cauã</div><div class="a10-personal-sub">Administrador · A01</div></div><span class="a10-chevron">›</span></div>'+
+ return'<div class="a10-personal"><div><div class="a10-personal-name">Cauã</div><div class="a10-personal-sub">Administrador · A01</div></div><span class="a10-chevron">›</span></div>'+
  section('Quản lý')+'<div class="a10-block">'+
  smallRow('Nhập tệp','Ảnh, PDF, video hoặc âm thanh từ thiết bị','upload','upload')+
  smallRow('Tệp đã nhập',imports.filter(e=>!e.deleted).length+' tệp trên thiết bị','file','local')+
@@ -216,7 +205,7 @@ function more(){
 function settings(){
  const sw=(key,label,sub)=>'<button type="button" class="a10-setting" data-atlas="pref" data-id="'+key+'"><span>'+label+'<small>'+sub+'</small></span><span class="a10-switch '+(prefs[key]?'on':'')+'"></span></button>';
  return section('Hiển thị')+'<div class="a10-block">'+
- sw('grid','Lưới hồ sơ','Sử dụng ảnh đại diện trong danh sách')+
+ sw('grid','Lưới hồ sơ','Hiển thị các hồ sơ dưới dạng thẻ')+
  sw('compact','Danh sách thu gọn','Thu khoảng cách giữa các hàng')+
  sw('sourceBadges','Biểu tượng nguồn','Hiện nguồn trên ảnh xem trước')+
  sw('alphabetic','Sắp xếp A – Z','Xếp hồ sơ theo tên')+'</div>'+
@@ -228,7 +217,7 @@ function deleted(){
  const dead=data.deleted;
  const removed=imports.filter(e=>e.deleted);
  return section('Hồ sơ đã xóa','<small>'+dead.length+' hồ sơ</small>')+
- '<div class="a10-list">'+dead.map(p=>'<button class="a10-person-row a10-deleted-row" data-atlas="profile" data-id="'+p.id+'">'+avatar(p,'small')+'<span class="a10-person-text"><span class="a10-person-name">'+esc(p.name.replace(/\.+$/g,''))+'</span><span class="a10-person-info">Xóa '+esc(p.deletedAt)+'</span></span><span class="a10-deleted-count">'+storedCount(p.id)+' tài liệu</span><span class="a10-chevron">›</span></button>').join('')+'</div>'+
+ '<div class="a10-list">'+dead.map(p=>'<button class="a10-person-row a10-deleted-row" data-atlas="profile" data-id="'+p.id+'"><span class="a10-person-text"><span class="a10-person-name">'+esc(p.name.replace(/\.+$/g,''))+'</span><span class="a10-person-info">Xóa '+esc(p.deletedAt)+'</span></span><span class="a10-deleted-count">'+storedCount(p.id)+' tài liệu</span><span class="a10-chevron">›</span></button>').join('')+'</div>'+
  section('Tệp đã xóa từ thiết bị','<small>'+removed.length+' mục</small>')+
  (removed.length?'<div class="a10-block">'+removed.map(e=>smallRow(e.title,'Đã xóa · '+e.source,'trash','restore',e.id)).join('')+'</div>':'<p class="a10-muted">Không có tệp cá nhân đã xóa.</p>');
 }
