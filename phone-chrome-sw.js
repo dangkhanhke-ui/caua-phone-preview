@@ -2,10 +2,15 @@
  * First visit still downloads assets; later visits can use browser cache/offline images.
  * Increment VERSION when a bundled visual asset is replaced. */
 'use strict';
-const VERSION='caua-fixed-images-20261011-v1';
+const VERSION='caua-fixed-images-20261011-png-v2';
+// Only prefetch non-optional wallpapers at installation.
+// Launcher icons (new + old fallbacks) are cache-on-first-success:
+// missing PNGs never cause 14 wasted background downloads.
 const FIXED=[
  'assets/screen/phone_screen.png',
- 'assets/whatsapp/whatsapp_chat_bg.png',
+ 'assets/whatsapp/whatsapp_chat_bg.png'
+];
+const OLD_ICONS=[
  'assets/voice-memos/voice_icon.png',
  'assets/media/451ac1907cdb59ca7a6d7fb6.png',
  'assets/media/a50f7e7d99a58d447fded094.png',
@@ -13,15 +18,17 @@ const FIXED=[
  'assets/media/ded9c1162a09f194d6bd1cc0.png',
  'assets/media/b8304cae6865ff99f4f10cef.png',
  'assets/media/ead9f6efcc82327a07570445.png',
+ 'assets/media/2c0eb1b8cfa0778bce3ddea7.png',
+ 'assets/goodreader4/GR04_Icon.png',
+ 'assetsatlasAtlas_Icon.png.png',
  'assets/media/99053f821a06bfb38b071cf1.png',
  'assets/media/898c09d3c8af0b9b7effdb61.png',
  'assets/media/5179632c8a940bb07383d328.png',
- 'assets/media/8e47cee68a3cc75603f05f14.png',
- 'assets/goodreader4/GR04_Icon.png',
- 'assetsatlasAtlas_Icon.png.png'
+ 'assets/media/8e47cee68a3cc75603f05f14.png'
 ];
+const NEW_ICONS=['voice','calendar','photos','notes','facebook','itau','itau-biz','whatsapp','goodreader','atlas','phone','messages','mail','safari'].map(name=>'assets/app-icons/'+name+'.png');
 const resolved=FIXED.map(path=>new URL(path,self.registration.scope).href);
-const paths=new Set(resolved.map(url=>new URL(url).pathname));
+const paths=new Set([...FIXED,...OLD_ICONS,...NEW_ICONS].map(path=>new URL(path,self.registration.scope).pathname));
 self.addEventListener('install',event=>{
  event.waitUntil((async()=>{
   const cache=await caches.open(VERSION);
