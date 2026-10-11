@@ -336,6 +336,7 @@ function openView(name){
  begin(name);
 }
 async function openApp(){
+ const openedAt=performance.now();
  document.getElementById('itauBizApp')?.classList.remove('open');screen?.classList.remove('itau-biz-open');
  document.getElementById('mailApp')?.classList.remove('open');screen?.classList.remove('mail-open');
  app.classList.add('open');screen?.classList.add('itau-open');
@@ -356,7 +357,7 @@ async function openApp(){
   if(token!==revision)return;
   console.warn('Itaú personal ledger loading error',err);
   content.innerHTML='<div class="itau-empty"><strong>Không tải được sao kê</strong><span>Vui lòng mở lại ứng dụng.</span></div>';
- }finally{if(token===revision)splash.classList.add('hide');}
+ }finally{if(token===revision){const remaining=Math.max(0,500-(performance.now()-openedAt));if(remaining)await new Promise(resolve=>setTimeout(resolve,remaining));if(token===revision)splash.classList.add('hide');}}
 }
 function closeApp(){state.demoToken=null;++revision;app.classList.remove('open');screen?.classList.remove('itau-open');accountMenu?.classList.remove('open');}
 launcher.addEventListener('click',openApp);
