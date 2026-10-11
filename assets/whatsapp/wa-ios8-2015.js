@@ -47,6 +47,19 @@ function boot(){
   trash:'<path d="M4 6.7h16M9 6.7V3.6h6v3.1M6.5 6.7l.8 13.5h9.4l.8-13.5M10 10.5v6.2m4-6.2v6.2"/>'
  });
  const icon=(name)=>'<svg class="wai-icon wai-icon-'+name+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+(icons[name]||icons.info)+'</svg>';
+
+ /* Historically referenced WhatsApp 2017 iPhone five-tab silhouettes.
+  * Dedicated inline vector art — independent of icons used inside chat.
+  * Paths traced by form from the selected photographic UI reference. */
+ const tabArt=Object.freeze({
+  status:'<circle cx="16" cy="16" r="7.15"/><path d="M9.25 4.75a13.05 13.05 0 0 1 13.5 0M5.75 10.2a13.05 13.05 0 0 0 5 16.65M26.25 10.2a13.05 13.05 0 0 1-5 16.65"/>',
+  calls:'<path d="M9.4 4.5 7.5 3.3C6.9 2.9 6.1 3 5.6 3.6L3.5 6.2c-.7.9-.9 2-.6 3.2 1.8 7.4 10.3 16 17.7 18.7 2 .7 3.7.5 5-.6l2.3-2.1c.6-.6.6-1.4.1-2l-4.1-4.2c-.6-.6-1.5-.6-2.1 0l-2.8 2.7c-4.1-2.2-7.1-5.2-9.2-9.2l2.6-2.8c.5-.6.5-1.4 0-2z"/>',
+  camera:'<path d="M5.7 9.7h3.4l2-2.5c.5-.6 1-.9 1.7-.9h6.4c.7 0 1.2.3 1.7.9l2 2.5h3.4c1.7 0 2.9 1.3 2.9 2.9v13c0 1.6-1.2 2.9-2.9 2.9H5.7c-1.7 0-2.9-1.3-2.9-2.9v-13c0-1.6 1.2-2.9 2.9-2.9z"/><circle cx="16" cy="18" r="5.8"/>',
+  chats:'<path class="wai-chat-rear" d="M21.2 6.6c5.9 0 10.1 4 10.1 8.9 0 3.9-2.4 6.8-6 8.2l1.2 4.2-4.6-3.3c-1.2.3-2.6.5-4 .5-5.6 0-9.9-3.7-9.9-8.6 0-5.5 5.4-9.9 13.2-9.9z"/><path class="wai-chat-front" d="M13.2 4.4c7.2 0 12.6 4.7 12.6 10.5 0 5.8-5.4 10.4-12.6 10.4-1.5 0-2.9-.2-4.3-.7l-5.5 3.7 1.6-5.2c-2.7-1.9-4.4-5.1-4.4-8.2C.6 9.1 6 4.4 13.2 4.4z"/><path class="wai-chat-seam" d="M23.45 9.2c2.2 3.4 2.4 7.1 0 10.15"/>',
+  settings:'<circle cx="16" cy="16" r="10.15"/><circle cx="16" cy="16" r="2.85"/><path d="M16 13.15V6M13.5 17.5l-6.25 4.15M18.5 17.5l6.25 4.15M26.5 16h2.75M25.09 21.25l2.38 1.38M21.25 25.09l1.38 2.38M16 26.5v2.75M10.75 25.09l-1.38 2.38M6.91 21.25l-2.38 1.38M5.5 16H2.75M6.91 10.75l-2.38-1.38M10.75 6.91l-1.38-2.38M16 5.5V2.75M21.25 6.91l1.38-2.38M25.09 10.75l2.38-1.38"/>'
+ });
+ const tabIcon=(name)=>'<svg class="wai-tab-art wai-tab-art-'+name+'" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+(tabArt[name]||tabArt.status)+'</svg>';
+
  const esc=(x)=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const save=()=>{try{localStorage.setItem('caua-whatsapp-ios2015-v2',JSON.stringify(data))}catch(e){toast('Bộ nhớ trình duyệt đầy, ảnh có thể chưa được lưu')}};
  const contact=id=>threads.find(x=>x.id===id);
@@ -75,7 +88,7 @@ function boot(){
  function nav(title,left='',right=''){
   return '<header class="wai-header">'+(left?'<button class="wai-nav-btn left" data-act="back">'+icon('back')+esc(left)+'</button>':'')+'<strong class="wai-title">'+esc(title)+'</strong>'+(right||'')+'</header>';
  }
- const navbar=()=>'<nav class="wai-tabs" aria-label="WhatsApp 2015">'+tabs.map(([id,glyph,title])=>'<button data-act="tab" data-id="'+id+'" class="wai-tab '+(ui.tab===id?'active':'')+'">'+icon(glyph)+'<span class="wai-tab-label">'+title+'</span></button>').join('')+'</nav>';
+ const navbar=()=>'<nav class="wai-tabs" aria-label="Điều hướng WhatsApp">'+tabs.map(([id,glyph,title])=>'<button type="button" data-act="tab" data-id="'+id+'" aria-label="'+title+'" aria-current="'+(ui.tab===id?'page':'false')+'" class="wai-tab '+(ui.tab===id?'active':'')+'">'+tabIcon(id)+'<span class="wai-tab-label">'+title+'</span></button>').join('')+'</nav>';
  const info=(text)=>'<div class="wai-empty">'+text+'</div>';
  const headButton=(act,content,extra='')=>'<button type="button" class="wai-nav-btn right" data-act="'+act+'" '+extra+'>'+content+'</button>';
  const cell=(name,act,val='',extra='')=>'<button class="wai-cell" data-act="'+act+'" '+extra+'><span class="wai-cell-title">'+name+'</span>'+(val?'<small class="wai-cell-val">'+esc(val)+'</small>':'')+'<span class="wai-chevron">›</span></button>';
