@@ -293,72 +293,13 @@
  color:#42494c;font-size:11px;font-weight:500;white-space:nowrap;
  font-variant-numeric:tabular-nums;
 }
-#itauApp .itau-personal-visa{
- display:flex;flex-direction:column;justify-content:space-between;
- margin:11px 13px;min-height:150px;padding:14px 16px;border-radius:8px;
- color:#fff;background:linear-gradient(135deg,#c8a45d 0%,#a98238 58%,#856726 100%);
- box-shadow:0 1px 4px rgba(0,0,0,.13);
-}
-#itauApp .itau-personal-visa>div{font-size:12px;font-weight:600}
-#itauApp .itau-personal-visa>div b{float:right;font-size:13px;font-weight:500}
-#itauApp .itau-personal-visa strong{
- font-size:19px;line-height:25px;font-weight:300;white-space:nowrap;
- letter-spacing:.8px;text-shadow:0 1px 1px rgba(0,0,0,.18);
-}
-#itauApp .itau-personal-visa small{font-size:10px;line-height:13px;letter-spacing:.15px}
 #itauApp .itau-toast{
  bottom:58px;background:rgba(0,0,0,.78);padding:8px 11px;border-radius:4px;
 }
-#itauApp .personal-drawer-shell{
- display:none;position:absolute;inset:0;z-index:27;
- pointer-events:none;
-}
-#itauApp .personal-drawer-shell.open{display:block;pointer-events:auto}
-#itauApp .personal-drawer-shade{
- position:absolute;inset:0;background:rgba(0,0,0,.46);
-}
-#itauApp .personal-drawer-panel{
- position:absolute;top:0;left:0;bottom:0;width:80%;max-width:275px;
- background:#f6f6f6;box-shadow:2px 0 10px rgba(0,0,0,.23);
- overflow-y:auto;-webkit-overflow-scrolling:touch;
-}
-#itauApp .personal-drawer-header{
- min-height:76px;background:#ec7000;color:#fff;
- padding:15px 13px 11px;display:flex;flex-direction:column;justify-content:center;
-}
-#itauApp .personal-drawer-brand{
- font-size:24px;font-weight:700;letter-spacing:-1px;line-height:28px;
-}
-#itauApp .personal-drawer-header small{
- font-size:10px;color:rgba(255,255,255,.87);margin-top:3px;
-}
-#itauApp .personal-drawer-person{
- padding:12px 13px;background:#fff;border-bottom:1px solid #dadada;
-}
-#itauApp .personal-drawer-person strong{
- display:block;font-size:12px;line-height:17px;font-weight:500;color:#43494c;
-}
-#itauApp .personal-drawer-person span{
- display:block;margin-top:4px;font-size:10px;line-height:14px;color:#8b9296;
-}
-#itauApp .personal-drawer-links{margin-top:7px;background:#fff;border-top:1px solid #dfdfdf}
-#itauApp .personal-drawer-links button{
- width:100%;min-height:46px;display:flex;align-items:center;gap:12px;
- padding:10px 13px;border:0;border-bottom:1px solid #ebebeb;
- background:#fff;color:#444b4e;text-align:left;
- font-size:12px;font-weight:400;cursor:pointer;
-}
-#itauApp .personal-drawer-links button .personal-ico{
- width:20px;height:20px;color:#ec7000;
-}
-#itauApp .personal-drawer-links button span{flex:1}
-#itauApp .personal-drawer-links button b{color:#bec3c5;font-weight:300;font-size:18px}
-#itauApp .personal-drawer-links button:active{background:#f3f3f3}
 #itauApp .itau-row:focus-visible,
 #itauApp .personal-credit-overview:focus-visible,
 #itauApp .itau-menu-row:focus-visible,
-#itauApp .itau-tab:focus-visible,
-#itauApp .personal-drawer-links button:focus-visible{
+#itauApp .itau-tab:focus-visible{
  outline:2px solid #ec7000;outline-offset:-2px;
 }
 #itauApp button{touch-action:manipulation}
@@ -368,4 +309,159 @@
  #itauApp .personal-credit-overview>b{font-size:10px}
  #itauApp .itau-row{grid-template-columns:40px minmax(0,1fr) auto;gap:5px}
  #itauApp .itau-row-amount{font-size:10px}
+}
+
+
+/* Card artwork — independently scoped to the personal app */
+#itauApp .personal-card-wrap{padding:13px 15px 6px}
+#itauApp .itau-personal-visa{
+ position:relative;isolation:isolate;overflow:hidden;aspect-ratio:1.62/1;
+ min-height:175px;padding:15px 17px 13px;margin:0;
+ display:flex;flex-direction:column;justify-content:space-between;
+ border:1px solid #836327;border-radius:12px;color:#fff3d1;
+ background:radial-gradient(ellipse at 95% 0%,rgba(255,252,210,.72),transparent 70%),
+ repeating-linear-gradient(112deg,rgba(255,255,255,.025) 0 3px,rgba(0,0,0,.025) 3px 6px),
+ linear-gradient(141deg,#8e6824,#e4cb8a 25%,#ad823a 52%,#dac07a 73%,#79591f);
+ box-shadow:inset 0 1px 1px rgba(255,255,248,.76),inset 0 -2px 3px rgba(49,33,7,.35),
+ 0 2px 1px rgba(99,75,33,.25),0 9px 18px rgba(57,43,23,.24);
+}
+#itauApp .itau-personal-visa::before{
+ content:"";position:absolute;z-index:-1;inset:-55% -45% -20% 5%;
+ border-radius:50%;border:19px solid rgba(255,247,191,.14);transform:rotate(-24deg);
+ box-shadow:0 0 0 30px rgba(114,75,18,.1),0 0 0 56px rgba(255,255,255,.06);
+}
+#itauApp .itau-personal-visa::after{
+ content:"";position:absolute;z-index:5;inset:0;border-radius:12px;pointer-events:none;
+ border:1px solid rgba(255,254,228,.5);
+ background:linear-gradient(115deg,transparent 16%,rgba(255,255,255,.15) 32%,transparent 48%,rgba(255,255,255,.04) 78%,transparent 94%);
+}
+#itauApp .visa-watermark{
+ position:absolute;right:-15px;top:27px;width:180px;height:140px;
+ border:1px solid rgba(255,242,191,.27);border-radius:50%;transform:rotate(-27deg);
+}
+#itauApp .visa-card-top,#itauApp .visa-card-mid,
+#itauApp .visa-card-number,#itauApp .visa-card-bottom{position:relative;z-index:2}
+#itauApp .visa-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#itauApp .visa-itau-brand{
+ display:inline-flex;align-items:center;justify-content:center;padding:1px 8px 3px;
+ background:#e77905;border:1px solid rgba(255,207,125,.85);border-radius:5px;
+ box-shadow:inset 0 1px rgba(255,255,255,.3),0 2px 4px rgba(0,0,0,.16);
+}
+#itauApp .visa-itau-brand span{font-size:19px;line-height:23px;font-weight:700;letter-spacing:-1px;color:#fff}
+#itauApp .visa-tier{
+ font-size:11px;letter-spacing:2px;font-weight:600;color:#fff0b7;
+ text-shadow:0 1px #67450f,0 -1px rgba(255,255,255,.6);
+}
+#itauApp .visa-card-mid{display:flex;align-items:center;gap:13px;margin:6px 0}
+#itauApp .visa-chip{width:40px;height:31px;filter:drop-shadow(1px 1px 1px rgba(60,44,13,.55))}
+#itauApp .visa-contactless{display:flex;gap:2px;align-items:center;height:24px;transform:rotate(-90deg);opacity:.7}
+#itauApp .visa-contactless i{
+ display:block;width:5px;height:9px;border:1.4px solid #ffedb8;border-left:0;border-radius:0 60% 60% 0;
+}
+#itauApp .visa-contactless i:nth-child(2){height:15px}
+#itauApp .visa-contactless i:nth-child(3){height:22px}
+#itauApp .visa-card-number{
+ display:flex;justify-content:space-between;gap:6px;margin:3px 0 1px;
+ font-size:19px;line-height:25px;font-weight:400;white-space:nowrap;letter-spacing:1.5px;
+ color:#fff8d7;text-shadow:0 1px 1px #68471b,0 -1px rgba(255,255,255,.45);
+ font-variant-numeric:tabular-nums;
+}
+#itauApp .visa-card-bottom{display:flex;align-items:end;gap:10px;min-height:34px}
+#itauApp .visa-holder{min-width:0;flex:1;overflow:hidden}
+#itauApp .visa-holder small{display:block;font-size:7px;line-height:10px;letter-spacing:1.2px;color:#ebdcad}
+#itauApp .visa-holder strong{
+ display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font-size:9.5px;line-height:13px;font-weight:500;letter-spacing:.1px;
+ text-transform:uppercase;color:#fff8d6;text-shadow:0 1px #785518;
+}
+#itauApp .visa-brandmark{
+ position:relative;flex:0 0 auto;display:block;
+ font-family:Arial,Helvetica,sans-serif;font-size:30px;line-height:30px;
+ font-weight:900;font-style:italic;letter-spacing:-2.2px;
+ color:#164186;text-shadow:0 1px rgba(255,255,255,.5);
+}
+#itauApp .visa-brand-swoosh{
+ position:absolute;top:0;right:0;width:17px;height:4px;
+ border-radius:50%;background:#d78919;transform:skewX(-25deg);
+}
+#itauApp .visa-hologram{
+ position:absolute;right:17px;top:48px;z-index:1;width:26px;height:23px;
+ border-radius:4px;opacity:.52;transform:rotate(-8deg);
+ background:conic-gradient(#a2dce2,#f5eed2,#c7b4ec,#a3dfc2,#a2dce2);
+ box-shadow:0 0 2px rgba(55,45,29,.26);
+}
+#itauApp .personal-card-section{padding:7px 14px 0}
+#itauApp .personal-card-intro{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#868c90}
+#itauApp .personal-card-intro strong{font-size:10.5px;font-weight:500;color:#555e64}
+#itauApp .visa-bill-paid{color:#397f53!important}
+#itauApp .visa-bill-open{color:#bd8036!important}
+#itauApp .itau-card-bill .name span{margin-top:4px}
+/* Interactive, clearly simulated token */
+#itauApp .personal-token-top{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+ background:#fff;padding:22px 14px 20px;border-bottom:1px solid #e0e0e0;
+}
+#itauApp .personal-token-emblem{
+ width:52px;height:52px;border:1px solid #f3d9c4;border-radius:50%;
+ background:#fff3e8;color:#ec7000;display:grid;place-items:center;margin-bottom:12px;
+}
+#itauApp .personal-token-emblem .personal-ico{width:27px;height:27px}
+#itauApp .personal-token-top>strong{font-size:15px;font-weight:500}
+#itauApp .personal-token-status{display:flex;align-items:center;gap:6px;color:#367c4f;font-size:11px;margin-top:8px}
+#itauApp .personal-token-status b{width:7px;height:7px;background:#3da566;border-radius:50%}
+#itauApp .personal-token-top p{margin:8px 0 0;font-size:10px;color:#91979a}
+#itauApp .personal-token-panel{margin:10px;padding:19px 13px;background:#fff;border:1px solid #ddd;text-align:center}
+#itauApp .personal-token-label{color:#7d8589;font-size:11px}
+#itauApp .personal-token-digits,#itauApp .personal-token-placeholder{
+ margin:12px 0;line-height:40px;font-size:30px;letter-spacing:6px;
+ font-variant-numeric:tabular-nums;font-weight:300;color:#444d53;
+}
+#itauApp .personal-token-placeholder{color:#c4c9cb}
+#itauApp .personal-token-disclaimer{margin:5px auto 14px;max-width:230px;color:#92999b;font-size:10px;line-height:16px}
+#itauApp .personal-token-action{
+ width:100%;min-height:39px;border:0;border-radius:3px;
+ background:#ec7000;color:#fff;font-size:12px;font-weight:500;
+}
+#itauApp .personal-token-refresh{
+ display:flex;align-items:center;justify-content:center;gap:7px;
+ width:100%;min-height:34px;border:0;margin-top:5px;background:transparent;
+ font-size:11px;color:#d46800;
+}
+#itauApp .personal-token-refresh .personal-ico{width:17px;height:17px}
+#itauApp .personal-token-tips{margin:0 10px 10px;padding:12px 13px;background:#fff;border:1px solid #ddd}
+#itauApp .personal-tips-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:#525e64}
+#itauApp .personal-tips-title .personal-ico{width:18px;height:18px;color:#eb7000}
+#itauApp .personal-token-tips p{font-size:10.5px;color:#7d8589;line-height:16px;margin:8px 0 0}
+/* In-app help with expandable topics and internal navigation */
+#itauApp .personal-help-hero{display:flex;align-items:center;gap:12px;padding:19px 13px;background:#fff;border-bottom:1px solid #ddd}
+#itauApp .personal-help-hero>.personal-ico{width:29px;height:29px;color:#ed7300}
+#itauApp .personal-help-hero strong{display:block;font-size:14px;font-weight:500;color:#464b50}
+#itauApp .personal-help-hero span{display:block;font-size:10.5px;color:#92989c;margin-top:5px}
+#itauApp .personal-help-section{padding:13px 12px 8px;color:#7e868b;font-size:10.5px}
+#itauApp .personal-help-faq{background:#fff;border-top:1px solid #dedede}
+#itauApp .personal-help-item{border-bottom:1px solid #e6e6e6}
+#itauApp .personal-help-item>button{
+ width:100%;min-height:48px;border:0;background:#fff;
+ display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:11px 13px;font-size:11.5px;color:#464c51;text-align:left;
+}
+#itauApp .personal-help-item>button span{flex:1}
+#itauApp .personal-help-item>button b{font-size:19px;font-weight:300;color:#a4a9ad}
+#itauApp .personal-help-item>button b.is-open{transform:rotate(180deg)}
+#itauApp .personal-help-answer{padding:0 13px 12px}
+#itauApp .personal-help-answer p{margin:0;font-size:10.5px;line-height:17px;color:#777f84}
+#itauApp .personal-help-go{
+ width:100%;display:flex;justify-content:space-between;align-items:center;
+ margin-top:10px;padding:9px 0 1px;border:0;border-top:1px solid #e9e9e9;
+ background:transparent;color:#d46b00;font-size:11px;text-align:left;
+}
+#itauApp .personal-help-footer{display:flex;align-items:center;gap:10px;padding:13px;background:#fff;border-block:1px solid #dedede}
+#itauApp .personal-help-footer>.personal-ico{color:#ec7000}
+#itauApp .personal-help-footer strong{font-size:12px;font-weight:500;color:#42494d}
+#itauApp .personal-help-footer span{display:block;margin-top:4px;font-size:10px;line-height:14px;color:#90969a}
+#itauApp .personal-help-note{text-align:center;color:#9da3a5;font-size:10px;padding:17px 10px 25px}
+@media(max-width:340px){
+ #itauApp .itau-personal-visa{padding:12px 13px;min-height:164px}
+ #itauApp .visa-card-number{font-size:16px;letter-spacing:1px;gap:4px}
+ #itauApp .visa-brandmark{font-size:26px;line-height:26px}
 }
