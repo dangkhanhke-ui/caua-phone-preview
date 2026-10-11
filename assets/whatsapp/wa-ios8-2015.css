@@ -139,3 +139,55 @@
 #waIos15 .wai-chat-item>.wai-chat-row:after{display:none!important;content:none!important}
 #waIos15 .wai-chat-item>.wai-chat-more{border-bottom:0!important;box-shadow:none!important}
 #waIos15 .wai-chat-item>.wai-chat-row{border-bottom:0!important}
+
+
+/* WhatsApp icon system refresh — consistent optical 20/21px SVGs, iOS 8 proportions.
+   No message, call, photo, or event data is changed by these visual rules. */
+#waIos15 .wai-icon{
+ display:block;width:20px;height:20px;flex-shrink:0;
+ fill:none;stroke:currentColor;stroke-width:1.75;
+ stroke-linecap:round;stroke-linejoin:round;
+ shape-rendering:geometricPrecision;
+}
+#waIos15 .wai-icon path,#waIos15 .wai-icon circle,
+#waIos15 .wai-icon rect,#waIos15 .wai-icon polygon{vector-effect:non-scaling-stroke}
+#waIos15 .wai-header .wai-nav-btn{
+ display:inline-flex;align-items:center;justify-content:center;
+ gap:3px;min-height:43px;line-height:43px;
+}
+#waIos15 .wai-nav-btn .wai-icon{width:20px;height:20px;stroke-width:1.75}
+#waIos15 .wai-nav-btn.left .wai-icon{width:19px;height:19px}
+#waIos15 .wai-tabs{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:50px;
+ align-items:stretch;
+}
+#waIos15 .wai-tab{
+ width:100%;min-width:0;min-height:49px;
+ padding:3px 1px 2px;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:2px;
+ text-align:center;line-height:1;color:#92939a;
+}
+#waIos15 .wai-tab .wai-icon{display:block;width:21px;height:21px;flex:0 0 21px;stroke-width:1.75}
+#waIos15 .wai-tab .wai-icon-star{width:20px;height:20px}
+#waIos15 .wai-tab-label{
+ display:block;max-width:100%;font-size:9px;line-height:11px;
+ font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:clip;
+ letter-spacing:-.12px;
+}
+#waIos15 .wai-tab.active{color:#007aff}
+#waIos15 .wai-tab.active .wai-icon{stroke-width:1.9}
+#waIos15 .wai-cell-icon{
+ display:flex;align-items:center;justify-content:center;
+ width:28px;height:28px;flex:0 0 28px;
+}
+#waIos15 .wai-cell-icon .wai-icon{width:17px;height:17px;stroke-width:1.75}
+#waIos15 .wai-compose button:not(.wai-send){
+ display:inline-flex;align-items:center;justify-content:center;
+ flex-shrink:0;
+}
+#waIos15 .wai-compose button .wai-icon{width:21px;height:21px;stroke-width:1.75}
+#waIos15 .wai-compose button .wai-icon-mic{width:20px;height:20px}
+#waIos15 .wai-chat-more{font-size:20px;line-height:24px;font-weight:400}
+#waIos15 .wai-call-event .wai-call-icon .wai-icon{width:14px;height:14px;stroke:none;fill:currentColor}
+#waIos15 .wai-call-end .wai-icon{width:31px;height:31px}
+#waIos15 button:focus-visible{outline:2px solid #007aff;outline-offset:-2px}
