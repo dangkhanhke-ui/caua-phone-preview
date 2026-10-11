@@ -62,7 +62,7 @@ function top(name,child=false){
  accountMenu?.classList.remove('open');
 }
 function box(k,v){return '<div class="itau-kv"><label>'+html(k)+'</label><div>'+html(v)+'</div></div>';}
-function cardHead(){return '<div class="itau-account-head"><div class="personal-account-mark">'+ico('account')+'</div><div class="personal-account-copy"><div class="itau-hello">Cauã Henrique Valença de Oliveira</div><div class="itau-account-line">Agência 0917 · Conta 43972-1</div></div></div>';}
+function cardHead(){return '<div class="itau-account-head"><div class="personal-account-mark">'+ico('account')+'</div><div class="personal-account-copy"><div class="itau-hello">Cauã Henrique Valença de Oliveira</div><div class="itau-account-line">Chi nhánh 0917 · Tài khoản 43972-1</div></div></div>';}
 function sorted(rows){return rows.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time)||b.id.localeCompare(a.id));}
 function balanceAt(date){
  const transactions=ledger.filter(t=>t.date<=date);return transactions.length?transactions[transactions.length-1].balanceCents:1843000;
@@ -200,14 +200,14 @@ function renderCard(){
  +'<div class="visa-card-mid"><svg class="visa-chip" viewBox="0 0 55 42" aria-hidden="true"><rect x="1" y="1" width="53" height="40" rx="7" fill="#e8d6a1" stroke="#8e7949" stroke-width="1.5"/><rect x="17" y="2" width="21" height="38" rx="3" fill="#cbb577" stroke="#8e7949"/><path d="M1 14h16M1 28h16M38 14h16M38 28h16M17 14h21M17 28h21M27.5 2v12M27.5 28v12" fill="none" stroke="#87754a" stroke-width="1.35"/><rect x="21" y="15" width="13" height="12" rx="2" fill="#e5d3a0" stroke="#8a784f"/></svg>'
  +'<span class="visa-contactless" aria-hidden="true"><i></i><i></i><i></i></span></div>'
  +'<div class="visa-card-number"><span>••••</span><span>••••</span><span>••••</span><span>'+html(card.last4)+'</span></div>'
- +'<div class="visa-card-bottom"><div class="visa-holder"><small>TITULAR</small><strong>'+html(card.holder)+'</strong></div><div class="visa-brandmark" aria-label="Visa">VISA<span class="visa-brand-swoosh"></span></div></div>'
+ +'<div class="visa-card-bottom"><div class="visa-holder"><small>CHỦ THẺ</small><strong>'+html(card.holder)+'</strong></div><div class="visa-brandmark" aria-label="Visa">VISA<span class="visa-brand-swoosh"></span></div></div>'
  +'<div class="visa-hologram" aria-hidden="true"></div>'
  +'</div></div>'
- +'<div class="personal-card-section"><div class="personal-card-intro"><span>Cartão de crédito · Visa Gold</span><strong>•••• '+html(card.last4)+'</strong></div></div>'
- +'<div class="itau-info-block">'+box('Hạn mức total',money(card.limitCents))
- +box('Utilizado',money(card.currentCents))+box('Disponível',money(card.availableCents))
- +box('Fatura em aberto','09/2015')+'</div>'
- +'<div class="itau-section-title">Faturas · Hóa đơn gần đây</div>'
+ +'<div class="personal-card-section"><div class="personal-card-intro"><span>Thẻ tín dụng · Visa Gold</span><strong>•••• '+html(card.last4)+'</strong></div></div>'
+ +'<div class="itau-info-block">'+box('Tổng hạn mức',money(card.limitCents))
+ +box('Đã sử dụng',money(card.currentCents))+box('Hạn mức còn lại',money(card.availableCents))
+ +box('Kỳ đang phát sinh','09/2015')+'</div>'
+ +'<div class="itau-section-title">Hóa đơn gần đây</div>'
  +'<div class="itau-list-menu">'+bills.map(s=>{
    const label=s.period.slice(5,7)+'/'+s.period.slice(0,4);
    return '<div class="itau-menu-row itau-card-bill" data-personal-bill="'+s.period+'" role="button" tabindex="0"><span class="name">'
@@ -269,34 +269,34 @@ function renderAccount(){
 }
 
 const HELP_TOPICS=[
- ['acesso','Mật khẩu & truy cập','Mật khẩu điện tử được sử dụng để acessar a conta. Nếu quên senha, có thể đăng ký lại tại caixa eletrônico Itaú bằng thẻ và giấy tờ cá nhân. Đừng chia sẻ senha qua tin nhắn hoặc điện thoại.','itoken'],
- ['fatura','Hóa đơn thẻ tín dụng','Vào Thẻ tín dụng để xem các faturas. Kỳ 07/2015 và 08/2015 đã thanh toán; kỳ 09/2015 đang phát sinh và chưa đến hạn.','card'],
- ['extrato','Tìm giao dịch trong sao kê','Mở Sao kê và chọn mês/ano, sau đó tìm theo tên đối tác hoặc mã tham chiếu. Sao kê tài khoản chỉ ghi nhận tiền ra khi thanh toán hóa đơn thẻ.','statement'],
- ['seguranca','Mất thẻ hoặc giao dịch lạ','Nếu thẻ bị thất lạc, hãy liên hệ ngay central de atendimento hoặc agência Itaú để được hỗ trợ khóa thẻ. Không cung cấp senha hay mã iToken cho người khác.','card'],
+ ['acesso','Mật khẩu & truy cập','Mật khẩu điện tử được sử dụng để truy cập tài khoản. Nếu quên mật khẩu, bạn có thể yêu cầu đăng ký lại tại cây ATM Itaú hoặc đến chi nhánh để được hỗ trợ. Không chia sẻ mật khẩu qua tin nhắn hoặc điện thoại.','itoken'],
+ ['fatura','Hóa đơn thẻ tín dụng','Vào mục Thẻ tín dụng để xem hóa đơn từng kỳ. Hóa đơn tháng 07/2015 và 08/2015 đã thanh toán; kỳ 09/2015 đang phát sinh và chưa đến hạn.','card'],
+ ['extrato','Tìm giao dịch trong sao kê','Mở mục Sao kê và chọn tháng, năm cần xem. Bạn có thể tìm theo tên đối tác hoặc mã giao dịch. Các khoản mua bằng thẻ tín dụng được tổng hợp vào hóa đơn, còn khoản thanh toán hóa đơn được ghi trong sao kê tài khoản.','statement'],
+ ['seguranca','Mất thẻ hoặc giao dịch lạ','Nếu thẻ bị thất lạc hoặc xuất hiện giao dịch bất thường, hãy liên hệ tổng đài hỗ trợ hoặc đến chi nhánh Itaú để được kiểm tra và khóa thẻ. Không cung cấp mật khẩu hay mã iToken cho người khác.','card'],
  ['conexao','Không thể kết nối','Kiểm tra kết nối di động/Wi-Fi rồi thử truy cập lại. Các giao dịch chưa được ngân hàng xác nhận không được xem là hoàn tất.','services'],
- ['sobre','Về aplicativo','Itaú 30 Horas · giao diện mô phỏng thời kỳ 2015. Nội dung tài khoản trong trải nghiệm này được lưu cục bộ.','services']
+ ['sobre','Về ứng dụng','Ứng dụng ngân hàng Itaú dành cho khách hàng cá nhân. Phiên bản 6.3.1. Cập nhật tháng 08/2015.','services']
 ];
 function renderIToken(){
  state.view='itoken';top('iToken',true);
  const token=state.demoToken;
  content.innerHTML='<div class="personal-token-top"><div class="personal-token-emblem">'+ico('itoken')+'</div>'
- +'<strong>iToken no aplicativo</strong><span class="personal-token-status"><b></b> Habilitado</span>'
+ +'<strong>iToken trên ứng dụng</strong><span class="personal-token-status"><b></b> Đang hoạt động</span>'
  +'<p>Thiết bị: iPhone · đăng ký ngày 15/06/2015</p></div>'
- +'<div class="personal-token-panel"><div class="personal-token-label">Código de segurança · Mã xác thực</div>'
- +(token?'<div class="personal-token-digits" aria-label="Mã mô phỏng">'+html(token.slice(0,3))+' '+html(token.slice(3))+'</div>':'<div class="personal-token-placeholder">••• •••</div>')
- +'<p class="personal-token-disclaimer">Mã minh họa trong game, không có giá trị xác thực ngân hàng.</p>'
+ +'<div class="personal-token-panel"><div class="personal-token-label">Mã xác thực</div>'
+ +(token?'<div class="personal-token-digits" aria-label="Mã xác thực">'+html(token.slice(0,3))+' '+html(token.slice(3))+'</div>':'<div class="personal-token-placeholder">••• •••</div>')
+ +'<p class="personal-token-disclaimer">Không cung cấp mã iToken cho bất kỳ ai.</p>'
  +'<button type="button" class="personal-token-action" data-personal-token="'+(token?'hide':'generate')+'">'
- +(token?'Ẩn mã':'Hiển thị mã mô phỏng')+'</button>'
+ +(token?'Ẩn mã':'Hiển thị mã')+'</button>'
  +(token?'<button type="button" class="personal-token-refresh" data-personal-token="generate">'+ico('history')+' Tạo mã khác</button>':'')
  +'</div>'
  +'<div class="personal-token-tips"><div class="personal-tips-title">'+ico('help')+' Về iToken</div>'
- +'<p>iToken dùng để xác minh một số giao dịch trên internet và điện thoại. Mã trên ứng dụng ngân hàng thật được thay đổi định kỳ.</p>'
- +'<p>Itaú không yêu cầu khách hàng gửi mã iToken qua SMS, email hay tin nhắn.</p></div>';
+ +'<p>iToken dùng để xác thực một số giao dịch điện tử. Khi tạo mã mới, mã trước đó sẽ được thay thế.</p>'
+ +'<p>Nhân viên Itaú không yêu cầu bạn cung cấp mã iToken qua tin nhắn hoặc cuộc gọi.</p></div>';
  content.scrollTop=0;
 }
 function renderHelp(){
  state.view='help';top('Trợ giúp',true);
- content.innerHTML='<div class="personal-help-hero">'+ico('help')+'<div><strong>Como podemos ajudar?</strong><span>Trung tâm trợ giúp Itaú 30 Horas</span></div></div>'
+ content.innerHTML='<div class="personal-help-hero">'+ico('help')+'<div><strong>Chúng tôi có thể giúp gì cho bạn?</strong><span>Trung tâm hỗ trợ khách hàng Itaú</span></div></div>'
  +'<div class="personal-help-section">Các câu hỏi thường gặp</div>'
  +'<div class="personal-help-faq">'+HELP_TOPICS.map(x=>'<div class="personal-help-item">'
  +'<button type="button" data-personal-faq="'+x[0]+'" aria-expanded="'+(state.helpTopic===x[0]?'true':'false')+'">'
@@ -305,8 +305,8 @@ function renderHelp(){
  +'<button type="button" class="personal-help-go" data-personal-go="'+x[3]+'">Mở chức năng liên quan <span>›</span></button></div>':'')
  +'</div>').join('')+'</div>'
  +'<div class="personal-help-section">Kênh hỗ trợ</div>'
- +'<div class="personal-help-footer">'+ico('account')+'<div><strong>Agência Itaú</strong><span>Hỗ trợ tài khoản và cartões trực tiếp tại chi nhánh.</span></div></div>'
- +'<div class="personal-help-note">Itaú 30 Horas · phiên bản mô phỏng năm 2015</div>';
+ +'<div class="personal-help-footer">'+ico('account')+'<div><strong>Chi nhánh Itaú</strong><span>Hỗ trợ tài khoản và thẻ ngân hàng trực tiếp tại chi nhánh.</span></div></div>'
+ +'<div class="personal-help-note">Phiên bản ứng dụng: 6.3.1 · Cập nhật 08/2015</div>';
  content.scrollTop=0;
 }
 function renderEmpty(){
