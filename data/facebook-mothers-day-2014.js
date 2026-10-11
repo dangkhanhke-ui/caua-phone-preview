@@ -10,13 +10,13 @@
     author:'Cauã Valença',context:'',
     text:'Chúc mừng Ngày của Mẹ tới người phụ nữ tuyệt vời luôn ở bên con, ngay cả những lúc con không xứng đáng. Cảm ơn mẹ vì tất cả những gì mẹ đã và vẫn đang làm cho con. Con yêu mẹ nhiều lắm ❤️❤️❤️',
     media:'placeholder',mediaRatio:'landscape',
-    likes:'',commentCount:'4',shareCount:'',liked:false,
+    likes:'254',commentCount:'28',shareCount:'',liked:false,
     comments:[
       {name:'Tânia Valença',text:'Chúc mừng Ngày của Mẹ nha hai mẹ con, rảnh rỗi dắt mẹ về quê chơi với dì! ❤️🙏',replies:[
         {name:'Cauã Valença',text:'Dạ con cảm ơn dì, con cũng chúc dì nha'}
       ]},
       {name:'Tio Marcelo',text:'Làm thằng đàn ông là phải biết thương mẹ như vậy! Giỏi lắm cháu.',replies:[]},
-      {name:'Felipe Duarte',text:'Chúc cô @Clarice Valença ngày của Mẹ luôn vui vẻ hạnh phúc ạ 🥰💐',replies:[]}
+      {name:'Raquel Martins',text:'Chúc cô @Clarice Valença ngày của Mẹ luôn vui vẻ hạnh phúc ạ 🥰💐',replies:[]}
     ]
   };
   if(data.PROFILE_POSTS.some(item=>item.id===post.id))return;
