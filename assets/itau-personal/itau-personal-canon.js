@@ -225,7 +225,8 @@ function renderCardBill(){
  content.innerHTML='<div class="itau-info-block">'+box('Thẻ','Visa Gold •••• 4836')
  +box('Giá trị',money(statement.amountCents))
  +box('Trạng thái',statement.status==='paid'?'Đã thanh toán':'Đang phát sinh')
- +box('Ngày chốt',fmt(statement.closingDate))+box('Hạn thanh toán',fmt(statement.dueDate))
+ +box(statement.status==='paid'?'Ngày chốt':'Ngày chốt dự kiến',fmt(statement.closingDate))
+ +box(statement.status==='paid'?'Hạn thanh toán':'Hạn thanh toán dự kiến',fmt(statement.dueDate))
  +(statement.paymentReference?box('Thanh toán tài khoản',statement.paymentReference):'')
  +'</div><div class="itau-section-title">'+purchases.length+' giao dịch mua sắm</div>'
  +purchases.map(cardRow).join('')
