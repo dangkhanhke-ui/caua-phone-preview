@@ -253,3 +253,15 @@
 #waIos15 .wai-tabs{height:50px}
 #waIos15 .wai-tab{height:49px;min-height:49px;gap:2px;padding:4px 1px 3px;justify-content:center}
 #waIos15 .wai-tab-label{font-size:9px;line-height:11px;font-weight:400;letter-spacing:0}
+
+/* Native-feeling camera entry (2015); tab navigation never pretends to be another screen. */
+#waIos15 .wai-camera-panel{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 22px;text-align:center;color:#81818b}
+#waIos15 .wai-camera-emblem{width:60px;height:60px;display:grid;place-items:center;border:1px solid #e4e4e7;border-radius:50%;color:#8e8e93;background:#fafafa}
+#waIos15 .wai-camera-emblem .wai-icon{width:31px;height:31px;stroke-width:1.25}
+#waIos15 .wai-camera-panel strong{font-size:16px;color:#333;font-weight:500;margin-top:15px}
+#waIos15 .wai-camera-panel p{font-size:12px;line-height:17px;margin:9px 0 17px}
+#waIos15 .wai-camera-button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:39px;padding:8px 18px;border:1px solid #007aff;border-radius:6px;background:#fff;color:#007aff;font-size:13px}
+#waIos15 .wai-camera-button .wai-icon{width:18px;height:18px;stroke-width:1.35}
+#waIos15 .wai-tab .wai-icon-status{width:19px;height:19px;stroke-width:1}
+#waIos15 .wai-tab .wai-icon-phone{width:18px;height:18px}
+#waIos15 .wai-tab .wai-icon-camera{width:19px;height:19px}
