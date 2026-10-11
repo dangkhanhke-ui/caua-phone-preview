@@ -81,6 +81,7 @@
   -webkit-user-drag: none;
   will-change: transform;
 }
+#facebookApp .fb15-mothers-day-photo.fb15-photo-loaded img,
 #facebookApp .fb15-media.photo img,
 #facebookApp .fb15-photo-grid img,
 #facebookApp .fb15-link-thumb.photo img,
