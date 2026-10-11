@@ -102,7 +102,7 @@
  // every app except Facebook uses a dark header.
  const appIds=['photosApp','mailApp','goodreaderApp','notesApp','calendarApp',
    'messagesApp','safariApp','phoneApp','voiceApp','facebookApp','whatsappApp',
-   'itauApp','itauBizApp'];
+   'itauApp','itauBizApp','atlasApp'];
  const photosViewer=document.getElementById('photosViewer');
  const safariApp=document.getElementById('safariApp');
  function luminance(color){
@@ -138,6 +138,17 @@
  function statusContrast(){
    const override=screen.getAttribute('data-status-contrast');
    if(override==='light'||override==='dark')return override;
+   // Read the actual nav/status paint, not an app's unrelated content color.
+   if(screen.classList.contains('safari-tabs-open')||
+      safariApp?.classList.contains('tabs-mode')||photoInDarkFullscreen())return 'light';
+   if(screen.classList.contains('itau-biz-open')){
+     const splash=document.getElementById('itauBizSplash');
+     return splash&&!splash.classList.contains('hide')?'light':'dark';
+   }
+   if(['facebook-open','itau-open','atlas-open'].some(x=>screen.classList.contains(x)))return 'light';
+   if(['goodreader-open','photos-open','safari-open','whatsapp-open',
+       'messages-open','mail-open','calendar-open','notes-open','voice-open']
+       .some(x=>screen.classList.contains(x)))return 'dark';
    const l=luminance(surface());
    return l===null || l<=145?'light':'dark';
  }
@@ -160,7 +171,7 @@
  new MutationObserver(queue).observe(screen,{
    attributes:true,attributeFilter:['class','data-status-contrast']
  });
- for(const id of [...appIds,'photosViewer']){
+ for(const id of [...appIds,'photosViewer','itauBizSplash']){
    const el=document.getElementById(id);
    if(el)new MutationObserver(queue).observe(el,{
      attributes:true,attributeFilter:['class','style']
