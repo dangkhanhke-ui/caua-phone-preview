@@ -41,7 +41,7 @@ body.caua-immersive #caua-immersive-toggle:active{opacity:1}
 @media(prefers-reduced-motion:reduce){
   #caua-immersive-toggle,#caua-immersive-toggle .caua-zoom-icon{transition:none}
 }
-/* Tap target is 76 × 10px around the visible 74 × 4px Home line. */
-#caua-home-gesture{display:none;position:absolute;bottom:3px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:76px;height:10px;z-index:12000;touch-action:manipulation;cursor:pointer;align-items:center;justify-content:center;padding:0;background:transparent;border:0}
+/* Comfortable 144 × 34px touch target; keep the visible Home line 74 × 4px. */
+#caua-home-gesture{display:none;position:absolute;bottom:0;left:50%;transform:translateX(-50%);box-sizing:border-box;width:144px;height:34px;z-index:12000;touch-action:manipulation;cursor:pointer;align-items:center;justify-content:center;padding:0;background:transparent;border:0}
 #caua-home-gesture:after{content:"";display:block;flex:0 0 74px;width:74px;height:4px;pointer-events:none;background:rgba(190,193,201,.87);border-radius:20px;box-shadow:0 0 2px rgba(0,0,0,.25)}
 body.caua-immersive #caua-home-gesture{display:flex}
