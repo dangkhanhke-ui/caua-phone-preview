@@ -1,0 +1,125 @@
+/*
+ * CAUÃ iOS 8 – single visual surface across 20pt system status
+ * and app navigation. Loaded AFTER app CSS so old transparent/bar-divider
+ * overrides cannot split the header. Do not touch icon/time geometry.
+ */
+
+/* This is the ONLY paint layer for the status strip; do not add another bar. */
+#screen.facebook-open   { --caua-status-surface:#3b5998; }
+#screen.itau-open       { --caua-status-surface:#ec7000; }
+#screen.itau-biz-open   { --caua-status-surface:#ffffff; }
+#screen.atlas-open      { --caua-status-surface:#651c30; }
+#screen.whatsapp-open   { --caua-status-surface:#f8f8f8; }
+#screen.goodreader-open { --caua-status-surface:#f3f4f6; }
+#screen.photos-open     { --caua-status-surface:#f8f8f8; }
+#screen.safari-open     { --caua-status-surface:#f7f7f8; }
+#screen.messages-open   { --caua-status-surface:#fafafa; }
+#screen.mail-open       { --caua-status-surface:#f8f8f8; }
+#screen.calendar-open   { --caua-status-surface:#fafafa; }
+#screen.notes-open      { --caua-status-surface:#fafaf8; }
+#screen.voice-open      { --caua-status-surface:#fafafa; }
+
+#screen:is(.facebook-open,.itau-open,.itau-biz-open,.atlas-open,
+           .whatsapp-open,.goodreader-open,.photos-open,.safari-open,
+           .messages-open,.mail-open,.calendar-open,.notes-open,.voice-open)
+  > #statusBar.ios8-svg-status {
+  position:absolute!important;
+  top:0!important;left:0!important;right:0!important;
+  z-index:85!important;
+  background:var(--caua-status-surface)!important;
+  border:0!important;border-bottom:0!important;
+  box-shadow:none!important;
+  background-clip:border-box;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+/* Atlas previously hid the shared status entirely. Reuse it instead.
+ * Inset the app by only 20pt, preventing its nav from sitting behind the clock.
+ * The PIN keypad retains its independent burgundy interface. */
+#screen.atlas-open > #statusBar.ios8-svg-status {display:grid!important}
+#screen.atlas-open #atlasApp{background:#651c30!important}
+#screen.atlas-open #atlasApp .a10-root{
+  top:20px!important;bottom:0!important;left:0!important;right:0!important;
+}
+#atlasApp .a10-navbar{
+  background:#651c30!important;
+  border-top:0!important;
+  box-shadow:none!important;
+}
+#atlasApp .a10-pass-overlay{
+  background:radial-gradient(ellipse at 50% 4%,rgba(244,149,170,.13),transparent 57%),
+             linear-gradient(164deg,#651c30 0%,#5c1529 52%,#340a1a 100%);
+}
+
+/* Color headers: no 1px inset highlight, border, or raised seam at y=20. */
+#facebookApp .fb15-top{
+  background:#3b5998!important;border-top:0!important;box-shadow:none!important;
+}
+#itauApp .itau-topbar{
+  background:#ec7000!important;border-top:0!important;box-shadow:none!important;
+}
+#itauBizApp .itau-topbar{
+  background:#fff!important;border-top:0!important;box-shadow:none!important;
+}
+
+/* Neutral 2015 chrome: use ONE flat light slab, keeping only the divider
+ * at the BOTTOM of the app's navigation row. */
+#goodreaderApp .gr4-nav{
+  background:#f3f4f6!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#photosApp .photos-nav{
+  background:#f8f8f8!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#safariApp .safari-topbar{
+  background:#f7f7f8!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#whatsappApp #waIos15 .wai-header{
+  background:#f8f8f8!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#messagesApp .msg-nav{
+  background:#fafafa!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#mailApp .mail-navbar{
+  background:#f8f8f8!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#calendarApp .calendar-nav{
+  background:#fafafa!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#notesApp .notes-nav{
+  background:#fafaf8!important;border-top:0!important;
+  box-shadow:none!important;
+}
+#voiceApp .voice-nav{
+  background:#fafafa!important;border-top:0!important;
+  box-shadow:none!important;
+}
+
+/* Contextual full-screen backgrounds remain full-screen, not pale strips. */
+#screen.safari-open.safari-tabs-open{
+  --caua-status-surface:#25272c;
+}
+#screen.photos-open.ios8-photo-fullscreen-status{
+  --caua-status-surface:#000;
+}
+
+/* Brief loading screens also take their status paint from the app icon. */
+#screen.whatsapp-open:has(#whatsappApp .vh-app-launch-splash.vh-show){
+  --caua-status-surface:#08ee63;
+}
+#screen.goodreader-open:has(#goodreaderApp .vh-app-launch-splash.vh-show){
+  --caua-status-surface:#4fcbb2;
+}
+#screen.atlas-open:has(#atlasApp .vh-app-launch-splash.vh-show){
+  --caua-status-surface:#722638;
+}
+#screen.itau-biz-open:has(#itauBizSplash:not(.hide)){
+  --caua-status-surface:#ed8218;
+}
