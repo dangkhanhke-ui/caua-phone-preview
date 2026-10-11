@@ -2,10 +2,10 @@
  * First visit still downloads assets; later visits can use browser cache/offline images.
  * Increment VERSION when a bundled visual asset is replaced. */
 'use strict';
-const VERSION='caua-fixed-images-20261011-png-v2';
+const VERSION='caua-fixed-images-20261011-png-png-v3';
 // Only prefetch non-optional wallpapers at installation.
 // Launcher icons (new + old fallbacks) are cache-on-first-success:
-// missing PNGs never cause 14 wasted background downloads.
+// newly uploaded root PNG.PNG files load on demand, without background downloads.
 const FIXED=[
  'assets/screen/phone_screen.png',
  'assets/whatsapp/whatsapp_chat_bg.png'
@@ -26,7 +26,7 @@ const OLD_ICONS=[
  'assets/media/5179632c8a940bb07383d328.png',
  'assets/media/8e47cee68a3cc75603f05f14.png'
 ];
-const NEW_ICONS=['voice','calendar','photos','notes','facebook','itau','itau-biz','whatsapp','goodreader','atlas','phone','messages','mail','safari'].map(name=>'assets/app-icons/'+name+'.png');
+const NEW_ICONS=['voice','calendar','photos','notes','facebook','itau','itau-biz','whatsapp','goodreader','atlas','phone','messages','mail','safari'].map(name=>name+'.png.png');
 const resolved=FIXED.map(path=>new URL(path,self.registration.scope).href);
 const paths=new Set([...FIXED,...OLD_ICONS,...NEW_ICONS].map(path=>new URL(path,self.registration.scope).pathname));
 self.addEventListener('install',event=>{
