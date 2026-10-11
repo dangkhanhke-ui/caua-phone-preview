@@ -7,7 +7,7 @@
   overflow:hidden;
 }
 #facebookApp .fb15-mothers-day-photo > img{
-  display:none;
+  display:block;
   width:100%;
   height:auto;
   max-height:440px;
