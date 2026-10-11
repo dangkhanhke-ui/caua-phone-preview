@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="vi">
 <head>
+<!-- Phone wallpaper is part of the always-visible chrome; fetch ahead of app content. -->
+<link rel="preload" as="image" href="./assets/screen/phone_screen.png" fetchpriority="high">
+<script src="./js/caua-critical-images.js?v=20261011-cache1" defer></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="theme-color" content="#000000" />
@@ -210,14 +213,14 @@
 
           <section class="home-screen view" id="homeScreen" aria-label="Màn hình chính">
             <div class="icon-grid" id="iconGrid">
-              <div class="app voice-memos-launch" data-app="voice" aria-label="Ghi âm"><div class="icon image-icon"><img src="./assets/voice-memos/voice_icon.png" alt="" /></div><span>Ghi âm</span></div>
-              <div class="app calendar-launch" data-app="calendar"><div class="icon image-icon"><img src="./assets/media/451ac1907cdb59ca7a6d7fb6.png" alt="" /></div><span>Lịch</span></div>
-              <div class="app photos-launch" data-app="photos"><div class="icon image-icon"><img src="./assets/media/a50f7e7d99a58d447fded094.png" alt="" /></div><span>Ảnh</span></div>
-              <div class="app notes-launch" data-app="notes"><div class="icon image-icon"><img src="./assets/media/66edf0697d90edcdf3562c4b.png" alt="" /></div><span>Ghi chú</span></div>
-              <div class="app facebook-launch" data-app="facebook"><div class="icon image-icon"><img src="./assets/media/ded9c1162a09f194d6bd1cc0.png" alt="" /></div><span>Facebook</span></div>
+              <div class="app voice-memos-launch" data-app="voice" aria-label="Ghi âm"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/voice-memos/voice_icon.png" alt="" /></div><span>Ghi âm</span></div>
+              <div class="app calendar-launch" data-app="calendar"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/451ac1907cdb59ca7a6d7fb6.png" alt="" /></div><span>Lịch</span></div>
+              <div class="app photos-launch" data-app="photos"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/a50f7e7d99a58d447fded094.png" alt="" /></div><span>Ảnh</span></div>
+              <div class="app notes-launch" data-app="notes"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/66edf0697d90edcdf3562c4b.png" alt="" /></div><span>Ghi chú</span></div>
+              <div class="app facebook-launch" data-app="facebook"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/ded9c1162a09f194d6bd1cc0.png" alt="" /></div><span>Facebook</span></div>
 
-              <div class="app itau-launch" data-app="itau"><div class="icon image-icon"><img src="./assets/media/b8304cae6865ff99f4f10cef.png" alt="" /></div><span>Itaú</span></div>
-              <div class="app itau-biz-launch" data-app="itau-biz"><div class="icon image-icon"><img src="./assets/media/ead9f6efcc82327a07570445.png" alt="" /></div><span>Itaú Doanh nghiệp</span></div>
+              <div class="app itau-launch" data-app="itau"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/b8304cae6865ff99f4f10cef.png" alt="" /></div><span>Itaú</span></div>
+              <div class="app itau-biz-launch" data-app="itau-biz"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/ead9f6efcc82327a07570445.png" alt="" /></div><span>Itaú Doanh nghiệp</span></div>
               <div class="app whatsapp-launch" data-app="whatsapp"><div class="icon image-icon"><svg class="whatsapp-launch-svg" viewBox="0 0 60 60" role="img" aria-label="WhatsApp" focusable="false" xmlns="http://www.w3.org/2000/svg">
 <defs><linearGradient id="caua-wa-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#65dd79"/><stop offset=".48" stop-color="#33cc57"/><stop offset="1" stop-color="#19aa3d"/></linearGradient></defs>
 <rect x=".5" y=".5" width="59" height="59" rx="13" fill="url(#caua-wa-green)"/>
@@ -226,17 +229,17 @@
 <path d="M23.5 18.6c-1.2 0-2.2.5-3.1 1.7-1 1.4-1.5 3.1-1.3 5.2.6 5.8 7.1 13.7 14.8 16.5 3 1.2 5.2 1.2 7.1.3 1.2-.6 3.1-2.7 3.4-4 .2-.9 0-1.4-1-1.9l-6-2.8c-.6-.3-.9-.2-1.4.4l-2.1 2.4c-.4.5-.8.6-1.5.3-4-1.9-6.8-4.5-8.6-8.3-.3-.6-.2-1 .2-1.5l2.2-2.3c.4-.5.5-.9.2-1.6l-2.8-6.1c-.4-.9-.8-1.2-1.4-1.2Z" fill="#fff"/>
 <path d="M7 12C16 4 45 3 53 13" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
 </svg></div><span>WhatsApp</span></div>
-              <div class="app goodreader-launch" data-app="goodreader"><div class="icon gr4-home-icon"><span class="gr4-logo-fallback">G</span><img id="gr4IconImage" src="./assets/goodreader4/GR04_Icon.png" alt="" style="display:none" /></div><span>GoodReader</span></div>
-              <div class="app atlas-launch" data-app="atlas" aria-label="Atlas"><div class="icon atlas-home-icon"><img class="atlas-custom-icon" src="./assetsatlasAtlas_Icon.png.png" alt="" draggable="false" /></div><span>Atlas</span></div>
+              <div class="app goodreader-launch" data-app="goodreader"><div class="icon gr4-home-icon"><span class="gr4-logo-fallback">G</span><img loading="eager" decoding="async" fetchpriority="high" id="gr4IconImage" src="./assets/goodreader4/GR04_Icon.png" alt="" style="display:none" /></div><span>GoodReader</span></div>
+              <div class="app atlas-launch" data-app="atlas" aria-label="Atlas"><div class="icon atlas-home-icon"><img loading="eager" decoding="async" fetchpriority="high" class="atlas-custom-icon" src="./assetsatlasAtlas_Icon.png.png" alt="" draggable="false" /></div><span>Atlas</span></div>
             </div>
 
             <div class="page-dots single-page" aria-hidden="true"><i></i></div>
 
             <div class="dock" aria-label="Dock">
-              <div class="app dock-app phone-launch" data-app="phone"><div class="icon image-icon"><img src="./assets/media/99053f821a06bfb38b071cf1.png" alt="" /></div><span>Điện thoại</span></div>
-              <div class="app dock-app messages-launch" data-app="messages"><div class="icon image-icon"><img src="./assets/media/898c09d3c8af0b9b7effdb61.png" alt="" /></div><span>Tin nhắn</span></div>
-              <div class="app dock-app mail-launch" data-app="mail"><div class="icon image-icon"><img src="./assets/media/5179632c8a940bb07383d328.png" alt="" /></div><span>Mail</span></div>
-              <div class="app dock-app safari-launch" data-app="safari"><div class="icon image-icon"><img src="./assets/media/8e47cee68a3cc75603f05f14.png" alt="" /></div><span>Safari</span></div>
+              <div class="app dock-app phone-launch" data-app="phone"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/99053f821a06bfb38b071cf1.png" alt="" /></div><span>Điện thoại</span></div>
+              <div class="app dock-app messages-launch" data-app="messages"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/898c09d3c8af0b9b7effdb61.png" alt="" /></div><span>Tin nhắn</span></div>
+              <div class="app dock-app mail-launch" data-app="mail"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/5179632c8a940bb07383d328.png" alt="" /></div><span>Mail</span></div>
+              <div class="app dock-app safari-launch" data-app="safari"><div class="icon image-icon"><img loading="eager" decoding="async" fetchpriority="high" src="./assets/media/8e47cee68a3cc75603f05f14.png" alt="" /></div><span>Safari</span></div>
             </div>
           </section>
 
@@ -2389,7 +2392,7 @@
   document.getElementById('photosAlbumBack').addEventListener('click',()=>showView('albums',true));
 
   function renderAll(){renderMoments();renderCollections();renderYears();renderAlbums();}
-  function photoButton(p,cls=''){return `<button class="photos-thumb ${cls}" data-photo-id="${p.id}" type="button"><img src="${p.src}" alt=""></button>`}
+  function photoButton(p,cls=''){return `<button class="photos-thumb ${cls}" data-photo-id="${p.id}" type="button"><img src="${p.src}" alt="" loading="lazy" decoding="async" fetchpriority="low"></button>`}
   function renderMoments(){
     const groups=PHOTOS.map(p=>({date:p.dateDisplay,place:p.location.replace(' · RJ',''),items:[p]}));
     momentsScroll.innerHTML=groups.map(g=>`<section class="photos-moment"><div class="photos-moment-head"><div><div class="photos-moment-date">${g.date}</div>${g.place?`<div class="photos-moment-place">${g.place}</div>`:''}</div><button class="photos-share-link" type="button">Chia sẻ</button></div><div class="photos-moment-grid">${g.items.map(p=>photoButton(p,'one')).join('')}</div></section>`).join('');
@@ -2397,7 +2400,7 @@
     momentsScroll.querySelectorAll('.photos-share-link').forEach(b=>b.addEventListener('click',showShareSheet));
   }
   function photosForYear(year){return PHOTOS.filter(p=>p.date.startsWith(String(year)));}
-  function miniTiles(items){const shown=items.slice(0,12);return `${shown.map(p=>`<img src="${p.src}" alt="">`).join('')}${Array.from({length:Math.max(0,12-shown.length)},()=>'<span class="ph-empty"></span>').join('')}`}
+  function miniTiles(items){const shown=items.slice(0,12);return `${shown.map(p=>`<img src="${p.src}" alt="" loading="lazy" decoding="async" fetchpriority="low">`).join('')}${Array.from({length:Math.max(0,12-shown.length)},()=>'<span class="ph-empty"></span>').join('')}`}
   function collectionYears(){
     return [...new Set(PHOTOS.map(p=>Number(String(p.date).slice(0,4))))].sort((a,b)=>b-a);
   }
@@ -2422,7 +2425,7 @@
   }
     function renderAlbums(){
     const f=PHOTOS.filter(p=>state.favorites.has(p.id));
-    albumList.innerHTML=`<div class="photos-album-row" data-album="camera"><div class="photos-album-cover"><img src="${PHOTOS[PHOTOS.length-1].src}" alt=""></div><div><div class="photos-album-name">Cuộn Camera</div><div class="photos-album-count">${PHOTOS.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="favorites"><div class="photos-album-cover">${f[0]?`<img src="${f[0].src}" alt="">`:''}</div><div><div class="photos-album-name">Mục ưa thích</div><div class="photos-album-count">${f.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="deleted"><div class="photos-album-cover"></div><div><div class="photos-album-name">Đã xóa gần đây</div><div class="photos-album-count">0</div></div><div class="photos-chevron">›</div></div>`;
+    albumList.innerHTML=`<div class="photos-album-row" data-album="camera"><div class="photos-album-cover"><img src="${PHOTOS[PHOTOS.length-1].src}" alt="" loading="lazy" decoding="async"></div><div><div class="photos-album-name">Cuộn Camera</div><div class="photos-album-count">${PHOTOS.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="favorites"><div class="photos-album-cover">${f[0]?`<img src="${f[0].src}" alt="" loading="lazy" decoding="async">`:''}</div><div><div class="photos-album-name">Mục ưa thích</div><div class="photos-album-count">${f.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="deleted"><div class="photos-album-cover"></div><div><div class="photos-album-name">Đã xóa gần đây</div><div class="photos-album-count">0</div></div><div class="photos-chevron">›</div></div>`;
     albumList.querySelectorAll('[data-album]').forEach(r=>r.addEventListener('click',()=>openAlbum(r.dataset.album)));
   }
   function openAlbum(which){
@@ -2431,7 +2434,7 @@
     else if(which==='favorites'){data=PHOTOS.filter(p=>state.favorites.has(p.id));title='Mục ưa thích'}
     else{title='Đã xóa gần đây'}
     document.getElementById('photosAlbumTitle').textContent=title;
-    albumGrid.innerHTML=data.length?data.map(p=>`<button data-photo-id="${p.id}" type="button"><img src="${p.src}" alt=""></button>`).join(''):`<div class="photos-empty" style="grid-column:1/-1"><strong>Không có ảnh</strong></div>`;
+    albumGrid.innerHTML=data.length?data.map(p=>`<button data-photo-id="${p.id}" type="button"><img src="${p.src}" alt="" loading="lazy" decoding="async" fetchpriority="low"></button>`).join(''):`<div class="photos-empty" style="grid-column:1/-1"><strong>Không có ảnh</strong></div>`;
     bindPhotoButtons(albumGrid,title);showView('albumGrid');
   }
   function bindPhotoButtons(root,source){root.querySelectorAll('[data-photo-id]').forEach(btn=>btn.addEventListener('click',()=>openPhoto(PHOTOS.findIndex(p=>p.id===btn.dataset.photoId),source)));}
@@ -2685,7 +2688,7 @@
       searchResults.querySelectorAll('[data-suggest]').forEach(x=>x.addEventListener('click',()=>{searchInput.value=x.dataset.suggest;renderSearch(x.dataset.suggest)}));return;
     }
     const hits=PHOTOS.filter(p=>normalize([p.date,p.dateDisplay,p.dateTimeDisplay,p.location,p.locationShort,p.filename].join(' ')).includes(n));
-    searchResults.innerHTML=hits.length?`<div class="photos-search-label">${hits.length} kết quả</div><div class="photos-album-grid">${hits.map(p=>`<button data-photo-id="${p.id}" type="button"><img src="${p.src}" alt=""></button>`).join('')}</div>`:`<div class="photos-empty"><strong>Không tìm thấy ảnh</strong></div>`;
+    searchResults.innerHTML=hits.length?`<div class="photos-search-label">${hits.length} kết quả</div><div class="photos-album-grid">${hits.map(p=>`<button data-photo-id="${p.id}" type="button"><img src="${p.src}" alt="" loading="lazy" decoding="async" fetchpriority="low"></button>`).join('')}</div>`:`<div class="photos-empty"><strong>Không tìm thấy ảnh</strong></div>`;
     bindPhotoButtons(searchResults,'Tìm kiếm');
   }
 
