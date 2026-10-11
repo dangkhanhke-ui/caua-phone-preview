@@ -1,13 +1,13 @@
-/* Launch splash for WhatsApp, GoodReader, Atlas only. Itaú personal uses its own splash. */
+/* 500ms icon-matched gradients for WhatsApp, GoodReader, Atlas. Itaú personal uses its own splash. */
 #whatsappApp .vh-app-launch-splash,#goodreaderApp .vh-app-launch-splash,#atlasApp .vh-app-launch-splash{
  position:absolute;inset:0;z-index:20000;display:flex;flex-direction:column;
  align-items:center;justify-content:center;gap:15px;pointer-events:auto;
  opacity:0;visibility:hidden;transition:opacity 90ms ease,visibility 0s linear 90ms;
  color:#fff;font-family:"Helvetica Neue",Arial,sans-serif;
 }
-#whatsappApp .vh-app-launch-splash{background:#159c62}
-#goodreaderApp .vh-app-launch-splash{background:#263a68}
-#atlasApp .vh-app-launch-splash{background:#222b37}
+#whatsappApp .vh-app-launch-splash{background:linear-gradient(180deg,#08ee63 0%,#06e547 52%,#06c918 100%)}
+#goodreaderApp .vh-app-launch-splash{background:linear-gradient(160deg,#4fcbb2 0%,#46bed0 51%,#56a6e1 100%)}
+#atlasApp .vh-app-launch-splash{background:linear-gradient(165deg,#722638 0%,#62192e 55%,#4b0d21 100%)}
 #whatsappApp.open .vh-app-launch-splash.vh-show,
 #goodreaderApp.open .vh-app-launch-splash.vh-show,
 #atlasApp.open .vh-app-launch-splash.vh-show{
@@ -15,3 +15,9 @@
 }
 .vh-app-launch-splash img{display:block;width:74px;height:74px;object-fit:contain;border-radius:16px}
 .vh-app-launch-splash small{font-size:12px;letter-spacing:.05px;opacity:.9;font-weight:400}
+
+/* Subtle image/text anchoring on bright icon colors; existing layout stays unchanged. */
+#whatsappApp .vh-app-launch-splash small,#goodreaderApp .vh-app-launch-splash small{
+ color:#fff;text-shadow:0 1px 2px rgba(5,49,43,.30);
+}
+#atlasApp .vh-app-launch-splash small{color:#f7dce4}
