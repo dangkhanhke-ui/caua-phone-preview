@@ -14,7 +14,8 @@ body.caua-immersive #screen .home-screen .icon-grid .app .icon,
 body.caua-immersive #screen .home-screen .dock .app .icon{width:61px!important;height:61px!important}
 body.caua-immersive #screen .home-screen .app>span{font-size:15px!important;line-height:17px!important;max-width:90px!important}
 body.caua-immersive #screen .home-screen .icon-grid{grid-auto-rows:94px!important}
-body.caua-immersive #screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.wai-tab,.photos-nav-btn,.mail-nav-btn,.notes26-circle) svg:not(.vh-back-svg){scale:1.12!important}
+body.caua-immersive #screen :is(.phone-tab,.msg-tab,.fb15-tab,.wa-tab,.photos-nav-btn,.mail-nav-btn,.notes26-circle) svg:not(.vh-back-svg){scale:1.12!important}
+/* WhatsApp's .wai-tab owns its 1:1 icon dimensions. Do not upscale it in immersive mode. */
 /* Center the password cluster within the real fullscreen viewport, rather than
    centering the old 568px coordinate system at the top of a taller viewport. */
 /* PIN keypad no longer depends on vw/fullscreen; see canonical 2015 passcode styles. */
