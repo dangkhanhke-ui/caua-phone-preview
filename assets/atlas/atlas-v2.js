@@ -337,15 +337,23 @@ function viewerInit(){
  },{passive:true});
 }
 function markMeta(){state.meta=!state.meta;render();}
-function lockLogo(){return'<img class="a10-emblem a10-emblem-image" src="./assetsatlasAtlas_Icon.png.png" alt="Atlas" draggable="false">';}
+function lockLogo(){return'<img class="a10-emblem a10-emblem-image" src="./atlas.png.png" alt="Atlas" draggable="false">';}
 function dots(value){return'<div class="a10-pass-dots">'+[0,1,2,3].map(i=>'<i class="a10-pass-dot '+(i<value.length?'filled':'')+'"></i>').join('')+'</div>';}
 function keys(which){
  return'<div class="a10-pad">'+[1,2,3,4,5,6,7,8,9,'',0,'del'].map(x=>'<button type="button" class="a10-pad-key '+(x===''?'blank':x==='del'?'del':'')+'" data-atlas="'+which+'" data-key="'+x+'">'+(x==='del'?'⌫':x)+'</button>').join('')+'</div>';
 }
 function renderLock(){
- root.innerHTML='<div class="a10-root"><div class="a10-pass-overlay"><div class="a10-pass-shell">'+lockLogo()+
- '<div class="a10-pass-word">ATLAS</div><div class="a10-pass-sub">Mã truy cập</div><div id="a10PassDots">'+dots(state.code)+'</div>'+
- keys('digit')+'<div class="a10-pass-error" id="a10PassError">'+esc(state.codeError)+'</div></div></div></div>';
+ root.innerHTML='<div class="a10-root"><div class="a10-pass-overlay"><div class="a10-pass-shell">'+
+ '<div class="a10-pass-brand"><div class="a10-pass-mark">'+lockLogo()+'</div>'+
+ '<div class="a10-pass-overline">PRIVATE ARCHIVE</div><div class="a10-pass-word">ATLAS</div>'+
+ '<div class="a10-pass-rule" aria-hidden="true"></div></div>'+
+ '<div class="a10-pass-auth"><div class="a10-pass-sub">Nhập mã truy cập</div>'+
+ '<div class="a10-pass-hint">Mã bảo mật gồm 4 chữ số</div>'+
+ '<div id="a10PassDots" aria-label="Mã truy cập">'+dots(state.code)+'</div></div>'+
+ '<div class="a10-pass-key-wrap">'+keys('digit')+
+ '<div class="a10-pass-error" id="a10PassError" role="status" aria-live="polite">'+esc(state.codeError)+'</div></div>'+
+ '<div class="a10-pass-footer" aria-hidden="true">PERSONAL ARCHIVE · 2015</div>'+
+ '</div></div></div>';
 }
 function digit(value,secondary=false){
  let key=secondary?'secondaryCode':'code';
