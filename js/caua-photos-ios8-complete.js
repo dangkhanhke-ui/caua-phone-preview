@@ -70,7 +70,7 @@ function showDeleted(){
  el.querySelectorAll('[data-erase]').forEach(btn=>btn.addEventListener('click',()=>{
   const id=btn.dataset.erase;
   confirmAction('Xóa vĩnh viễn ảnh này khỏi thư viện trong trình duyệt?','Xóa vĩnh viễn',()=>{
-   memory.deleted[id]=Number.MAX_SAFE_INTEGER;persist();showDeleted();
+   memory.deleted[id]=Number.MAX_SAFE_INTEGER;persist();b.renderAll();showDeleted();
   });
  }));
 }
