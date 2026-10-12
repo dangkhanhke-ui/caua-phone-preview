@@ -23,10 +23,11 @@ for(const entry of store.outgoing||[]){
  if(!t){t={id:entry.threadId,listName:entry.name||entry.to||'Không rõ',displayName:entry.name||entry.to||'Không rõ',number:entry.to||'',saved:false,transport:'SMS',preview:'',messages:[],localCreated:true};threads.push(t);}
  if(!t.messages.some(m=>m._localKey===entry.message._localKey))t.messages.push({...entry.message});
  t.preview=(entry.message.attachment?'Tệp đính kèm':entry.message.body||'Tin nhắn')+' · Chưa gửi';
+ if(entry.groupRecipients)t.groupRecipients=entry.groupRecipients;
  t.localHidden=false;
 }
 const hiddenSet=new Set(store.hidden),muteSet=new Set(store.muted),selection=new Set(),deletedOnce=new Set();
-let editing=false,activeMenu=null,mediaDraft=null,recording=null,recorder=null,recParts=[],recStream=null,recStart=0,recordTimer=0,recordDialog=null;
+let editing=false,activeMenu=null,mediaDraft=null,recorder=null,recParts=[],recStream=null,recStart=0,recordTimer=0,recordDialog=null,suppressRowUntil=0;
 function persist(){
  try{localStorage.setItem(STORAGE,JSON.stringify(store));return true;}
  catch(_){showToast('Bộ nhớ Safari đã đầy. Nội dung mới có thể không được lưu.');return false;}
@@ -72,7 +73,7 @@ function hideThread(id){
 }
 function saveMessage(thread,message){
  message._localKey='local-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
- const entry={threadId:thread.id,name:thread.listName,to:thread.number,message:{...message}};
+ const entry={threadId:thread.id,name:thread.listName,to:thread.number,groupRecipients:thread.groupRecipients||null,message:{...message}};
  store.outgoing.push(entry);
  thread.messages.push(message);
  thread.preview=message.attachment?'Ảnh hoặc âm thanh chưa gửi':(message.body||'Tin nhắn chưa gửi');
@@ -219,7 +220,9 @@ function toggleEditing(){
  syncEdit();renderList(true);
 }
 threadsEl.addEventListener('click',e=>{
- const row=e.target.closest('[data-thread-id]');if(!row||!editing)return;
+ const row=e.target.closest('[data-thread-id]');if(!row)return;
+ if(performance.now()<suppressRowUntil){e.preventDefault();e.stopImmediatePropagation();return;}
+ if(!editing)return;
  e.preventDefault();e.stopImmediatePropagation();
  const id=row.dataset.threadId;selection.has(id)?selection.delete(id):selection.add(id);syncEdit();
 },true);
@@ -236,11 +239,11 @@ threadsEl.addEventListener('touchstart',e=>{const row=e.target.closest('[data-th
 threadsEl.addEventListener('touchend',e=>{
  if(!startRow||editing)return;const t=e.changedTouches[0];if(!t)return;
  const dx=t.clientX-startRow.x,dy=t.clientY-startRow.y,id=startRow.id;startRow=null;
- if(dx< -52&&Math.abs(dx)>Math.abs(dy)*1.3)sheet('Cuộc trò chuyện',[
+ if(dx< -52&&Math.abs(dx)>Math.abs(dy)*1.3){if(e.cancelable)e.preventDefault();suppressRowUntil=performance.now()+550;sheet('Cuộc trò chuyện',[
  {label:'Đánh dấu chưa đọc',run:()=>markUnread(id)},
  {label:'Xóa cuộc trò chuyện',danger:true,run:()=>hideThread(id)}
- ]);
-},{passive:true});
+ ]);}
+},{passive:false});
 /* 2015 Details: Do Not Disturb is local; attachment gallery reflects actual data. */
 function decorateDetails(t){
  const group=detailContent.querySelector('.msg-group'),row=group?.querySelector('.msg-detail-row:nth-child(2)');
@@ -256,6 +259,7 @@ function decorateDetails(t){
   group.appendChild(loc);
   loc.querySelector('button').addEventListener('click',()=>showAlert('Không thể gửi vị trí','Cần kết nối mạng và quyền vị trí để gửi cho người khác.'));
  }
+ if(t.groupRecipients?.length){const part=document.createElement('div');part.className='msg-group msg-group-members';part.innerHTML='<div class="msg-section-label">Người tham gia · '+t.groupRecipients.length+'</div>'+t.groupRecipients.map(name=>'<div class="msg-detail-row">'+esc(name)+'</div>').join('');detailContent.insertBefore(part,detailContent.querySelector('.msg-section-label'));}
  const files=t.messages.filter(m=>m.attachment?.data);
  const empty=detailContent.querySelector('.msg-attachments-empty');
  if(empty&&files.length){
