@@ -2209,10 +2209,10 @@
   document.getElementById('notesAlertOk').addEventListener('click',()=>alertLayer.classList.remove('show'));
   alertLayer.addEventListener('click',e=>{if(e.target===alertLayer)alertLayer.classList.remove('show');});
 
-  function showActions(items){
+  function showActions(items, onPick){
     actionGroup.innerHTML=items.map((x,i)=>`<button class="notes-action-row" data-note-action="${i}" type="button">${esc(x)}</button>`).join('');
     actionLayer.classList.add('show');
-    actionGroup.querySelectorAll('[data-note-action]').forEach(b=>b.addEventListener('click',()=>actionLayer.classList.remove('show')));
+    actionGroup.querySelectorAll('[data-note-action]').forEach(b=>b.addEventListener('click',()=>{actionLayer.classList.remove('show');onPick?.(Number(b.dataset.noteAction));}));
   }
   document.getElementById('notesActionCancel').addEventListener('click',()=>actionLayer.classList.remove('show'));
   actionLayer.addEventListener('click',e=>{if(e.target===actionLayer)actionLayer.classList.remove('show');});
@@ -2236,6 +2236,10 @@
     if(state.selectedId===id)state.selectedId=null;
     if(fromDetail){state.listScroll=0;state.query='';search.value='';renderList(false);}else renderList(true);
   }
+  function confirmDelete(id,fromDetail=false){
+    const n=byId[id];if(!n)return;
+    showActions(['Xóa ghi chú'],()=>deleteNote(id,fromDetail));
+  }
   function bindRows(){
     list.querySelectorAll('[data-note-id]').forEach(row=>{
       let startX=0,startY=0,moved=false;
@@ -2243,7 +2247,7 @@
       row.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-startX)>18&&Math.abs(e.clientX-startX)>Math.abs(e.clientY-startY)){moved=true;if(e.clientX-startX<-35){list.querySelectorAll('.notes-row.reveal-delete').forEach(r=>{if(r!==row)r.classList.remove('reveal-delete')});row.classList.add('reveal-delete');}}});
       row.addEventListener('click',e=>{if(e.target.closest('[data-note-delete]')||moved)return;if(row.classList.contains('reveal-delete')){row.classList.remove('reveal-delete');return;}openNote(row.dataset.noteId);});
     });
-    list.querySelectorAll('[data-note-delete]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();deleteNote(btn.dataset.noteDelete,false);}));
+    list.querySelectorAll('[data-note-delete]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();confirmDelete(btn.dataset.noteDelete,false);}));
   }
   listScroll.addEventListener('scroll',()=>{if(state.view==='list')state.listScroll=listScroll.scrollTop;},{passive:true});
   search.addEventListener('input',()=>{state.query=search.value;state.listScroll=0;renderList(false);search.focus();});
@@ -2291,13 +2295,68 @@
   detailBody.addEventListener('input',saveCurrentEdit);
   detailBody.addEventListener('blur',()=>{saveCurrentEdit();saveNotes();});
   detailBody.addEventListener('click',()=>{});
-  document.getElementById('notesNewBtn').addEventListener('click',()=>showActions(['Chọn ghi chú','Xem dưới dạng thư viện','Sắp xếp theo ngày sửa','Tệp đính kèm']));
-  document.getElementById('notesAccountsBtn').addEventListener('click',()=>showAlert('Thư mục','Không tìm thấy thư mục khác.'));
+  const PINS_KEY='caua-notes-custom-pins-v1';
+  let extraPins=[];try{extraPins=JSON.parse(localStorage.getItem(PINS_KEY)||'[]');if(!Array.isArray(extraPins))extraPins=[];}catch(_){}
+  extraPins.forEach(id=>PINNED_IDS.add(id));
+  function togglePin(){
+    const id=state.selectedId;if(!id)return;
+    if(PINNED_IDS.has(id)){PINNED_IDS.delete(id);extraPins=extraPins.filter(x=>x!==id);}
+    else {PINNED_IDS.add(id);if(!extraPins.includes(id))extraPins.push(id);}
+    try{localStorage.setItem(PINS_KEY,JSON.stringify(extraPins));}catch(_){}
+    showAlert(PINNED_IDS.has(id)?'Đã ghim ghi chú':'Đã bỏ ghim ghi chú');
+  }
+  function findInNote(){
+    const query=prompt('Tìm trong ghi chú');if(!query)return;
+    const text=detailBody.textContent||'',idx=text.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
+    if(idx<0){showAlert('Không tìm thấy',query);return;}
+    detailBody.focus();const walker=document.createTreeWalker(detailBody,NodeFilter.SHOW_TEXT);
+    let node,pos=0;
+    while((node=walker.nextNode())){
+      if(idx<pos+node.length){
+        const range=document.createRange(),start=idx-pos;
+        range.setStart(node,start);range.setEnd(node,Math.min(node.length,start+query.length));
+        const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+        node.parentElement?.scrollIntoView({block:'nearest'});return;
+      }pos+=node.length;
+    }
+  }
+  function copyNote(){
+    saveCurrentEdit();const n=byId[state.selectedId];if(!n)return;
+    const text=n.lines.join('\\n');
+    if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>showAlert('Đã sao chép')).catch(()=>fallbackCopy(text));
+    else fallbackCopy(text);
+  }
+  function fallbackCopy(text){
+    const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.opacity='0';
+    document.body.appendChild(field);field.select();let ok=false;
+    try{ok=document.execCommand('copy');}catch(_){}field.remove();
+    showAlert(ok?'Đã sao chép':'Không thể sao chép');
+  }
+  function shareNote(choice){
+    saveCurrentEdit();const n=byId[state.selectedId];if(!n)return;
+    if(choice===2)return copyNote();
+    if(choice===3)return showAlert('In','Máy in chưa được kết nối.');
+    const text=n.lines.join('\\n');
+    const dest=choice===0?'messages':'mail';
+    if(typeof window.CauaCrossApp?.shareText==='function'){
+      window.CauaCrossApp.shareText(dest,text);
+    }else showAlert('Chưa thể chia sẻ','Ứng dụng nhận chưa hỗ trợ chia sẻ ghi chú.');
+  }
+  document.getElementById('notesNewBtn').addEventListener('click',()=>showActions(['Sắp xếp theo ngày sửa','Sắp xếp theo tiêu đề','Chọn ghi chú','Tệp đính kèm'],i=>{
+    if(i===0){NOTES.sort((a,b)=>b.timestamp.localeCompare(a.timestamp));renderList(false);}
+    else if(i===1){NOTES.sort((a,b)=>titleOf(a).localeCompare(titleOf(b),'vi'));renderList(false);}
+    else if(i===2)showAlert('Chọn ghi chú','Vuốt sang trái một ghi chú để xóa.');
+    else showAlert('Tệp đính kèm','Chưa có tệp đính kèm.');
+  }));
+  document.getElementById('notesAccountsBtn').addEventListener('click',()=>showAlert('Thư mục','Ghi chú được lưu trên iPhone này.'));
   document.getElementById('notesFloatingCompose').addEventListener('click',createNote);
-  document.getElementById('notesDetailMore').addEventListener('click',()=>showActions(['Ghim ghi chú','Tìm trong ghi chú','Di chuyển ghi chú','Khóa']));
+  document.getElementById('notesDetailMore').addEventListener('click',()=>showActions([PINNED_IDS.has(state.selectedId)?'Bỏ ghim':'Ghim ghi chú','Tìm trong ghi chú','Di chuyển ghi chú','Khóa'],i=>{
+    if(i===0)togglePin();else if(i===1)findInNote();
+    else showAlert(i===2?'Di chuyển ghi chú':'Khóa ghi chú',i===2?'Chưa có thư mục khác.':'Tính năng này chưa được hỗ trợ.');
+  }));
   document.getElementById('notesComposeBtn').addEventListener('click',createNote);
-  document.getElementById('notesDeleteBtn').addEventListener('click',()=>{if(state.selectedId)deleteNote(state.selectedId,true);});
-  document.getElementById('notesShareBtn').addEventListener('click',()=>showActions(['Tin nhắn','Mail','Sao chép','In']));
+  document.getElementById('notesDeleteBtn').addEventListener('click',()=>{if(state.selectedId)confirmDelete(state.selectedId,true);});
+  document.getElementById('notesShareBtn').addEventListener('click',()=>showActions(['Tin nhắn','Mail','Sao chép','In'],shareNote));
   window.addEventListener('beforeunload',()=>{saveCurrentEdit();saveNotes();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden){saveCurrentEdit();saveNotes();}});
 })();
