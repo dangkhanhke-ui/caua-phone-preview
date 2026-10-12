@@ -63,19 +63,19 @@ async function loadSaved(){
   b.renderList();
  }catch(e){showTip(e.message||'Không thể đọc ghi âm đã lưu.');}
 }
-let stream=null,rec=null,chunks=[],recordStarted=0,pausedTotal=0,pausedAt=0,recordingPanel=null,frame=0,saving=false;
+let stream=null,rec=null,chunks=[],recordStarted=0,pausedTotal=0,pausedAt=0,recordingPanel=null,frame=0,saving=false,liveContext=null,analyser=null,levels=null;
 function elapsed(){
  return Math.max(0,(performance.now()-recordStarted-pausedTotal-(pausedAt?performance.now()-pausedAt:0))/1000);
 }
 function fmt(t){const s=Math.floor(Math.max(0,t));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
-function cleanupStream(){if(stream){stream.getTracks().forEach(x=>x.stop());stream=null;}}
+function cleanupStream(){if(stream){stream.getTracks().forEach(x=>x.stop());stream=null;}if(liveContext){liveContext.close().catch(()=>{});liveContext=null;}analyser=null;levels=null;}
 function cleanupPanel(){clearInterval(frame);frame=0;if(recordingPanel){recordingPanel.remove();recordingPanel=null;}}
 function drawClock(){
  if(!recordingPanel)return;
  recordingPanel.querySelector('[data-voice-elapsed]').textContent=fmt(elapsed());
  const bars=recordingPanel.querySelectorAll('.voice-live-bars i');
- const tick=performance.now()/1000;
- bars.forEach((el,i)=>{el.style.height=(6+Math.abs(Math.sin(tick*5+i*1.4))*16)+'px';});
+ if(analyser&&levels){analyser.getByteFrequencyData(levels);bars.forEach((el,i)=>{const value=levels[Math.floor((i/bars.length)*levels.length)]||0;el.style.height=(5+Math.min(35,value*.16))+'px';});}
+ else bars.forEach(el=>el.style.height='6px');
 }
 
 function stopRecording(save){
@@ -106,6 +106,15 @@ async function begin(){
  try{
   stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
   if(!app.classList.contains('open')){cleanupStream();return;}
+  try{
+   const AudioEngine=window.AudioContext||window.webkitAudioContext;
+   if(AudioEngine){
+    liveContext=new AudioEngine();
+    const source=liveContext.createMediaStreamSource(stream);
+    analyser=liveContext.createAnalyser();analyser.fftSize=64;
+    levels=new Uint8Array(analyser.frequencyBinCount);source.connect(analyser);
+   }
+  }catch(_){analyser=null;levels=null;}
   let opts={};
   for(const mime of ['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg']){
    if(MediaRecorder.isTypeSupported?.(mime)){opts={mimeType:mime};break;}
