@@ -27,7 +27,7 @@ for(const entry of store.outgoing||[]){
  t.localHidden=store.hidden.includes(t.id);
 }
 const hiddenSet=new Set(store.hidden),muteSet=new Set(store.muted),selection=new Set(),deletedOnce=new Set();
-let editing=false,activeMenu=null,mediaDraft=null,recorder=null,recParts=[],recStream=null,recStart=0,recordTimer=0,recordDialog=null,suppressRowUntil=0;
+let editing=false,activeMenu=null,mediaDraft=null,recorder=null,voicePending=false,recParts=[],recStream=null,recStart=0,recordTimer=0,recordDialog=null,suppressRowUntil=0;
 function persist(){
  try{localStorage.setItem(STORAGE,JSON.stringify(store));return true;}
  catch(_){showToast('Bộ nhớ Safari đã đầy. Nội dung mới có thể không được lưu.');return false;}
@@ -363,8 +363,11 @@ input.addEventListener('change',async()=>{
 });
 function startVoice(){
  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){showToast('Safari không hỗ trợ ghi âm ở trang này.');return;}
- if(recorder)return;
+ if(recorder||voicePending)return;
+ voicePending=true;
  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+  voicePending=false;
+  if(!app.classList.contains('open')){stream.getTracks().forEach(track=>track.stop());return;}
   recStream=stream;recParts=[];
   let options={};for(const type of ['audio/mp4','audio/webm;codecs=opus','audio/webm']){if(MediaRecorder.isTypeSupported?.(type)){options={mimeType:type};break;}}
   recorder=new MediaRecorder(stream,options);
@@ -375,7 +378,7 @@ function startVoice(){
   recordTimer=setInterval(()=>{const sec=Math.floor((Date.now()-recStart)/1000);const clock=modal.querySelector('[data-record-clock]');if(clock)clock.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(sec>=20)stopVoice(true);},200);
   modal.querySelector('[data-cancel]').addEventListener('click',()=>stopVoice(false));modal.querySelector('[data-done]').addEventListener('click',()=>stopVoice(true));
   recorder.start(800);
- }).catch(e=>showToast(e?.name==='NotAllowedError'?'Hãy cấp quyền dùng micro cho Safari.':'Không mở được micro.'));
+ }).catch(e=>{voicePending=false;showToast(e?.name==='NotAllowedError'?'Hãy cấp quyền dùng micro cho Safari.':'Không mở được micro.');});
 }
 function stopVoice(save){
  const r=recorder;if(!r)return;
@@ -424,6 +427,7 @@ new MutationObserver(()=>{
  }
 }).observe(b.convoView,{attributes:true,attributeFilter:['class']});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&recorder)stopVoice(true);});
+new MutationObserver(()=>{if(!app.classList.contains('open')&&recorder)stopVoice(false);}).observe(app,{attributes:true,attributeFilter:['class']});
 window.CauaMessagesLocal={sendCurrent,sendNew,markRead,markUnread,hideThread,toggleEditing,decorateDetails,camera,afterRender,afterNew,clearMedia,hasAttachment,get pending(){return store.outgoing.length},get editing(){return editing}};
 renderList(false);
 })();
