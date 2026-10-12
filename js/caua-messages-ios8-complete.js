@@ -151,11 +151,61 @@ function forwardMessage(m){
  if(m.attachment?.data){mediaDraft=m.attachment;renderMediaPreview(newView);}
  showToast('Chọn người nhận để chuyển tiếp. Tin sẽ được giữ ở trạng thái chưa gửi.');
 }
+/* iOS 8 "More..." multi-message picker for deleting or forwarding locally. */
+let selectingMessages=false,selectedMessages=new Set();
+const multiBar=document.createElement('div');multiBar.className='msg-multi-bar';
+multiBar.innerHTML='<button data-multi-cancel>Xong</button><span data-multi-count>0 tin</span><button data-multi-forward disabled>Chuyển tiếp</button><button data-multi-delete disabled>Xóa</button>';
+b.convoView.appendChild(multiBar);
+function updateMulti(){
+ b.convoView.classList.toggle('msg-multi-selecting',selectingMessages);
+ multiBar.querySelector('[data-multi-count]').textContent=selectedMessages.size+' tin';
+ multiBar.querySelectorAll('[data-multi-delete],[data-multi-forward]').forEach(el=>el.disabled=!selectedMessages.size);
+ convoScroll.querySelectorAll('.msg-line[data-message-index]').forEach(row=>{
+  row.classList.toggle('msg-selected',selectedMessages.has(Number(row.dataset.messageIndex)));
+ });
+}
+function cancelMulti(){
+ selectingMessages=false;selectedMessages.clear();updateMulti();
+}
+function beginMulti(i){selectedMessages=new Set([i]);selectingMessages=true;updateMulti();}
+convoScroll.addEventListener('click',e=>{
+ if(!selectingMessages)return;
+ const row=e.target.closest('.msg-line[data-message-index]');if(!row)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ const id=Number(row.dataset.messageIndex);
+ selectedMessages.has(id)?selectedMessages.delete(id):selectedMessages.add(id);updateMulti();
+},true);
+multiBar.querySelector('[data-multi-cancel]').addEventListener('click',cancelMulti);
+multiBar.querySelector('[data-multi-forward]').addEventListener('click',()=>{
+ const t=currentThread();if(!t)return;
+ const picked=[...selectedMessages].sort((a,b)=>a-b).map(i=>t.messages[i]).filter(Boolean);
+ const text=picked.map(x=>x.body).filter(Boolean).join('\n');
+ const firstImage=picked.find(x=>x.attachment?.data)?.attachment;
+ cancelMulti();b.openNewMessage();newText.value=text;newText.dispatchEvent(new Event('input',{bubbles:true}));
+ if(firstImage){mediaDraft=firstImage;renderMediaPreview(newView);}
+ showToast('Chọn người nhận. Nội dung chuyển tiếp sẽ chưa được gửi.');
+});
+multiBar.querySelector('[data-multi-delete]').addEventListener('click',()=>{
+ const t=currentThread();if(!t)return;
+ const chosen=[...selectedMessages].map(i=>t.messages[i]).filter(Boolean);
+ sheet('Xóa '+chosen.length+' tin nhắn?',[
+  {label:'Xóa trên iPhone này',danger:true,run:()=>{
+   const keys=new Set(chosen.map(x=>x._localKey));
+   t.messages=t.messages.filter(m=>!keys.has(m._localKey));
+   store.outgoing=store.outgoing.filter(x=>!keys.has(x.message?._localKey));
+   store.deletedMessages[t.id]=[...new Set([...(store.deletedMessages[t.id]||[]),...chosen.filter(m=>String(m._localKey).startsWith('canon-')).map(m=>m._localKey)])];
+   t.preview=t.messages[t.messages.length-1]?.body||'';
+   persist();cancelMulti();renderConversation(t,false);showToast('Đã xóa '+chosen.length+' tin nhắn.');
+  }}
+ ]);
+});
+document.getElementById('messagesBackBtn').addEventListener('click',cancelMulti,true);
 function optionMessage(index){
  const t=currentThread(),m=t?.messages[index];if(!m)return;
  const actions=[];
  if(m.body)actions.push({label:'Sao chép',run:()=>copyText(m.body)});
  actions.push({label:'Chuyển tiếp',run:()=>forwardMessage(m)});
+ actions.push({label:'Thêm…',run:()=>beginMulti(index)});
  if(m.status==='failed'){
   actions.push({label:'Thử gửi lại',run:()=>showAlert('Chưa gửi được','Không có kết nối SMS/iMessage trong bản mô phỏng.')});
   actions.push({label:'Chỉnh sửa bản nháp',run:()=>{
