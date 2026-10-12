@@ -1442,6 +1442,7 @@
     if(action==='contacts')showAlert('Không có kết nối','Không thể mở Danh bạ trong cuộc gọi này.');
   }));
   // 2015 continuity: calls started in Messages open the shared Phone call UI.
+  window.CauaPhoneContacts=CONTACTS.map(c=>({name:c.displayName,number:c.phone,threadId:c.messageThreadId||null}));
   window.CauaPhoneDialFromMessages=(threadId,number,displayName)=>{
     const contact=CONTACTS.find(c=>c.messageThreadId===threadId)||CONTACTS.find(c=>digits(c.phone)===digits(number)&&digits(number).length>6)||null;
     launcher.click();
