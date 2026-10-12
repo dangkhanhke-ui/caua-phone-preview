@@ -1441,6 +1441,13 @@
     if(action==='add')showAlert('Không có kết nối','Không thể thêm cuộc gọi khác.');
     if(action==='contacts')showAlert('Không có kết nối','Không thể mở Danh bạ trong cuộc gọi này.');
   }));
+  // 2015 continuity: calls started in Messages open the shared Phone call UI.
+  window.CauaPhoneDialFromMessages=(threadId,number,displayName)=>{
+    const contact=CONTACTS.find(c=>c.messageThreadId===threadId)||CONTACTS.find(c=>digits(c.phone)===digits(number)&&digits(number).length>6)||null;
+    launcher.click();
+    startCall(contact,contact?.displayName||displayName||number||'Số không xác định');
+    return true;
+  };
   document.getElementById('phoneHangup').addEventListener('click',()=>{
     if(state.callTimer)clearTimeout(state.callTimer);
     state.callTimer=null;
@@ -1662,7 +1669,7 @@
   convoTitle.addEventListener('click',renderDetails);
   document.getElementById('messagesDetailBack').addEventListener('click',()=>{ const t=currentThread(); if(t) renderConversation(t,true); });
 
-  function startFakeCall(t) { callName.textContent=t.saved?t.listName:t.displayName; document.getElementById('messagesCallSub').textContent='đang gọi...'; callOverlay.classList.add('show'); }
+  function startFakeCall(t) { if(window.CauaPhoneDialFromMessages?.(t.id,t.number,t.saved?t.listName:t.displayName))return;callName.textContent=t.saved?t.listName:t.displayName;document.getElementById('messagesCallSub').textContent='đang gọi...';callOverlay.classList.add('show'); }
   document.getElementById('messagesCallEnd').addEventListener('click',()=>callOverlay.classList.remove('show'));
 
   function openNewMessage() {
