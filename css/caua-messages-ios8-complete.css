@@ -1,0 +1,80 @@
+/* Messages iOS 8 high-fidelity corrections, August 2015.
+   Keep historical dates fully inside phone viewport at 320px width. */
+#messagesApp .msg-thread-row{
+ display:grid!important;
+ grid-template-columns:15px minmax(0,1fr) 94px!important;
+ box-sizing:border-box!important;
+ width:100%!important;max-width:100%!important;
+ padding:7px 8px 6px 8px!important;
+ overflow:hidden;align-items:start;
+}
+#messagesApp .msg-thread-main{min-width:0!important;max-width:100%!important;overflow:hidden!important;padding-right:5px}
+#messagesApp .msg-thread-meta{
+ width:94px!important;max-width:94px!important;min-width:94px!important;
+ display:flex!important;align-items:flex-start;justify-content:flex-end;gap:4px;
+ white-space:nowrap!important;overflow:visible!important;
+ padding:2px 1px 0 0;text-align:right!important;font-size:11px!important;
+ font-variant-numeric:tabular-nums;line-height:17px;
+}
+#messagesApp .msg-thread-date{white-space:nowrap;min-width:0;flex:0 0 auto;letter-spacing:-.12px;text-overflow:clip}
+#messagesApp .msg-thread-chevron{display:inline-block;flex:0 0 9px;margin-left:0!important;line-height:15px!important;font-size:17px!important;text-align:center}
+#messagesApp .msg-thread-name{font-size:15px;white-space:nowrap}
+#messagesApp .msg-thread-preview{font-size:12px;line-height:17px;overflow:hidden}
+#messagesApp .msg-thread-row.unread .msg-thread-date{color:#007aff}
+#messagesApp .msg-thread-row.selected{background:#edf5ff}
+#messagesApp .msg-row-selector{display:none;position:absolute;left:6px;top:17px;width:22px;height:22px;border-radius:50%;border:1.5px solid #b4b4bb;background:#fff;color:#fff;text-align:center;line-height:20px}
+#messagesApp.msg-list-editing .msg-thread-row{padding-left:30px!important;grid-template-columns:5px minmax(0,1fr) 94px!important}
+#messagesApp.msg-list-editing .msg-row-selector{display:block}
+#messagesApp.msg-list-editing .msg-unread-dot{visibility:hidden}
+#messagesApp.msg-list-editing .msg-thread-row.selected .msg-row-selector{background:#007aff;border-color:#007aff}
+#messagesApp.msg-list-editing .msg-thread-row.selected .msg-row-selector::after{content:"✓";font-size:14px;font-weight:600}
+#messagesApp .msg-local-edit-bar{display:none;position:absolute;left:0;right:0;bottom:0;height:49px;z-index:150;background:#f8f8f9;border-top:1px solid #d3d3d8;align-items:center;justify-content:space-between;padding:0 12px;color:#8e8e93;font-size:12px}
+#messagesApp.msg-list-editing .msg-local-edit-bar{display:flex}
+#messagesApp .msg-local-edit-bar button{border:0;background:none;color:#007aff;font-size:13px;padding:10px 2px}
+#messagesApp .msg-local-edit-bar button:disabled{color:#b8b8bd}
+#messagesApp .msg-local-toast{position:absolute;z-index:26000;top:72px;left:12px;right:12px;border-radius:9px;padding:10px 12px;font-size:12px;line-height:17px;color:white;background:rgba(30,30,32,.93);text-align:center;pointer-events:none;opacity:0;transition:opacity 160ms}
+#messagesApp .msg-local-toast.show{opacity:1}
+#messagesApp .msg-local-sheet{position:absolute;z-index:25000;inset:0;display:flex;align-items:flex-end;justify-content:center}
+#messagesApp .msg-local-sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.3)}
+#messagesApp .msg-local-sheet-panel{position:relative;width:100%;padding:8px 9px 14px;max-height:90%;overflow-y:auto;overscroll-behavior:contain}
+#messagesApp .msg-local-sheet-title{color:#86868b;font-size:12px;text-align:center;background:#f6f6f8;border-radius:7px 7px 0 0;padding:10px}
+#messagesApp .msg-local-sheet-panel button{display:block;border:0;border-bottom:1px solid #e1e1e4;background:#fff;color:#007aff;font-size:15px;width:100%;min-height:43px;padding:10px;text-align:center}
+#messagesApp .msg-local-sheet-panel button:last-child{border-radius:0 0 8px 8px}
+#messagesApp .msg-local-sheet-panel button[data-sheet-cancel]{margin-top:8px;border-radius:8px;font-weight:600}
+#messagesApp .msg-local-sheet-panel button.danger{color:#ff3b30}
+#messagesApp .msg-local-record{position:absolute;z-index:25000;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.36)}
+#messagesApp .msg-local-record-box{background:#f8f8f8;border-radius:13px;padding:22px 16px;width:88%;text-align:center;color:#333}
+#messagesApp .msg-local-record-box strong{font-size:17px}
+#messagesApp .msg-local-record-box p{font-size:36px;margin:15px 0;font-weight:200;font-variant-numeric:tabular-nums}
+#messagesApp .msg-record-hint{font-size:12px;color:#8e8e93}
+#messagesApp .msg-local-record-box>div{display:flex;gap:12px;margin-top:19px}
+#messagesApp .msg-local-record-box button{flex:1;border:1px solid #dbdbe0;background:#fff;border-radius:7px;min-height:44px;color:#007aff;font-size:15px}
+#messagesApp .msg-local-record-box button[data-done]{background:#007aff;border-color:#007aff;color:white}
+#messagesApp .msg-convo-scroll .msg-line{position:relative!important;overflow:visible!important}
+#messagesApp .msg-convo-scroll .msg-line .msg-time-side{
+ display:block!important;position:absolute;right:-52px;top:50%;transform:translateY(-50%);
+ opacity:0;font:10px/1 "Helvetica Neue",Arial,sans-serif;color:#8e8e93;
+ white-space:nowrap;text-align:left;width:48px;pointer-events:none
+}
+#messagesApp .msg-convo-scroll.reveal-times .msg-line{transform:translateX(-56px)!important;transition:none!important}
+#messagesApp .msg-convo-scroll.reveal-times .msg-time-side{opacity:1!important}
+#messagesApp .msg-convo-scroll:not(.reveal-times) .msg-time-side{opacity:0!important}
+#messagesApp .msg-convo-scroll .msg-bubble{min-width:0;overflow-wrap:anywhere}
+#messagesApp .msg-convo-scroll .msg-inline-photo{max-width:100%;width:auto;max-height:220px;object-fit:contain;display:block;border-radius:10px;margin:2px 0 4px;cursor:zoom-in}
+#messagesApp .msg-convo-scroll .msg-line.msg-failed .msg-bubble{opacity:.91}
+#messagesApp .msg-convo-scroll .msg-failed-mark{flex:0 0 auto;background:#ff3b30;color:#fff;border:0;border-radius:50%;width:17px;height:17px;align-self:center;margin:0 2px 0 7px;font-weight:bold;font-size:12px}
+#messagesApp .msg-draft-attachment{position:absolute;bottom:100%;left:8px;padding:7px;max-width:130px;max-height:120px;background:#f8f8fa;border:1px solid #ddd;border-radius:8px;z-index:9;box-shadow:0 1px 6px rgba(0,0,0,.14)}
+#messagesApp .msg-draft-attachment img{display:block;max-width:105px;max-height:95px;object-fit:contain}
+#messagesApp .msg-draft-attachment>button{position:absolute;right:-7px;top:-9px;border-radius:50%;border:0;background:#8e8e93;color:#fff;width:22px;height:22px;font-size:17px}
+#messagesApp .msg-draft-attachment>span{display:block;color:#777;font-size:11px;margin-right:14px;padding:8px 0}
+#messagesApp .msg-photo-lightbox{position:absolute;inset:20px 0 0;z-index:26000;background:#111;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#messagesApp .msg-photo-lightbox>img{max-width:100%;max-height:calc(100% - 50px);object-fit:contain}
+#messagesApp .msg-photo-lightbox>audio{width:94%}
+#messagesApp .msg-photo-lightbox>.msg-photo-close{position:absolute;top:7px;left:9px;background:none;border:0;color:#fff;font-size:15px;padding:10px;z-index:2}
+#messagesApp .msg-detail-row .msg-switch{display:inline-block;border:0;flex:0 0 42px;cursor:pointer}
+#messagesApp .msg-detail-row .msg-switch.on{background:#4cd964}
+#messagesApp .msg-detail-row .msg-switch.on::after{transform:translateX(17px)}
+#messagesApp .msg-location-row button{border:0;background:none;color:#007aff;font-size:14px;padding:4px 0}
+#messagesApp .msg-attachment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:#fff;padding:8px}
+#messagesApp .msg-attachment-grid button{border:0;background:#f5f5f5;min-height:72px;color:#007aff;overflow:hidden}
+#messagesApp .msg-attachment-grid img{width:100%;height:88px;object-fit:cover}
