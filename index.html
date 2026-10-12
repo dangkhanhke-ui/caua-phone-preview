@@ -1641,7 +1641,7 @@
       else convoScroll.scrollTop=convoScroll.scrollHeight;
     });
   }
-  function openThread(id) { state.listScroll=listBody.scrollTop; const t=threads.find(x=>x.id===id); if(t){t.unread=false;t.messages.forEach(m=>m.unread=false);window.CauaMessagesLocal?.markRead(id);renderConversation(t,true);} }
+  function openThread(id) { state.listScroll=listBody.scrollTop; const t=threads.find(x=>x.id===id); if(t){renderConversation(t,true);t.unread=false;t.messages.forEach(m=>m.unread=false);window.CauaMessagesLocal?.markRead(id);} }
   document.getElementById('messagesBackBtn').addEventListener('click',()=>{ const t=currentThread(); if(t) state.convoScrollById[t.id]=convoScroll.scrollTop; renderList(true); });
   convoScroll.addEventListener('scroll',()=>{ const t=currentThread(); if(t) state.convoScrollById[t.id]=convoScroll.scrollTop; },{passive:true});
 
