@@ -1628,6 +1628,7 @@
     serviceBar.style.display=automated?'grid':'none';
     convoScroll.classList.toggle('no-composer',automated);
     replyInput.value=''; updateSendButton();
+    window.CauaMessagesLocal?.afterRender(t);
     requestAnimationFrame(()=>{
       if(restore && state.convoScrollById[t.id] != null) convoScroll.scrollTop=state.convoScrollById[t.id];
       else convoScroll.scrollTop=convoScroll.scrollHeight;
@@ -1665,7 +1666,7 @@
   document.getElementById('messagesCallEnd').addEventListener('click',()=>callOverlay.classList.remove('show'));
 
   function openNewMessage() {
-    setView('new'); recipientInput.value=''; newText.value=''; recipientResults.style.display='none'; recipientResults.innerHTML=''; updateNewSend(); setTimeout(()=>recipientInput.focus(),40);
+    setView('new'); recipientInput.value=''; newText.value=''; recipientResults.style.display='none'; recipientResults.innerHTML=''; updateNewSend(); window.CauaMessagesLocal?.afterNew();setTimeout(()=>recipientInput.focus(),40);
   }
   document.getElementById('messagesComposeBtn').addEventListener('click',openNewMessage);
 
@@ -1682,7 +1683,7 @@
       const image=document.createElement('img');image.src=item.src;image.alt='Ảnh đính kèm';
       const label=document.createElement('span');label.textContent=item.filename||'Ảnh';preview.append(image,label);empty.appendChild(preview);
     }
-    updateNewSend();
+    updateNewSend();window.CauaMessagesLocal?.afterNew();
   });
 
   document.getElementById('messagesNewCancel').addEventListener('click',()=>renderList(true));
