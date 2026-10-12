@@ -207,3 +207,43 @@
   .safari-app .safari-ios8-share-social i,
   .safari-app .safari-ios8-share-actions i{width:41px;height:41px}
 }
+
+/* The offline 2015 Google start page (instead of forwarding to a blank tab). */
+.safari-app .safari-google-2015{
+  min-height:100%;display:flex;flex-direction:column;align-items:center;
+  background:#fff;padding:80px 13px 25px;
+  font-family:Arial,Helvetica,sans-serif;color:#333;
+}
+.safari-app .safari-google-2015-logo{
+  display:flex;align-items:baseline;letter-spacing:-2px;margin-bottom:28px;
+  font:400 55px/1 Arial,Helvetica,sans-serif;white-space:nowrap;
+}
+.safari-app .safari-google-2015-logo b{font-weight:500}
+.safari-app .safari-google-2015-logo b:nth-child(1),
+.safari-app .safari-google-2015-logo b:nth-child(4){color:#4285f4}
+.safari-app .safari-google-2015-logo b:nth-child(2),
+.safari-app .safari-google-2015-logo b:nth-child(6){color:#ea4335}
+.safari-app .safari-google-2015-logo b:nth-child(3){color:#fbbc05}
+.safari-app .safari-google-2015-logo b:nth-child(5){color:#34a853}
+.safari-app #safariGoogleSearchForm{display:flex;width:100%;flex-direction:column;gap:13px;align-items:center}
+.safari-app #safariGoogleSearchInput{
+  height:35px;box-sizing:border-box;width:100%;
+  font:400 15px Arial,Helvetica,sans-serif;
+  border:1px solid #b8b8b8;border-radius:0;padding:0 9px;
+  color:#333;background:#fff;box-shadow:inset 0 1px 2px #0001;
+}
+.safari-app #safariGoogleSearchForm button{
+  padding:8px 13px;background:#f2f2f2;color:#444;
+  font:bold 12px Arial,Helvetica,sans-serif;border:1px solid #ddd;
+  border-radius:2px;min-width:90px;
+}
+.safari-app .safari-google-2015-footer{margin-top:auto;color:#878787;font:11px Arial,sans-serif}
+#messagesApp .msg-bubble .caua-safari-link,
+#whatsappApp .wa-bubble .caua-safari-link{
+  color:inherit;text-decoration:underline;text-underline-offset:2px;
+  overflow-wrap:anywhere;cursor:pointer;
+}
+#messagesApp .msg-line.incoming .caua-safari-link,
+#whatsappApp .wa-message-row.in .caua-safari-link{color:#1675c6}
+#messagesApp .msg-line.outgoing .caua-safari-link,
+#whatsappApp .wa-message-row.out .caua-safari-link{color:inherit}
