@@ -1,0 +1,39 @@
+name: Safari iOS 8 Comprehensive QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/safari.js'
+      - 'css/caua-safari-ios8-complete.css'
+      - 'index.html'
+      - 'qa/safari-ios8-complete.cjs'
+      - '.github/workflows/qa-safari-ios8-complete.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safari-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Safari syntax
+        run: |
+          node --check js/safari.js
+          node --check qa/safari-ios8-complete.cjs
+      - name: Install browsers
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Test Safari in Chromium and WebKit
+        run: |
+          python3 -m http.server 8000 >/tmp/caua-safari-http.log 2>&1 &
+          node qa/safari-ios8-complete.cjs
+      - name: Upload visual snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: safari-ios8-qa
+          path: qa-artifacts/safari-ios8
+          if-no-files-found: warn
+          retention-days: 14
