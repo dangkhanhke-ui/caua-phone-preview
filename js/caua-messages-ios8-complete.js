@@ -326,7 +326,9 @@ function decorateDetails(t){
 function clearMedia(){
  mediaDraft=null;
  app.querySelectorAll('.msg-draft-attachment').forEach(x=>x.remove());
+ updateSendButton();updateNewSend();
 }
+function hasAttachment(){return !!mediaDraft;}
 function renderMediaPreview(view){
  view=view||b.convoView;
  view.querySelector('.msg-draft-attachment')?.remove();
@@ -334,7 +336,7 @@ function renderMediaPreview(view){
  const target=view.querySelector('.msg-composer');if(!target)return;
  const panel=document.createElement('div');panel.className='msg-draft-attachment';
  panel.innerHTML='<button aria-label="Bỏ tệp đính kèm" type="button">×</button>'+(mediaDraft.kind==='audio'?'<span>◉ '+esc(mediaDraft.filename||'Âm thanh')+'</span>':'<img src="'+esc(mediaDraft.data)+'" alt="Ảnh chờ gửi">');
- target.appendChild(panel);panel.querySelector('button').addEventListener('click',()=>{clearMedia();updateSendButton();updateNewSend();});
+ target.appendChild(panel);updateSendButton();updateNewSend();panel.querySelector('button').addEventListener('click',()=>{clearMedia();updateSendButton();updateNewSend();});
 }
 const input=document.createElement('input');input.type='file';input.accept='image/*';input.style.display='none';app.appendChild(input);
 function takePicture(capture){if(capture)input.setAttribute('capture','environment');else input.removeAttribute('capture');input.click();}
@@ -418,10 +420,10 @@ const originalOpen=b.openThread;
 document.getElementById('messagesBackBtn').addEventListener('click',()=>{clearMedia();},true);
 new MutationObserver(()=>{
  if(state.view==='conversation'){
-  const t=currentThread();if(t&&!replyInput.value){try{const draft=sessionStorage.getItem('caua-message-draft-'+t.id);if(draft)replyInput.value=draft;}catch(_){}}
+  const t=currentThread();if(t&&!replyInput.value){try{const draft=sessionStorage.getItem('caua-message-draft-'+t.id);if(draft){replyInput.value=draft;resizeComposer(replyInput);updateSendButton();}}catch(_){}}
  }
 }).observe(b.convoView,{attributes:true,attributeFilter:['class']});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&recorder)stopVoice(true);});
-window.CauaMessagesLocal={sendCurrent,sendNew,markRead,markUnread,hideThread,toggleEditing,decorateDetails,camera,afterRender,afterNew,get pending(){return store.outgoing.length},get editing(){return editing}};
+window.CauaMessagesLocal={sendCurrent,sendNew,markRead,markUnread,hideThread,toggleEditing,decorateDetails,camera,afterRender,afterNew,clearMedia,hasAttachment,get pending(){return store.outgoing.length},get editing(){return editing}};
 renderList(false);
 })();
