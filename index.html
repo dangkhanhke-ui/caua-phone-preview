@@ -2296,13 +2296,15 @@
   detailBody.addEventListener('blur',()=>{saveCurrentEdit();saveNotes();});
   detailBody.addEventListener('click',()=>{});
   const PINS_KEY='caua-notes-custom-pins-v1';
+  const BASE_PINS=new Set(['note01','note03','note05','note16']);
   let extraPins=[];try{extraPins=JSON.parse(localStorage.getItem(PINS_KEY)||'[]');if(!Array.isArray(extraPins))extraPins=[];}catch(_){}
-  extraPins.forEach(id=>PINNED_IDS.add(id));
+  if(extraPins.length===0){try{const stored=JSON.parse(localStorage.getItem(PINS_KEY));if(Array.isArray(stored))extraPins=stored;}catch(_){}}
+  if(localStorage.getItem(PINS_KEY)!==null){PINNED_IDS.clear();extraPins.forEach(id=>PINNED_IDS.add(id));}
   function togglePin(){
     const id=state.selectedId;if(!id)return;
     if(PINNED_IDS.has(id)){PINNED_IDS.delete(id);extraPins=extraPins.filter(x=>x!==id);}
     else {PINNED_IDS.add(id);if(!extraPins.includes(id))extraPins.push(id);}
-    try{localStorage.setItem(PINS_KEY,JSON.stringify(extraPins));}catch(_){}
+    try{localStorage.setItem(PINS_KEY,JSON.stringify([...PINNED_IDS]));}catch(_){}
     showAlert(PINNED_IDS.has(id)?'Đã ghim ghi chú':'Đã bỏ ghim ghi chú');
   }
   function findInNote(){
@@ -2322,7 +2324,7 @@
   }
   function copyNote(){
     saveCurrentEdit();const n=byId[state.selectedId];if(!n)return;
-    const text=n.lines.join('\\n');
+    const text=n.lines.join('\n');
     if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>showAlert('Đã sao chép')).catch(()=>fallbackCopy(text));
     else fallbackCopy(text);
   }
@@ -2336,7 +2338,7 @@
     saveCurrentEdit();const n=byId[state.selectedId];if(!n)return;
     if(choice===2)return copyNote();
     if(choice===3)return showAlert('In','Máy in chưa được kết nối.');
-    const text=n.lines.join('\\n');
+    const text=n.lines.join('\n');
     const dest=choice===0?'messages':'mail';
     if(typeof window.CauaCrossApp?.shareText==='function'){
       window.CauaCrossApp.shareText(dest,text);
