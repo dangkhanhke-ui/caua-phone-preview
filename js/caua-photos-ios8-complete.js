@@ -5,8 +5,8 @@
 const b=window.CauaPhotosBridge;if(!b)return;
 const app=b.app, photos=b.photos, originals=b.originals;
 const key='caua-photos-local-v2';
-let memory={deleted:{},edits:{}};
-try {const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved&&typeof saved==='object')memory={deleted:saved.deleted||{},edits:saved.edits||{}};}catch(_){}
+let memory={deleted:{},edits:{},albums:{}};
+try {const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved&&typeof saved==='object')memory={deleted:saved.deleted||{},edits:saved.edits||{},albums:saved.albums||{}};}catch(_){}
 function persist(){try{localStorage.setItem(key,JSON.stringify(memory));}catch(_){notice('Bộ nhớ trình duyệt đã đầy; thay đổi có thể không được lưu.');}}
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function byId(id){return originals.find(p=>p.id===id)}
@@ -30,7 +30,7 @@ function confirmAction(message,positive,action){
 function syncMarks(){
  app.querySelectorAll('[data-photo-id]').forEach(btn=>btn.classList.toggle('photos-is-selected',selecting&&chosen.has(btn.dataset.photoId)));
  const bar=app.querySelector('.photos-select-actions');if(bar){bar.querySelector('[data-selection-count]').textContent=chosen.size+' ảnh';bar.querySelectorAll('[data-selection-required]').forEach(x=>x.disabled=!chosen.size);}
- const btn=document.getElementById('photosSelectBtn');if(btn)btn.textContent=selecting?'Hủy':'Chọn';
+ app.querySelectorAll('.photos-nav-btn.right').forEach(btn=>{if(btn.id==='photosSelectBtn'||(btn.closest('#photosCollectionsView,#photosYearsView,#photosAlbumGridView')&&/^(Chọn|Hủy)$/.test(btn.textContent.trim())))btn.textContent=selecting?'Hủy':'Chọn';});
 }
 function selectMode(on){
  selecting=!!on;chosen.clear();
@@ -38,9 +38,10 @@ function selectMode(on){
  const old=app.querySelector('.photos-select-actions');if(old)old.remove();
  if(selecting){
   const el=document.createElement('div');el.className='photos-select-actions';
-  el.innerHTML='<span data-selection-count>0 ảnh</span><button type="button" data-selection-required data-selection-share disabled>Chia sẻ</button><button type="button" data-selection-required data-selection-delete disabled>Xóa</button>';
+  el.innerHTML='<span data-selection-count>0 ảnh</span><button type="button" data-selection-required data-selection-share disabled>Chia sẻ</button><button type="button" data-selection-required data-selection-album disabled>Album</button><button type="button" data-selection-required data-selection-delete disabled>Xóa</button>';
   app.appendChild(el);
   el.querySelector('[data-selection-share]').addEventListener('click',()=>openShare([...chosen].map(byId).filter(Boolean)));
+  el.querySelector('[data-selection-album]').addEventListener('click',addSelectedToAlbum);
   el.querySelector('[data-selection-delete]').addEventListener('click',()=>askDelete([...chosen]));
  }
  syncMarks();
@@ -129,12 +130,81 @@ function openShare(items){
  el.querySelector('[data-share-save]').addEventListener('click',()=>deliver('save'));
  el.querySelector('[data-share-copy]').addEventListener('click',()=>deliver('copy'));
 }
+function albumList(){return document.getElementById('photosAlbumList');}
+function syncAlbumRows(){
+ const root=albumList();if(!root)return;
+ for(const [id,album] of Object.entries(memory.albums)){
+  if(root.querySelector('[data-local-album="'+id+'"]'))continue;
+  const cover=(album.ids||[]).map(byId).find(p=>p&&!memory.deleted[p.id]);
+  const row=document.createElement('div');row.className='photos-album-row';
+  row.dataset.localAlbum=id;
+  const count=(album.ids||[]).filter(k=>byId(k)&&!memory.deleted[k]).length;
+  row.innerHTML='<div class="photos-album-cover">'+(cover?'<img src="'+esc(cover.src)+'" alt="" loading="lazy">':'')+'</div><div><div class="photos-album-name">'+esc(album.name)+'</div><div class="photos-album-count">'+count+'</div></div><div class="photos-chevron">›</div>';
+  root.appendChild(row);
+ }
+}
+function createNewAlbum(){
+ const el=showModal('Album mới','<label class="photos-album-input-label">Tên album<input data-name type="text" maxlength="64" placeholder="Tên album"></label><button class="photos-modal-primary" data-create>Tạo album</button>');
+ el.querySelector('[data-create]').addEventListener('click',()=>{
+  const name=el.querySelector('[data-name]').value.trim();if(!name){notice('Hãy đặt tên album.');return;}
+  const id='local-'+Date.now();
+  memory.albums[id]={name,ids:[]};persist();closeModal();syncAlbumRows();notice('Đã tạo album.');
+ });
+}
+function openCustomAlbum(id){
+ const album=memory.albums[id];if(!album)return;
+ const list=(album.ids||[]).map(byId).filter(p=>p&&!memory.deleted[p.id]);
+ b.showView('albumGrid',false);
+ document.getElementById('photosAlbumTitle').textContent=album.name;
+ const grid=document.getElementById('photosAlbumGrid');
+ grid.innerHTML=list.length?list.map(p=>'<button type="button" data-photo-id="'+esc(p.id)+'"><img src="'+esc(p.src)+'" alt="" loading="lazy" decoding="async"></button>').join(''):'<div class="photos-empty"><strong>Album trống</strong></div>';
+ grid.querySelectorAll('[data-photo-id]').forEach(tile=>tile.addEventListener('click',()=>{if(!selecting)b.openPhoto(photos.findIndex(p=>p.id===tile.dataset.photoId),album.name);}));
+}
+function addSelectedToAlbum(){
+ if(!chosen.size)return;
+ const rows=Object.entries(memory.albums).map(([id,a])=>'<button data-choose-album="'+esc(id)+'">'+esc(a.name)+'</button>').join('');
+ const el=showModal('Thêm vào album','<div class="photos-share-actions">'+rows+'<button data-new-album>+ Album mới</button></div>');
+ el.querySelector('[data-new-album]').addEventListener('click',createNewAlbum);
+ el.querySelectorAll('[data-choose-album]').forEach(btn=>btn.addEventListener('click',()=>{
+  const a=memory.albums[btn.dataset.chooseAlbum];if(!a)return;
+  a.ids=[...new Set([...(a.ids||[]),...chosen])];persist();closeModal();selectMode(false);syncAlbumRows();notice('Đã thêm ảnh vào album.');
+ }));
+}
+function manageAlbums(){
+ const rows=Object.entries(memory.albums).map(([id,a])=>'<div class="photos-manage-row"><span>'+esc(a.name)+'</span><button data-rename-album="'+esc(id)+'">Đổi tên</button><button data-remove-album="'+esc(id)+'">Xóa</button></div>').join('');
+ const el=showModal('Sửa album',rows||'<p class="photos-modal-empty">Chưa có album tự tạo.</p>');
+ el.querySelectorAll('[data-rename-album]').forEach(btn=>btn.addEventListener('click',()=>{
+  const id=btn.dataset.renameAlbum,a=memory.albums[id];if(!a)return;
+  const rename=showModal('Đổi tên album','<label class="photos-album-input-label">Tên album<input data-name maxlength="64" value="'+esc(a.name)+'"></label><button class="photos-modal-primary" data-save-album>Lưu</button>');
+  rename.querySelector('[data-save-album]').addEventListener('click',()=>{
+   const n=rename.querySelector('[data-name]').value.trim();if(!n)return;
+   a.name=n;persist();closeModal();b.renderAll();notice('Đã đổi tên album.');
+  });
+ }));
+ el.querySelectorAll('[data-remove-album]').forEach(btn=>btn.addEventListener('click',()=>{
+  const id=btn.dataset.removeAlbum;
+  confirmAction('Xóa album này? Các ảnh trong album sẽ không bị xóa.','Xóa album',()=>{
+   delete memory.albums[id];persist();b.renderAll();notice('Đã xóa album.');
+  });
+ }));
+}
+const albumRoot=albumList();
+if(albumRoot)new MutationObserver(syncAlbumRows).observe(albumRoot,{childList:true});
 app.addEventListener('click',event=>{
  const target=event.target;
- const select=target.closest('#photosSelectBtn');
- if(select){event.preventDefault();event.stopImmediatePropagation();selectMode(!selecting);return;}
+ const select=target.closest('#photosSelectBtn,#photosCollectionsView .photos-nav-btn.right,#photosYearsView .photos-nav-btn.right,#photosAlbumGridView .photos-nav-btn.right');
+ if(select){event.preventDefault();event.stopImmediatePropagation();if(!selecting&&target.closest('#photosCollectionsView,#photosYearsView'))b.showView('moments',true);selectMode(!selecting);return;}
+ const createAlbum=target.closest('#photosAlbumsView .photos-album-add');
+ if(createAlbum){event.preventDefault();event.stopImmediatePropagation();createNewAlbum();return;}
+ const editAlbums=target.closest('#photosAlbumsView .photos-nav-btn.right');
+ if(editAlbums){event.preventDefault();event.stopImmediatePropagation();manageAlbums();return;}
+ const offlineShared=target.closest('#photosSharedView .photos-nav-btn');
+ if(offlineShared){event.preventDefault();event.stopImmediatePropagation();notice('Album được chia sẻ cần kết nối iCloud.');return;}
+ const custom=target.closest('[data-local-album]');
+ if(custom){event.preventDefault();event.stopImmediatePropagation();openCustomAlbum(custom.dataset.localAlbum);return;}
  const deleted=target.closest('[data-album="deleted"]');
  if(deleted){event.preventDefault();event.stopImmediatePropagation();showDeleted();return;}
+ if(selecting&&target.closest('[data-photos-tab]'))selectMode(false);
  if(selecting){const tile=target.closest('[data-photo-id]');if(tile){event.preventDefault();event.stopImmediatePropagation();const id=tile.dataset.photoId;chosen.has(id)?chosen.delete(id):chosen.add(id);syncMarks();return;}}
  const edit=target.closest('#photosEditBtn');
  if(edit){event.preventDefault();event.stopImmediatePropagation();openEditor();return;}
