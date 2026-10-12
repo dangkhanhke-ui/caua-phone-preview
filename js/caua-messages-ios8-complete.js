@@ -24,7 +24,7 @@ for(const entry of store.outgoing||[]){
  if(!t.messages.some(m=>m._localKey===entry.message._localKey))t.messages.push({...entry.message});
  t.preview=(entry.message.attachment?'Tệp đính kèm':entry.message.body||'Tin nhắn')+' · Chưa gửi';
  if(entry.groupRecipients)t.groupRecipients=entry.groupRecipients;
- t.localHidden=false;
+ t.localHidden=store.hidden.includes(t.id);
 }
 const hiddenSet=new Set(store.hidden),muteSet=new Set(store.muted),selection=new Set(),deletedOnce=new Set();
 let editing=false,activeMenu=null,mediaDraft=null,recorder=null,recParts=[],recStream=null,recStart=0,recordTimer=0,recordDialog=null,suppressRowUntil=0;
