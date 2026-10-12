@@ -88,7 +88,7 @@ async function run(engine,name){
   await ev(()=>{const node=document.createElement('div');node.className='msg-bubble';
     node.id='safariLinkBridgeTest';node.textContent='Olha https://radarrio.com.br/politica/eleicoes-2016-pesquisa-cenario';
     document.getElementById('messagesApp').appendChild(node)});
-  await page.waitForSelector('#safariLinkBridgeTest a.caua-safari-link',{timeout:5000});
+  await page.waitForSelector('#safariLinkBridgeTest a.caua-safari-link',{state:'attached',timeout:5000});
   await click('#safariLinkBridgeTest a.caua-safari-link');
   assert((await ev(()=>document.getElementById('safariAddress').value)).includes('radarrio.com.br'),
     'Messages link should open Safari internally');
