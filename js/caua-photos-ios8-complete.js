@@ -75,7 +75,7 @@ function showDeleted(){
 }
 const filters={
  original:'none',mono:'grayscale(1)',tonal:'grayscale(1) contrast(1.28)',noir:'grayscale(1) contrast(1.8) brightness(.82)',
- fade:'saturate(.62) contrast(.86) brightness(1.09)',chrome:'saturate(1.5) contrast(1.08)',instant:'sepia(.30) saturate(.80) brightness(1.07)'
+ fade:'saturate(.62) contrast(.86) brightness(1.09)',chrome:'saturate(1.5) contrast(1.08)',process:'saturate(1.35) sepia(.12) contrast(1.14)',transfer:'sepia(.25) saturate(.72) contrast(.98)',instant:'sepia(.30) saturate(.80) brightness(1.07)'
 };
 function editFor(id){return memory.edits[id]||{filter:'original',rotate:0,scale:1}}
 function applyViewerEdit(){
@@ -88,7 +88,7 @@ function applyViewerEdit(){
 function openEditor(){
  const p=active();if(!p)return;
  const old=editFor(p.id),draft={filter:old.filter||'original',rotate:old.rotate||0,scale:old.scale||1};
- const buttons=Object.keys(filters).map(n=>'<button data-filter="'+n+'" class="'+(n===draft.filter?'selected':'')+'">'+({original:'Gốc',mono:'Mono',tonal:'Tonal',noir:'Noir',fade:'Fade',chrome:'Chrome',instant:'Instant'}[n])+'</button>').join('');
+ const buttons=Object.keys(filters).map(n=>'<button data-filter="'+n+'" class="'+(n===draft.filter?'selected':'')+'">'+({original:'Gốc',mono:'Mono',tonal:'Tonal',noir:'Noir',fade:'Fade',chrome:'Chrome',process:'Process',transfer:'Transfer',instant:'Instant'}[n])+'</button>').join('');
  const el=showModal('Sửa ảnh','<div class="photos-edit-preview"><img src="'+esc(p.src)+'" alt=""></div><div class="photos-edit-filters">'+buttons+'</div><div class="photos-edit-controls"><button data-rotate>↻ Xoay 90°</button><label>Phóng/cắt <input data-crop type="range" min="1" max="1.6" step=".05" value="'+draft.scale+'"></label></div><div class="photos-edit-footer"><button data-revert>Khôi phục</button><button data-save>Lưu</button></div>');
  const img=el.querySelector('.photos-edit-preview img');
  function update(){img.style.filter=filters[draft.filter]||'none';img.style.transform='rotate('+draft.rotate+'deg) scale('+draft.scale+')';el.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('selected',x.dataset.filter===draft.filter));}
@@ -100,8 +100,21 @@ function openEditor(){
  update();
 }
 async function getBlob(p){
- const res=await fetch(p.src,{cache:'force-cache'});if(!res.ok)throw Error('image');
- return res.blob();
+ const res=await fetch(p.src,{cache:'force-cache'});if(!res.ok)throw Error('Không tải được ảnh.');
+ const blob=await res.blob(),edit=editFor(p.id);
+ if((!edit.rotate&&!edit.scale||edit.scale===1)&&(!edit.filter||edit.filter==='original'))return blob;
+ const url=URL.createObjectURL(blob),img=new Image();img.src=url;
+ try{
+  await img.decode();
+  const radians=((edit.rotate||0)%360)*Math.PI/180,rotated=Math.abs(Math.round(Math.sin(radians)))===1;
+  const width=rotated?img.naturalHeight:img.naturalWidth,height=rotated?img.naturalWidth:img.naturalHeight;
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const context=canvas.getContext('2d');context.filter=filters[edit.filter]||'none';
+  context.translate(width/2,height/2);context.rotate(radians);
+  const z=Math.max(1,edit.scale||1),iw=img.naturalWidth,ih=img.naturalHeight;
+  context.drawImage(img,(iw-iw/z)/2,(ih-ih/z)/2,iw/z,ih/z,-iw/2,-ih/2,iw,ih);
+  return await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Không xuất được ảnh.')),'image/jpeg',.88));
+ }finally{URL.revokeObjectURL(url);}
 }
 function openShare(items){
  if(!items.length){notice('Chưa chọn ảnh.');return;}
@@ -167,7 +180,7 @@ function addSelectedToAlbum(){
  el.querySelector('[data-new-album]').addEventListener('click',createNewAlbum);
  el.querySelectorAll('[data-choose-album]').forEach(btn=>btn.addEventListener('click',()=>{
   const a=memory.albums[btn.dataset.chooseAlbum];if(!a)return;
-  a.ids=[...new Set([...(a.ids||[]),...chosen])];persist();closeModal();selectMode(false);syncAlbumRows();notice('Đã thêm ảnh vào album.');
+  a.ids=[...new Set([...(a.ids||[]),...chosen])];persist();closeModal();selectMode(false);b.renderAll();notice('Đã thêm ảnh vào album.');
  }));
 }
 function manageAlbums(){
