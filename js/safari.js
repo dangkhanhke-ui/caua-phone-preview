@@ -369,6 +369,9 @@ const SAFARI_HISTORY = [
   function performAddressSearch(raw) {
     const q = raw.trim(); if(!q) return;
     const n = normalize(q);
+    if(n.includes('santateresahoje.com.br')||n.includes('estudiovertice.com.br'))return navigate('article-vertice');
+    if(n.includes('imoveiscariocas.com.br/imovel/rua-do-lavradio'))return navigate('property-lapa');
+    if(n.includes('imoveiscariocas.com.br/imovel/santa-teresa'))return navigate('property-santa');
     if(n.includes('imoveiscariocas.com.br/imovel/lapa') || (n.includes('lapa') && n.includes('imove'))) return navigate('property-lapa');
     if(n.includes('imoveiscariocas.com.br/imovel/santa') || (n.includes('santa teresa') && n.includes('imove'))) return navigate('property-santa');
     if(n==='subsolo' || n.includes('subsolo.com.br')) return navigate('subsolo-home');
@@ -402,7 +405,10 @@ const SAFARI_HISTORY = [
     const meta = pageMeta(entry.pageId, entry.extra);
     tab.title = meta.title;
     page.innerHTML = renderPage(entry);
+    page.classList.toggle('safari-reader-mode',!!entry.extra?.reader);
+    page.classList.toggle('safari-desktop-mode',!!entry.extra?.desktop);
     bindPage();
+    if(typeof updateSafariReaderButton==='function')updateSafariReaderButton();
     backBtn.disabled = tab.historyIndex === 0;
     forwardBtn.disabled = tab.historyIndex >= tab.historyStack.length - 1;
     tabCount.textContent = state.tabs.length;
@@ -428,20 +434,32 @@ const SAFARI_HISTORY = [
   overlay.addEventListener('click', e => { if(e.target === overlay) hideOverlay(); });
 
   function showShareSheet() {
-    const entry = currentEntry();
-    showOverlay('<div class="safari-sheet"><div class="safari-sheet-title">'+esc(entry.title)+
-      '</div>'+['Tin nhắn','Mail','WhatsApp','Facebook','Thêm dấu trang','Thêm vào Danh sách đọc','Sao chép','Thêm vào Màn hình chính']
-      .map(x=>'<div class="safari-sheet-row" data-saf-action="'+esc(x)+'">'+esc(x)+'</div>').join('')+
-      '<div class="safari-sheet-row cancel" data-saf-close>Hủy</div></div>');
-    overlay.querySelectorAll('[data-saf-action]').forEach(row=>row.addEventListener('click',()=>{
-      const act=row.dataset.safAction,title=entry.title,url=entry.url||entry.extra?.url||'';
-      hideOverlay();
-      const map={'Tin nhắn':'messages','Mail':'mail','WhatsApp':'whatsapp','Facebook':'facebook'};
-      if(map[act]){window.CauaCrossApp?.shareLink(map[act],title,url);return}
-      if(act==='Thêm dấu trang'){saveCurrentPage('bookmarks');return}
-      if(act==='Thêm vào Danh sách đọc'){saveCurrentPage('reading');return}
-      if(act==='Sao chép'){window.CauaCrossApp?.copy(url);return}
-      if(act==='Thêm vào Màn hình chính'){alertBox.querySelector('.msg').textContent='Không có kết nối.';alertBox.classList.add('show')}
+    const e=currentEntry();if(!e)return;
+    const url=e.url||e.extra?.url||'';
+    if(!url){toastSafari('Mở một trang web trước khi chia sẻ.');return;}
+    const socials=[['Tin nhắn','✉'],['Mail','✉'],['WhatsApp','◉'],['Facebook','f']];
+    const actions=[['Thêm vào Danh sách đọc','◎'],['Thêm dấu trang','▣'],
+      ['Thêm vào Mục ưa thích','★'],['Sao chép','▤'],
+      ['Thêm vào Màn hình chính','⊞'],['Yêu cầu trang web cho máy tính','▱']];
+    showOverlay('<div class="safari-ios8-share" role="dialog" aria-label="Chia sẻ">'+
+      '<div class="safari-ios8-share-preview"><strong>'+esc(e.title)+'</strong>'+
+      '<span>'+esc(url)+'</span></div>'+
+      '<div class="safari-ios8-share-social">'+socials.map(x=>'<button type="button" data-saf-action="'+esc(x[0])+'"><i>'+esc(x[1])+'</i>'+esc(x[0])+'</button>').join('')+'</div>'+
+      '<div class="safari-ios8-share-actions">'+actions.map(x=>'<button type="button" data-saf-action="'+esc(x[0])+'"><i>'+esc(x[1])+'</i>'+esc(x[0])+'</button>').join('')+'</div>'+
+      '<button type="button" class="safari-ios8-share-cancel" data-saf-close>Hủy</button></div>');
+    overlay.querySelectorAll('[data-saf-action]').forEach(btn=>btn.addEventListener('click',()=>{
+      const act=btn.dataset.safAction,title=e.title;hideOverlay();
+      const routes={'Tin nhắn':'messages','Mail':'mail','WhatsApp':'whatsapp','Facebook':'facebook'};
+      if(routes[act]){
+        const ok=window.CauaCrossApp?.shareLink(routes[act],title,url);
+        if(!ok)toastSafari('Không thể mở ứng dụng chia sẻ.');return;
+      }
+      if(act==='Thêm dấu trang'){saveCurrentPage('bookmarks');toastSafari('Đã thêm dấu trang.');}
+      if(act==='Thêm vào Mục ưa thích'){saveCurrentPage('favorite');toastSafari('Đã thêm vào Mục ưa thích.');}
+      if(act==='Thêm vào Danh sách đọc'){saveCurrentPage('reading');toastSafari('Đã thêm vào Danh sách đọc.');}
+      if(act==='Sao chép'){window.CauaCrossApp?.copy('https://'+url.replace(/^https?:\/\//,''));toastSafari('Đã sao chép liên kết.');}
+      if(act==='Thêm vào Màn hình chính')promptHomeClip(e);
+      if(act==='Yêu cầu trang web cho máy tính')toggleDesktop();
     }));
     overlay.querySelector('[data-saf-close]')?.addEventListener('click',hideOverlay);
   }
@@ -985,11 +1003,20 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     if(currentEntry().pageId==='new-tab') {
       page.querySelectorAll('[data-start-action]').forEach(btn=>btn.addEventListener('click',()=>{
         const msg = alertBox.querySelector('.msg');
-        if(msg) msg.textContent = btn.dataset.startAction==='desktop' ? 'Trang này đã được yêu cầu ở chế độ máy tính.' : 'Đã thêm trang hiện tại vào Mục ưa thích.';
-        alertBox.classList.add('show');
+        if(btn.dataset.startAction==='desktop')toastSafari('Mở trang web trước khi yêu cầu bản máy tính.');
+        else toastSafari('Mở trang web trước khi thêm vào Mục ưa thích.');
       }));
-      page.querySelectorAll('[data-newfav]').forEach(el=>el.addEventListener('click',()=>{ const i=+el.dataset.newfav; if(i===0)return navigate('new-tab'); if(i===1)return navigate('stub-page',stubData('stub-facebook','Facebook','facebook.com')); if(i===2)return navigate('subsolo-home'); navigate('stub-page',stubData('stub-agenda-rio','Agenda Rio','agendarioindependente.com.br')); }));
-      page.querySelectorAll('[data-often]').forEach(el=>el.addEventListener('click',()=>{ const map=['stub-imoveis','stub-santa-hoje','stub-guanabara','stub-rede','stub-ingresso','stub-rio-agora']; const id=map[+el.dataset.often]; navigate('stub-page', stubData(id)); }));
+      page.querySelectorAll('[data-newfav]').forEach(el=>el.addEventListener('click',()=>{
+        const choices=[['new-tab',{}],['stub-page',{title:'Wikipedia',url:'wikipedia.org',domain:'wikipedia.org'}],
+          ['article-vinculo-investigation',{}],['subsolo-home',{}],['article-vertice',{}],['property-lapa',{}]];
+        const c=choices[Number(el.dataset.newfav)];if(c)navigate(c[0],c[1]);
+      }));
+      page.querySelectorAll('[data-often]').forEach(el=>el.addEventListener('click',()=>{
+        const choices=[['article-vinculo-investigation',{}],['subsolo-home',{}],['article-vertice',{}],
+          ['property-lapa',{}],['stub-page',stubData('stub-guanabara')],
+          ['stub-page',stubData('stub-agenda-rio')]];
+        const c=choices[Number(el.dataset.often)];if(c)navigate(c[0],c[1]);
+      }));
       setTimeout(()=>address.focus(),50);
     }
   }
@@ -1010,4 +1037,252 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     };
     return map[id] || {title:title||'Website', url:url||'', domain:url||'', body:'Phiên bản rút gọn của website được lưu cục bộ.'};
   }
+
+  // Safari Smart Search, Reader, Find on Page and web clips: all inside the phone.
+  const suggestionPanel=document.createElement('div');
+  suggestionPanel.id='safariSmartSuggestions';
+  suggestionPanel.setAttribute('aria-label','Gợi ý tìm kiếm');
+  app.appendChild(suggestionPanel);
+  const findPanel=document.createElement('div');
+  findPanel.id='safariFindPanel';app.appendChild(findPanel);
+  const readerButton=document.createElement('button');
+  readerButton.id='safariReaderButton';readerButton.type='button';
+  readerButton.setAttribute('aria-label','Chế độ trình đọc');
+  readerButton.textContent='☰';
+  document.getElementById('safariAddressWrap')?.prepend(readerButton);
+  let findHits=[],findIndex=0, ignoreNextLinkClick=false;
+  function toastSafari(msg) {
+    const el=alertBox.querySelector('.msg');if(el)el.textContent=msg;
+    alertBox.classList.add('show');
+  }
+  function updateSafariReaderButton(){
+    const id=currentEntry()?.pageId||'';
+    readerButton.hidden=!/^(article-|radar-rio-poll|caderno-braga)/.test(id);
+    readerButton.classList.toggle('enabled',!!currentEntry()?.extra?.reader);
+  }
+  readerButton.addEventListener('click',()=>{
+    const entry=currentEntry();if(!entry)return;
+    saveScroll();entry.extra.reader=!entry.extra.reader;
+    renderCurrent(true);
+  });
+  function toggleDesktop(){
+    const entry=currentEntry();if(!entry || /^(new-tab|bookmarks|reading-list|history-view|shared-links)$/.test(entry.pageId)){
+      toastSafari('Mở một trang web trước khi yêu cầu bản máy tính.');return;
+    }
+    saveScroll();entry.extra.desktop=!entry.extra.desktop;
+    renderCurrent(true);
+    toastSafari(entry.extra.desktop?'Đang xem bố cục máy tính (bản mô phỏng).':'Đã trở về bố cục di động.');
+  }
+  function showSuggestions(){
+    if(!app.classList.contains('open')||!safariTopbar.classList.contains('editing'))return;
+    const q=address.value.trim(), needle=normalize(q);
+    let items=[];
+    const use=(label,sub,act,target,extra={})=>items.push({label,sub,act,target,extra});
+    if(!q){
+      const favorites=BOOKMARKS[0].items;
+      favorites.concat(userSaved.bookmarks.filter(x=>x.favorite)).slice(0,8).forEach(x=>
+        use(x.title,x.url||'','url',x.url));
+    }else{
+      use('Tìm kiếm trên Google: '+q,'Google','search',q);
+      const current=page.textContent||'';
+      const count=needle.length>1?normalize(current).split(needle).length-1:0;
+      if(count>0)use('Trên trang này: '+q,count+' kết quả','find',q);
+      const combined=[...BOOKMARKS.flatMap(g=>g.items||[]),...userSaved.bookmarks,
+        ...historyGroups().flatMap(g=>g.items.slice(0,35))];
+      const already=new Set();
+      combined.filter(x=>normalize(x.title+' '+(x.url||x.domain||'')).includes(needle))
+        .forEach(x=>{
+          const url=x.url||(x.domain||'');if(already.has(url))return;already.add(url);
+          if(items.length<9)use(x.title,url,'url',url);
+        });
+    }
+    const shortcuts='<div class="safari-suggestion-tools">'+
+      '<button type="button" data-saf-shortcut="favorite">★ Thêm vào Mục ưa thích</button>'+
+      '<button type="button" data-saf-shortcut="desktop">▱ Yêu cầu trang web cho máy tính</button></div>';
+    suggestionPanel.innerHTML=shortcuts+items.map((x,i)=>'<button type="button" class="safari-smart-row" data-smart-index="'+i+'">'+
+      '<span>'+esc(x.label)+'</span><small>'+esc(x.sub||'')+'</small></button>').join('');
+    suggestionPanel.classList.add('show');app.classList.add('safari-searching');
+    suggestionPanel.querySelectorAll('[data-smart-index]').forEach(btn=>btn.addEventListener('pointerdown',e=>e.preventDefault()));
+    suggestionPanel.querySelectorAll('[data-smart-index]').forEach(btn=>btn.addEventListener('click',()=>{
+      const x=items[Number(btn.dataset.smartIndex)];if(!x)return;
+      hideSuggestions();setSafariAddressEditing(false);address.blur();
+      if(x.act==='find')return startFind(x.target);
+      performAddressSearch(x.target);
+    }));
+    suggestionPanel.querySelectorAll('[data-saf-shortcut]').forEach(btn=>btn.addEventListener('pointerdown',e=>e.preventDefault()));
+    suggestionPanel.querySelectorAll('[data-saf-shortcut]').forEach(btn=>btn.addEventListener('click',()=>{
+      hideSuggestions();setSafariAddressEditing(false);address.blur();
+      if(btn.dataset.safShortcut==='desktop')toggleDesktop();
+      else if(currentEntry()?.url){saveCurrentPage('favorite');toastSafari('Đã thêm vào Mục ưa thích.');}
+      else toastSafari('Mở trang web trước khi thêm vào Mục ưa thích.');
+    }));
+  }
+  function hideSuggestions(){
+    suggestionPanel.classList.remove('show');app.classList.remove('safari-searching');
+  }
+  address.addEventListener('focus',()=>setTimeout(showSuggestions,15));
+  address.addEventListener('input',showSuggestions);
+  address.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){e.preventDefault();hideSuggestions();setSafariAddressEditing(false);address.blur();}
+    if(e.key==='Enter'){hideSuggestions();setSafariAddressEditing(false);}
+  });
+  safariCancel?.addEventListener('click',hideSuggestions);
+  address.addEventListener('blur',()=>setTimeout(()=>{
+    if(document.activeElement!==address)hideSuggestions();
+  },180));
+  function decorateMatches(q) {
+    findHits=[];findIndex=0;
+    if(!q || q.length>100)return;
+    const lower=q.toLocaleLowerCase();
+    const walker=document.createTreeWalker(page,NodeFilter.SHOW_TEXT,{
+      acceptNode(node){
+        if(!node.nodeValue||!node.nodeValue.trim()||!node.parentElement ||
+          node.parentElement.closest('button, input, textarea, script, style, mark, .safari-header'))return NodeFilter.FILTER_REJECT;
+        return node.nodeValue.toLocaleLowerCase().includes(lower)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+      }
+    });
+    const targets=[];while(walker.nextNode()&&targets.length<160)targets.push(walker.currentNode);
+    for(const textNode of targets){
+      const raw=textNode.nodeValue;let cursor=0,index=raw.toLocaleLowerCase().indexOf(lower),count=0;
+      const fragment=document.createDocumentFragment();
+      while(index!==-1&&count++<30){
+        if(index>cursor)fragment.appendChild(document.createTextNode(raw.slice(cursor,index)));
+        const mark=document.createElement('mark');mark.className='safari-find-hit';
+        mark.textContent=raw.slice(index,index+q.length);fragment.appendChild(mark);findHits.push(mark);
+        cursor=index+q.length;index=raw.toLocaleLowerCase().indexOf(lower,cursor);
+      }
+      if(cursor<raw.length)fragment.appendChild(document.createTextNode(raw.slice(cursor)));
+      if(cursor>0)textNode.replaceWith(fragment);
+    }
+  }
+  function chooseFind(delta){
+    if(!findHits.length)return;
+    findHits[findIndex]?.classList.remove('active');
+    findIndex=(findIndex+delta+findHits.length)%findHits.length;
+    const item=findHits[findIndex];item.classList.add('active');
+    const rect=item.getBoundingClientRect(),area=page.getBoundingClientRect();
+    if(rect.top<area.top+30||rect.bottom>area.bottom-15){
+      page.scrollTop+=rect.top-area.top-(area.height/3);
+    }
+    findPanel.querySelector('[data-find-count]').textContent=(findIndex+1)+' / '+findHits.length;
+  }
+  function startFind(value) {
+    const q=String(value||'').trim();if(!q)return;
+    saveScroll();renderCurrent(true);
+    decorateMatches(q);
+    findPanel.innerHTML='<div class="safari-find-caption"><strong>Trên trang này</strong>'+
+      '<span data-find-count>'+findHits.length+' kết quả</span></div>'+
+      '<div class="safari-find-controls"><button type="button" data-find-prev aria-label="Trước">‹</button>'+
+      '<button type="button" data-find-next aria-label="Sau">›</button>'+
+      '<button type="button" data-find-done>Xong</button></div>';
+    findPanel.classList.add('show');app.classList.add('safari-finding');
+    if(findHits.length){findIndex=findHits.length-1;chooseFind(1);}
+    findPanel.querySelector('[data-find-prev]')?.addEventListener('click',()=>chooseFind(-1));
+    findPanel.querySelector('[data-find-next]')?.addEventListener('click',()=>chooseFind(1));
+    findPanel.querySelector('[data-find-done]')?.addEventListener('click',closeFind);
+  }
+  function closeFind(){
+    findPanel.classList.remove('show');app.classList.remove('safari-finding');
+    saveScroll();renderCurrent(true);
+    findHits=[];
+  }
+  backBtn.addEventListener('click',()=>{if(findPanel.classList.contains('show'))closeFind()});
+  tabsBtn.addEventListener('click',()=>{hideSuggestions();if(findPanel.classList.contains('show'))closeFind()});
+  const WEBCLIPS_KEY='caua.safari.ios8.webclips.v1';
+  let webclips=[];
+  try{const saved=JSON.parse(localStorage.getItem(WEBCLIPS_KEY)||'[]');
+    if(Array.isArray(saved))webclips=saved.filter(x=>x&&typeof x.url==='string').slice(0,9);
+  }catch(e){}
+  function renderHomeClips(){
+    const grid=document.getElementById('iconGrid');if(!grid)return;
+    grid.querySelectorAll('[data-safari-clip]').forEach(el=>el.remove());
+    webclips.forEach((clip,i)=>{
+      const el=document.createElement('div');
+      el.className='app safari-webclip';el.dataset.safariClip=String(i);el.tabIndex=0;
+      el.setAttribute('role','button');el.setAttribute('aria-label','Mở '+clip.title);
+      el.innerHTML='<div class="icon safari-webclip-icon">'+esc((clip.title||'?').slice(0,1).toUpperCase())+
+        '</div><span>'+esc(clip.title)+'</span>';
+      const open=()=>{openApp();performAddressSearch(clip.url)};
+      el.addEventListener('click',open);
+      el.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();open()}});
+      grid.appendChild(el);
+    });
+  }
+  function promptHomeClip(e){
+    const url=e.url||'';if(!url)return;
+    showOverlay('<div class="safari-clip-dialog" role="dialog" aria-modal="true">'+
+      '<div class="safari-clip-title">Thêm vào Màn hình chính</div>'+
+      '<label>Tên trang web<input id="safariClipName" maxlength="26" value="'+esc(e.title)+'"></label>'+
+      '<div class="safari-clip-url">'+esc(url)+'</div>'+
+      '<div class="safari-clip-actions"><button type="button" data-clip-cancel>Hủy</button>'+
+      '<button type="button" data-clip-save>Thêm</button></div></div>');
+    overlay.querySelector('[data-clip-cancel]')?.addEventListener('click',hideOverlay);
+    overlay.querySelector('[data-clip-save]')?.addEventListener('click',()=>{
+      const title=overlay.querySelector('#safariClipName')?.value.trim()||e.title;
+      if(webclips.some(x=>x.url===url)){hideOverlay();toastSafari('Trang này đã có trên Màn hình chính.');return;}
+      if(webclips.length>=9){hideOverlay();toastSafari('Màn hình chính đã hết vị trí cho web clip.');return;}
+      webclips.push({title:title.slice(0,26),url});try{localStorage.setItem(WEBCLIPS_KEY,JSON.stringify(webclips))}catch(err){}
+      renderHomeClips();hideOverlay();toastSafari('Đã thêm trang vào Màn hình chính.');
+    });
+  }
+  renderHomeClips();
+  // Long-press real page links for the Safari iOS 8 context menu.
+  function linkInfo(node){
+    const target=node.closest('[data-safari-open],[data-search-open]');
+    if(!target)return null;
+    if(target.hasAttribute('data-safari-open')){
+      const pageId=target.dataset.safariOpen,meta=pageMeta(pageId);
+      return {pageId,extra:{},title:meta.title,url:meta.url};
+    }
+    const rowIndex=Number(target.dataset.searchOpen);
+    const label=target.querySelector('.title')?.textContent||'Trang web';
+    const domain=target.querySelector('.domain')?.textContent||'';
+    return {pageId:'stub-page',extra:{title:label,url:domain,domain},title:label,url:domain};
+  }
+  function showLinkMenu(info){
+    if(!info)return;
+    const acts=['Mở','Mở trong tab mới','Thêm vào Danh sách đọc','Sao chép liên kết'];
+    showOverlay('<div class="safari-sheet safari-link-menu"><div class="safari-sheet-title">'+esc(info.url||info.title)+
+      '</div>'+acts.map((x,i)=>'<button type="button" class="safari-sheet-row" data-link-act="'+i+'">'+esc(x)+'</button>').join('')+
+      '<button type="button" class="safari-sheet-row cancel" data-saf-close>Hủy</button></div>');
+    overlay.querySelector('[data-saf-close]')?.addEventListener('click',hideOverlay);
+    overlay.querySelectorAll('[data-link-act]').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=Number(btn.dataset.linkAct);hideOverlay();
+      if(i===0)navigate(info.pageId,info.extra);
+      if(i===1){saveScroll();
+        const id='t'+Date.now();state.tabs.push({id,title:info.title,
+          historyStack:[makeEntry(info.pageId,info.extra)],historyIndex:0});
+        state.currentTabId=id;visitPage(currentEntry());renderCurrent(false);
+      }
+      if(i===2){
+        const arr=userSaved.reading;
+        if(!arr.some(x=>x.url===info.url)){arr.unshift({title:info.title,url:info.url,
+          pageId:info.pageId,extra:info.extra,read:false});saveUserPages();}
+        toastSafari('Đã lưu vào Danh sách đọc.');
+      }
+      if(i===3){window.CauaCrossApp?.copy('https://'+info.url.replace(/^https?:\/\//,''));toastSafari('Đã sao chép liên kết.');}
+    }));
+  }
+  page.addEventListener('contextmenu',e=>{
+    const link=linkInfo(e.target);if(!link)return;
+    e.preventDefault();showLinkMenu(link);
+  });
+  let linkHold=0,linkStart=null;
+  page.addEventListener('touchstart',e=>{
+    const info=linkInfo(e.target);if(!info||e.touches.length!==1)return;
+    const t=e.touches[0];linkStart={x:t.clientX,y:t.clientY};
+    clearTimeout(linkHold);
+    linkHold=setTimeout(()=>{
+      ignoreNextLinkClick=true;showLinkMenu(info);
+      setTimeout(()=>{ignoreNextLinkClick=false},650);
+    },540);
+  },{passive:true});
+  page.addEventListener('touchmove',e=>{
+    const t=e.touches[0];if(linkStart&&t&&Math.hypot(t.clientX-linkStart.x,t.clientY-linkStart.y)>12)clearTimeout(linkHold);
+  },{passive:true});
+  ['touchend','touchcancel'].forEach(ev=>page.addEventListener(ev,()=>clearTimeout(linkHold),{passive:true}));
+  page.addEventListener('click',e=>{
+    if(ignoreNextLinkClick && linkInfo(e.target)){e.stopImmediatePropagation();e.preventDefault();ignoreNextLinkClick=false;}
+  },true);
+
 })();
