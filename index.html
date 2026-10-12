@@ -2714,7 +2714,7 @@
   sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.classList.remove('open')});
   function showAlert(msg){alertText.textContent=msg;alertBox.classList.add('open')}
   document.getElementById('photosAlertOk').addEventListener('click',()=>alertBox.classList.remove('open'));
-  window.CauaPhotosBridge={app,photos:PHOTOS,originals:PHOTOS.slice(),state,viewer,image:viewerImg,stage,renderAll,renderViewer,showView,openAlbum,closeViewer:()=>document.getElementById('photosViewerBack').click()};
+  window.CauaPhotosBridge={app,photos:PHOTOS,originals:PHOTOS.slice(),state,viewer,image:viewerImg,stage,renderAll,renderViewer,showView,openAlbum,openPhoto,closeViewer:()=>document.getElementById('photosViewerBack').click()};
 
   renderAll();
 })();
@@ -2805,7 +2805,7 @@
     if(!force&&Number(container._voiceManualUntil||0)>performance.now())return;
     const cRect=container.getBoundingClientRect(),eRect=el.getBoundingClientRect();const relativeTop=container.scrollTop+(eRect.top-cRect.top);const rawTarget=relativeTop-(container.clientHeight-eRect.height)/2;const maxScroll=Math.max(0,container.scrollHeight-container.clientHeight);const target=Math.max(0,Math.min(maxScroll,rawTarget));container.scrollTo({top:target,behavior:force?'auto':'smooth'});
   }
-  window.CauaVoiceBridge={app,memos:MEMOS,detail,renderList,openMemo,closeDetail,currentId:()=>currentId};
+  window.CauaVoiceBridge={app,memos:MEMOS,detail,renderList,openMemo,closeDetail,teardownAudio,currentId:()=>currentId};
   renderList();
 
 })();
