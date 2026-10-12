@@ -309,6 +309,7 @@ const SAFARI_HISTORY = [
       'radar-rio-poll': ['Khảo sát sớm cho thấy cuộc đua thị trưởng Rio năm 2016 vẫn còn rộng mở','radarrio.com.br/politica/eleicoes-2016-pesquisa-cenario'],
       'caderno-braga': ['Braga lại đối mặt chỉ trích về bồi thường trong dự án tái phát triển','cadernourbano.com.br/cidade/braga-compensacoes-reurbanizacao'],
       'ufrj-intranet': ['Intranet UFRJ','intranet.ufrj.br'],
+      'google-home': ['Google','google.com.br'],
       'search-results-lapa': ['mặt bằng thương mại Lapa cho thuê','google.com.br/search?q=mặt+bằng+thương+mại+Lapa+cho+thuê'],
       'search-results-santa': ['mặt bằng thương mại Santa Teresa cho thuê','google.com.br/search?q=mặt+bằng+thương+mại+Santa+Teresa+cho+thuê'],
       'search-results-henrique': ['Henrique Matheus Ribeiro Lima','google.com.br/search?q=Henrique+Matheus+Ribeiro+Lima'],
@@ -369,6 +370,7 @@ const SAFARI_HISTORY = [
   function performAddressSearch(raw) {
     const q = raw.trim(); if(!q) return;
     const n = normalize(q);
+    if(/^(?:https?:\/\/)?(?:www\.)?google\.com(?:\.br)?\/?(?:\?.*)?$/i.test(q)||n==='google')return navigate('google-home');
     if(n.includes('santateresahoje.com.br')||n.includes('estudiovertice.com.br'))return navigate('article-vertice');
     if(n.includes('imoveiscariocas.com.br/imovel/rua-do-lavradio'))return navigate('property-lapa');
     if(n.includes('imoveiscariocas.com.br/imovel/santa-teresa'))return navigate('property-santa');
@@ -597,6 +599,7 @@ const SAFARI_HISTORY = [
       case 'radar-rio-poll': return renderRadarRio();
       case 'caderno-braga': return renderCadernoUrbano();
       case 'ufrj-intranet': return renderUfrjIntranet();
+      case 'google-home': return renderGoogleHome();
       case 'search-results-lapa': return renderSearchResults('mặt bằng thương mại Lapa cho thuê', [
         R('imoveiscariocas.com.br','Mặt bằng thương mại - Lapa','220 m² · R$7.200/tháng','property-lapa'),
         R('rioimovel.com.br','Loja comercial - Rua do Lavradio','120 m² · R$6.200/tháng','stub-page',{title:'Loja comercial - Rua do Lavradio', url:'rioimovel.com.br/lavradio-120m2', domain:'rioimovel.com.br', body:'Thông tin tóm tắt về một mặt bằng thương mại khác tại khu Rua do Lavradio.'}),
@@ -816,6 +819,15 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
   }
 
 
+  function renderGoogleHome() {
+    return '<div class="safari-google-2015">'+
+      '<div class="safari-google-2015-logo" aria-label="Google"><b>G</b><b>o</b><b>o</b><b>g</b><b>l</b><b>e</b></div>'+
+      '<form id="safariGoogleSearchForm" role="search">'+
+      '<input id="safariGoogleSearchInput" aria-label="Tìm kiếm trên Google" type="search" placeholder="Tìm kiếm trên Google" autocomplete="off">'+
+      '<button type="submit">Tìm kiếm</button></form>'+
+      '<div class="safari-google-2015-footer">Google.com.br · Brasil</div></div>';
+  }
+
   function renderSearchResults(query, results) {
     return `<div class="safari-website"><div class="safari-google-head"><div class="g">Google</div><div class="q">${esc(query)}</div></div><div class="safari-search-results">${results.map((r,i)=>`<div class="safari-result" data-search-open="${i}"><div class="domain">${esc(r.domain)}</div><div class="title">${esc(r.title)}</div><div class="snippet">${esc(r.snippet)}</div></div>`).join('')}</div></div>`;
   }
@@ -916,6 +928,14 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
 
   function bindPage() {
     page.querySelectorAll('[data-safari-open]').forEach(el=>el.addEventListener('click', () => navigate(el.dataset.safariOpen)));
+    if(currentEntry().pageId==='google-home') {
+      const form=page.querySelector('#safariGoogleSearchForm');
+      form?.addEventListener('submit',event=>{
+        event.preventDefault();
+        const value=form.querySelector('input')?.value.trim();
+        if(value)performAddressSearch(value);
+      });
+    }
     if(currentEntry().pageId.startsWith('search-results-') || currentEntry().pageId==='search-generic') {
       const query = currentEntry().pageId==='search-results-lapa' ? 'mặt bằng thương mại Lapa cho thuê' : currentEntry().pageId==='search-results-santa' ? 'mặt bằng thương mại Santa Teresa cho thuê' : currentEntry().pageId==='search-results-henrique' ? 'Henrique Matheus Ribeiro Lima' : currentEntry().pageId==='search-results-vertice-fire' ? 'vụ cháy studio Santa Teresa tháng 5' : currentEntry().extra.query;
       const results = currentEntry().pageId==='search-results-lapa' ? [
@@ -942,7 +962,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
       page.querySelector('[data-book-history]')?.addEventListener('click',()=>navigate('history-view'));
       page.querySelectorAll('[data-book-open]').forEach(row=>row.addEventListener('click',()=>{
         const target=row.dataset.bookOpen;
-        if(target==='fav-google') return navigate('new-tab');
+        if(target==='fav-google') return navigate('google-home');
         if(target.startsWith('stub-')) return navigate('stub-page', stubData(target, row.dataset.bookTitle, row.dataset.bookUrl));
         navigate(target);
       }));
@@ -1007,7 +1027,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
         else toastSafari('Mở trang web trước khi thêm vào Mục ưa thích.');
       }));
       page.querySelectorAll('[data-newfav]').forEach(el=>el.addEventListener('click',()=>{
-        const choices=[['new-tab',{}],['stub-page',{title:'Wikipedia',url:'wikipedia.org',domain:'wikipedia.org'}],
+        const choices=[['google-home',{}],['stub-page',{title:'Wikipedia',url:'wikipedia.org',domain:'wikipedia.org'}],
           ['article-vinculo-investigation',{}],['subsolo-home',{}],['article-vertice',{}],['property-lapa',{}]];
         const c=choices[Number(el.dataset.newfav)];if(c)navigate(c[0],c[1]);
       }));
