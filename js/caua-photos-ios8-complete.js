@@ -102,7 +102,7 @@ function openEditor(){
 async function getBlob(p){
  const res=await fetch(p.src,{cache:'force-cache'});if(!res.ok)throw Error('Không tải được ảnh.');
  const blob=await res.blob(),edit=editFor(p.id);
- if((!edit.rotate&&!edit.scale||edit.scale===1)&&(!edit.filter||edit.filter==='original'))return blob;
+ if(((edit.rotate||0)%360===0)&&(edit.scale||1)===1&&(!edit.filter||edit.filter==='original'))return blob;
  const url=URL.createObjectURL(blob),img=new Image();img.src=url;
  try{
   await img.decode();
