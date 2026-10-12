@@ -1,0 +1,62 @@
+/* Local Photos + Voice Memos controls in the iOS 8 visual vocabulary. */
+#photosApp .photos-native-modal,#voiceApp .voice-native-dialog{
+ position:absolute;inset:20px 0 0;z-index:24000;background:#f7f7f9;color:#222;display:flex;flex-direction:column;
+ font:14px/1.4 "Helvetica Neue",Arial,sans-serif;overflow:hidden
+}
+#photosApp .photos-modal-head,#voiceApp .voice-dialog-head{
+ flex:0 0 44px;background:#f8f8f8;border-bottom:1px solid #c9c9ce;
+ display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#19191a
+}
+#photosApp .photos-modal-head strong,#voiceApp .voice-dialog-head strong{font-size:16px;font-weight:600}
+#photosApp .photos-modal-head button,#voiceApp .voice-dialog-head button{border:0;background:none;color:#007aff;font-size:15px;padding:10px 0;min-width:48px;text-align:left}
+#photosApp .photos-modal-head span,#voiceApp .voice-dialog-head span{width:48px}
+#photosApp .photos-modal-body,#voiceApp .voice-dialog-body{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:12px}
+#photosApp .photos-modal-confirm{text-align:center;padding:40px 10px}
+#photosApp .photos-modal-confirm p{font-size:16px;margin:0 0 20px}
+#photosApp .photos-modal-confirm button,#voiceApp .voice-dialog-body>button{display:block;width:100%;min-height:43px;margin:8px 0;border:1px solid #dedee2;border-radius:7px;background:#fff;color:#007aff;font-size:15px}
+#photosApp .photos-modal-confirm .photos-modal-danger,#voiceApp .voice-dialog-body .voice-dialog-danger{color:#ff3b30}
+#photosApp .photos-edit-preview{height:215px;background:#141414;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px}
+#photosApp .photos-edit-preview img{max-width:100%;max-height:100%;object-fit:contain;transition:transform 150ms ease-out}
+#photosApp .photos-edit-filters{display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:10px}
+#photosApp .photos-edit-filters button{font-size:11px;white-space:nowrap;flex:0 0 auto;border:1px solid #d6d6da;border-radius:5px;background:white;color:#444;padding:8px}
+#photosApp .photos-edit-filters button.selected{color:#007aff;border-color:#007aff}
+#photosApp .photos-edit-controls{display:flex;align-items:center;gap:12px;padding:6px 0;flex-wrap:wrap}
+#photosApp .photos-edit-controls button{background:white;border:1px solid #ccc;border-radius:5px;padding:8px}
+#photosApp .photos-edit-controls label{display:flex;align-items:center;gap:7px;font-size:12px}
+#photosApp .photos-edit-controls input{width:104px;accent-color:#007aff}
+#photosApp .photos-edit-footer{display:flex;gap:10px;margin-top:18px}
+#photosApp .photos-edit-footer button{width:50%;min-height:42px;background:#fff;border:1px solid #ccc;border-radius:6px;color:#007aff}
+#photosApp .photos-edit-footer button[data-save]{background:#007aff;color:#fff;border-color:#007aff}
+#photosApp .photos-deleted-item{display:flex;gap:12px;background:#fff;border-bottom:1px solid #e0e0e0;padding:10px 6px;align-items:center}
+#photosApp .photos-deleted-item img{height:72px;width:72px;object-fit:cover;border-radius:3px}
+#photosApp .photos-deleted-item strong{display:block;font-size:12px;overflow-wrap:anywhere}
+#photosApp .photos-deleted-item small{display:block;color:#777;font-size:10px;margin-top:3px}
+#photosApp .photos-deleted-item button{border:0;background:transparent;padding:6px 7px 0 0;color:#007aff;font-size:12px}
+#photosApp .photos-modal-empty{text-align:center;color:#8e8e93;margin-top:45px}
+#photosApp .photos-share-actions button,#voiceApp .voice-dialog-actions button{width:100%;height:48px;border:0;background:#fff;border-bottom:1px solid #e0e0e0;color:#007aff;font-size:15px;text-align:left;padding:0 14px}
+#photosApp .photos-select-actions{position:absolute;z-index:150;bottom:0;left:0;right:0;height:49px;background:#f8f8f8;border-top:1px solid #d0d0d0;display:flex;align-items:center;justify-content:space-around;font-size:12px}
+#photosApp .photos-select-actions button{background:none;border:0;color:#007aff;padding:12px 8px;font-size:13px}
+#photosApp .photos-select-actions button:disabled{color:#b1b1b7}
+#photosApp.photos-selecting [data-photo-id].photos-is-selected{outline:3px solid #007aff;outline-offset:-3px;position:relative}
+#photosApp.photos-selecting [data-photo-id].photos-is-selected::after{content:"✓";position:absolute;right:3px;bottom:3px;width:19px;height:19px;border-radius:50%;background:#007aff;color:#fff;font-size:14px;line-height:19px;text-align:center}
+#photosApp.photos-selecting [data-photo-id]{touch-action:manipulation}
+#photosApp .photos-local-notice,#voiceApp .voice-native-tip{position:absolute;z-index:26000;top:74px;left:12px;right:12px;background:rgba(28,28,30,.94);border-radius:9px;color:#fff;font-size:12px;text-align:center;line-height:18px;padding:10px;pointer-events:none;opacity:0;transition:opacity 150ms}
+#photosApp .photos-local-notice.show,#voiceApp .voice-native-tip.show{opacity:1}
+#voiceApp .voice-record-overlay{position:absolute;z-index:24000;inset:20px 0 0;background:#f7f7f8;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:44px 14px 25px;text-align:center}
+#voiceApp .voice-record-label{font-size:15px;color:#ff3b30;font-weight:600;margin-bottom:14px}
+#voiceApp .voice-record-clock{font-size:39px;font-weight:200;color:#333;font-variant-numeric:tabular-nums}
+#voiceApp .voice-live-bars{margin-top:25px;width:100%;height:70px;display:flex;align-items:center;justify-content:center;gap:3px}
+#voiceApp .voice-live-bars i{width:3px;border-radius:2px;background:#ff3b30;min-height:5px;transition:height 90ms}
+#voiceApp .voice-record-overlay.paused .voice-live-bars i{background:#b4b4ba;height:6px!important}
+#voiceApp .voice-record-buttons{display:flex;gap:7px;justify-content:center;width:100%;margin-top:36px}
+#voiceApp .voice-record-buttons button{background:#fff;border:1px solid #d6d6dc;border-radius:7px;min-width:0;flex:1;min-height:46px;color:#007aff;font-size:13px}
+#voiceApp .voice-record-buttons [data-voice-done]{background:#ff3b30;color:white;border-color:#ff3b30;font-weight:600}
+#voiceApp .voice-record-overlay p{color:#999;font-size:11px;line-height:15px;margin-top:26px}
+#voiceApp .voice-native-actions{padding:10px 12px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;background:#fff}
+#voiceApp .voice-native-actions button{border:1px solid #d6d6db;background:#f8f8fa;color:#007aff;border-radius:7px;font-size:12px;min-height:38px}
+#voiceApp .voice-native-actions button[data-voice-delete-action]{color:#ff3b30}
+#voiceApp .voice-dialog-field{font-size:13px;display:flex;flex-direction:column;gap:9px}
+#voiceApp .voice-dialog-field input{font:16px "Helvetica Neue",Arial,sans-serif;padding:10px 12px;border:1px solid #ddd;background:#fff;border-radius:5px;color:#222}
+#voiceApp .voice-dialog-body .voice-dialog-primary{background:#007aff;color:white;border-color:#007aff;margin-top:15px}
+#voiceApp .voice-dialog-body p{font-size:15px;text-align:center;margin:45px 10px 25px}
+#voiceApp .voice-detail-transcript:not(:has(.voice-turn)){color:#999;font-size:12px;padding:15px}
