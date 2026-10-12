@@ -155,6 +155,91 @@ const SAFARI_HISTORY = [
 
 
   const state = { initialized:false, currentTabId:null, tabs:[] };
+  // A real iOS 8 Safari keeps ordinary tabs separate from private tabs.
+  // Only ordinary browsing is written to persistent storage.
+  const TABS_KEY='caua.safari.ios8.tabs.v2';
+  const HISTORY_KEY='caua.safari.ios8.visits.v2';
+  let privateMode=false, privateTabs=[], privateCurrentId=null, normalTabs=[], normalCurrentId=null;
+  let historyState={cleared:false,visits:[]}, sessionTimer=0;
+  try {
+    const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'null');
+    if(h && Array.isArray(h.visits))historyState={
+      cleared:!!h.cleared, visits:h.visits.filter(v=>v&&typeof v.title==='string').slice(0,160)
+    };
+  }catch(e){}
+  function storeHistory(){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(historyState))}catch(e){}}
+  function safeTab(t) {
+    if(!t || !Array.isArray(t.historyStack) || !t.historyStack.length)return null;
+    const stack=t.historyStack.slice(-65).filter(e=>e && typeof e.pageId==='string' &&
+      /^[a-z0-9-]{1,55}$/.test(e.pageId)).map(e=>({
+        pageId:e.pageId,title:String(e.title||'').slice(0,180),
+        url:String(e.url||'').slice(0,500),
+        scroll:Math.max(0,Number(e.scroll)||0),
+        extra:(e.extra&&typeof e.extra==='object'&&!Array.isArray(e.extra))?e.extra:{}
+      }));
+    if(!stack.length)return null;
+    return {id:String(t.id||'t'+Math.random()).slice(0,40),title:String(t.title||'').slice(0,180),
+      historyStack:stack,historyIndex:Math.min(stack.length-1,Math.max(0,Number(t.historyIndex)||0))};
+  }
+  function saveSession() {
+    if(!state.initialized)return;
+    const tabs=privateMode?normalTabs:state.tabs, selected=privateMode?normalCurrentId:state.currentTabId;
+    if(!tabs.length)return;
+    try{localStorage.setItem(TABS_KEY,JSON.stringify({tabs,currentTabId:selected}))}catch(e){}
+  }
+  function scheduleSession() {
+    if(privateMode || !state.initialized)return;
+    clearTimeout(sessionTimer);sessionTimer=setTimeout(saveSession,180);
+  }
+  function setPrivateMode(on) {
+    if(privateMode===!!on)return;
+    saveScroll();
+    if(on) {
+      normalTabs=state.tabs;normalCurrentId=state.currentTabId;
+      state.tabs=privateTabs.length?privateTabs:[{id:'private-1',title:'Tab mới',
+        historyStack:[makeEntry('new-tab')],historyIndex:0}];
+      state.currentTabId=privateCurrentId||state.tabs[0].id;
+    } else {
+      privateTabs=state.tabs;privateCurrentId=state.currentTabId;
+      state.tabs=normalTabs;state.currentTabId=normalCurrentId;
+      normalTabs=[];normalCurrentId=null;
+    }
+    privateMode=!!on;
+    app.classList.toggle('safari-private-mode',privateMode);
+    screen?.classList.toggle('safari-private-mode',privateMode);
+    hideOverlay();
+    renderCurrent(true);
+    if(!privateMode)saveSession();
+  }
+  function visitPage(entry) {
+    if(privateMode || !entry || /^(new-tab|bookmarks|reading-list|shared-links|history-view)$/.test(entry.pageId))return;
+    const url=String(entry.url||'');
+    if(!url)return;
+    const name=String(entry.title||pageMeta(entry.pageId,entry.extra).title||url);
+    const item={time:'14:20',title:name,domain:url.split('/')[0],type:entry.pageId.startsWith('search-')?'search':'page',
+      query:entry.extra?.query||'',targetPageId:entry.pageId,url,extra:entry.extra||{}};
+    historyState.visits=historyState.visits.filter(v=>v.url!==url);
+    historyState.visits.unshift(item);
+    historyState.visits.length=Math.min(160,historyState.visits.length);
+    storeHistory();
+  }
+  function historyGroups() {
+    const historical=historyState.cleared?[]:SAFARI_HISTORY;
+    return historyState.visits.length?
+      [{day:'29/08/2015',items:historyState.visits},...historical]:historical;
+  }
+  function clearSafariHistory(){
+    historyState={cleared:true,visits:[]};storeHistory();
+    if(currentEntry()?.pageId==='history-view')renderCurrent(true);
+  }
+  function showConfirm(message, acceptLabel, action) {
+    showOverlay('<div class="safari-confirm" role="dialog" aria-modal="true"><div class="safari-confirm-message">'+esc(message)+
+      '</div><button type="button" data-confirm-yes>'+esc(acceptLabel)+'</button>'+
+      '<button type="button" data-confirm-cancel>Hủy</button></div>');
+    overlay.querySelector('[data-confirm-yes]')?.addEventListener('click',()=>{hideOverlay();action()});
+    overlay.querySelector('[data-confirm-cancel]')?.addEventListener('click',hideOverlay);
+  }
+
 
   const SAVED_KEY='caua.safari.phase2.saved.v1';
   let userSaved={bookmarks:[],reading:[]};
@@ -197,11 +282,21 @@ const SAFARI_HISTORY = [
       { id:'t7', title:'Intranet UFRJ', historyStack:[makeEntry('ufrj-intranet')], historyIndex:0 }
     ];
     state.currentTabId = 't7';
+    try{
+      const saved=JSON.parse(localStorage.getItem(TABS_KEY)||'null');
+      if(saved && Array.isArray(saved.tabs)){
+        const tabs=saved.tabs.slice(0,24).map(safeTab).filter(Boolean);
+        if(tabs.length){
+          state.tabs=tabs;
+          state.currentTabId=tabs.some(t=>t.id===saved.currentTabId)?saved.currentTabId:tabs[0].id;
+        }
+      }
+    }catch(e){}
     state.initialized = true;
   }
   function currentTab() { return state.tabs.find(t => t.id === state.currentTabId); }
   function currentEntry() { const tab=currentTab(); return tab.historyStack[tab.historyIndex]; }
-  function saveScroll() { const e=currentEntry(); if(e) e.scroll = page.scrollTop; }
+  function saveScroll() { const e=currentEntry(); if(e){e.scroll=page.scrollTop;scheduleSession();} }
   function pageMeta(pageId, extra={}) {
     const map = {
       'property-lapa': ['Mặt bằng thương mại - Lapa','imoveiscariocas.com.br/imovel/rua-do-lavradio-lapa-1847'],
@@ -231,10 +326,10 @@ const SAFARI_HISTORY = [
     app.classList.add('open'); screen?.classList.add('safari-open');
     renderCurrent(false);
   }
-  function closeApp() { if(!app.classList.contains('open')) return; saveScroll(); hideOverlay(); tabsView.classList.remove('show'); app.classList.remove('tabs-mode'); privatePanel.classList.remove('show'); app.classList.remove('open'); screen?.classList.remove('safari-open'); screen?.classList.remove('safari-tabs-open'); }
+  function closeApp() { if(!app.classList.contains('open')) return; saveScroll(); saveSession(); hideOverlay(); hideSafariTabOverview(); privatePanel.classList.remove('show'); app.classList.remove('open'); screen?.classList.remove('safari-open'); }
   launcher.addEventListener('click', openApp);
   homeButton?.addEventListener('click', closeApp);
-  page.addEventListener('scroll', () => { const e=currentEntry(); if(e) e.scroll = page.scrollTop; }, {passive:true});
+  page.addEventListener('scroll', () => { const e=currentEntry(); if(e){e.scroll=page.scrollTop;scheduleSession();} }, {passive:true});
 
   function navigate(pageId, extra={}, push=true) {
     const tab = currentTab(); if(!tab) return;
@@ -246,6 +341,7 @@ const SAFARI_HISTORY = [
     } else {
       tab.historyStack[tab.historyIndex] = entry;
     }
+    visitPage(entry);
     renderCurrent(false);
   }
   function goBack() { const tab=currentTab(); if(!tab || tab.historyIndex===0) return; saveScroll(); tab.historyIndex--; renderCurrent(true); }
@@ -300,15 +396,21 @@ const SAFARI_HISTORY = [
     backBtn.disabled = tab.historyIndex === 0;
     forwardBtn.disabled = tab.historyIndex >= tab.historyStack.length - 1;
     tabCount.textContent = state.tabs.length;
+    app.classList.toggle('safari-private-mode',privateMode);
+    screen?.classList.toggle('safari-private-mode',privateMode);
+    saveSession();
     requestAnimationFrame(() => { page.scrollTop = restore ? (entry.scroll || 0) : (entry.extra.scroll || 0); });
   }
 
 
   // Open a shared URL in Safari without navigating outside the phone.
   window.addEventListener('caua:safari-open-url',event=>{
-    const url=String(event.detail?.url||'');
+    const url=String(event.detail?.url||'').trim();
     if(!url)return;
-    if(!state.initialized)initTabs();
+    openApp();
+    const id='t'+Date.now()+'-'+Math.floor(Math.random()*999);
+    state.tabs.push({id,title:'Tab mới',historyStack:[makeEntry('new-tab')],historyIndex:0});
+    state.currentTabId=id;
     performAddressSearch(url);
   });
   function showOverlay(inner) { overlay.innerHTML = inner; overlay.classList.add('show'); }
@@ -361,7 +463,7 @@ const SAFARI_HISTORY = [
         <div class="safari-tab-sheet">
           <div class="chrome">
             <button class="close" data-close-tab="${id}" type="button"
-                aria-label="Đóng tab ${esc(host)}" ${state.tabs.length===1?'disabled':''}>×</button>
+                aria-label="Đóng tab ${esc(host)}">×</button>
             <span class="safari-tab-host">${esc(host)}</span>
           </div>
           <div class="thumb">
@@ -372,7 +474,7 @@ const SAFARI_HISTORY = [
       </section>`;
     }).join('')}</div>
     <div class="safari-tabs-bottom">
-      <button id="safariPrivateToggle" type="button">Private</button>
+      <button id="safariPrivateToggle" type="button">${privateMode?"Private ✓":"Private"}</button>
       <button id="safariNewTab" type="button" aria-label="Tab mới">＋</button>
       <button id="safariTabsDone" type="button">Done</button>
     </div>`;
@@ -416,12 +518,13 @@ const SAFARI_HISTORY = [
 
     stack.querySelectorAll('[data-close-tab]').forEach(btn=>btn.addEventListener('click',ev=>{
       ev.stopPropagation();
-      if(state.tabs.length<=1||tabsView.dataset.busy==='1')return;
+      if(tabsView.dataset.busy==='1')return;
       tabsView.dataset.busy='1';
       const sc=stack.scrollTop;
       const id=btn.dataset.closeTab;
       state.tabs=state.tabs.filter(t=>t.id!==id);
-      if(state.currentTabId===id)state.currentTabId=state.tabs[0].id;
+      if(!state.tabs.length)state.tabs=[{id:'t'+Date.now(),title:'Tab mới',historyStack:[makeEntry('new-tab')],historyIndex:0}];
+      if(state.currentTabId===id)state.currentTabId=state.tabs[state.tabs.length-1].id;
       tabsView.dataset.busy='';
       showTabs({scroll:sc,instant:true});
       renderCurrent(true);
@@ -429,13 +532,13 @@ const SAFARI_HISTORY = [
 
     tabsView.querySelector('#safariNewTab').addEventListener('click',()=>{
       if(tabsView.dataset.busy==='1')return;
-      const id='t'+Date.now();
+      const id='t'+Date.now()+'-'+Math.floor(Math.random()*999);
       state.tabs.unshift({id,title:'Tab mới',historyStack:[makeEntry('new-tab')],historyIndex:0});
       state.currentTabId=id;
       hideSafariTabOverview();renderCurrent(false);
     });
     tabsView.querySelector('#safariPrivateToggle').addEventListener('click',()=>{
-      hideSafariTabOverview();privatePanel.classList.add('show');
+      setPrivateMode(!privateMode);showTabs();
     });
     tabsView.querySelector('#safariTabsDone').addEventListener('click',()=>{
       hideSafariTabOverview();
