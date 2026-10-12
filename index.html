@@ -1581,7 +1581,7 @@
   function renderList(restore=true) {
     setView('list');
     const q = normalize(state.search.trim());
-    const filtered = threads.slice().sort((a,b)=>threadStamp(b)-threadStamp(a)).filter(t=>{
+    const filtered = threads.slice().filter(t=>!t.localHidden).sort((a,b)=>threadStamp(b)-threadStamp(a)).filter(t=>{
       if(!q) return true;
       const messageText=t.messages.map(m=>m.body).join(' ');
       return normalize([t.listName,t.displayName,t.number,t.internalIdentity,messageText].join(' ')).includes(q);
@@ -1592,7 +1592,7 @@
         const hit=t.messages.find(m=>normalize(m.body).includes(q));
         if(hit) preview=hit.body.replace(/\n/g,' ');
       }
-      return `<div class="msg-thread-row ${t.unread?'unread':''}" data-thread-id="${t.id}"><div class="msg-unread-dot"></div><div class="msg-thread-main"><div class="msg-thread-name">${esc(t.listName)}</div><div class="msg-thread-preview">${esc(preview)}</div></div><div class="msg-thread-meta">${esc(threadListDate(t))} <span class="msg-thread-chevron">›</span></div></div>`;
+      return `<div class="msg-thread-row ${t.unread?'unread':''}" data-thread-id="${t.id}"><div class="msg-unread-dot"></div><div class="msg-thread-main"><div class="msg-thread-name">${esc(t.listName)}</div><div class="msg-thread-preview">${esc(preview)}</div></div><div class="msg-thread-meta"><span class="msg-thread-date">${esc(threadListDate(t))}</span><span class="msg-thread-chevron" aria-hidden="true">›</span></div></div>`;
     }).join('') : '<div class="msg-search-empty">Không có kết quả</div>';
     threadsEl.querySelectorAll('[data-thread-id]').forEach(row=>row.addEventListener('click',()=>openThread(row.dataset.threadId)));
     requestAnimationFrame(()=>{ if(restore) listBody.scrollTop=state.listScroll; });
@@ -1618,7 +1618,7 @@
         const samePrev=!!prev && prev.direction===m.direction;
         const sameNext=!!next && next.direction===m.direction;
         const groupClass=!samePrev&&!sameNext?'group-single':!samePrev&&sameNext?'group-first':samePrev&&sameNext?'group-middle':'group-last';
-        return `${unreadDivider}<div class="msg-line ${m.direction} ${m.direction==='outgoing'?transportClass:''} ${groupClass}"><div class="msg-bubble">${esc(m.body)}</div></div>${status}`;
+        return `${unreadDivider}<div class="msg-line ${m.direction} ${m.direction==='outgoing'?transportClass:''} ${groupClass} ${m.status==='failed'?'msg-failed':''}" data-message-index="${t.messages.indexOf(m)}"><div class="msg-bubble">${m.attachment?.data?`<img class="msg-inline-photo" src="${esc(m.attachment.data)}" alt="Ảnh đính kèm" loading="lazy" decoding="async">`:''}${esc(m.body)}</div><span class="msg-time-side">${esc(m.time||'')}</span>${m.status==='failed'?'<button class="msg-failed-mark" type="button" aria-label="Tin nhắn chưa gửi">!</button>':''}</div>${status}`;
       }).join('');
       return `<div class="msg-day-label"><strong>${esc(dayLabel(g.date))}</strong></div>${rows}`;
     }).join('');
@@ -1632,7 +1632,7 @@
       else convoScroll.scrollTop=convoScroll.scrollHeight;
     });
   }
-  function openThread(id) { state.listScroll=listBody.scrollTop; const t=threads.find(x=>x.id===id); if(t) renderConversation(t,true); }
+  function openThread(id) { state.listScroll=listBody.scrollTop; const t=threads.find(x=>x.id===id); if(t){t.unread=false;t.messages.forEach(m=>m.unread=false);window.CauaMessagesLocal?.markRead(id);renderConversation(t,true);} }
   document.getElementById('messagesBackBtn').addEventListener('click',()=>{ const t=currentThread(); if(t) state.convoScrollById[t.id]=convoScroll.scrollTop; renderList(true); });
   convoScroll.addEventListener('scroll',()=>{ const t=currentThread(); if(t) state.convoScrollById[t.id]=convoScroll.scrollTop; },{passive:true});
 
@@ -1641,8 +1641,8 @@
     sendBtn.textContent=has?'Gửi':''; sendBtn.classList.toggle('send',has);
   }
   replyInput.addEventListener('input',updateSendButton);
-  sendBtn.addEventListener('click',()=>{ if(replyInput.value.trim()) showAlert('Không thể gửi tin nhắn','Không có kết nối.'); });
-  document.querySelectorAll('.msg-camera').forEach(b=>b.addEventListener('click',()=>showAlert('Không thể gửi ảnh','Không có kết nối.')));
+  sendBtn.addEventListener('click',()=>window.CauaMessagesLocal?.sendCurrent());
+  document.querySelectorAll('.msg-camera').forEach(b=>b.addEventListener('click',()=>window.CauaMessagesLocal?.camera(b)));
 
   function renderDetails() {
     const t=currentThread(); if(!t)return;
@@ -1652,6 +1652,7 @@
       <div class="msg-group"><div class="msg-detail-row"><span>${esc(t.number)}</span></div><div class="msg-detail-row"><span>Không làm phiền</span><span class="msg-switch"></span></div></div>
       ${t.saved?'':`<div class="msg-group"><div class="msg-detail-row disabled">Tạo liên hệ mới</div><div class="msg-detail-row disabled">Thêm vào liên hệ hiện có</div></div>`}
       <div class="msg-section-label">Tệp đính kèm</div><div class="msg-attachments-empty">Không có ảnh hoặc video trong cuộc hội thoại này.</div>`;
+    window.CauaMessagesLocal?.decorateDetails(t);
     detailContent.querySelector('[data-detail-call]').addEventListener('click',()=>startFakeCall(t));
     detailContent.querySelector('[data-detail-info]').addEventListener('click',()=>showAlert(t.saved?'Thông tin liên hệ':'Thông tin số',t.saved?`${t.listName} · ${t.number}`:`${t.number}`));
   }
@@ -1694,14 +1695,14 @@
   recipientInput.addEventListener('input',()=>{renderRecipientResults(recipientInput.value); updateNewSend();});
   newText.addEventListener('input',updateNewSend);
   function updateNewSend(){ const active=recipientInput.value.trim() && (newText.value.trim()||newView.querySelector('.caua-share-preview')); newSend.textContent=active?'Gửi':''; newSend.classList.toggle('send',!!active); newSendTop.style.color=active?'#007aff':'#c7c7cc'; }
-  function blockNewSend(){ if(recipientInput.value.trim()&&(newText.value.trim()||newView.querySelector('.caua-share-preview'))) showAlert('Không thể gửi tin nhắn','Không có kết nối.'); }
+  function blockNewSend(){window.CauaMessagesLocal?.sendNew();}
   newSend.addEventListener('click',blockNewSend); newSendTop.addEventListener('click',blockNewSend);
 
   searchInput.addEventListener('focus',()=>searchBox.classList.add('focused'));
   searchInput.addEventListener('blur',()=>{if(!searchInput.value)searchBox.classList.remove('focused')});
   searchInput.addEventListener('input',()=>{state.search=searchInput.value; state.listScroll=0; renderList(false); searchInput.focus(); searchBox.classList.add('focused');});
   listBody.addEventListener('scroll',()=>{if(state.view==='list')state.listScroll=listBody.scrollTop;},{passive:true});
-  document.getElementById('messagesEditBtn').addEventListener('click',()=>showAlert('Không có kết nối','Không thể chỉnh sửa hội thoại lúc này.'));
+  document.getElementById('messagesEditBtn').addEventListener('click',()=>window.CauaMessagesLocal?.toggleEditing());
 
   function closeOtherAppsFirstLaunch() {
     ['notesApp','phoneApp','calendarApp','safariApp','mailApp','itauApp','itauBizApp'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
@@ -1716,6 +1717,7 @@
     renderList(false);
   }
   launcher.addEventListener('click',resetAndOpen);
+  window.CauaMessagesBridge={app,screen,threads,state,listView,convoView,newView,detailView,threadsEl,listBody,convoScroll,detailContent,composer,replyInput,recipientInput,newText,newSend,searchInput,showAlert,renderList,renderConversation,openThread,renderDetails,openNewMessage,setView,currentThread,updateSendButton,updateNewSend,savedContacts,esc,normalize,sendBtn};
   window.CauaMessagesOpenThread = (id) => {
     const t=threads.find(x=>x.id===id); if(!t)return false;
     closeOtherAppsFirstLaunch();
