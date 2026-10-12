@@ -1639,7 +1639,7 @@
   convoScroll.addEventListener('scroll',()=>{ const t=currentThread(); if(t) state.convoScrollById[t.id]=convoScroll.scrollTop; },{passive:true});
 
   function updateSendButton() {
-    const has=replyInput.value.trim().length>0;
+    const has=replyInput.value.trim().length>0||!!window.CauaMessagesLocal?.hasAttachment();
     sendBtn.textContent=has?'Gửi':''; sendBtn.classList.toggle('send',has);
   }
   replyInput.addEventListener('input',updateSendButton);
@@ -1666,7 +1666,7 @@
   document.getElementById('messagesCallEnd').addEventListener('click',()=>callOverlay.classList.remove('show'));
 
   function openNewMessage() {
-    setView('new'); recipientInput.value=''; newText.value=''; recipientResults.style.display='none'; recipientResults.innerHTML=''; updateNewSend(); window.CauaMessagesLocal?.afterNew();setTimeout(()=>recipientInput.focus(),40);
+    setView('new'); window.CauaMessagesLocal?.clearMedia();recipientInput.value=''; newText.value=''; recipientResults.style.display='none'; recipientResults.innerHTML=''; updateNewSend(); window.CauaMessagesLocal?.afterNew();setTimeout(()=>recipientInput.focus(),40);
   }
   document.getElementById('messagesComposeBtn').addEventListener('click',openNewMessage);
 
@@ -1696,7 +1696,7 @@
   }
   recipientInput.addEventListener('input',()=>{renderRecipientResults(recipientInput.value); updateNewSend();});
   newText.addEventListener('input',updateNewSend);
-  function updateNewSend(){ const active=recipientInput.value.trim() && (newText.value.trim()||newView.querySelector('.caua-share-preview')); newSend.textContent=active?'Gửi':''; newSend.classList.toggle('send',!!active); newSendTop.style.color=active?'#007aff':'#c7c7cc'; }
+  function updateNewSend(){ const active=recipientInput.value.trim() && (newText.value.trim()||newView.querySelector('.caua-share-preview')||window.CauaMessagesLocal?.hasAttachment()); newSend.textContent=active?'Gửi':''; newSend.classList.toggle('send',!!active); newSendTop.style.color=active?'#007aff':'#c7c7cc'; }
   function blockNewSend(){window.CauaMessagesLocal?.sendNew();}
   newSend.addEventListener('click',blockNewSend); newSendTop.addEventListener('click',blockNewSend);
 
