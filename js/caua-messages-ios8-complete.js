@@ -7,6 +7,11 @@ const b=window.CauaMessagesBridge;if(!b)return;
 const {app,threads,state,threadsEl,listBody,convoScroll,detailContent,newView,replyInput,recipientInput,newText,showAlert,renderList,renderConversation,openThread,openNewMessage,setView,currentThread,updateSendButton,updateNewSend,esc,normalize}=b;
 const STORAGE='caua-messages-local-ios8-v2';
 const GAME_DATE='29/08/2015';
+/* Merge the actual simulated Phone address book into the recipient picker. */
+for(const c of window.CauaPhoneContacts||[]){
+ if(!c?.name||!c?.number)continue;
+ if(!b.savedContacts.some(x=>String(x.number).replace(/\D/g,'')===String(c.number).replace(/\D/g,'')))b.savedContacts.push({name:c.name,number:c.number});
+}
 let store={hidden:[],unread:[],read:[],muted:[],deletedMessages:{},outgoing:[]};
 try{const x=JSON.parse(localStorage.getItem(STORAGE)||'null');if(x&&typeof x==='object')store={...store,...x};}catch(_){}
 for(const t of threads){
@@ -110,8 +115,10 @@ function sendNew(){
   if(!threads.includes(t))threads.push(t);
  }
  if(!t){
-  const id='local-to-'+identity(to).slice(0,60);
-  t=threads.find(x=>x.id===id)||{id,listName:to,displayName:to,number:to,saved:false,transport:'SMS',messages:[],preview:'',localCreated:true};
+  const matched=b.savedContacts.find(c=>normalize(c.name)===normalize(to)||identity(c.number)===identity(to));
+  const destination=matched?.number||to,name=matched?.name||to;
+  const id='local-to-'+identity(destination).slice(0,60);
+  t=threads.find(x=>x.id===id)||{id,listName:name,displayName:name,number:destination,saved:!!matched,transport:'SMS',messages:[],preview:'',localCreated:true};
   if(!threads.includes(t))threads.push(t);
  }
  let attachment=mediaDraft;
