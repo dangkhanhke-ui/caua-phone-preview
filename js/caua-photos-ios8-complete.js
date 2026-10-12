@@ -8,6 +8,7 @@ const key='caua-photos-local-v2';
 let memory={deleted:{},edits:{},albums:{}};
 try {const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved&&typeof saved==='object')memory={deleted:saved.deleted||{},edits:saved.edits||{},albums:saved.albums||{}};}catch(_){}
 function persist(){try{localStorage.setItem(key,JSON.stringify(memory));}catch(_){notice('Bộ nhớ trình duyệt đã đầy; thay đổi có thể không được lưu.');}}
+for(const [id,time] of Object.entries(memory.deleted)){if(time!==Number.MAX_SAFE_INTEGER&&Date.now()-time>30*24*60*60*1000)memory.deleted[id]=Number.MAX_SAFE_INTEGER;}
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function byId(id){return originals.find(p=>p.id===id)}
 function active(){return photos[b.state.currentIndex]}
@@ -232,7 +233,8 @@ app.addEventListener('click',event=>{
 },true);
 b.image.addEventListener('load',applyViewerEdit);
 new MutationObserver(applyViewerEdit).observe(b.image,{attributes:true,attributeFilter:['src']});
+const needsRender=Object.keys(memory.deleted).length>0||Object.keys(memory.albums).length>0;
 removeDeletedFromVisible();
 window.CauaPhotosLocal={get count(){return photos.length},get deletedCount(){return Object.keys(memory.deleted).filter(id=>memory.deleted[id]!==Number.MAX_SAFE_INTEGER).length},get editing(){return !!modal}};
-b.renderAll();
+if(needsRender)b.renderAll();else syncAlbumRows();
 })();
