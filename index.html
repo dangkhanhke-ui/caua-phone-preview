@@ -1613,7 +1613,7 @@
     convoScroll.innerHTML = groups.map(g=>{
       const rows=g.messages.map((m,i)=>{
         const unreadDivider = (!unreadInserted && m.unread) ? (unreadInserted=true,'<div class="msg-unread-divider">Tin nhắn chưa đọc</div>') : '';
-        const status = (m===lastOutgoing && m===finalMessage && t.transport==='iMessage' && m.status) ? `<div class="msg-status">${m.status==='read'?'Đã đọc':m.status==='delivered'?'Đã gửi':'Đã gửi'}</div>` : '';
+        const status = (m===lastOutgoing && m===finalMessage && t.transport==='iMessage' && m.status && m.status!=='failed') ? `<div class="msg-status">${m.status==='read'?'Đã đọc':m.status==='delivered'?'Đã gửi':'Đã gửi'}</div>` : '';
         const prev=g.messages[i-1] || null;
         const next=g.messages[i+1] || null;
         const samePrev=!!prev && prev.direction===m.direction;
