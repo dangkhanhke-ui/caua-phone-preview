@@ -1017,7 +1017,7 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
           ['stub-page',stubData('stub-agenda-rio')]];
         const c=choices[Number(el.dataset.often)];if(c)navigate(c[0],c[1]);
       }));
-      setTimeout(()=>address.focus(),50);
+      setTimeout(()=>{ if(!tabsView.classList.contains('show')&&!app.classList.contains('tabs-mode'))address.focus(); },50);
     }
   }
 
