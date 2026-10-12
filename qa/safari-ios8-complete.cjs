@@ -77,6 +77,21 @@ async function run(engine,name){
   await ev(()=>{document.getElementById('safariClipName').value='Subsolo Clip'});
   await click('[data-clip-save]');
   assert(await page.locator('#iconGrid [data-safari-clip]').count()>=1,'Home screen web clip');
+  // Google favorite is a real local 2015 search page, not a blank tab.
+  await ev(()=>{const i=document.getElementById('safariAddress');i.value='google.com.br';
+    i.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}))});
+  assert(await page.locator('#safariGoogleSearchForm').count()===1,'Google favorite should render a searchable page');
+  await ev(()=>{document.getElementById('safariGoogleSearchInput').value='Subsolo';
+    document.getElementById('safariGoogleSearchForm').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))});
+  assert((await ev(()=>document.getElementById('safariAddress').value)).includes('subsolo.com.br'),'Google search should route');
+  // Cross-app linkification from an inbound message must stay inside phone.
+  await ev(()=>{const node=document.createElement('div');node.className='msg-bubble';
+    node.id='safariLinkBridgeTest';node.textContent='Olha https://radarrio.com.br/politica/eleicoes-2016-pesquisa-cenario';
+    document.getElementById('messagesApp').appendChild(node)});
+  await page.waitForSelector('#safariLinkBridgeTest a.caua-safari-link',{timeout:5000});
+  await click('#safariLinkBridgeTest a.caua-safari-link');
+  assert((await ev(()=>document.getElementById('safariAddress').value)).includes('radarrio.com.br'),
+    'Messages link should open Safari internally');
   const pageText=await ev(()=>document.getElementById('safariPage').textContent);
   assert(!pageText.includes('2024')&&!pageText.includes('2026'),'Historical dates remain 2015');
   await page.screenshot({path:'qa-artifacts/safari-ios8/'+name+'.png'});
