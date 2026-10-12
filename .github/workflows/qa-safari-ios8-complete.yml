@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'js/safari.js'
+      - 'js/caua-safari-ios8-links.js'
       - 'css/caua-safari-ios8-complete.css'
       - 'index.html'
       - 'qa/safari-ios8-complete.cjs'
@@ -20,6 +21,7 @@ jobs:
       - name: Verify Safari syntax
         run: |
           node --check js/safari.js
+          node --check js/caua-safari-ios8-links.js
           node --check qa/safari-ios8-complete.cjs
       - name: Install browsers
         run: |
