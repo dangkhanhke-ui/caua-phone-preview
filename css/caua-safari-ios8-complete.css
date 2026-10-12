@@ -1,0 +1,209 @@
+/* Safari iOS 8 completion — scoped to Safari, preserving 2015 iPhone layout. */
+.safari-app .safari-topbar{z-index:7}
+.safari-app #safariAddressWrap{min-width:0;position:relative}
+.safari-app #safariAddress{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.safari-app #safariReaderButton{
+  flex:0 0 19px;width:19px;height:22px;display:grid;place-items:center;
+  padding:0;border:0;background:transparent;color:#4b8dd4;
+  font:700 13px/1 Arial,sans-serif;cursor:pointer;
+}
+.safari-app #safariReaderButton[hidden]{display:none!important}
+.safari-app #safariReaderButton.enabled{color:#105db8}
+.safari-app .safari-overlay.show{z-index:18!important}
+.safari-app .safari-alert.show{z-index:19!important}
+.safari-app.safari-searching .safari-page{filter:brightness(.96)}
+.safari-app #safariSmartSuggestions{
+  display:none;position:absolute;top:64px;bottom:44px;left:0;right:0;
+  background:#f5f5f6;z-index:6;overflow:auto;-webkit-overflow-scrolling:touch;
+  padding:0 0 16px;
+}
+.safari-app #safariSmartSuggestions.show{display:block}
+.safari-app #safariSmartSuggestions .safari-suggestion-tools{
+  display:flex;flex-direction:column;gap:0;background:#f8f8fa;
+  padding:4px 0;border-bottom:1px solid #d7d7dc;
+}
+.safari-app .safari-suggestion-tools button{
+  height:39px;min-height:39px;padding:0 18px;background:transparent;border:0;
+  font:400 12px/1.2 "Helvetica Neue",Arial,sans-serif;color:#1875da;text-align:left;
+}
+.safari-app .safari-smart-row{
+  display:flex;width:100%;flex-direction:column;align-items:flex-start;
+  justify-content:center;min-height:48px;padding:8px 17px;border:0;
+  border-bottom:1px solid #dfdfe3;background:#fff;text-align:left;
+  color:#202125;font:400 14px/1.25 "Helvetica Neue",Arial,sans-serif;
+  overflow:hidden;
+}
+.safari-app .safari-smart-row span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.safari-app .safari-smart-row small{
+  display:block;margin-top:3px;max-width:100%;font-size:11px;color:#85868a;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.safari-app .safari-smart-row:active{background:#e5e9f3}
+.safari-app.safari-private-mode .safari-topbar{
+  background:linear-gradient(#525459,#3d3e43)!important;
+  border-bottom:1px solid #282a2e!important;
+}
+.safari-app.safari-private-mode .safari-address{
+  background:#686a70!important;border-color:#2f3035!important;
+}
+.safari-app.safari-private-mode .safari-address input,
+.safari-app.safari-private-mode .safari-address input::placeholder{color:#fff!important}
+.safari-app.safari-private-mode .safari-toolbar{
+  background:linear-gradient(#55575c,#3c3e43)!important;border-top-color:#24262a!important;
+}
+.safari-app.safari-private-mode .safari-toolbar .safari-toolbtn{color:#e9ecf3!important}
+.safari-app.safari-private-mode .safari-toolbar .safari-toolbtn:disabled{color:#92969f!important}
+.safari-app.safari-private-mode #safariBookmarks::before,
+.safari-app.safari-private-mode #safariBookmarks::after{border-color:#e9ecf3}
+.screen.safari-open.safari-private-mode .status-bar{
+  background:#42444a!important;color:#fff!important;border-bottom:0!important;
+}
+.screen.safari-open.safari-private-mode .status-bar *{color:#fff!important}
+.safari-app.safari-private-mode #safariSmartSuggestions{background:#3c3d42}
+.safari-app.safari-private-mode .safari-smart-row{
+  background:#4c4e53;color:#fff;border-bottom-color:#66686e;
+}
+.safari-app.safari-private-mode .safari-smart-row small{color:#d6d6dc}
+.safari-app.safari-private-mode .safari-suggestion-tools{background:#3b3d42}
+.safari-app .safari-confirm{
+  position:absolute;top:50%;left:20px;right:20px;transform:translateY(-50%);
+  border-radius:12px;overflow:hidden;background:rgba(250,250,251,.98);
+  box-shadow:0 8px 30px #0005;text-align:center;
+}
+.safari-app .safari-confirm-message{
+  padding:21px 16px 17px;color:#16171a;font:400 14px/1.45 "Helvetica Neue",Arial,sans-serif;
+}
+.safari-app .safari-confirm button{
+  display:block;width:100%;padding:12px 10px;border:0;border-top:1px solid #c6c7cb;
+  background:transparent;font:400 16px/1.2 "Helvetica Neue",Arial,sans-serif;color:#1478ec;
+}
+.safari-app .safari-confirm button[data-confirm-yes]{color:#d23b34}
+.safari-app .safari-confirm button:last-child{font-weight:600}
+.safari-app .safari-managed-item{display:flex;align-items:center;gap:6px;min-height:46px}
+.safari-app .safari-managed-item .safari-item-text{flex:1;min-width:0}
+.safari-app .safari-managed-item .safari-item-title,
+.safari-app .safari-managed-item .safari-item-sub{overflow:hidden;text-overflow:ellipsis}
+.safari-app .safari-item-read .safari-item-title{color:#8a8b8e}
+.safari-app .safari-item-delete{
+  flex:0 0 22px;width:22px;height:22px;border:0;border-radius:50%;
+  background:#ef4b50;color:#fff;font-size:19px;line-height:18px;padding:0;
+}
+.safari-app .safari-reading-mark{
+  flex:0 0 auto;padding:6px 3px;border:0;background:transparent;
+  color:#277bdc;font:400 11px/1 "Helvetica Neue",Arial,sans-serif;
+}
+.safari-app .safari-reading-hint{padding:16px;color:#929399;font-size:12px;text-align:center}
+.safari-app .safari-folder{border-top:1px solid #efeff0}
+.safari-app .safari-segments button{font-family:"Helvetica Neue",Arial,sans-serif}
+.safari-app .safari-history-entry{display:grid;grid-template-columns:39px 1fr;gap:6px;align-items:start}
+.safari-app .safari-history-entry .safari-history-time{padding-top:3px}
+.safari-app .safari-history-entry .title{word-break:break-word}
+.safari-app .safari-history-entry:active,
+.safari-app .safari-item:active{background:#e6ebf1}
+.safari-app .safari-ios8-share{
+  position:absolute;bottom:0;left:0;right:0;background:#ececf0;
+  color:#26272b;padding:0 8px 8px;box-shadow:0 -7px 35px #0003;
+  max-height:91%;overflow:auto;-webkit-overflow-scrolling:touch;
+  font-family:"Helvetica Neue",Arial,sans-serif;
+}
+.safari-app .safari-ios8-share-preview{
+  padding:12px 10px 9px;display:flex;flex-direction:column;align-items:center;
+  text-align:center;border-bottom:1px solid #d4d5da;gap:3px;
+}
+.safari-app .safari-ios8-share-preview strong{font-size:13px;max-width:95%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.safari-app .safari-ios8-share-preview span{color:#777b83;font-size:10px;max-width:95%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.safari-app .safari-ios8-share-social{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:3px;padding:11px 2px;border-bottom:1px solid #d2d3d7;
+}
+.safari-app .safari-ios8-share-actions{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px 3px;padding:12px 2px;
+}
+.safari-app .safari-ios8-share-social button,
+.safari-app .safari-ios8-share-actions button{
+  min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;
+  border:0;background:transparent;color:#282a2d;text-align:center;
+  font:400 10px/1.15 "Helvetica Neue",Arial,sans-serif;padding:0 1px;
+}
+.safari-app .safari-ios8-share-social i,
+.safari-app .safari-ios8-share-actions i{
+  display:grid;place-items:center;border-radius:13px;width:48px;height:48px;
+  background:#fff;color:#247de2;font:400 25px/1 "Helvetica Neue",Arial,sans-serif;
+  box-shadow:inset 0 0 0 1px #dedfe3;
+}
+.safari-app .safari-ios8-share-social button:nth-child(1) i{background:#50cd68;color:#fff}
+.safari-app .safari-ios8-share-social button:nth-child(2) i{background:#62addd;color:#fff}
+.safari-app .safari-ios8-share-social button:nth-child(3) i{background:#3cc65b;color:#fff}
+.safari-app .safari-ios8-share-social button:nth-child(4) i{background:#4267a2;color:#fff;font-weight:700}
+.safari-app .safari-ios8-share-cancel{
+  width:100%;height:39px;background:#fff;color:#187aff;border:0;
+  border-radius:8px;font-size:16px;font-weight:600;
+}
+.safari-app .safari-link-menu .safari-sheet-row{
+  width:100%;border:0;border-top:1px solid #ddd;font-size:16px;
+}
+.safari-app .safari-clip-dialog{
+  position:absolute;left:10px;right:10px;top:50%;transform:translateY(-50%);
+  padding:17px 14px 0;background:#f5f5f7;border-radius:11px;
+  box-shadow:0 8px 35px #0004;color:#232427;font-family:"Helvetica Neue",Arial,sans-serif;
+}
+.safari-app .safari-clip-title{text-align:center;font-size:17px;font-weight:600;margin-bottom:15px}
+.safari-app .safari-clip-dialog label{display:block;color:#888;font-size:12px}
+.safari-app .safari-clip-dialog input{
+  box-sizing:border-box;width:100%;height:37px;margin-top:5px;padding:0 10px;
+  background:#fff;border:1px solid #ccc;border-radius:4px;font-size:14px;color:#161616;
+}
+.safari-app .safari-clip-url{padding:10px 0;color:#8c8c8c;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.safari-app .safari-clip-actions{display:flex;border-top:1px solid #d2d2d5;margin:6px -14px 0}
+.safari-app .safari-clip-actions button{
+  width:50%;height:43px;background:transparent;border:0;color:#1d76de;font-size:16px;
+}
+.safari-app .safari-clip-actions button+button{font-weight:600;border-left:1px solid #d2d2d5}
+#iconGrid .safari-webclip-icon{
+  display:grid;place-items:center;background:linear-gradient(140deg,#c9d2dc,#6c8298);
+  color:#fff;font:500 30px/1 "Helvetica Neue",Arial,sans-serif;
+}
+#iconGrid .safari-webclip{cursor:pointer}
+.safari-app.safari-finding .safari-page{bottom:84px}
+.safari-app #safariFindPanel{
+  display:none;position:absolute;bottom:44px;left:0;right:0;height:40px;
+  z-index:5;background:#f3f3f5;border-top:1px solid #c7c8cc;
+  font-family:"Helvetica Neue",Arial,sans-serif;
+}
+.safari-app #safariFindPanel.show{display:flex;align-items:center;justify-content:space-between;padding:0 9px}
+.safari-app .safari-find-caption{display:flex;flex-direction:column;gap:3px}
+.safari-app .safari-find-caption strong{font-size:11px;font-weight:500;color:#303034}
+.safari-app .safari-find-caption span{font-size:10px;color:#82838a}
+.safari-app .safari-find-controls{display:flex;align-items:center;gap:7px}
+.safari-app .safari-find-controls button{background:transparent;border:0;padding:5px;color:#237be0;font-size:16px}
+.safari-app mark.safari-find-hit{background:#fee17b;color:#111;border-radius:2px}
+.safari-app mark.safari-find-hit.active{background:#f8a922;box-shadow:0 0 0 1px #df9317}
+.safari-app .safari-page.safari-reader-mode .site-head,
+.safari-app .safari-page.safari-reader-mode .news-nav,
+.safari-app .safari-page.safari-reader-mode .news-mast,
+.safari-app .safari-page.safari-reader-mode .site-mini{display:none!important}
+.safari-app .safari-page.safari-reader-mode .safari-website,
+.safari-app .safari-page.safari-reader-mode .safari-news15{
+  background:#fdfbf5!important;color:#292929!important;
+  font-family:Georgia,"Times New Roman",serif!important;
+}
+.safari-app .safari-page.safari-reader-mode .safari-news15 .news-body{padding:24px 20px 40px}
+.safari-app .safari-page.safari-reader-mode .safari-news15 h1,
+.safari-app .safari-page.safari-reader-mode .page-pad h1{
+  font:700 25px/1.22 Georgia,serif!important;color:#222!important;
+}
+.safari-app .safari-page.safari-reader-mode .safari-news15 p,
+.safari-app .safari-page.safari-reader-mode .page-pad p{
+  font:400 16px/1.62 Georgia,serif!important;color:#292929!important;
+}
+.safari-app .safari-page.safari-desktop-mode .safari-website,
+.safari-app .safari-page.safari-desktop-mode .safari-news15{
+  min-width:640px!important;max-width:none!important;
+}
+.safari-app .safari-page.safari-desktop-mode{overflow-x:auto!important}
+@media(max-height:580px){
+  .safari-app .safari-ios8-share{max-height:82%}
+  .safari-app .safari-ios8-share-social i,
+  .safari-app .safari-ios8-share-actions i{width:41px;height:41px}
+}
