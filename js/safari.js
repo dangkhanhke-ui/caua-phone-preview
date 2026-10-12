@@ -243,6 +243,7 @@ const SAFARI_HISTORY = [
 
   const SAVED_KEY='caua.safari.phase2.saved.v1';
   let userSaved={bookmarks:[],reading:[]};
+  let editSaved=false, historyDisplay=[];
   try{
     const v=JSON.parse(localStorage.getItem(SAVED_KEY)||'null');
     if(v&&Array.isArray(v.bookmarks)&&Array.isArray(v.reading))userSaved=v;
@@ -256,9 +257,10 @@ const SAFARI_HISTORY = [
     const url=entry.url||entry.extra?.url||'';
     const item={title:String(name),url:String(url),pageId:String(entry.pageId),extra:entry.extra||{}};
     const key=mode==='reading'?'reading':'bookmarks', items=userSaved[key];
-    if(!items.some(x=>x.url===item.url&&x.title===item.title)){
-      items.unshift(item);if(items.length>24)items.length=24;saveUserPages();
-    }
+    const old=items.find(x=>x.url===item.url && x.pageId===item.pageId);
+    if(old){old.title=item.title;old.extra=item.extra||{};if(mode==='favorite')old.favorite=true;}
+    else {if(mode==='favorite')item.favorite=true;items.unshift(item);if(items.length>100)items.length=100;}
+    saveUserPages();
   }
 
 
@@ -381,6 +383,14 @@ const SAFARI_HISTORY = [
     if(n.includes('mặt bằng') || n.includes('mat bang')) {
       if(n.includes('santa teresa')) return navigate('search-results-santa');
       if(n.includes('lapa')) return navigate('search-results-lapa');
+    }
+    const looksLikeUrl=/^(?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(?:[/:?#]|$)/i.test(q);
+    if(looksLikeUrl){
+      let u;try{u=new URL(/^https?:\/\//i.test(q)?q:'https://'+q)}catch(e){}
+      if(u && /^https?:$/.test(u.protocol)){
+        return navigate('stub-page',{title:u.hostname,url:u.hostname+u.pathname+u.search,
+          domain:u.hostname,body:'Safari không thể mở trang vì không kết nối được tới máy chủ.'});
+      }
     }
     navigate('search-generic', {query:q});
   }
@@ -804,32 +814,66 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
     return `<div class="safari-website"><div class="safari-stub"><div class="stub-domain">${esc(extra.domain || extra.url || '')}</div><h1>${esc(extra.title || 'Trang web')}</h1><p>${esc(extra.body || 'Không có kết nối.') }</p><div class="safari-callout">Safari không thể mở trang vì không có kết nối với máy chủ.</div></div></div>`;
   }
   function renderBookmarks(mode) {
-    const header = `<div class="safari-header"><div class="safari-titlebar"><button class="left" data-history-back>Done</button><div>Bookmarks</div><button class="right"></button></div><div class="safari-segments"><button data-seg="bookmarks" ${mode==='bookmarks'?'class="active"':''}>📘</button><button data-seg="reading" ${mode==='reading'?'class="active"':''}>👓</button><button data-seg="links" ${mode==='links'?'class="active"':''}>@</button></div></div>`;
-    if(mode==='reading') {
-      return `${header}<div class="safari-list"><div class="safari-book-group-title">Reading List</div>${userSaved.reading.map((r,i)=>`<div class="safari-item" data-user-reading="${i}"><div class="safari-item-title">${esc(r.title)}</div><div class="safari-item-sub">${esc(r.url||'')}</div></div>`).join('')}${READING_LIST.map((r,i)=>`<div class="safari-item" data-reading="${i}"><div class="safari-item-title">${esc(r.title)}</div><div class="safari-item-sub">${esc(r.source)} · ${r.date} · ${r.state}</div></div>`).join('')}</div>`;
+    const header='<div class="safari-header"><div class="safari-titlebar">'+
+      '<button class="left" type="button" data-book-done>Xong</button>'+
+      '<div>'+(mode==='reading'?'Danh sách đọc':mode==='links'?'Liên kết':'Dấu trang')+'</div>'+
+      '<button class="right" type="button" data-book-edit>'+(editSaved?'Xong':'Sửa')+'</button></div>'+
+      '<div class="safari-segments" role="tablist">'+
+      '<button type="button" aria-label="Dấu trang" data-seg="bookmarks" '+(mode==='bookmarks'?'class="active"':'')+'>▣</button>'+
+      '<button type="button" aria-label="Danh sách đọc" data-seg="reading" '+(mode==='reading'?'class="active"':'')+'>◎</button>'+
+      '<button type="button" aria-label="Liên kết được chia sẻ" data-seg="links" '+(mode==='links'?'class="active"':'')+'>@</button></div></div>';
+    const savedRow=(item,i,key)=>{
+      const edit=editSaved?'<button type="button" class="safari-item-delete" data-saved-delete="'+key+':'+i+'" aria-label="Xóa">−</button>':'';
+      const mark=key==='reading'?'<button type="button" class="safari-reading-mark" data-saved-mark="'+i+'">'+(item.read?'Chưa đọc':'Đã đọc')+'</button>':'';
+      return '<div class="safari-item safari-managed-item '+(item.read?'safari-item-read':'')+'">'+edit+
+        '<div class="safari-item-text" data-user-'+(key==='reading'?'reading':'book')+'="'+i+'">'+
+        '<div class="safari-item-title">'+esc(item.title)+'</div><div class="safari-item-sub">'+esc(item.url||'')+'</div></div>'+mark+'</div>';
+    };
+    if(mode==='reading'){
+      return header+'<div class="safari-list"><div class="safari-book-group-title">Danh sách đọc</div>'+
+        (userSaved.reading.map((x,i)=>savedRow(x,i,'reading')).join(''))+
+        READING_LIST.map((x,i)=>'<div class="safari-item" data-reading="'+i+'"><div class="safari-item-title">'+esc(x.title)+'</div><div class="safari-item-sub">'+esc(x.source)+' · '+esc(x.date)+' · '+esc(x.state)+'</div></div>').join('')+
+        (!userSaved.reading.length?'<div class="safari-reading-hint">Lưu trang từ nút Chia sẻ để đọc sau.</div>':'')+'</div>';
     }
-    if(mode==='links') {
-      return `${header}<div class="safari-empty"><strong>Shared Links</strong><br><br>Không có liên kết mới.</div>`;
+    if(mode==='links'){
+      return header+'<div class="safari-empty"><strong>Liên kết được chia sẻ</strong><p>Chưa có liên kết từ các nguồn theo dõi.</p></div>';
     }
-    const favorites = [
-      {title:'Google', url:'google.com', targetPageId:'new-tab'},
-      {title:'Wikipedia', url:'wikipedia.org', targetPageId:'stub-page'},
-      {title:'Rio Agora', url:'rioagora.com.br', targetPageId:'article-vinculo-investigation'},
-      {title:'Subsolo', url:'subsolo.com.br', targetPageId:'subsolo-home'}
-    ];
-    return `${header}<div class="safari-list"><div class="safari-book-group-title">Favorites</div>${favorites.map(item=>`<div class="safari-item" data-book-open="${item.targetPageId}" data-book-title="${esc(item.title)}" data-book-url="${esc(item.url)}"><div class="safari-item-title">${esc(item.title)}</div></div>`).join('')}${userSaved.bookmarks.length?'<div class="safari-book-group-title">Đã lưu</div>'+userSaved.bookmarks.map((item,i)=>`<div class="safari-item" data-user-book="${i}"><div class="safari-item-title">${esc(item.title)}</div><div class="safari-item-sub">${esc(item.url)}</div></div>`).join(''):''}<div class="safari-book-group-title">Collections</div><div class="safari-item" data-book-history><div class="safari-item-title">History</div></div>${BOOKMARKS.filter(section => !section.history).map(section => {
-      const inner = section.items.map((item,i)=>`<div class="safari-item" data-book-open="${item.targetPageId}" data-book-title="${esc(item.title)}" data-book-url="${esc(item.url)}"><div class="safari-item-title">${esc(item.title)}</div><div class="safari-item-sub">${esc(item.url)}</div></div>`).join('');
-      return section.folder ? `<div class="safari-book-group-title">${esc(section.section)}</div><div class="safari-folder-items">${inner}</div>` : `<div class="safari-book-group-title">${esc(section.section)}</div>${inner}`;
-    }).join('')}</div>`;
+    const row=(item)=>'<div class="safari-item" data-book-open="'+esc(item.targetPageId||'stub-page')+
+      '" data-book-title="'+esc(item.title)+'" data-book-url="'+esc(item.url||'')+
+      '"><div class="safari-item-title">'+esc(item.title)+'</div><div class="safari-item-sub">'+esc(item.url||'')+'</div></div>';
+    const favorites=BOOKMARKS.find(x=>x.section==='Yêu thích')?.items||[];
+    const savedFavorites=userSaved.bookmarks.map((x,i)=>x.favorite?savedRow(x,i,'bookmarks'):'').join('');
+    const savedRegular=userSaved.bookmarks.map((x,i)=>!x.favorite?savedRow(x,i,'bookmarks'):'').join('');
+    const folders=BOOKMARKS.filter(x=>x.folder).map(section=>'<div class="safari-folder">'+
+      '<div class="safari-book-group-title">'+esc(section.section)+'</div>'+
+      section.items.map(row).join('')+'</div>').join('');
+    return header+'<div class="safari-list">'+
+      '<div class="safari-book-group-title">Mục ưa thích</div>'+
+      favorites.map(row).join('')+savedFavorites+
+      (savedRegular?'<div class="safari-book-group-title">Dấu trang</div>'+savedRegular:'')+
+      '<div class="safari-item" data-book-history><div class="safari-item-title">◷  Lịch sử</div></div>'+
+      folders+'</div>';
   }
   function renderHistory(search='') {
-    const q = normalize(search.trim());
-    const filtered = SAFARI_HISTORY.map(group => {
-      const items = group.items.filter(item => !q || normalize([item.title,item.domain,item.query].join(' ')).includes(q));
-      return {day:group.day, items};
-    }).filter(g => g.items.length);
-    const body = filtered.map(group=>`<div><div class="safari-history-day">${group.day}</div>${group.items.map(item=>`<div class="safari-history-entry" data-history-open='${JSON.stringify(item)}'><div class="safari-history-time">${item.time}</div><div><div class="title">${esc(item.title)}</div><div class="sub">${esc(item.domain)}${item.type==='search'?' · Search':''}</div></div></div>`).join('')}</div>`).join('') || '<div class="safari-empty">Không tìm thấy mục lịch sử phù hợp.</div>';
-    return `<div class="safari-header"><div class="safari-titlebar"><button class="left" data-history-back>Bookmarks</button><div>History</div><button class="right" data-history-clear>Clear</button></div><div class="safari-search-internal"><input id="safariHistorySearch" type="search" placeholder="Tìm trong lịch sử" value="${esc(search)}"></div></div><div class="safari-history-list">${body}</div>`;
+    const q=normalize(search.trim());
+    historyDisplay=[];
+    const matches=historyGroups().map(group=>({
+      day:group.day,items:group.items.filter(item=>!q||normalize([item.title,item.domain,item.query,item.url].join(' ')).includes(q))
+    })).filter(group=>group.items.length);
+    const body=matches.map(group=>'<div><div class="safari-history-day">'+esc(group.day)+'</div>'+
+      group.items.map(item=>{
+        const id=historyDisplay.push(item)-1;
+        return '<div class="safari-history-entry" data-history-id="'+id+'">'+
+          '<div class="safari-history-time">'+esc(item.time||'')+'</div>'+
+          '<div><div class="title">'+esc(item.title)+'</div><div class="sub">'+esc(item.domain||'')+
+          (item.type==='search'?' · Tìm kiếm':'')+'</div></div></div>';
+      }).join('')+'</div>').join('')||'<div class="safari-empty">Không có mục lịch sử phù hợp.</div>';
+    return '<div class="safari-header"><div class="safari-titlebar">'+
+      '<button type="button" class="left" data-history-back>Dấu trang</button>'+
+      '<div>Lịch sử</div><button type="button" class="right" data-history-clear>Xóa</button></div>'+
+      '<div class="safari-search-internal"><input id="safariHistorySearch" type="search" '+
+      'placeholder="Tìm trong lịch sử" value="'+esc(search)+'" autocomplete="off"></div></div>'+
+      '<div class="safari-history-list">'+body+'</div>';
   }
   function renderNewTab() {
     const favs = [ ['Google','#4285f4','g'],['Wikipedia','#d9d9d9','◌'],['Rio Agora','#d9d9d9','◌'],['Subsolo','#1f8eb7','S'],['Santa Teresa Hoje','#d9d9d9','◌'],['Imóveis Cariocas','#d9d9d9','◌'] ];
@@ -868,7 +912,15 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
       page.querySelectorAll('[data-search-open]').forEach((el,i)=>el.addEventListener('click', ()=>navigate(results[i].pageId, results[i].extra || {})));
     }
     if(currentEntry().pageId==='bookmarks' || currentEntry().pageId==='reading-list' || currentEntry().pageId==='shared-links') {
-      page.querySelectorAll('[data-seg]').forEach(btn=>btn.addEventListener('click',()=>navigate(btn.dataset.seg==='bookmarks'?'bookmarks':btn.dataset.seg==='reading'?'reading-list':'shared-links')));
+      page.querySelector('[data-book-done]')?.addEventListener('click',()=>{
+        if(currentTab()?.historyIndex>0)goBack();else navigate('new-tab',{},false);
+      });
+      page.querySelector('[data-book-edit]')?.addEventListener('click',()=>{
+        editSaved=!editSaved; renderCurrent(true);
+      });
+      page.querySelectorAll('[data-seg]').forEach(btn=>btn.addEventListener('click',()=>{
+        navigate(btn.dataset.seg==='bookmarks'?'bookmarks':btn.dataset.seg==='reading'?'reading-list':'shared-links',{},false);
+      }));
       page.querySelector('[data-book-history]')?.addEventListener('click',()=>navigate('history-view'));
       page.querySelectorAll('[data-book-open]').forEach(row=>row.addEventListener('click',()=>{
         const target=row.dataset.bookOpen;
@@ -876,7 +928,25 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
         if(target.startsWith('stub-')) return navigate('stub-page', stubData(target, row.dataset.bookTitle, row.dataset.bookUrl));
         navigate(target);
       }));
-      page.querySelectorAll('[data-reading]').forEach(row=>row.addEventListener('click',()=>navigate('stub-page',{title:'Không thể mở bài viết', url:'', domain:'Danh sách đọc', body:'Không có kết nối.'})));
+      page.querySelectorAll('[data-reading]').forEach(row=>row.addEventListener('click',()=>{
+        const item=READING_LIST[Number(row.dataset.reading)];if(!item)return;
+        navigate('stub-page',{title:item.title,url:'',domain:item.source,
+          body:'Bản lưu đọc ngoại tuyến từ '+item.date+'. Bài viết đầy đủ hiện không có trong bản sao lưu.'});
+      }));
+      page.querySelectorAll('[data-saved-delete]').forEach(btn=>btn.addEventListener('click',e=>{
+        e.stopPropagation();
+        const [key,index]=btn.dataset.savedDelete.split(':');
+        if(!['bookmarks','reading'].includes(key))return;
+        const item=userSaved[key][Number(index)];if(!item)return;
+        showConfirm('Xóa "'+item.title+'" khỏi '+(key==='reading'?'Danh sách đọc':'Dấu trang')+'?','Xóa',()=>{
+          userSaved[key].splice(Number(index),1);saveUserPages();renderCurrent(true);
+        });
+      }));
+      page.querySelectorAll('[data-saved-mark]').forEach(btn=>btn.addEventListener('click',e=>{
+        e.stopPropagation();
+        const item=userSaved.reading[Number(btn.dataset.savedMark)];
+        if(item){item.read=!item.read;saveUserPages();renderCurrent(true);}
+      }));
       const openSaved=(item)=>{
         if(!item)return;
         const id=item.pageId||'stub-page';
@@ -887,12 +957,19 @@ Hoạt động có âm nhạc hoặc đông người vào ban đêm cần đư�
       page.querySelectorAll('[data-user-reading]').forEach(row=>row.addEventListener('click',()=>openSaved(userSaved.reading[+row.dataset.userReading])));
     }
     if(currentEntry().pageId==='history-view') {
-      page.querySelector('[data-history-back]')?.addEventListener('click',()=>navigate('bookmarks'));
-      page.querySelector('[data-history-clear]')?.addEventListener('click',()=>alertBox.classList.add('show'));
-      page.querySelector('#safariHistorySearch')?.addEventListener('input', e=>{ saveScroll(); const val=e.target.value; const tab=currentTab(); tab.historyStack[tab.historyIndex].extra.search=val; page.innerHTML=renderHistory(val); bindPage(); page.scrollTop=0; });
-      page.querySelectorAll('[data-history-open]').forEach(row=>row.addEventListener('click',()=>{
-        const item = JSON.parse(row.dataset.historyOpen);
-        if(item.type==='page' && item.targetPageId) return navigate(item.targetPageId, item.query ? {query:item.query} : {});
+      page.querySelector('[data-history-back]')?.addEventListener('click',()=>goBack());
+      page.querySelector('[data-history-clear]')?.addEventListener('click',()=>showConfirm(
+        'Xóa lịch sử và dữ liệu trang web trên iPhone này?', 'Xóa lịch sử', clearSafariHistory));
+      page.querySelector('#safariHistorySearch')?.addEventListener('input',e=>{
+        const val=e.target.value,pos=e.target.selectionStart;
+        currentEntry().extra.search=val;
+        page.innerHTML=renderHistory(val);bindPage();page.scrollTop=0;
+        const input=page.querySelector('#safariHistorySearch');input?.focus();
+        try{input?.setSelectionRange(pos,pos)}catch(err){}
+      });
+      page.querySelectorAll('[data-history-id]').forEach(row=>row.addEventListener('click',()=>{
+        const item=historyDisplay[Number(row.dataset.historyId)];if(!item)return;
+        if(item.type==='page' && item.targetPageId) return navigate(item.targetPageId, item.extra || {});
         if(item.type==='search') return navigate('search-generic',{query:item.query || item.title});
         return navigate('stub-page', stubData(item.targetPageId || '', item.title, item.domain));
       }));
