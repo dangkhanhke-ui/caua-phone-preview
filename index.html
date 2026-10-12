@@ -505,7 +505,7 @@
                   <div class="msg-convo-scroll" id="messagesConvoScroll"></div>
                   <div class="msg-composer" id="messagesComposer">
                     <button class="msg-camera" type="button" aria-label="Máy ảnh"></button>
-                    <div class="msg-entry"><input id="messagesReplyInput" type="text" placeholder="Tin nhắn" autocomplete="off" /></div>
+                    <div class="msg-entry"><textarea id="messagesReplyInput" rows="1" placeholder="Tin nhắn" autocomplete="off" aria-label="Tin nhắn"></textarea></div>
                     <button class="msg-sendmic" id="messagesSendBtn" type="button"></button>
                   </div>
                   <div class="msg-service-bar" id="messagesServiceBar" style="display:none;">Tin nhắn tự động · Không thể trả lời</div>
@@ -533,7 +533,7 @@
                   <div class="msg-new-empty"></div>
                   <div class="msg-composer msg-new-compose">
                     <button class="msg-camera" type="button" aria-label="Máy ảnh"></button>
-                    <div class="msg-entry"><input id="messagesNewText" type="text" placeholder="Tin nhắn" autocomplete="off" /></div>
+                    <div class="msg-entry"><textarea id="messagesNewText" rows="1" placeholder="Tin nhắn" autocomplete="off" aria-label="Tin nhắn mới"></textarea></div>
                     <button class="msg-sendmic" id="messagesNewSend" type="button"></button>
                   </div>
                 </div>
@@ -1619,7 +1619,7 @@
         const samePrev=!!prev && prev.direction===m.direction;
         const sameNext=!!next && next.direction===m.direction;
         const groupClass=!samePrev&&!sameNext?'group-single':!samePrev&&sameNext?'group-first':samePrev&&sameNext?'group-middle':'group-last';
-        return `${unreadDivider}<div class="msg-line ${m.direction} ${m.direction==='outgoing'?transportClass:''} ${groupClass} ${m.status==='failed'?'msg-failed':''}" data-message-index="${t.messages.indexOf(m)}"><div class="msg-bubble">${m.attachment?.data?`<img class="msg-inline-photo" src="${esc(m.attachment.data)}" alt="Ảnh đính kèm" loading="lazy" decoding="async">`:''}${esc(m.body)}</div><span class="msg-time-side">${esc(m.time||'')}</span>${m.status==='failed'?'<button class="msg-failed-mark" type="button" aria-label="Tin nhắn chưa gửi">!</button>':''}</div>${status}`;
+        return `${unreadDivider}<div class="msg-line ${m.direction} ${m.direction==='outgoing'?transportClass:''} ${groupClass} ${m.status==='failed'?'msg-failed':''}" data-message-index="${t.messages.indexOf(m)}"><div class="msg-bubble">${m.attachment?.data?(m.attachment.kind==='audio'?`<audio class="msg-inline-audio" controls preload="metadata" src="${esc(m.attachment.data)}"></audio>`:`<img class="msg-inline-photo" src="${esc(m.attachment.data)}" alt="Ảnh đính kèm" loading="lazy" decoding="async">`):''}${esc(m.body)}</div><span class="msg-time-side">${esc(m.time||'')}</span>${m.status==='failed'?'<button class="msg-failed-mark" type="button" aria-label="Tin nhắn chưa gửi">!</button>':''}</div>${status}`;
       }).join('');
       return `<div class="msg-day-label"><strong>${esc(dayLabel(g.date))}</strong></div>${rows}`;
     }).join('');
