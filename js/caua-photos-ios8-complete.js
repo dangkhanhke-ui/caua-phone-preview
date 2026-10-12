@@ -57,7 +57,7 @@ function askDelete(ids){
  });
 }
 function showDeleted(){
- const ids=Object.keys(memory.deleted).filter(byId);
+ const ids=Object.keys(memory.deleted).filter(id=>byId(id)&&memory.deleted[id]!==Number.MAX_SAFE_INTEGER);
  const cards=ids.map(id=>{const p=byId(id);return '<div class="photos-deleted-item"><img src="'+esc(p.src)+'" alt="" loading="lazy"><div><strong>'+esc(p.filename)+'</strong><small>Khôi phục trong vòng 30 ngày (mô phỏng)</small><div><button data-restore="'+esc(id)+'">Khôi phục</button><button data-erase="'+esc(id)+'">Xóa hẳn</button></div></div></div>';}).join('');
  const el=showModal('Đã xóa gần đây',cards||'<p class="photos-modal-empty">Không có ảnh đã xóa.</p>');
  el.querySelectorAll('[data-restore]').forEach(btn=>btn.addEventListener('click',()=>{
@@ -143,10 +143,9 @@ app.addEventListener('click',event=>{
  const share=target.closest('#photosShareBtn');
  if(share){event.preventDefault();event.stopImmediatePropagation();const p=active();if(p)openShare([p]);return;}
 },true);
-const originalRenderViewer=b.renderViewer;
 b.image.addEventListener('load',applyViewerEdit);
 new MutationObserver(applyViewerEdit).observe(b.image,{attributes:true,attributeFilter:['src']});
 removeDeletedFromVisible();
+window.CauaPhotosLocal={get count(){return photos.length},get deletedCount(){return Object.keys(memory.deleted).filter(id=>memory.deleted[id]!==Number.MAX_SAFE_INTEGER).length},get editing(){return !!modal}};
 b.renderAll();
-window.CauaPhotosLocal={get count(){return photos.length},get deletedCount(){return Object.keys(memory.deleted).length},get editing(){return !!modal}};
 })();
