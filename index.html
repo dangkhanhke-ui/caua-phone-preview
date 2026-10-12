@@ -2538,11 +2538,11 @@
     if(next<=1.015){zoom.x=0;zoom.y=0;}
     applyZoom(animated);
   }
-  let swipeEpoch=0, swipeTimer=0, resetTimer=0;
+  let swipeEpoch=0, swipeTimer=0, resetTimer=0, swipeDraw=0, swipeDx=0;
   function cancelSwipeWork(){
     swipeEpoch++;
-    clearTimeout(swipeTimer);clearTimeout(resetTimer);
-    swipeTimer=0;resetTimer=0;
+    clearTimeout(swipeTimer);clearTimeout(resetTimer);cancelAnimationFrame(swipeDraw);
+    swipeTimer=0;resetTimer=0;swipeDraw=0;
     viewerImg.style.transition='none';
   }
   function clearSwipeNeighbor(){stage.querySelectorAll('.photos-swipe-neighbor').forEach(n=>n.remove());}
@@ -2567,7 +2567,7 @@
     if(n){const side=Number(n.dataset.side||1);n.style.transition=`transform ${dur} cubic-bezier(.25,.8,.25,1)`;n.style.transform=`translate3d(${side*100}%,0,0)`;}
     clearTimeout(resetTimer);
     const epoch=swipeEpoch;
-    resetTimer=setTimeout(()=>{if(epoch!==swipeEpoch||!viewer.classList.contains('active'))return;clearSwipeNeighbor();viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)'},animated?190:0);
+    resetTimer=setTimeout(()=>{resetTimer=0;if(epoch!==swipeEpoch||!viewer.classList.contains('active'))return;clearSwipeNeighbor();viewerImg.style.transition='none';viewerImg.style.transform='translate3d(0,0,0) scale(1)'},animated?190:0);
   }
   function finishSwipe(nextIndex,dir,neighbor){
     cancelSwipeWork();
@@ -2583,6 +2583,7 @@
       neighbor.style.transform='translate3d(0,0,0)';
     });
     swipeTimer=setTimeout(()=>{
+      swipeTimer=0;
       if(epoch!==swipeEpoch||!viewer.classList.contains('active'))return;
       viewerImg.src=PHOTOS[state.currentIndex].src;
       viewerImg.style.transition='none';
@@ -2620,8 +2621,26 @@
     else zoomAround(e.clientX,e.clientY,2.5,true);
   }
 
+  function paintSwipe(){
+    swipeDraw=0;
+    if(!gesture||gesture.mode!=='horizontal'||!viewer.classList.contains('active'))return;
+    const dx=swipeDx,dir=dx<0?1:-1,nextIndex=state.currentIndex+dir;
+    if(nextIndex<0||nextIndex>=PHOTOS.length){
+      clearSwipeNeighbor();gesture.neighbor=null;gesture.nextIndex=-1;
+      viewerImg.style.transform=`translate3d(${dx*.22}px,0,0) scale(1)`;
+      return;
+    }
+    if(!gesture.neighbor||gesture.nextIndex!==nextIndex){
+      gesture.neighbor=makeSwipeNeighbor(nextIndex,dir);
+      gesture.nextIndex=nextIndex;gesture.dir=dir;
+      if(gesture.neighbor)gesture.neighbor.dataset.side=String(dir);
+    }
+    const w=stage.clientWidth||320;
+    viewerImg.style.transform=`translate3d(${dx}px,0,0) scale(1)`;
+    if(gesture.neighbor)gesture.neighbor.style.transform=`translate3d(${dx+dir*w}px,0,0)`;
+  }
   stage.addEventListener('pointerdown',e=>{
-    if(swipeTimer){cancelSwipeWork();viewerImg.src=PHOTOS[state.currentIndex].src;viewerImg.style.transform='translate3d(0,0,0) scale(1)';clearSwipeNeighbor();updateViewerMeta();}
+    if(swipeTimer||resetTimer){cancelSwipeWork();viewerImg.src=PHOTOS[state.currentIndex]?.src||viewerImg.src;viewerImg.style.transform='translate3d(0,0,0) scale(1)';clearSwipeNeighbor();updateViewerMeta();}
     pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
     try{stage.setPointerCapture(e.pointerId)}catch(_){}
     if(pointers.size===2){beginPinch();return;}
@@ -2646,13 +2665,8 @@
     }
     if(!gesture.mode&&Math.max(Math.abs(dx),Math.abs(dy))>7)gesture.mode=Math.abs(dx)>Math.abs(dy)?'horizontal':'vertical';
     if(gesture.mode!=='horizontal'||info.classList.contains('open'))return;
-    const dir=dx<0?1:-1;
-    const nextIndex=state.currentIndex+dir;
-    if(nextIndex<0||nextIndex>=PHOTOS.length){viewerImg.style.transform=`translate3d(${dx*.22}px,0,0) scale(1)`;return;}
-    if(!gesture.neighbor||gesture.nextIndex!==nextIndex){gesture.neighbor=makeSwipeNeighbor(nextIndex,dir);gesture.nextIndex=nextIndex;gesture.dir=dir;if(gesture.neighbor)gesture.neighbor.dataset.side=String(dir);}
-    const w=stage.clientWidth||320;
-    viewerImg.style.transform=`translate3d(${dx}px,0,0) scale(1)`;
-    if(gesture.neighbor)gesture.neighbor.style.transform=`translate3d(${dx+dir*w}px,0,0)`;
+    swipeDx=dx;
+    if(!swipeDraw)swipeDraw=requestAnimationFrame(paintSwipe);
   });
   stage.addEventListener('pointerup',e=>{
     pointers.delete(e.pointerId);
@@ -2662,6 +2676,7 @@
       return;
     }
     if(!gesture||gesture.id!==e.pointerId)return;
+    if(swipeDraw){cancelAnimationFrame(swipeDraw);paintSwipe();}
     const g=gesture;gesture=null;viewer.classList.remove('is-panning');
     const dx=e.clientX-g.x,dy=e.clientY-g.y,ax=Math.abs(dx),ay=Math.abs(dy),elapsed=Math.max(1,performance.now()-g.t),vx=ax/elapsed;
     const isTap=ax<9&&ay<9&&!info.classList.contains('open');
@@ -2686,7 +2701,7 @@
     }
     resetSwipe(true);
   });
-  stage.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);pinch=null;gesture=null;viewer.classList.remove('is-panning');if(zoom.scale>1.015)applyZoom(true);else resetSwipe(true)});
+  stage.addEventListener('pointercancel',e=>{cancelAnimationFrame(swipeDraw);swipeDraw=0;pointers.delete(e.pointerId);pinch=null;gesture=null;viewer.classList.remove('is-panning');if(zoom.scale>1.015)applyZoom(true);else resetSwipe(true)});
   stage.addEventListener('wheel',e=>{
     if(!viewer.classList.contains('active')||info.classList.contains('open'))return;
     if(!(e.ctrlKey||e.metaKey))return;
