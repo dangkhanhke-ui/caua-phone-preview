@@ -77,39 +77,41 @@ const filters={
  original:'none',mono:'grayscale(1)',tonal:'grayscale(1) contrast(1.28)',noir:'grayscale(1) contrast(1.8) brightness(.82)',
  fade:'saturate(.62) contrast(.86) brightness(1.09)',chrome:'saturate(1.5) contrast(1.08)',process:'saturate(1.35) sepia(.12) contrast(1.14)',transfer:'sepia(.25) saturate(.72) contrast(.98)',instant:'sepia(.30) saturate(.80) brightness(1.07)'
 };
-function editFor(id){return memory.edits[id]||{filter:'original',rotate:0,scale:1}}
+function editFor(id){return memory.edits[id]||{filter:'original',rotate:0,scale:1,light:1,color:1,contrast:1}}
+function effect(e){return (filters[e.filter]||'none')+' brightness('+(e.light||1)+') saturate('+(e.color||1)+') contrast('+(e.contrast||1)+')'}
 function applyViewerEdit(){
  const p=active();if(!p)return;
  const e=editFor(p.id);
- b.image.style.filter=filters[e.filter]||'none';
+ b.image.style.filter=effect(e);
  b.image.style.rotate=((e.rotate||0)%360)+'deg';
  b.image.style.scale=String(e.scale||1);
 }
 function openEditor(){
  const p=active();if(!p)return;
- const old=editFor(p.id),draft={filter:old.filter||'original',rotate:old.rotate||0,scale:old.scale||1};
+ const old=editFor(p.id),draft={filter:old.filter||'original',rotate:old.rotate||0,scale:old.scale||1,light:old.light||1,color:old.color||1,contrast:old.contrast||1};
  const buttons=Object.keys(filters).map(n=>'<button data-filter="'+n+'" class="'+(n===draft.filter?'selected':'')+'">'+({original:'Gốc',mono:'Mono',tonal:'Tonal',noir:'Noir',fade:'Fade',chrome:'Chrome',process:'Process',transfer:'Transfer',instant:'Instant'}[n])+'</button>').join('');
- const el=showModal('Sửa ảnh','<div class="photos-edit-preview"><img src="'+esc(p.src)+'" alt=""></div><div class="photos-edit-filters">'+buttons+'</div><div class="photos-edit-controls"><button data-rotate>↻ Xoay 90°</button><label>Phóng/cắt <input data-crop type="range" min="1" max="1.6" step=".05" value="'+draft.scale+'"></label></div><div class="photos-edit-footer"><button data-revert>Khôi phục</button><button data-save>Lưu</button></div>');
+ const el=showModal('Sửa ảnh','<div class="photos-edit-preview"><img src="'+esc(p.src)+'" alt=""></div><div class="photos-edit-filters">'+buttons+'</div><div class="photos-adjustments"><label>Ánh sáng<input data-adjust="light" type="range" min=".65" max="1.45" step=".05" value="'+draft.light+'"></label><label>Màu sắc<input data-adjust="color" type="range" min=".5" max="1.6" step=".05" value="'+draft.color+'"></label><label>Tương phản<input data-adjust="contrast" type="range" min=".7" max="1.5" step=".05" value="'+draft.contrast+'"></label></div><div class="photos-edit-controls"><button data-rotate>↻ Xoay 90°</button><label>Phóng/cắt <input data-crop type="range" min="1" max="1.6" step=".05" value="'+draft.scale+'"></label></div><div class="photos-edit-footer"><button data-revert>Khôi phục</button><button data-save>Lưu</button></div>');
  const img=el.querySelector('.photos-edit-preview img');
- function update(){img.style.filter=filters[draft.filter]||'none';img.style.transform='rotate('+draft.rotate+'deg) scale('+draft.scale+')';el.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('selected',x.dataset.filter===draft.filter));}
+ function update(){img.style.filter=effect(draft);img.style.transform='rotate('+draft.rotate+'deg) scale('+draft.scale+')';el.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('selected',x.dataset.filter===draft.filter));}
  el.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{draft.filter=btn.dataset.filter;update();}));
+ el.querySelectorAll('[data-adjust]').forEach(input=>input.addEventListener('input',()=>{draft[input.dataset.adjust]=Number(input.value);update();}));
  el.querySelector('[data-rotate]').addEventListener('click',()=>{draft.rotate=(draft.rotate+90)%360;update();});
  el.querySelector('[data-crop]').addEventListener('input',e=>{draft.scale=Number(e.target.value);update();});
- el.querySelector('[data-revert]').addEventListener('click',()=>{draft.filter='original';draft.rotate=0;draft.scale=1;el.querySelector('[data-crop]').value=1;update();});
+ el.querySelector('[data-revert]').addEventListener('click',()=>{draft.filter='original';draft.rotate=0;draft.scale=1;draft.light=1;draft.color=1;draft.contrast=1;el.querySelector('[data-crop]').value=1;el.querySelectorAll('[data-adjust]').forEach(x=>x.value=1);update();});
  el.querySelector('[data-save]').addEventListener('click',()=>{memory.edits[p.id]={...draft};persist();closeModal();applyViewerEdit();notice('Đã lưu chỉnh sửa ảnh.');});
  update();
 }
 async function getBlob(p){
  const res=await fetch(p.src,{cache:'force-cache'});if(!res.ok)throw Error('Không tải được ảnh.');
  const blob=await res.blob(),edit=editFor(p.id);
- if(((edit.rotate||0)%360===0)&&(edit.scale||1)===1&&(!edit.filter||edit.filter==='original'))return blob;
+ if(((edit.rotate||0)%360===0)&&(edit.scale||1)===1&&(!edit.filter||edit.filter==='original')&&(edit.light||1)===1&&(edit.color||1)===1&&(edit.contrast||1)===1)return blob;
  const url=URL.createObjectURL(blob),img=new Image();img.src=url;
  try{
   await img.decode();
   const radians=((edit.rotate||0)%360)*Math.PI/180,rotated=Math.abs(Math.round(Math.sin(radians)))===1;
   const width=rotated?img.naturalHeight:img.naturalWidth,height=rotated?img.naturalWidth:img.naturalHeight;
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
-  const context=canvas.getContext('2d');context.filter=filters[edit.filter]||'none';
+  const context=canvas.getContext('2d');context.filter=effect(edit);
   context.translate(width/2,height/2);context.rotate(radians);
   const z=Math.max(1,edit.scale||1),iw=img.naturalWidth,ih=img.naturalHeight;
   context.drawImage(img,(iw-iw/z)/2,(ih-ih/z)/2,iw/z,ih/z,-iw/2,-ih/2,iw,ih);
@@ -205,6 +207,8 @@ const albumRoot=albumList();
 if(albumRoot)new MutationObserver(syncAlbumRows).observe(albumRoot,{childList:true});
 app.addEventListener('click',event=>{
  const target=event.target;
+ const momentShare=target.closest('.photos-share-link');
+ if(momentShare){event.preventDefault();event.stopImmediatePropagation();const tile=momentShare.closest('.photos-moment')?.querySelector('[data-photo-id]');const p=tile&&byId(tile.dataset.photoId);if(p)openShare([p]);return;}
  const select=target.closest('#photosSelectBtn,#photosCollectionsView .photos-nav-btn.right,#photosYearsView .photos-nav-btn.right,#photosAlbumGridView .photos-nav-btn.right');
  if(select){event.preventDefault();event.stopImmediatePropagation();if(!selecting&&target.closest('#photosCollectionsView,#photosYearsView'))b.showView('moments',true);selectMode(!selecting);return;}
  const createAlbum=target.closest('#photosAlbumsView .photos-album-add');
