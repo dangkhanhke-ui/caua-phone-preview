@@ -1,0 +1,88 @@
+const {chromium,webkit}=require('playwright');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+fs.mkdirSync('qa-artifacts/safari-ios8',{recursive:true});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function run(engine,name){
+ const browser=await engine.launch({headless:true});
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+ const page=await context.newPage();const errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ const ev=(fn,...args)=>page.evaluate(fn,...args);
+ const click=selector=>ev(sel=>{const n=document.querySelector(sel);if(!n)throw Error('Missing '+sel);n.click()},selector);
+ try{
+  await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:120000});
+  await ev(()=>{document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+   document.getElementById('homeScreen').classList.add('active');
+   document.querySelector('[data-app="safari"]').click()});
+  await page.waitForSelector('#safariApp.open');
+  assert((await ev(()=>document.getElementById('safariAddress').value)).includes('ufrj.br'),'2015 initial tabs');
+  await click('#safariTabsBtn');
+  await page.waitForSelector('#safariTabs .safari-tab-card');
+  const tabs=await page.locator('#safariTabs .safari-tab-card').count();
+  assert(tabs>=6,'Initial six pre-opened tabs');
+  await click('#safariPrivateToggle');
+  assert(await page.locator('#safariApp.safari-private-mode').count()===1,'Private mode');
+  await click('#safariTabsDone');
+  await ev(()=>{const i=document.getElementById('safariAddress');i.value='hush-secret-private-term';
+   i.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}))});
+  const persisted=await ev(()=>JSON.stringify(localStorage.getItem('caua.safari.ios8.tabs.v2')||'')+
+   JSON.stringify(localStorage.getItem('caua.safari.ios8.visits.v2')||''));
+  assert(!persisted.includes('hush-secret-private-term'),'Private mode must not leak history');
+  await click('#safariTabsBtn');await click('#safariPrivateToggle');
+  assert(await page.locator('#safariApp.safari-private-mode').count()===0,'Restore normal mode');
+  assert(await page.locator('#safariTabs .safari-tab-card').count()===tabs,'Normal tabs retained');
+  await click('#safariTabsDone');
+  await ev(()=>{const i=document.getElementById('safariAddress');
+   i.value='santateresahoje.com.br/cidade/vertice-recuperacao-henrique';
+   i.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}))});
+  assert(await page.locator('#safariReaderButton:not([hidden])').count()===1,'Article reader enabled');
+  await click('#safariReaderButton');
+  assert(await page.locator('#safariPage.safari-reader-mode').count()===1,'Reader on');
+  await click('#safariReaderButton');
+  await click('#safariShare');
+  await click('[data-saf-action="Thêm dấu trang"]');await click('#safariAlertOk');
+  await click('#safariShare');await click('[data-saf-action="Thêm vào Danh sách đọc"]');
+  await click('#safariAlertOk');
+  const saved=await ev(()=>JSON.parse(localStorage.getItem('caua.safari.phase2.saved.v1')));
+  assert(saved.bookmarks.length && saved.reading.length,'Save bookmarks and reading list');
+  await click('#safariBookmarks');
+  assert(await page.locator('[data-user-book]').count()>=1,'Saved bookmark appears');
+  await click('[data-seg="reading"]');
+  assert(await page.locator('[data-user-reading]').count()>=1,'Saved reading appears');
+  await click('[data-saved-mark="0"]');
+  assert(await ev(()=>JSON.parse(localStorage.getItem('caua.safari.phase2.saved.v1')).reading[0].read),'Mark as read');
+  await click('[data-book-done]');
+  await ev(()=>{const i=document.getElementById('safariAddress');i.focus();i.value='Henrique';
+   i.dispatchEvent(new Event('input',{bubbles:true}))});
+  await sleep(80);
+  assert(await page.locator('#safariSmartSuggestions [data-smart-index]').count()>0,'Smart suggestions');
+  const finding=await ev(()=>[...document.querySelectorAll('#safariSmartSuggestions [data-smart-index]')]
+   .some(e=>e.textContent.includes('Trên trang này')));
+  assert(finding,'On-page search suggestion');
+  await ev(()=>[...document.querySelectorAll('#safariSmartSuggestions [data-smart-index]')]
+   .find(e=>e.textContent.includes('Trên trang này')).click());
+  assert(await page.locator('#safariFindPanel.show').count()===1,'Find toolbar');
+  assert(await page.locator('#safariPage mark.safari-find-hit').count()>0,'Highlighted search results');
+  await click('[data-find-next]');await click('[data-find-done]');
+  await click('#safariBookmarks');await click('[data-book-history]');await click('[data-history-clear]');
+  assert(await page.locator('[data-confirm-yes]').count()===1,'History clear confirmation');
+  await click('[data-confirm-yes]');
+  assert(await ev(()=>JSON.parse(localStorage.getItem('caua.safari.ios8.visits.v2')).cleared),'History clear persisted');
+  assert(await page.locator('#safariPage .safari-history-entry').count()===0,'History cleared UI');
+  await click('[data-history-back]');await click('[data-book-done]');
+  await ev(()=>window.dispatchEvent(new CustomEvent('caua:safari-open-url',{detail:{url:'https://subsolo.com.br'}})));
+  assert((await ev(()=>document.getElementById('safariAddress').value)).includes('subsolo.com.br'),'Cross-app URL handoff');
+  await click('#safariShare');await click('[data-saf-action="Thêm vào Màn hình chính"]');
+  await ev(()=>{document.getElementById('safariClipName').value='Subsolo Clip'});
+  await click('[data-clip-save]');
+  assert(await page.locator('#iconGrid [data-safari-clip]').count()>=1,'Home screen web clip');
+  const pageText=await ev(()=>document.getElementById('safariPage').textContent);
+  assert(!pageText.includes('2024')&&!pageText.includes('2026'),'Historical dates remain 2015');
+  await page.screenshot({path:'qa-artifacts/safari-ios8/'+name+'.png'});
+  assert.deepEqual(errors,[],'Uncaught browser errors: '+errors.join('; '));
+  console.log('PASS '+name+' tabs='+tabs+' reading='+saved.reading.length);
+ }finally{await context.close();await browser.close()}
+}
+(async()=>{await run(chromium,'chromium');await run(webkit,'webkit');
+ console.log('Safari iOS 8 QA passed')})().catch(err=>{console.error(err.stack||err);process.exitCode=1});
