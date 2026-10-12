@@ -247,3 +247,12 @@
 #whatsappApp .wa-message-row.in .caua-safari-link{color:#1675c6}
 #messagesApp .msg-line.outgoing .caua-safari-link,
 #whatsappApp .wa-message-row.out .caua-safari-link{color:inherit}
+
+/* Hotfix: iOS 8 Safari bookmark header must never overlap its controls. */
+.safari-app .safari-header .safari-titlebar{display:grid!important;grid-template-columns:65px minmax(0,1fr) 65px!important;align-items:center!important;min-height:44px!important;position:relative!important;padding:0 8px!important;box-sizing:border-box!important}
+.safari-app .safari-header .safari-titlebar>div{grid-column:2!important;grid-row:1!important;min-width:0!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;position:static!important;transform:none!important;font-size:17px!important;font-weight:600!important}
+.safari-app .safari-header .safari-titlebar>.left{grid-column:1!important;grid-row:1!important;justify-self:start!important;position:static!important;transform:none!important;max-width:65px!important;font-size:15px!important;padding:0!important}
+.safari-app .safari-header .safari-titlebar>.right{grid-column:3!important;grid-row:1!important;justify-self:end!important;position:static!important;transform:none!important;max-width:65px!important;font-size:15px!important;padding:0!important}
+.safari-app .safari-alert:not(.show){display:none!important}
+.safari-app .safari-alert.show{display:flex!important;flex-direction:column!important;justify-content:center!important;min-height:110px!important}
+.safari-app .safari-alert.show .msg{display:block!important;visibility:visible!important;opacity:1!important;min-height:24px!important;color:#202025!important;text-align:center!important;padding:15px!important;font-size:14px!important}
