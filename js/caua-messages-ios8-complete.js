@@ -95,7 +95,7 @@ function composeFailed(t,text,attachment){
 function sendCurrent(){
  const t=currentThread();
  if(!t)return;
- if(composeFailed(t,replyInput.value,mediaDraft)){replyInput.value='';clearMedia();updateSendButton();}
+ if(composeFailed(t,replyInput.value,mediaDraft)){replyInput.value='';clearMedia();try{sessionStorage.removeItem('caua-message-draft-'+t.id);}catch(_){}updateSendButton();resizeComposer(replyInput);}
 }
 function sendNew(){
  const to=recipientInput.value.trim(),text=newText.value.trim();
@@ -392,6 +392,26 @@ function micButton(btn){sheet('Tin nhắn âm thanh (iOS 8)',[{label:'Ghi âm',r
 function installMic(btn){btn.addEventListener('click',e=>{if(btn.classList.contains('send')||btn.textContent.trim()==='Gửi')return;e.preventDefault();micButton(btn);});}
 installMic(b.sendBtn);
 const newSend=document.getElementById('messagesNewSend');installMic(newSend);
+/* The 2015 composer grows with multiline input, keeping the conversation visible. */
+function resizeComposer(field){
+ if(!field||!field.isConnected)return;
+ const holder=field.closest('.msg-composer');if(!holder)return;
+ field.style.height='23px';
+ const height=Math.max(25,Math.min(91,field.scrollHeight||25));
+ field.style.height=height+'px';
+ const composerHeight=Math.max(44,Math.min(110,height+15));
+ holder.style.height=composerHeight+'px';
+ if(field===replyInput&&!b.convoScroll.classList.contains('no-composer'))b.convoScroll.style.bottom=composerHeight+'px';
+ if(field===newText){const empty=newView.querySelector('.msg-new-empty');if(empty)empty.style.bottom=composerHeight+'px';}
+}
+function afterRender(t){
+ if(t.automated)b.convoScroll.style.bottom='0px';
+ else resizeComposer(replyInput);
+ if(!t.automated&&mediaDraft)renderMediaPreview(b.convoView);
+}
+function afterNew(){resizeComposer(newText);}
+replyInput.addEventListener('input',()=>resizeComposer(replyInput));
+newText.addEventListener('input',()=>resizeComposer(newText));
 replyInput.addEventListener('input',()=>{const t=currentThread();if(t){const id=t.id;try{sessionStorage.setItem('caua-message-draft-'+id,replyInput.value);}catch(_){}}});
 /* Restore drafts after original renderer has updated the composer. */
 const originalOpen=b.openThread;
@@ -402,6 +422,6 @@ new MutationObserver(()=>{
  }
 }).observe(b.convoView,{attributes:true,attributeFilter:['class']});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&recorder)stopVoice(true);});
-window.CauaMessagesLocal={sendCurrent,sendNew,markRead,markUnread,hideThread,toggleEditing,decorateDetails,camera,get pending(){return store.outgoing.length},get editing(){return editing}};
+window.CauaMessagesLocal={sendCurrent,sendNew,markRead,markUnread,hideThread,toggleEditing,decorateDetails,camera,afterRender,afterNew,get pending(){return store.outgoing.length},get editing(){return editing}};
 renderList(false);
 })();
