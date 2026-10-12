@@ -22,6 +22,7 @@ for(const entry of store.outgoing||[]){
  let t=threads.find(x=>x.id===entry.threadId);
  if(!t){t={id:entry.threadId,listName:entry.name||entry.to||'Không rõ',displayName:entry.name||entry.to||'Không rõ',number:entry.to||'',saved:false,transport:'SMS',preview:'',messages:[],localCreated:true};threads.push(t);}
  if(!t.messages.some(m=>m._localKey===entry.message._localKey))t.messages.push({...entry.message});
+ t.preview=(entry.message.attachment?'Tệp đính kèm':entry.message.body||'Tin nhắn')+' · Chưa gửi';
  t.localHidden=false;
 }
 const hiddenSet=new Set(store.hidden),muteSet=new Set(store.muted),selection=new Set(),deletedOnce=new Set();
@@ -100,8 +101,13 @@ function sendNew(){
  if(!to){showToast('Hãy nhập người nhận.');return;}
  if(!text&&!mediaDraft&&!newView.querySelector('.caua-share-preview'))return;
  const recipients=to.split(/[,;]/).map(x=>x.trim()).filter(Boolean);
- if(recipients.length>1){showToast('Không thể gửi nhóm khi iPhone mô phỏng không kết nối mạng.');return;}
- let t=resolveRecipient(to);
+ let t=recipients.length===1?resolveRecipient(to):null;
+ if(recipients.length>1){
+  const members=recipients.map(name=>resolveRecipient(name)?.listName||name);
+  const id='local-group-'+recipients.map(identity).sort().join('-').slice(0,120);
+  t=threads.find(x=>x.id===id)||{id,listName:members.join(', '),displayName:members.join(', '),number:to,saved:false,transport:'SMS',messages:[],preview:'',groupRecipients:members,localCreated:true};
+  if(!threads.includes(t))threads.push(t);
+ }
  if(!t){
   const id='local-to-'+identity(to).slice(0,60);
   t=threads.find(x=>x.id===id)||{id,listName:to,displayName:to,number:to,saved:false,transport:'SMS',messages:[],preview:'',localCreated:true};
@@ -152,8 +158,8 @@ function optionMessage(index){
  if(m.status==='failed'){
   actions.push({label:'Thử gửi lại',run:()=>showAlert('Chưa gửi được','Không có kết nối SMS/iMessage trong bản mô phỏng.')});
   actions.push({label:'Chỉnh sửa bản nháp',run:()=>{
-   replyInput.value=m.body||'';mediaDraft=m.attachment||null;renderMediaPreview(b.convoView);
-   deleteMessage(t,m);updateSendButton();replyInput.focus();
+   deleteMessage(t,m);replyInput.value=m.body||'';mediaDraft=m.attachment||null;renderMediaPreview(b.convoView);
+   updateSendButton();replyInput.focus();
   }});
  }
  actions.push({label:'Xóa tin nhắn',danger:true,run:()=>sheet('Xóa tin nhắn?',[
