@@ -147,6 +147,7 @@
 <link rel="stylesheet" href="./css/vh-four-app-launch-splash.css?v=20261011-icon-gradients1">
 <link rel="stylesheet" id="caua-seamless-status-app" href="./css/caua-seamless-app-statusbar.css?v=20261011-seamless1">
 <link rel="stylesheet" href="./css/facebook-mothers-day-2014.css?v=20261011-visible-photo2">
+<link rel="stylesheet" href="./css/caua-photos-voice-ios8-complete.css?v=20261012-feature1">
 </head>
 <body>
   <main class="stage" aria-label="iPhone 5 iOS 8">
@@ -2423,7 +2424,7 @@
   }
     function renderAlbums(){
     const f=PHOTOS.filter(p=>state.favorites.has(p.id));
-    albumList.innerHTML=`<div class="photos-album-row" data-album="camera"><div class="photos-album-cover"><img src="${PHOTOS[PHOTOS.length-1].src}" alt="" loading="lazy" decoding="async"></div><div><div class="photos-album-name">Cuộn Camera</div><div class="photos-album-count">${PHOTOS.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="favorites"><div class="photos-album-cover">${f[0]?`<img src="${f[0].src}" alt="" loading="lazy" decoding="async">`:''}</div><div><div class="photos-album-name">Mục ưa thích</div><div class="photos-album-count">${f.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="deleted"><div class="photos-album-cover"></div><div><div class="photos-album-name">Đã xóa gần đây</div><div class="photos-album-count">0</div></div><div class="photos-chevron">›</div></div>`;
+    albumList.innerHTML=`<div class="photos-album-row" data-album="camera"><div class="photos-album-cover"><img src="${PHOTOS.length?PHOTOS[PHOTOS.length-1].src:''}" alt="" loading="lazy" decoding="async"></div><div><div class="photos-album-name">Cuộn Camera</div><div class="photos-album-count">${PHOTOS.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="favorites"><div class="photos-album-cover">${f[0]?`<img src="${f[0].src}" alt="" loading="lazy" decoding="async">`:''}</div><div><div class="photos-album-name">Mục ưa thích</div><div class="photos-album-count">${f.length}</div></div><div class="photos-chevron">›</div></div><div class="photos-album-row" data-album="deleted"><div class="photos-album-cover"></div><div><div class="photos-album-name">Đã xóa gần đây</div><div class="photos-album-count">${window.CauaPhotosLocal?.deletedCount||0}</div></div><div class="photos-chevron">›</div></div>`;
     albumList.querySelectorAll('[data-album]').forEach(r=>r.addEventListener('click',()=>openAlbum(r.dataset.album)));
   }
   function openAlbum(which){
@@ -2713,7 +2714,7 @@
   sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.classList.remove('open')});
   function showAlert(msg){alertText.textContent=msg;alertBox.classList.add('open')}
   document.getElementById('photosAlertOk').addEventListener('click',()=>alertBox.classList.remove('open'));
-  document.getElementById('photosSelectBtn').addEventListener('click',()=>showAlert('Không thể chọn nhiều ảnh lúc này.'));
+  window.CauaPhotosBridge={app,photos:PHOTOS,originals:PHOTOS.slice(),state,viewer,image:viewerImg,stage,renderAll,renderViewer,showView,openAlbum,closeViewer:()=>document.getElementById('photosViewerBack').click()};
 
   renderAll();
 })();
@@ -2740,12 +2741,7 @@
   function closeOtherApps(){['photosApp','phoneApp','notesApp','messagesApp','calendarApp','safariApp','mailApp','itauApp','itauBizApp','facebookApp'].forEach(id=>document.getElementById(id)?.classList.remove('open'));['photos-open','phone-open','notes-open','messages-open','calendar-open','safari-open','mail-open','itau-open','itau-biz-open','facebook-open'].forEach(c=>screen.classList.remove(c));}
   function openApp(){closeOtherApps();teardownAudio(true);currentId=null;detail.classList.remove('open');detail.innerHTML='';app.classList.add('open');screen.classList.add('voice-open');renderList();}
   launcher.addEventListener('click',openApp);
-  app.querySelector('.voice-record-btn')?.addEventListener('click',()=>{
-    let tip=app.querySelector('.voice-offline-notice');
-    if(!tip){tip=document.createElement('div');tip.className='voice-offline-notice';tip.setAttribute('role','status');tip.style.cssText='position:absolute;z-index:25;left:10%;right:10%;top:35%;padding:15px 12px;border-radius:12px;background:rgba(25,25,28,.9);color:#fff;text-align:center;font:14px -apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 5px 20px #0004';app.querySelector('.voice-shell')?.appendChild(tip);}
-    tip.textContent='Không có kết nối. Không thể ghi âm mới.';
-    tip.hidden=false;clearTimeout(tip._timer);tip._timer=setTimeout(()=>{tip.hidden=true},2400);
-  });
+  app.querySelector('.voice-record-btn')?.addEventListener('click',()=>window.CauaVoiceRecording?.toggle());
   document.addEventListener('click',e=>{const l=e.target.closest('[data-app]');if(l&&l.dataset.app!=='voice'&&app.classList.contains('open')){teardownAudio(false);app.classList.remove('open');screen.classList.remove('voice-open')}},true);
   function memoById(id){return MEMOS.find(m=>m.id===id)}
   function renderList(){
@@ -2809,6 +2805,7 @@
     if(!force&&Number(container._voiceManualUntil||0)>performance.now())return;
     const cRect=container.getBoundingClientRect(),eRect=el.getBoundingClientRect();const relativeTop=container.scrollTop+(eRect.top-cRect.top);const rawTarget=relativeTop-(container.clientHeight-eRect.height)/2;const maxScroll=Math.max(0,container.scrollHeight-container.clientHeight);const target=Math.max(0,Math.min(maxScroll,rawTarget));container.scrollTo({top:target,behavior:force?'auto':'smooth'});
   }
+  window.CauaVoiceBridge={app,memos:MEMOS,detail,renderList,openMemo,closeDetail,currentId:()=>currentId};
   renderList();
 
 })();
@@ -3786,5 +3783,7 @@ img.src=options[0];
 
 <script src="./assets/whatsapp/wa-ios8-2015.js?v=20261011-live-camera1"></script>
 <script src="./js/vh-three-app-launch-splash.js?v=20261011-resume2"></script>
+<script src="./js/caua-photos-ios8-complete.js?v=20261012-feature1"></script>
+<script src="./js/caua-voice-ios8-complete.js?v=20261012-feature1"></script>
 </body>
 </html>
