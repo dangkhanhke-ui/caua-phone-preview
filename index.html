@@ -151,25 +151,21 @@
 <link rel="stylesheet" href="./css/caua-messages-ios8-complete.css?v=20261013-messages3">
 <link rel="stylesheet" href="./css/caua-safari-ios8-complete.css?v=20261013-safari1">
 <style id="caua-home-notification-badge-no-outline">
-/* iPhone home-screen app notification counts: solid red, no white ring. */
-#homeScreen .app .icon::before,
-#homeScreen .app .icon::after,
-#homeScreen .app::before,
-#homeScreen .app::after,
-#homeScreen .app [class*="badge"],
-#homeScreen .app [class*="Badge"],
-#homeScreen .app [class*="notif"],
-#homeScreen .app [class*="Notif"],
-#homeScreen .app [class*="unread-count"] {
-  border-color: transparent !important;
-  outline: none !important;
-}
-#homeScreen .app [class*="badge"],
-#homeScreen .app [class*="Badge"],
-#homeScreen .app [class*="notif"],
-#homeScreen .app [class*="Notif"],
-#homeScreen .app [class*="unread-count"] {
-  box-shadow: none !important;
+/* Home-screen Messages counter: remove white ring on any badge host/pseudo. */
+#homeScreen .messages-launch,
+#homeScreen .messages-launch .icon { overflow:visible !important; }
+#homeScreen .messages-launch::before,
+#homeScreen .messages-launch::after,
+#homeScreen .messages-launch .icon::before,
+#homeScreen .messages-launch .icon::after,
+#homeScreen .messages-launch .icon > :not(img),
+#homeScreen .messages-launch > :not(.icon):not(span),
+#homeScreen .messages-launch [class*="badge"],
+#homeScreen .messages-launch [class*="count"],
+#homeScreen .messages-launch [class*="notif"] {
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
 }
 </style>
 </head>
